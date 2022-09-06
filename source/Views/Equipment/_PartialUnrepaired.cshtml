@@ -1,0 +1,31 @@
+﻿@model MOD4.Web.ViewModel.EquipmentViewModel
+
+
+<table id="example1" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th class="myth1">@Html.DisplayNameFor(model => model.UnrepairedEqList.First().MFGDay)</th>
+            <th class="myth1">@Html.DisplayNameFor(model => model.UnrepairedEqList.First().ToolId)</th>
+            <th class="myth1">@Html.DisplayNameFor(model => model.UnrepairedEqList.First().ToolStatus)</th>
+            <th class="myth1">@Html.DisplayNameFor(model => model.UnrepairedEqList.First().StatusCdsc)</th>
+            <th class="myth1">@Html.DisplayNameFor(model => model.UnrepairedEqList.First().Comment)</th>
+            <th class="myth1">@Html.DisplayNameFor(model => model.UnrepairedEqList.First().LmTime)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (var eqinfo in Model.UnrepairedEqList)
+            {
+                <tr>
+                    <td style="width:10%">@eqinfo.MFGDay</td>
+                    <td>@eqinfo.ToolId</td>
+                    <td style="width:5%">@eqinfo.ToolStatus</td>
+                    <td style="width:25%">@eqinfo.StatusCdsc</td>
+                    <td style="width:30%">@eqinfo.Comment</td>
+                    <td>@eqinfo.LmTime</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+

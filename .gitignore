@@ -1,0 +1,13 @@
+
+*.suo
+*.pdb
+*.dll
+*.cache
+*.log
+*.txt
+#*.xml
+source/.vs/SpareManagement/v16/.suo
+*.v2
+source/.vs/
+source/bin/
+source/obj/

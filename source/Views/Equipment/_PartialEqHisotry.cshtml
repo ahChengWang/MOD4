@@ -1,0 +1,63 @@
+﻿@model MOD4.Web.ViewModel.EquipmentViewModel
+
+
+<table id="example2" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th class="myth2">@Html.DisplayNameFor(model => model.RepairedEqInfoList.First().MFGDay)</th>
+            <th class="myth2">@Html.DisplayNameFor(model => model.RepairedEqInfoList.First().ToolId)</th>
+            <th class="myth2">@Html.DisplayNameFor(model => model.RepairedEqInfoList.First().ToolStatus)</th>
+            <th class="myth2">@Html.DisplayNameFor(model => model.RepairedEqInfoList.First().StatusCdsc)</th>
+            <th class="myth2">@Html.DisplayNameFor(model => model.RepairedEqInfoList.First().Comment)</th>
+            <th class="myth2">@Html.DisplayNameFor(model => model.RepairedEqInfoList.First().LmTime)</th>
+            <th class="myth2">@Html.DisplayNameFor(model => model.RepairedEqInfoList.First().RepairedTime)</th>
+            <th class="myth2">@Html.DisplayNameFor(model => model.RepairedEqInfoList.First().UserId)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (var eqinfo in Model.RepairedEqInfoList)
+            {
+                <tr>
+                    <td style="width:10%">@eqinfo.MFGDay</td>
+                    <td style="width:8%">@eqinfo.ToolId</td>
+                    <td style="width:5%">@eqinfo.ToolStatus</td>
+                    <td style="width:15%">@eqinfo.StatusCdsc</td>
+                    <td style="width:25%">@eqinfo.Comment</td>
+                    <td style="width:10%">@eqinfo.LmTime</td>
+                    <td style="width:8%">@eqinfo.RepairedTime</td>
+                    <td style="width:8%">@eqinfo.UserId</td>    
+                    <td style="width:10%">
+                        @{
+                            if (eqinfo.IsPMProcess)
+                            {
+                                <button class="btn btn-sm btn-secondary" onclick="editClick(@eqinfo.sn,1,0,this)" style="position:relative">
+                                    <img class="eqimg" src="~/img/icons/pencil-2-128.gif" />
+                                    <span>PM</span>
+                                </button>
+                                @*<a class="btn btn-secondary" style="width:50px;height:15px;font-size:8px;" onclick="editClick(@eqinfo.sn,1,0,this)"><img class="eqimg" src="~/img/icons/pencil-2-128.gif" />PM</a>*@
+                                @*<input class="btn-sm btn-outline-primary" type="button" disabled value="工程師" />*@
+                            }
+                            else if (eqinfo.IsEngineerProcess)
+                            {
+                                <button class="btn btn-sm btn-primary" onclick="editClick(@eqinfo.sn,0,1,this)" style="position:relative">
+                                    <img class="eqimg" src="~/img/icons/pencil-2-128.gif" />
+                                    <span style="font-size:5px">工程師</span>
+                                </button>
+                                @*<input class="btn-sm btn-outline-secondary" type="button" disabled name="" value="PM" />*@
+                                @*<a class="btn btn-primary" onclick="editClick(@eqinfo.sn,0,1,this)"><img class="eqimg" src="~/img/icons/pencil-2-128.gif" />工程師</a>*@
+                            }
+                            else
+                            {
+                                <a class="btn btn-sm" data-toggle="modal" style="font-size:15px" data-target="#detailModal" onclick="detailClick(@eqinfo.sn,this)"><i class="fa fa-search">明細</i></a>
+                                @*<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#detailModal" ></button>*@
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+

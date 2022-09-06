@@ -1,0 +1,139 @@
+﻿@model MOD4.Web.ViewModel.LineViewModel
+
+@{
+    ViewBag.Title = "線體設備設定";
+}
+
+<style>
+    .card-title {
+        font-size: 30px;
+        font-weight: 900;
+    }
+
+    table {
+        box-shadow: 2px 2px 2px #999;
+    }
+
+    .card {
+        box-shadow: 2px 2px 2px #999;
+        background-color: #c3cadb;
+    }
+    .eqimg {
+        width: 12px;
+        height: 12px;
+        margin-top: -2px;
+        /*margin-left: -3px;*/
+    }
+</style>
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">線體設定</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <div id="barDiv2" class="col-12" style="margin-bottom:5px;display:flex">
+                                <div class="col-3" style="margin-right: 5px;">
+                                    <label>線體：</label>
+                                    <select class="my-select" id="selTool" multiple="multiple">
+                                        @{
+                                            foreach (var item in ViewData["Line"] as List<string>)
+                                            {
+                                                <option value="@item">@item</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-1">
+                                    <input id="btnSearch" type="button" class="btn btn-info" style="margin-left:7px" name="name" value="查詢" />
+                                </div>
+                                <div class="col-8">
+                                    <input id="btnAdd" type="button" class="btn btn-danger" data-toggle="modal" data-target="#addModal" style="margin-left:7px;float:right" onclick="addClick(this)" value="新增" />
+                                    @*<a class="btn btn-sm" data-toggle="modal" style="font-size:15px" data-target="#addModal" onclick="addClick(this)"><i class="fa fa-table">新增</i></a>*@
+                                </div>
+                            </div>
+                            <partial name="_PartialTable" model="Model" />
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- /.card -->
+                    <!-- Modal -->
+                    <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+                        
+                    </div>
+                </div>
+                <!-- /.col -->
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+</div>
+
+<script type="text/javascript">
+
+    $(function () {
+        $('#example1').DataTable({
+            //"responsive": true,
+            //"lengthChange": true,
+            //"autoWidth": false,
+            //"paging": true,
+            //"searching": false,
+            //"ordering": true,
+            //"info": true,
+            "responsive": true,
+            "lengthChange": false,
+            "autoWidth": false,
+            "buttons": ["excel", "colvis"]
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+        $("#selLoc, #selTool, #selStatus").multiselect({
+            enableClickableOptGroups: true
+        });
+
+    });
+
+    function addClick(e) {
+        $.ajax({
+            url: "Create",
+            type: 'GET',
+            dataType: 'html',
+            success: function (result) {
+                if (isJsonString(result)) {
+                    var _res = JSON.parse(result);
+                    alert(_res.msg);
+                    dismissModal();
+                    return false;
+                }
+                else {
+                    $('body').addClass('modal-open');
+                    var ele = $('body').find('.modal-backdrop');
+                    if (ele.length == 0) {
+                        $('body').append('<div class="modal-backdrop fade show"></div>');
+                    }
+                    $('#addModal').html(result);
+                    $('#addModal').addClass('show');
+                    $('#addModal').css('display', 'block');
+                }
+            }
+        });
+    }
+
+    function dismissModal() {
+        $('body').removeClass('modal-open');
+        $('#addModal').removeClass('show');
+        $('#addModal').css('display', 'none');
+        $('.modal-backdrop').remove();
+        $('.modal-dialog').remove();
+    }
+
+</script>

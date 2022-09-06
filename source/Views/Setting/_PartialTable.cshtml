@@ -1,0 +1,43 @@
+﻿@model MOD4.Web.ViewModel.LineViewModel
+
+
+<table id="example1" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.LineDetailList.First().Operation)</th>
+            <th>@Html.DisplayNameFor(model => model.LineDetailList.First().Station)</th>
+            <th>@Html.DisplayNameFor(model => model.LineDetailList.First().Line)</th>
+            <th>@Html.DisplayNameFor(model => model.LineDetailList.First().ToolId)</th>
+            <th>@Html.DisplayNameFor(model => model.LineDetailList.First().TargetLine)</th>
+            <th>@Html.DisplayNameFor(model => model.LineDetailList.First().Area)</th>
+            <th>@Html.DisplayNameFor(model => model.LineDetailList.First().EnableImport)</th>
+            <th>@Html.DisplayNameFor(model => model.LineDetailList.First().EnableDashboard)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (var line in Model.LineDetailList)
+            {
+                <tr>
+                    <td style="width:10%">@line.Operation</td>
+                    <td style="width:8%">@line.Station</td>
+                    <td style="width:5%">@line.Line</td>
+                    <td style="width:12%">@line.ToolId</td>
+                    <td style="width:12%">@line.TargetLine</td>
+                    <td style="width:10%">@line.Area</td>
+                    <td style="width:10%">@line.EnableImport</td>
+                    <td style="width:10%">@line.EnableDashboard</td>
+                    <td style="width:5%">
+                        @{
+                            <button class="btn btn-sm btn-secondary" onclick="editClick(@line.sn)" style="position:relative">
+                                <img class="eqimg" src="~/img/icons/pencil-2-128.gif" />
+                            </button>
+                        }
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+

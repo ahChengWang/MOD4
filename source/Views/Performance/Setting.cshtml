@@ -1,0 +1,421 @@
+﻿@model MOD4.Web.ViewModel.TargetSettingViewModel
+@using System.Linq;
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewBag.Title = "TT設定";
+}
+
+<style>
+    .tab-pane label {
+        margin: 5px;
+    }
+
+    .tab-pane input {
+        width: 60px;
+        margin: 5px;
+        text-align: right;
+    }
+
+    .myControlA {
+    }
+
+    input[type='number'] {
+        display: block;
+        height: calc(2.25rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        box-shadow: inset 0 0 0 transparent;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+</style>
+
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <h3>TT 分時設定</h3>
+                </div>
+            </div>
+            <div class="card card-info card-tabs">
+                <div class="card-header p-0 pt-0">
+                    <ul class="nav nav-tabs" id="custom-tabs-one-tab" style="background-color: #3c7da6 ">
+
+                        @{
+                            foreach (var node in (ViewData["NodeTab"] as List<string>))
+                            {
+                                var _href = "#node" + node;
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="tab" href="@_href">@node</a>
+                                </li>
+                            }
+                        }
+                        @*<li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#node1415">1415</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#node1420">1420</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#node1460">1460</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#node1600">1600</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#node1700">1700</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#node1720">1720</a>
+                        </li>*@
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+
+                        @{
+                            foreach (var setting in Model.SettingDetailList)
+                            {
+
+                                var _tabId = "node" + @setting.Node;
+                                var _formId = "form" + @setting.Node;
+                                var _sumId = "sumTT" + @setting.Node;
+                                var _inputNameId = "input" + @setting.Node;
+                                var _classA = "A" + @setting.Node;
+                                var _classB = "B" + @setting.Node;
+
+                                <div class="tab-pane" id="@_tabId">
+                                    <form id="@_formId">
+                                        <input type="hidden" asp-for="@setting.Node" />
+                                        <h4>日班：</h4>
+                                        <p id="A@_sumId"></p>
+                                        <div style="display: flex; border-bottom: 2px solid lightgray;">
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time0730"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classA" name="Time0730@_inputNameId" type="number" min="0" asp-for="@setting.Time0730" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time0830"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classA" name="Time0830@_inputNameId" type="number" min="0" asp-for="@setting.Time0830" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time0830"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classA" name="Time0930@_inputNameId" type="number" min="0" asp-for="@setting.Time0930" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time1030"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classA" name="Time1030@_inputNameId" type="number" min="0" asp-for="@setting.Time1030" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time1130"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classA" name="Time1130@_inputNameId" type="number" min="0" asp-for="@setting.Time1130" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time1230"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classA" name="Time1230@_inputNameId" type="number" min="0" asp-for="@setting.Time1230" />
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; border-bottom: 2px solid lightgray;">
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time1330"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classA" name="Time1330@_inputNameId" type="number" min="0" asp-for="@setting.Time1330" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time1430"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classA" name="Time1430@_inputNameId" type="number" min="0" asp-for="@setting.Time1430" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time1530"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classA" name="Time1530@_inputNameId" type="number" min="0" asp-for="@setting.Time1530" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time1630"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classA" name="Time1630@_inputNameId" type="number" min="0" asp-for="@setting.Time1630" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time1730"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classA" name="Time1730@_inputNameId" type="number" min="0" asp-for="@setting.Time1730" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time1830"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classA" name="Time1830@_inputNameId" type="number" min="0" asp-for="@setting.Time1830" />
+                                            </div>
+                                        </div>
+                                        <hr />
+                                        <h4>夜班：</h4>
+                                        <p id="B@_sumId"></p>
+                                        <div style="display: flex; border-bottom: 2px solid lightgray;">
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time1930"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classB" name="Time1930@_inputNameId" type="number" min="0" asp-for="@setting.Time1930" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time2030"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classB" name="Time2030@_inputNameId" type="number" min="0" asp-for="@setting.Time2030" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time2130"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classB" name="Time2130@_inputNameId" type="number" min="0" asp-for="@setting.Time2130" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time2230"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classB" name="Time2230@_inputNameId" type="number" min="0" asp-for="@setting.Time2230" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time2330"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classB" name="Time2330@_inputNameId" type="number" min="0" asp-for="@setting.Time2330" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time0030"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classB" name="Time0030@_inputNameId" type="number" min="0" asp-for="@setting.Time0030" />
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; border-bottom: 2px solid lightgray;">
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time0130"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classB" name="Time0130@_inputNameId" type="number" min="0" asp-for="@setting.Time0130" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time0230"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classB" name="Time0230@_inputNameId" type="number" min="0" asp-for="@setting.Time0230" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time0330"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classB" name="Time0330@_inputNameId" type="number" min="0" asp-for="@setting.Time0330" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time0430"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classB" name="Time0430@_inputNameId" type="number" min="0" asp-for="@setting.Time0430" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time0530"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classB" name="Time0530@_inputNameId" type="number" min="0" asp-for="@setting.Time0530" />
+                                            </div>
+                                            <div>
+                                                <label class="col-form-label" asp-for="@setting.Time0630"></label>
+                                            </div>
+                                            <div style="border-right: 2px solid lightgray;">
+                                                <input class="@_classB" name="Time0630@_inputNameId" type="number" min="0" asp-for="@setting.Time0630" />
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+                <!-- /.card -->
+            </div>
+            <div style="display: flex;">
+                <div>
+                    <input id="btnEdit" type="button" name="edit" class="btn btn-danger" style="text-align:center" value="編輯" onclick="editClick()" />
+                </div>
+                <div style="margin-left:5px">
+                    <input id="btnSave" type="button" name="submit" class="btn btn-outline-primary" style="text-align:center" value="儲存" onclick="saveClick()" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(
+        function setDefault() {
+            $("input[type='number']").attr('disabled', true).css('background-color', '#e9ecef');
+            $("input[name='submit']").attr('disabled', true).addClass("btn-outline-primary");
+
+            var _formIdList = "@string.Join(",", Model.SettingDetailList.Select(s => s.Node))";
+            _formIdList.split(',').forEach(function (node)
+            {
+                var sumTT = 0;
+                $("input[class='A" + node + "']").each(function (idx, td) {
+                    sumTT += parseInt(td.value);
+                });
+                $("#AsumTT" + node).html("合計 " + sumTT.toString());
+                sumTT = 0;
+                $("input[class='B" + node + "']").each(function (idx, td) {
+                    sumTT += parseInt(td.value);
+                });
+                $("#BsumTT" + node).html("合計 " + sumTT.toString());
+            });
+
+            $(".card-header a").first().addClass("active");
+            $(".tab-pane").first().addClass("active");
+
+        }
+    );
+
+    function editClick(e) {
+        $("input[type='number']").removeAttr('disabled').css('background-color', 'white');
+        $("input[name='edit']").attr('disabled', true).removeClass("btn-danger").addClass("btn-outline-danger");
+        $("input[name='submit']").removeAttr('disabled').removeClass("btn-outline-primary").addClass("btn-primary");
+    }
+
+    function saveClick(e) {
+
+        var _formIdList = "@string.Join(",", Model.SettingDetailList.Select(s => s.Node))";
+
+        var inputArray = [];
+
+        _formIdList.split(',').forEach(function (form) {
+            //if ($("#form" + form).valid()) {
+            //    inputArray.push(objectifyForm($("#form" + form).serializeArray()))
+            //}
+            inputArray.push(objectifyForm($("#form" + form).serializeArray()))
+        });
+
+        $.blockUI({
+            message: '請稍等',
+            css: {
+                border: 'none',
+                padding: '5px',
+                backgroundColor: '#000',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: '.5',
+                color: '#fff',
+                fontSize: '25px',
+                fontFamily: '微軟正黑體',
+                fontWeight: 300,
+            }
+        });
+        $.ajax({
+            url: "/Performance/Setting",
+            type: "POST",
+            dataType: 'json',
+            data: { settingDetailList: inputArray },
+            success: function (result) {
+                if (result == '') {
+                    alert('success.');
+                }
+                else {
+                    alert(result);
+                }
+
+                //if (isJsonString(result)) {
+                //    var _res = JSON.parse(result);
+                //    if (result == '""') {
+                //        alert(result);
+                //    }
+                //    if ('isException' in _res) {
+                //        $("#performance").remove();
+                //        alert(_res.msg);
+                //        return false;
+                //    }
+                //}
+                //else {
+                //    alert('success.');
+                //}
+            }
+        });
+
+        $("input[type='number']").attr('disabled', true).css('background-color', '#e9ecef');
+        $("input[name='edit']").removeAttr('disabled').removeClass("btn-outline-danger").addClass("btn-danger");
+        $("input[name='submit']").attr('disabled', true).removeClass("btn-primary").addClass("btn-outline-primary");
+        $.unblockUI();
+    }
+
+    //$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+    //    $(".form-control").attr('disabled', true);
+    //    $("input[name='edit']").removeAttr('disabled').removeClass("btn-outline-danger").addClass("btn-danger");
+    //    $("input[name='submit']").attr('disabled', true).removeClass("btn-primary").addClass("btn-outline-danger");
+    //});
+
+    function objectifyForm(formArray) {
+        //serialize data function
+        var returnArray = {};
+        for (var i = 0; i < formArray.length; i++) {
+            returnArray[formArray[i]['name'].substring(0,8)] = formArray[i]['value'];
+        }
+        returnArray['Node'] = formArray[0]['value'];
+        return returnArray;
+    }
+
+    $("input").change(function (e) {
+        var sumTT = 0;
+        var _subClassName = e.currentTarget.className.substring(0, 5);
+        $("input[class*=" + _subClassName + "]").each(function (idx, td) {
+            if (td.value == '') {
+                td.value = "0";
+                sumTT += 0;
+            }
+            else {
+                sumTT += parseInt(td.value);
+            }
+        });
+        //$("input[class='" + _subClassName + " valid']").each(function (idx, td) {
+        //    if (td.value == '') {
+        //        td.value = "0";
+        //        sumTT += 0;
+        //    }
+        //    else {
+        //        sumTT += parseInt(td.value);
+        //    }
+        //});
+        //$("input[class='" + _subClassName + " input-validation-error']").each(function (idx, td) {
+        //    if (td.value == '') {
+        //        td.value = "0";
+        //        sumTT += 0;
+        //    }
+        //    else {
+        //        sumTT += parseInt(td.value);
+        //    }
+        //});
+
+        $("#" + e.currentTarget.className.substring(0, 1) + "sumTT" + e.currentTarget.className.substring(1 ,5)).html("合計 " + sumTT.toString());
+    });
+</script>

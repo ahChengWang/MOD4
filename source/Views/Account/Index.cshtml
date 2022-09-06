@@ -1,0 +1,124 @@
+﻿@model MOD4.Web.ViewModel.LoginViewModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>系統登錄</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/plugins/fontawesome-free/css/fontawesome.min.css">
+    <link rel="stylesheet" href="~/css/adminlte.css">
+    <link rel="stylesheet" href="~/lib/iCheck/skins/square/blue.min.css">
+</head>
+<body class="hold-transition login-page">
+    <!-- /.login-box -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/lib/iCheck/icheck.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <!-- include BlockUI -->
+    <script src="~/lib/jquery-blockUI/dist/jquery.blockUI.js"></script>
+    <script>
+        $(function () {
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue',
+                increaseArea: '20%' // optional
+            });
+        });
+    </script>
+    <div class="login-box">
+        <div class="login-logo">
+            <a href="http://fonour.cnblogs.com" target="_blank"><b>MOD4</b></a>
+        </div>
+        <!-- /.login-logo -->
+        <div class="login-box-body">
+            <p class="login-box-msg"></p>
+            <form id="form">
+                <div class="form-group has-feedback">
+                    <span asp-validation-for="Account" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                    <input asp-for="Account" type="text" class="form-control" placeholder="帳號">
+                    <span class="glyphicon glyphicon-user form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
+                    <span asp-validation-for="Password" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                    <input asp-for="Password" type="password" class="form-control" placeholder="密碼">
+                    <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                </div>
+                <div>
+                    <div class="col-xs-8" style="float:left;">
+                        <div class="checkbox icheck">
+                            <input type="checkbox" asp-for="RememberMe">
+                            <label asp-for="RememberMe"></label>
+                        </div>
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-xs-4" style="float:right;">
+                        @*<button type="submit" id="login" class="btn btn-primary btn-block btn-flat">登錄</button>*@
+                        <input type="button" id="login" class="btn btn-primary btn-block btn-flat" value="登錄" />
+                    </div>
+                    <!-- /.col -->
+                </div>
+            </form>
+        </div>
+        <!-- /.login-box-body -->
+    </div>
+</body>
+</html>
+
+<script type="text/javascript">
+
+    let myFuc = {
+        login() {
+            if ($("#form").valid()) {
+                $.blockUI({
+                    message: '登錄中...',
+                    css: {
+                        border: 'none',
+                        padding: '5px',
+                        backgroundColor: '#000',
+                        '-webkit-border-radius': '10px',
+                        '-moz-border-radius': '10px',
+                        opacity: '.5',
+                        color: '#fff',
+                        fontSize: '25px',
+                        fontFamily:'微軟正黑體',
+                        fontWeight: 300,
+                    }
+                });
+                $.ajax({
+                    type: "POST",
+                    url: "/Account/Login",
+                    dataType: 'json',
+                    data: $("#form").serialize(),
+                    success: function (result) {
+                        if (result != '') {
+                            alert(result);
+                        }
+                        else {
+                            alert('登錄成功');
+                            location.href = "/Home/Index";
+                        }
+                    }
+                });
+            }
+            $.unblockUI();
+        }
+    }
+
+    $(document).on('keypress', function (e) {
+        if (e.which == 13) {
+            myFuc.login()
+        }
+    });
+
+    $('#login').click(function (e) {
+        myFuc.login()
+    });
+</script>

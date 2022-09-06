@@ -1,0 +1,156 @@
+﻿@model MOD4.Web.ViewModel.EquipmentEditViewModel
+
+<style>
+    .col-md-10 {
+        margin-top: 15px;
+    }
+
+    .modal-dialog {
+        box-shadow: 1px 2px 2px 2px #999;
+    }
+
+    .modal-header {
+        background-color: #3c7da6;
+    }
+
+    .modal-body {
+        background-color: lightgrey;
+    }
+
+    .modal-title {
+        font-size: 20px;
+        color: white;
+        font-weight: 700;
+    }
+
+    .unit {
+        position: absolute;
+        bottom: 0px;
+        right: 10px;
+        font-weight: 700;
+    }
+</style>
+
+
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">機況記錄</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismissModal()">
+                <span aria-hidden="true" style="color:white">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="card-body">
+                    <div class="row" style="display: flex;">
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="StartTime"></label>
+                        </div>
+                        <div class="col-3">
+                            <label class="col-form-label">@Model.StartTime</label>
+                        </div>
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="ToolId"></label>
+                        </div>
+                        <div class="col-2">
+                            <label class="col-form-label">@Model.ToolId</label>
+                        </div>
+                    </div>
+
+                    <div class="row" style="display: flex;">
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="Code"></label>
+                        </div>
+                        <div class="col-3">
+                            <label class="col-form-label">@Model.Code</label>
+                        </div>
+                        <div class="col-3">
+                            <label class="col-form-label" asp-for="Codedesc"></label>
+                        </div>
+                        <div class="col-3">
+                            <label class="col-form-label">@Model.Codedesc</label>
+                        </div>
+                    </div>
+                    <div class="row" style="display: flex; margin-top: 10px; ">
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="Comment"></label>
+                        </div>
+                        <div class="col-8">
+                            <textarea class="form-control pmEdit" disabled asp-for="Comment" id="Comment" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="row" style="display: flex; margin-top: 10px;">
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="Shift"></label>
+                        </div>
+                        <div class="col-2">
+                            <input class="form-control pmEdit" disabled type="text" asp-for="Shift" />
+                        </div>
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="EqUnit"></label>
+                        </div>
+                        <div class="col-2">
+                            <input class="form-control pmEdit" disabled type="text" asp-for="EqUnit" />
+                        </div>
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="DefectQty"></label>
+                        </div>
+                        <div class="col-2">
+                            <input class="form-control pmEdit" disabled style="text-align:right" type="number" min="0" asp-for="DefectQty" />
+                        </div>
+                    </div>
+                    <div class="row" style="display: flex;margin-top:10px;">
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="DefectRate"></label>
+                        </div>
+                        <div class="col-2">
+                            <div>
+                                <input class="form-control pmEdit" disabled type="text" min="0" max="100" maxlength="8" placeholder="ex:95.1234" asp-for="DefectRate" />
+                                <span class="unit">%</span>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="MntUser"></label>
+                        </div>
+                        <div class="col-2">
+                            <input class="form-control pmEdit" disabled type="text" asp-for="MntUser" />
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="MntMinutes"></label>
+                        </div>
+                        <div class="col-8">
+                            <textarea class="form-control pmEdit" disabled asp-for="MntMinutes" id="Comment" rows="3" cols="75"></textarea>
+                        </div>
+                        <br />
+                    </div>
+
+                    <div class="row" style="display: flex;margin-top:10px;">
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="Engineer"></label>
+                        </div>
+                        <div class="col-2">
+                            <input class="form-control" disabled type="text" asp-for="Engineer" />
+                        </div>
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="Category"></label>
+                        </div>
+                        <div class="col-2">
+                            <input class="form-control" disabled type="text" asp-for="Category" />
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="Memo"></label>
+                        </div>
+                        <div class="col-6">
+                            <textarea class="form-control" disabled asp-for="Memo" rows="3" cols="75"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

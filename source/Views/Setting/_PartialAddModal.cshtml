@@ -1,0 +1,101 @@
+﻿@model MOD4.Web.ViewModel.LineDetailModel
+
+<style>
+    .modal-dialog {
+        box-shadow: 1px 2px 2px 2px #999;
+    }
+
+    .modal-header {
+        background-color: #3c7da6;
+    }
+
+    .modal-body {
+        background-color: lightgrey;
+    }
+
+    .modal-title {
+        font-size: 20px;
+        color: white;
+        font-weight: 500;
+    }
+
+</style>
+
+
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">新增 Line mapping</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismissModal()">
+                <span aria-hidden="true" style="color:white">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="card-body">
+                    <div class="form-group" style="display: flex;">
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="Operation"></label>
+                        </div>
+                        <div class="col-3">
+                            <input class="form-control" type="text" asp-for="Operation" value="" />
+                        </div>
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="Station"></label>
+                        </div>
+                        <div class="col-3">
+                            <input class="form-control" type="text" asp-for="Station" value="" />
+                        </div>
+                    </div>
+                    <div class="form-group" style="display: flex;">
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="Line"></label>
+                        </div>
+                        <div class="col-3">
+                            <input class="form-control" type="text" asp-for="Line" value="" />
+                        </div>
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="ToolId"></label>
+                        </div>
+                        <div class="col-3">
+                            <input class="form-control" type="text" asp-for="ToolId" value="" />
+                        </div>
+                    </div>
+                    <div class="form-group" style="display: flex;">
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="TargetLine"></label>
+                        </div>
+                        <div class="col-3">
+                            <input class="form-control" type="text" asp-for="TargetLine" value="" />
+                        </div>
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="Area"></label>
+                        </div>
+                        <div class="col-3">
+                            <input class="form-control" type="text" asp-for="Area" value="" />
+                        </div>
+                    </div>
+                    <div class="form-group" style="display: flex;">
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="EnableImport"></label>
+                        </div>
+                        <div class="col-3">
+                            <input class="form-control-sm" type="checkbox" asp-for="EnableImport" value="" />
+                        </div>
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="EnableDashboard"></label>
+                        </div>
+                        <div class="col-3">
+                            <input class="form-control-sm" type="checkbox" asp-for="EnableDashboard" value="" />
+                        </div>
+                    </div>
+                    <div class="form-group" style="display: flex;">
+                        <div class="col-3">
+                            <input class="fa-save" type="button" value="儲存" />
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
