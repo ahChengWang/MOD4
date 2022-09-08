@@ -1,15 +1,11 @@
-﻿using Helper;
-using MOD4.Web.DomainService.Entity;
+﻿using MOD4.Web.DomainService.Entity;
+using MOD4.Web.Helper;
 using MOD4.Web.Repostory;
 using MOD4.Web.Repostory.Dao;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Transactions;
-using System.Xml.Linq;
 
 namespace MOD4.Web.DomainService
 {
@@ -143,7 +139,7 @@ namespace MOD4.Web.DomainService
             }
         }
 
-        public EquipmentEditEntity GetEditEqpinfo(int sn)
+        public EquipmentEditEntity GetEditEqpinfo(int sn, UserEntity userEntity = null)
         {
             try
             {
@@ -153,6 +149,9 @@ namespace MOD4.Web.DomainService
                 {
                     return null;
                 }
+
+                if (userEntity != null)
+                    CatchHelper.Set($"Eq_Edit:{sn}", userEntity.Account, 600);
 
                 return new EquipmentEditEntity
                 {
@@ -181,12 +180,45 @@ namespace MOD4.Web.DomainService
             }
         }
 
+
+
+
+
+        public string VerifyEqpStatus(int sn, int isPM, int isEng, UserEntity userEntity)
+        {
+            try
+            {
+                var _catchInfo = CatchHelper.Get($"Eq_Edit:{sn}");
+
+                if (_catchInfo != null && _catchInfo != userEntity.Account)
+                {
+                    return $"{_catchInfo} 編輯機況中";
+                }
+
+                if ((isPM != 0 && isPM != 1 && isEng != 0 && isEng != 1) || (isPM == isEng))
+                    return "參數異常";
+
+                var _eqpinfo = _eqpInfoRepository.SelectEqpinfoByConditions(sn);
+
+                if (isPM == 1 && !string.IsNullOrEmpty(_eqpinfo.mnt_user))
+                    return "機況已更新";
+                else if (isEng == 1 && !string.IsNullOrEmpty(_eqpinfo.engineer))
+                    return "機況已更新";
+
+                return "";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public List<EquipmentEntity> GetEntityHistoryDetail(string mfgDay, List<string> eqpListStr)
         {
             try
             {
                 var _eqpHisList = _eqpInfoRepository.SelectByConditions(mfgDay, eqpListStr, false);
-                
+
                 return (_eqpHisList.Select(s =>
                 {
                     return new EquipmentEntity
@@ -211,7 +243,8 @@ namespace MOD4.Web.DomainService
         {
             try
             {
-                var oldEqpinfo = GetEditEqpinfo(editEntity.sn);
+                var _updateResponse = "";
+                var oldEqpinfo = _eqpInfoRepository.SelectEqpinfoByConditions(editEntity.sn);
 
                 if (oldEqpinfo == null)
                 {
@@ -236,12 +269,12 @@ namespace MOD4.Web.DomainService
                 if (editEntity.IsEngineerProcess == 1)
                 {
                     _updEqpinfo.Comments = oldEqpinfo.Comments;
-                    _updEqpinfo.shift = oldEqpinfo.Shift;
-                    _updEqpinfo.eq_unit = oldEqpinfo.EqUnit;
-                    _updEqpinfo.defect_qty = oldEqpinfo.DefectQty;
-                    _updEqpinfo.defect_rate = oldEqpinfo.DefectRate;
-                    _updEqpinfo.mnt_user = oldEqpinfo.MntUser;
-                    _updEqpinfo.mnt_minutes = oldEqpinfo.MntMinutes;
+                    _updEqpinfo.shift = oldEqpinfo.shift;
+                    _updEqpinfo.eq_unit = oldEqpinfo.eq_unit;
+                    _updEqpinfo.defect_qty = oldEqpinfo.defect_qty;
+                    _updEqpinfo.defect_rate = oldEqpinfo.defect_rate;
+                    _updEqpinfo.mnt_user = oldEqpinfo.mnt_user;
+                    _updEqpinfo.mnt_minutes = oldEqpinfo.mnt_minutes;
                     _updEqpinfo.category = 1;
                     _updEqpinfo.engineer = editEntity.Engineer;
                     _updEqpinfo.memo = editEntity.Memo;
@@ -254,11 +287,16 @@ namespace MOD4.Web.DomainService
                     _uprdResult = _eqpInfoRepository.UpdateEqpinfo(_updEqpinfo) == 2; //含觸發自動更新 updateTime trigger
 
                     if (_uprdResult)
+                    {
+                        CatchHelper.Delete(new string[] { $"Eq_Edit:{editEntity.sn}" });
                         scope.Complete();
+                    }
+                    else
+                        _updateResponse = "更新失敗";
 
                 }
 
-                return "";
+                return _updateResponse;
             }
             catch (Exception ex)
             {

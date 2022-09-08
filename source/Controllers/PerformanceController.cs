@@ -3,15 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MOD4.Web.DomainService;
 using MOD4.Web.DomainService.Entity;
+using MOD4.Web.Helper;
 using MOD4.Web.Models;
 using MOD4.Web.ViewModel;
-using SpareManagement.Helper;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading.Tasks;
 
 namespace MOD4.Web.Controllers
 {

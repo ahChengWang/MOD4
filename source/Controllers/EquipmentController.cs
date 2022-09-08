@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MOD4.Web.DomainService;
 using MOD4.Web.DomainService.Entity;
+using MOD4.Web.Helper;
 using MOD4.Web.Models;
 using MOD4.Web.ViewModel;
 using System;
@@ -12,11 +14,13 @@ using System.Linq;
 namespace MOD4.Web.Controllers
 {
     [Authorize]
-    public class EquipmentController : Controller
+    public class EquipmentController : BaseController
     {
         private readonly IEquipmentDomainService _equipmentDomainService;
 
-        public EquipmentController(IEquipmentDomainService equipmentDomainService)
+        public EquipmentController(IEquipmentDomainService equipmentDomainService,
+            IHttpContextAccessor httpContextAccessor)
+            : base(httpContextAccessor)
         {
             _equipmentDomainService = equipmentDomainService;
         }
@@ -171,7 +175,7 @@ namespace MOD4.Web.Controllers
 
                 SelectList _eqpSelect = new SelectList(_eqpOptions, "EquipmentId", "EquipmentDesc");
 
-                var _res = _equipmentDomainService.GetEditEqpinfo(sn);
+                var _res = _equipmentDomainService.GetEditEqpinfo(sn, GetUserInfo());
 
                 return View(new EquipmentEditViewModel
                 {
@@ -325,5 +329,45 @@ namespace MOD4.Web.Controllers
                 return Json(new { IsException = true, msg = $"錯誤：{ex.Message}" });
             }
         }
+
+
+        [HttpGet]
+        public IActionResult VerifyEqStatus([FromQuery] int eqsn, int isPM, int isEng)
+        {
+            try
+            {
+
+                string _verifyRes = _equipmentDomainService.VerifyEqpStatus(eqsn, isPM, isEng, GetUserInfo());
+
+                if (_verifyRes != "")
+                {
+                    return Json(_verifyRes);
+                }
+
+                return Json("");
+            }
+            catch (Exception ex)
+            {
+                return Json(new { IsException = true, msg = $"錯誤：{ex.Message}" });
+            }
+        }
+
+
+
+        public IActionResult Dashboard()
+        {
+            try
+            {
+                //DateTime dt = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
+                
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
     }
 }

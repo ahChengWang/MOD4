@@ -1,16 +1,11 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using MOD4.Web.DomainService;
+using MOD4.Web.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
-using System;
-using MOD4.Web.ViewModel;
-using MOD4.Web.DomainService;
-using Microsoft.AspNetCore.Authorization;
-using SpareManagement.Helper;
-using System.Linq;
-using MOD4.Web.Utility;
-using Newtonsoft.Json.Linq;
 
 namespace MOD4.Web.Controllers
 {
@@ -36,7 +31,7 @@ namespace MOD4.Web.Controllers
             var _result = _accountDomainService.GetAccountInfo(loginViewMode.Account, loginViewMode.Password);
 
             if (_result != null)
-            {                
+            {
                 var claims = new List<Claim>()
                 {
                     new Claim(ClaimTypes.NameIdentifier, Convert.ToString(_result.Account)),

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 
-namespace Helper
+namespace MOD4.Web
 {
     public static class EnumHelper
     {
-        public static string GetDescription(this Enum value)
+        public static string GetDescription(this System.Enum value)
         {
             FieldInfo fieldInfo = value.GetType().GetField(value.ToString());
 
@@ -20,7 +20,7 @@ namespace Helper
         public static List<T> GetEnumValue<T>() where T : struct
         {
             List<T> tValues = new List<T>();
-            foreach (T tValue in Enum.GetValues(typeof(T)))
+            foreach (T tValue in System.Enum.GetValues(typeof(T)))
             {
                 tValues.Add(tValue);
             }
@@ -31,7 +31,7 @@ namespace Helper
         {
             Type tType = typeof(T);
             List<T> tValues = new List<T>();
-            foreach (T tValue in Enum.GetValues(tType))
+            foreach (T tValue in System.Enum.GetValues(tType))
             {
                 MemberInfo tMemberInfo = tType.GetMember(tValue.ToString())[0];
                 if (Attribute.IsDefined(tMemberInfo, attributeType))

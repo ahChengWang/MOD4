@@ -5,11 +5,11 @@ using System.Linq;
 
 namespace MOD4.Web.DomainService
 {
-    public class MenuDomainService : IMenuDomainService
+    public class BaseDomainService
     {
         private readonly IMenuRepository _menuRepository;
 
-        public MenuDomainService(IMenuRepository menuRepository)
+        public BaseDomainService(IMenuRepository menuRepository)
         {
             _menuRepository = menuRepository;
         }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SpareManagement.Helper
+namespace MOD4.Web.Helper
 {
     public static class ConvertHelper
     {

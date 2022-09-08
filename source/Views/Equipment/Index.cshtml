@@ -162,7 +162,7 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body">
-                            <div id="barDiv2" class="row" style="margin-bottom:5px">
+                            <div class="row" style="margin-bottom:5px">
                                 <div style="margin-right:5px;">
                                     <label>日期：</label>
                                     <input id="srcHisDate" class="my-control" type="date" name="name" value="" />
@@ -190,6 +190,20 @@
                                     <input id="btnSearchHis" type="button" class="btn btn-info" style="margin-left:7px" name="name" value="查詢" />
                                 </div>
                             </div>
+                            <div id="barDiv2" class="row" style="display:flex;">
+                                <div>
+                                    <label class="col-form-label">本日：</label>
+                                </div>
+                                <div class="info-box" style="min-height: 50%; background-color: #6c757d; color: white; width: 14%; margin-right: 5px;">
+                                    <i class="fas fa-pen-alt"></i>
+                                    <i id="pmttl">待 PM 確認 (0)</i>
+                                </div>
+                                <div class="info-box" style="min-height:50%;margin-left:5px;background-color:#007bff;color:white;width:16% ">
+                                    <i class="fas fa-pen-alt"></i>
+                                    <i id="engttl">待工程師確認 (0)</i>
+                                </div>
+                            </div>
+
                             <partial name="_PartialEqHisotry" model="Model" />
                             @*<table id="example2" class="table table-bordered table-hover">
                                     <thead>
@@ -266,11 +280,11 @@
                         $("#example1_wrapper").remove();
                         $("#barDiv1").after(result);
                         $('#example1').DataTable({
-                            "responsive": true,
-                            "lengthChange": false,
-                            "autoWidth": false,
-                            "order": [[5, "asc"]],
-                            "buttons": ["excel", "colvis"]
+                            "responsive": true
+                            , "lengthChange": false
+                            , "autoWidth": false
+                            , "order": [[5, "asc"]]
+                            , "buttons": ["excel", "colvis"]
                         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
                     }
                 }
@@ -281,6 +295,21 @@
                 url: "Equipment/SearchRepairedEqHistory?date=" + $("#srcHisDate").val() + "&toolIdList=" + $("#selTool").val() + "&statusIdList=" + $("#selStatus").val(),
                 type: "GET",
                 dataType: 'html',
+                //beforeSend: function () {
+                //    var _bfAjax = $.ajax({
+                //        url: "Equipment/CheckUser?eqsn=2",
+                //        type: "GET",
+                //        async: false,
+                //        dataType: 'json',
+                //        success: function (chkResponse) {
+                //            return chkResponse;
+                //        }
+                //    });
+                //    if (_bfAjax["responseJSON"] != "") {
+                //        alert(_bfAjax["responseJSON"]);
+                //        return false
+                //    }
+                //},
                 success: function (result) {
                     if (isJsonString(result)) {
                         var _res = JSON.parse(result);
@@ -296,11 +325,11 @@
                         $("#example2_wrapper").remove();
                         $("#barDiv2").after(result);
                         $('#example2').DataTable({
-                            "responsive": true,
-                            "lengthChange": false,
-                            "autoWidth": false,
-                            "order": [[5, "asc"]],
-                            "buttons": ["excel", "colvis"]
+                            "responsive": false
+                            , "lengthChange": true
+                            , "autoWidth": false
+                            , "order": [[5, "asc"]]
+                            /*,"buttons": ["excel", "colvis"]*/
                         }).buttons().container().appendTo('#example2_wrapper .col-md-6:eq(0)');
                     }
                 }
@@ -325,17 +354,23 @@
             "buttons": ["excel", "colvis"]
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
 
+        var _forPMcnt = $('button[name=PM]').length
+        var _forEngcnt = $('button[name=Eng]').length
+        $('#pmttl').html("待 PM 確認 (" + _forPMcnt + ")");
+        $('#engttl').html("待工程師確認 (" + _forEngcnt + ")");
+
         $("#example2").DataTable({
-            "responsive": true,
-            "lengthChange": false,
-            "autoWidth": false,
-            "order": [[5, "asc"]],
-            "buttons": ["excel", "colvis"]
+            "responsive": false
+            , "lengthChange": true
+            , "autoWidth": false
+            , "order": [[5, "asc"]]
+            /*,"buttons": ["excel", "colvis"]*/
         }).buttons().container().appendTo('#example2_wrapper .col-md-6:eq(0)');
 
         $("#selLoc, #selTool, #selStatus").multiselect({
             enableClickableOptGroups: true
         });
+
 
     });
 
@@ -345,7 +380,20 @@
 
 
     function editClick(id, isPM, isEng, e) {
-        location.href = "Equipment/Edit?sn=" + id + "&isPM=" + isPM + "&isEng=" + isEng + "&searchVal=" + $("#srcHisDate").val() + ";" + $("#selTool").val() + ";" + $("#selStatus").val();
+        $.ajax({
+            url: "Equipment/VerifyEqStatus?eqsn=" + id + "&isPM=" + isPM + "&isEng=" + isEng,
+            type: "GET",
+            async: false,
+            dataType: 'json',
+            success: function (chkResponse) {
+                if (chkResponse == "") {
+                    location.href = "Equipment/Edit?sn=" + id + "&isPM=" + isPM + "&isEng=" + isEng + "&searchVal=" + $("#srcHisDate").val() + ";" + $("#selTool").val() + ";" + $("#selStatus").val();
+                }
+                else {
+                    alert(chkResponse);
+                }
+            }
+        });
     }
 
     function detailClick(id, e) {

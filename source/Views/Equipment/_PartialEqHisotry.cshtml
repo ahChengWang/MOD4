@@ -32,7 +32,7 @@
                         @{
                             if (eqinfo.IsPMProcess)
                             {
-                                <button class="btn btn-sm btn-secondary" onclick="editClick(@eqinfo.sn,1,0,this)" style="position:relative">
+                                <button name="PM" class="btn btn-sm btn-secondary" onclick="editClick(@eqinfo.sn,1,0,this)" style="position:relative">
                                     <img class="eqimg" src="~/img/icons/pencil-2-128.gif" />
                                     <span>PM</span>
                                 </button>
@@ -41,7 +41,7 @@
                             }
                             else if (eqinfo.IsEngineerProcess)
                             {
-                                <button class="btn btn-sm btn-primary" onclick="editClick(@eqinfo.sn,0,1,this)" style="position:relative">
+                                <button name="Eng" class="btn btn-sm btn-primary" onclick="editClick(@eqinfo.sn,0,1,this)" style="position:relative">
                                     <img class="eqimg" src="~/img/icons/pencil-2-128.gif" />
                                     <span style="font-size:5px">工程師</span>
                                 </button>

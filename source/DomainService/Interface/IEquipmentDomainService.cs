@@ -13,7 +13,9 @@ namespace MOD4.Web.DomainService
 
         List<EquipmentEntity> GetRepairedEqList(string date = null, string toolId = null, string statusIdList = null);
 
-        EquipmentEditEntity GetEditEqpinfo(int sn);
+        EquipmentEditEntity GetEditEqpinfo(int sn, UserEntity userEntity = null);
+
+        string VerifyEqpStatus(int sn, int isPM, int isEng, UserEntity userEntity);
 
         List<EquipmentEntity> GetEntityHistoryDetail(string mfgDay, List<string> eqpListStr);
 

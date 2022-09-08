@@ -1,6 +1,4 @@
-﻿
-using Helper;
-using MOD4.Web.Repostory.Dao;
+﻿using MOD4.Web.Repostory.Dao;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -33,7 +31,8 @@ namespace MOD4.Web.Repostory
                 sql += " and tool_id in @tool_id ";
             }
 
-            var dao = _dbHelper.ExecuteQuery<AlarmXmlDao>(sql, new {
+            var dao = _dbHelper.ExecuteQuery<AlarmXmlDao>(sql, new
+            {
                 MFG_Day = date,
                 tool_id = toolIdList
             });

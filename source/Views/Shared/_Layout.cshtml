@@ -31,6 +31,10 @@
     <link rel="stylesheet" href="~/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
     <link rel="stylesheet" href="~/lib/bootstrap-multiselect/css/bootstrap-multiselect.min.css">
     <style>
+        .wrapper {
+            background-color: #c3cadb;
+        }
+
         aside:first-of-type a span {
             color: dodgerblue;
             text-shadow: 0 0 2px #fff;
@@ -79,14 +83,14 @@
         $.widget.bridge('uibutton', $.ui.button)
         </script>*@
     <!-- ChartJS -->
-    <script src="~/plugins/chart.js/Chart.min.js"></script>
+    @*<script src="~/plugins/chart.js/Chart.min.js"></script>*@
     <!-- Sparkline -->
     <script src="~/plugins/sparklines/sparkline.js"></script>
     <!-- JQVMap -->
     <script src="~/plugins/jqvmap/jquery.vmap.min.js"></script>
     <script src="~/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
     <!-- jQuery Knob Chart -->
-    <script src="~/plugins/jquery-knob/jquery.knob.min.js"></script>
+    @*<script src="~/plugins/jquery-knob/jquery.knob.min.js"></script>*@
     <!-- daterangepicker -->
     <script src="~/plugins/moment/moment.min.js"></script>
     <script src="~/plugins/daterangepicker/daterangepicker.js"></script>
@@ -116,6 +120,7 @@
     <script src="~/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
     <script src="~/lib/bootstrap-multiselect/js/bootstrap-multiselect.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <!-- include BlockUI -->
     <script src="~/lib/jquery-blockUI/dist/jquery.blockUI.js"></script>
@@ -289,7 +294,7 @@
         </footer>*@
 
 
-<script type="text/javascript">
+    <script type="text/javascript">
         $(document).ready(function () {
             //$("a[class='nav-link active']").removeClass('active').removeAttr('aria-current');
             $("a[name='nava']").removeClass('active').removeAttr('aria-current');
@@ -309,6 +314,6 @@
             }
         }
 
-</script>
+    </script>
 </body>
 </html>

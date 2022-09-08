@@ -173,6 +173,14 @@
     {
       "library": "bootstrap-multiselect@1.1.1",
       "destination": "wwwroot/lib/bootstrap-multiselect/"
+    },
+    {
+      "library": "echarts@5.3.3",
+      "destination": "wwwroot/lib/echarts/",
+      "files": [
+        "echarts.min.js",
+        "echarts.js"
+      ]
     }
   ]
 }

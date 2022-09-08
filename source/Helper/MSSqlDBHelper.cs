@@ -6,7 +6,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 
-namespace Helper
+namespace MOD4.Web.Helper
 {
     public class MSSqlDBHelper
     {
