@@ -72,32 +72,49 @@ namespace MOD4.Web.Repostory
         }
 
 
-        public int UpdateEqpinfo(EqpInfoDao updDao)
+        public int UpdateEqpinfoByPM(EqpInfoDao updDao)
         {
-            string sql = "update eqpinfo set " +
-                "Comments = @Comments ," +
-                "shift = @shift ," +
-                "eq_unit = @eq_unit ," +
-                "defect_qty = @defect_qty ," +
-                "defect_rate = @defect_rate ," +
-                "mnt_user = @mnt_user ," +
-                "mnt_minutes = @mnt_minutes ," +
-                "category = @category ," +
-                "engineer = @engineer ," +
-                "memo = @memo " +
-                "where sn = @sn ";
+            string sql = @"update eqpinfo set 
+                Comments = @Comments ,
+                shift = @shift ,
+                processId = @processId ,
+                eq_unitId = @eq_unitId ,
+                eq_unit_partId = @eq_unit_partId ,
+                defect_qty = @defect_qty ,
+                defect_rate = @defect_rate ,
+                mnt_user = @mnt_user ,
+                mnt_minutes = @mnt_minutes 
+                where sn = @sn ";
 
             var response = _dbHelper.ExecuteNonQuery(sql, new
             {
                 sn = updDao.sn,
                 Comments = updDao.Comments,
                 shift = updDao.shift,
-                eq_unit = updDao.eq_unit,
+                processId = updDao.processId,
+                eq_unitId = updDao.eq_unitId,
+                eq_unit_partId = updDao.eq_unit_partId,
                 defect_qty = updDao.defect_qty,
                 defect_rate = updDao.defect_rate,
                 mnt_user = updDao.mnt_user,
-                mnt_minutes = updDao.mnt_minutes,
-                category = updDao.category,
+                mnt_minutes = updDao.mnt_minutes
+            });
+
+            return response;
+        }
+
+        public int UpdateEqpinfoByENG(EqpInfoDao updDao)
+        {
+            string sql = @"update eqpinfo set 
+                priority = @priority ,
+                engineer = @engineer ,
+                memo = @memo 
+                where sn = @sn ";
+
+            var response = _dbHelper.ExecuteNonQuery(sql, new
+            {
+                sn = updDao.sn,
+                priority = updDao.priorityId,
                 engineer = updDao.engineer,
                 memo = updDao.memo
             });

@@ -4,6 +4,7 @@ namespace MOD4.Web.DomainService.Entity
 {
     public class PerformanceDetailEntity
     {
+        public int NodeNo { get; set; }
         public string Prod { get; set; }
         public DateTime Time { get; set; }
         public string Equipment { get; set; }

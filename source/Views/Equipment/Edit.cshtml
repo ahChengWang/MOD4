@@ -40,6 +40,10 @@
         right: 10px;
         font-weight: 700;
     }
+
+    label[name="underline"] {
+        text-decoration: underline;
+    }
 </style>
 
 <div class="content-wrapper">
@@ -74,54 +78,86 @@
                         <!-- form start -->
                         <form id="quickForm" action="Edit" method="post">
                             <div class="card-body">
-                                <div class="form-group">
+                                <div class="row">
                                     <label class="col-form-label col-2" asp-for="StartTime"></label>
-                                    <label class="col-form-label col-5">@Model.StartTime</label>
-                                </div>
-                                <div class="form-group">
+                                    <label class="col-form-label col-4" name="underline">@Model.StartTime</label>
                                     <label class="col-form-label col-2" asp-for="ToolId"></label>
-                                    <label class="col-form-label col-5">@Model.ToolId</label>
+                                    <label class="col-form-label col-4" name="underline">@Model.ToolId</label>
                                 </div>
-
+                                <div class="row">
+                                </div>
+                                <div class="row">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="Product"></label>
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" name="underline">@Model.Product</label>
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="ProductShortName"></label>
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" name="underline">@Model.ProductShortName</label>
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="ModelName"></label>
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" name="underline">@Model.ModelName</label>
+                                    </div>
+                                </div>
                                 <div class="row" style="display: flex;">
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="Code"></label>
-                                        <span asp-validation-for="Code" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-2">
-                                        <label class="col-form-label">@Model.Code</label>
+                                        <label class="col-form-label" name="underline">@Model.Code</label>
                                     </div>
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="Codedesc"></label>
-                                        <span asp-validation-for="Codedesc" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-2">
-                                        <label class="col-form-label">@Model.Codedesc</label>
+                                        <label class="col-form-label" name="underline">@Model.Codedesc</label>
                                     </div>
                                 </div>
                                 <div class="row" style="display: flex; margin-top: 10px; ">
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="Comment"></label>
                                     </div>
-                                    <div class="col-8">
+                                    <div class="col-10">
                                         <textarea class="form-control pmEdit" asp-for="Comment" id="Comment" rows="2"></textarea>
                                     </div>
                                 </div>
                                 <div class="row" style="display: flex; margin-top: 10px;">
                                     <div class="col-2">
-                                        <label class="col-form-label" asp-for="Shift"></label>
-                                        <span asp-validation-for="Shift" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                        <label class="col-form-label" asp-for="ProcessId"></label>
+                                        <span asp-validation-for="ProcessId" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-2">
-                                        <input class="form-control pmEdit" type="text" asp-for="Shift" />
+                                        <select class="form-control pmEdit" asp-for="ProcessId" asp-items="Model.ProcessOptionList">
+                                            <option></option>
+                                        </select>
                                     </div>
                                     <div class="col-2">
-                                        <label class="col-form-label" asp-for="EqUnit"></label>
-                                        <span asp-validation-for="EqUnit" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                        <label class="col-form-label" asp-for="EqUnitId"></label>
+                                        <span asp-validation-for="EqUnitId" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-2">
-                                        <input class="form-control pmEdit" type="text" asp-for="EqUnit" />
+                                        <select class="form-control pmEdit" asp-for="EqUnitId" asp-items="Model.EqUnitOptionList">
+                                            <option></option>
+                                        </select>
                                     </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="EqUnitPartId" style="font-size:15px"></label>
+                                        <span asp-validation-for="EqUnitPartId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-2">
+                                        <select class="form-control pmEdit" asp-for="EqUnitPartId" asp-items="Model.EqUnitPartOptionList">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row" style="display: flex;margin-top:10px;">
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="DefectQty"></label>
                                         <span asp-validation-for="DefectQty" style="font-size:10px;font-weight:700" class="text-danger"></span>
@@ -129,8 +165,6 @@
                                     <div class="col-2">
                                         <input class="form-control pmEdit" style="text-align:right" type="number" min="0" asp-for="DefectQty" />
                                     </div>
-                                </div>
-                                <div class="row" style="display: flex;margin-top:10px;">
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="DefectRate"></label>
                                         <span asp-validation-for="DefectRate" style="font-size:10px;font-weight:700" class="text-danger"></span>
@@ -140,6 +174,17 @@
                                             <input class="form-control pmEdit" type="text" min="0" max="100" maxlength="8" placeholder="ex:95.1234" asp-for="DefectRate" />
                                             <span class="unit">%</span>
                                         </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="display: flex;margin-top:10px;">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="Shift"></label>
+                                        <span asp-validation-for="Shift" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-2">
+                                        <select class="form-control pmEdit" asp-for="Shift" asp-items="Model.ShiftOptionList">
+                                            <option></option>
+                                        </select>
                                     </div>
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="MntUser"></label>
@@ -154,7 +199,7 @@
                                         <label class="col-form-label" asp-for="MntMinutes"></label>
                                         <span asp-validation-for="MntMinutes" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
-                                    <div class="col-8">
+                                    <div class="col-10">
                                         <textarea class="form-control pmEdit" asp-for="MntMinutes" id="Comment" rows="5" cols="75"></textarea>
                                     </div>
                                     <br />
@@ -166,32 +211,6 @@
                                         <hr style="border-width:3px;border-color:gray" />
                                         <div class="row" style="display: flex;margin-top:10px;">
                                             <div class="col-2">
-                                                <label class="col-form-label" asp-for="EquipmentId"></label>
-                                                <span asp-validation-for="EquipmentId" style="font-size:10px;font-weight:700" class="text-danger"></span>
-                                            </div>
-                                            <div class="col-3">
-                                                <select class="form-control" asp-for="EquipmentId" asp-items="Model.EqpOptionList">
-                                                    <option></option>
-                                                    @*@{
-                                                            foreach (var item in Model.EqpOptionList)
-                                                            {
-                                                                <option class="select-item" value="@item.EquipmentId">@item.EquipmentDesc</option>
-                                                            }
-                                                        }*@
-                                                </select>
-                                            </div>
-                                            <div class="col-2">
-                                                <label class="col-form-label" asp-for="ModelId"></label>
-                                                <span asp-validation-for="ModelId" style="font-size:10px;font-weight:700" class="text-danger"></span>
-                                            </div>
-                                            <div class="col-2">
-                                                <select class="form-control" asp-for="ModelId">
-                                                    <option></option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="row" style="display: flex;margin-top:10px;">
-                                            <div class="col-2">
                                                 <label class="col-form-label" asp-for="Engineer"></label>
                                                 <span asp-validation-for="Engineer" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                             </div>
@@ -199,13 +218,12 @@
                                                 <input class="form-control" type="text" asp-for="Engineer" value="" />
                                             </div>
                                             <div class="col-2">
-                                                <label class="col-form-label" asp-for="Category"></label>
-                                                <span asp-validation-for="Category" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                                <label class="col-form-label" asp-for="PriorityId"></label>
+                                                <span asp-validation-for="PriorityId" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                             </div>
                                             <div class="col-2">
-                                                <select class="form-control" asp-for="Category">
-                                                    <option value="1">一般</option>
-                                                    <option value="2">嚴重</option>
+                                                <select class="form-control" asp-for="PriorityId" asp-items="Model.PriorityOptionList">
+                                                    <option></option>
                                                 </select>
                                             </div>
                                         </div>
@@ -283,19 +301,67 @@
         $(".pmEdit").prop("disabled", true);
     }
 
+    $("#ProcessId").change(function (e) {
+        var eqUnitIdSelector = $("#EqUnitId");
+        var eqUnitPartSelector = $("#EqUnitPartId");
+        $.ajax({
+            type: "GET",
+            url: "/Equipment/GetSubOption?optionTypeId=2&mainId=" + e.currentTarget.value + "&subId=0",
+            dataType: 'json',
+            success: function (options) {
+                eqUnitIdSelector.empty();
+                eqUnitPartSelector.empty();
+                $("<option></option>").appendTo(eqUnitIdSelector);
+                $("<option></option>").appendTo(eqUnitPartSelector);
+                var currVal = $("#ProcessId").val();
+                for (var i = 0; i < options.length; i++) {
+                    var option = options[i];
+                    var opEl = $("<option></option>").attr("value", option.id).text(option.value);
+                    if (currVal == option)
+                        opEl.attr("selected", "selected");
+
+                    opEl.appendTo(eqUnitIdSelector);
+                }
+            }
+        });
+    });
+
+    $("#EqUnitId").change(function (e) {
+        var eqUnitPartSelector = $("#EqUnitPartId");
+        var processId = $("#ProcessId").val();
+        $.ajax({
+            type: "GET",
+            url: "/Equipment/GetSubOption?optionTypeId=3&mainId=" + processId + "&subId=" + e.currentTarget.value,
+            dataType: 'json',
+            success: function (options) {
+                eqUnitPartSelector.empty();
+                $("<option></option>").appendTo(eqUnitPartSelector);
+
+                var currVal = $("#EqUnitId").val();
+                for (var i = 0; i < options.length; i++) {
+                    var option = options[i];
+                    var opEl = $("<option></option>").attr("value", option.id).text(option.value);
+                    if (currVal == option)
+                        opEl.attr("selected", "selected");
+
+                    opEl.appendTo(eqUnitPartSelector);
+                }
+            }
+        });
+    });
+
     $("#EquipmentId").change(function (e) {
         var modelCatgSelector = $("#ModelId");
         $.ajax({
             type: "GET",
             url: "/Equipment/ModelNameOption?id=" + e.currentTarget.value,
             dataType: 'json',
-            data: $("#quickForm").serialize(),
             success: function (options) {
                 modelCatgSelector.empty();
                 var currVal = $("#EquipmentId").val();
                 for (var i = 0; i < options.length; i++) {
                     var option = options[i];
-                    var opEl = $("<option></option>").attr("value", option.equipmentId).text(option.equipmentDesc);
+                    var opEl = $("<option></option>").attr("value", option.id).text(option.value);
                     if (currVal == option) opEl.attr("selected", "selected");
                     opEl.appendTo(modelCatgSelector);
                 }
@@ -303,17 +369,4 @@
         });
     });
 
-
-    //$("#EquipmentId").change(function () {
-    //    $.getJSON("?handler=SubCategories&category=" + $(this).val()).done(function (options) {
-    //        modelCatgSelector.empty();
-    //        var currVal = $("#EquipmentId").val();
-    //        for (var i = 0; i < options.length; i++) {
-    //            var option = options[i];
-    //            var opEl = $("<option></option>").attr("value", option).text(option);
-    //            if (currVal == option) opEl.attr("selected", "selected");
-    //            opEl.appendTo(modelCatgSelector);
-    //        }
-    //    });
-    //}).change();
 </script>

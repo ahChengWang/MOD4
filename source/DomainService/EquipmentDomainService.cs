@@ -1,4 +1,5 @@
 ﻿using MOD4.Web.DomainService.Entity;
+using MOD4.Web.Enum;
 using MOD4.Web.Helper;
 using MOD4.Web.Repostory;
 using MOD4.Web.Repostory.Dao;
@@ -13,11 +14,15 @@ namespace MOD4.Web.DomainService
     {
         private readonly IAlarmXmlRepository _alarmXmlRepository;
         private readonly IEqpInfoRepository _eqpInfoRepository;
+        private readonly IOptionDomainService _optionDomainService;
 
-        public EquipmentDomainService(IAlarmXmlRepository alarmXmlRepository, IEqpInfoRepository eqpInfoRepository)
+        public EquipmentDomainService(IAlarmXmlRepository alarmXmlRepository, 
+            IEqpInfoRepository eqpInfoRepository,
+            IOptionDomainService optionDomainService)
         {
             _alarmXmlRepository = alarmXmlRepository;
             _eqpInfoRepository = eqpInfoRepository;
+            _optionDomainService = optionDomainService;
         }
 
         public List<string> GetUnrepairedEqDropdown()
@@ -128,7 +133,7 @@ namespace MOD4.Web.DomainService
                         RepairTime = s.Repair_Time,
                         MFGDay = s.MFG_Day.ToString("yyyy-MM-dd"),
                         MFGHr = s.MFG_HR.ToString(),
-                        IsPMProcess = string.IsNullOrEmpty(s.shift) && string.IsNullOrEmpty(s.mnt_user),
+                        IsPMProcess = s.shift == 0 && string.IsNullOrEmpty(s.mnt_user),
                         IsEngineerProcess = !string.IsNullOrEmpty(s.mnt_user) && string.IsNullOrEmpty(s.engineer)
                     };
                 })).ToList();
@@ -164,11 +169,59 @@ namespace MOD4.Web.DomainService
                     StartTime = _r.Start_Time,
                     UpdateTime = _r.Update_Time,
                     Shift = _r.shift,
-                    EqUnit = _r.eq_unit,
+                    ProcessId = _r.processId,
+                    EqUnitId = _r.eq_unitId,
+                    EqUnitPartId = _r.eq_unit_partId,
                     DefectQty = _r.defect_qty,
                     DefectRate = _r.defect_rate,
                     Engineer = _r.engineer,
-                    Category = _r.category.ToString(),
+                    Memo = _r.memo,
+                    MntUser = _r.mnt_user,
+                    MntMinutes = _r.mnt_minutes
+                };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public EquipmentEditEntity GetDetailEqpinfo(int sn)
+        {
+            try
+            {
+                var _r = _eqpInfoRepository.SelectEqpinfoByConditions(sn);
+
+                if (_r == null)
+                {
+                    return null;
+                }
+
+                var _processOptions = _optionDomainService.GetOptionByType(OptionTypeEnum.ProcessOption);
+                var _eqUnitOptions = _optionDomainService.GetOptionByType(OptionTypeEnum.EqUnit, _r.processId);
+                var _eqUnitPartOptions = _optionDomainService.GetOptionByType(OptionTypeEnum.EqUnitPart, _r.processId,_r.eq_unitId);
+
+                return new EquipmentEditEntity
+                {
+                    sn = _r.sn,
+                    Equipment = _r.Equipment,
+                    Code = _r.Code,
+                    CodeDesc = _r.Code_Desc,
+                    Operator = _r.Operator,
+                    Comments = _r.Comments,
+                    StartTime = _r.Start_Time,
+                    UpdateTime = _r.Update_Time,
+                    Shift = _r.shift,
+                    ProcessId = _r.processId,
+                    Process = _processOptions.FirstOrDefault(w => w.Id == _r.processId).Value,
+                    EqUnitId = _r.eq_unitId,
+                    EqUnit = _eqUnitOptions.FirstOrDefault(w => w.Id == _r.eq_unitId).Value,
+                    EqUnitPartId = _r.eq_unit_partId,
+                    EqUnitPart = _eqUnitPartOptions.FirstOrDefault(w => w.Id == _r.eq_unit_partId).Value,
+                    DefectQty = _r.defect_qty,
+                    DefectRate = _r.defect_rate,
+                    Engineer = _r.engineer,
                     Memo = _r.memo,
                     MntUser = _r.mnt_user,
                     MntMinutes = _r.mnt_minutes
@@ -246,10 +299,12 @@ namespace MOD4.Web.DomainService
                 var _updateResponse = "";
                 var oldEqpinfo = _eqpInfoRepository.SelectEqpinfoByConditions(editEntity.sn);
 
+                if ((editEntity.IsPMProcess == 1 && editEntity.IsEngineerProcess == 1) ||
+                    (editEntity.IsPMProcess == 0 && editEntity.IsEngineerProcess == 0))
+                    return "Process error";
+
                 if (oldEqpinfo == null)
-                {
-                    return "error";
-                }
+                    return "查無機況";
 
                 EqpInfoDao _updEqpinfo = new EqpInfoDao
                 {
@@ -259,23 +314,18 @@ namespace MOD4.Web.DomainService
                 if (editEntity.IsPMProcess == 1)
                 {
                     _updEqpinfo.Comments = editEntity.Comments;
+                    _updEqpinfo.processId = editEntity.ProcessId;
+                    _updEqpinfo.eq_unitId = editEntity.EqUnitId;
+                    _updEqpinfo.eq_unit_partId = editEntity.EqUnitPartId;
                     _updEqpinfo.shift = editEntity.Shift;
-                    _updEqpinfo.eq_unit = editEntity.EqUnit;
                     _updEqpinfo.defect_qty = editEntity.DefectQty;
                     _updEqpinfo.defect_rate = editEntity.DefectRate;
                     _updEqpinfo.mnt_user = editEntity.MntUser;
                     _updEqpinfo.mnt_minutes = editEntity.MntMinutes;
                 }
-                if (editEntity.IsEngineerProcess == 1)
+                else if (editEntity.IsEngineerProcess == 1)
                 {
-                    _updEqpinfo.Comments = oldEqpinfo.Comments;
-                    _updEqpinfo.shift = oldEqpinfo.shift;
-                    _updEqpinfo.eq_unit = oldEqpinfo.eq_unit;
-                    _updEqpinfo.defect_qty = oldEqpinfo.defect_qty;
-                    _updEqpinfo.defect_rate = oldEqpinfo.defect_rate;
-                    _updEqpinfo.mnt_user = oldEqpinfo.mnt_user;
-                    _updEqpinfo.mnt_minutes = oldEqpinfo.mnt_minutes;
-                    _updEqpinfo.category = 1;
+                    _updEqpinfo.priorityId = editEntity.PriorityId;
                     _updEqpinfo.engineer = editEntity.Engineer;
                     _updEqpinfo.memo = editEntity.Memo;
                 }
@@ -284,7 +334,10 @@ namespace MOD4.Web.DomainService
                 {
                     var _uprdResult = false;
 
-                    _uprdResult = _eqpInfoRepository.UpdateEqpinfo(_updEqpinfo) == 2; //含觸發自動更新 updateTime trigger
+                    if (editEntity.IsPMProcess == 1)
+                        _uprdResult = _eqpInfoRepository.UpdateEqpinfoByPM(_updEqpinfo) == 2; //含觸發自動更新 updateTime trigger
+                    else if (editEntity.IsEngineerProcess == 1)
+                        _uprdResult = _eqpInfoRepository.UpdateEqpinfoByENG(_updEqpinfo) == 2; //含觸發自動更新 updateTime trigger
 
                     if (_uprdResult)
                     {

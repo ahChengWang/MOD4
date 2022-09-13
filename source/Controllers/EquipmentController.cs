@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MOD4.Web.DomainService;
 using MOD4.Web.DomainService.Entity;
+using MOD4.Web.Enum;
 using MOD4.Web.Helper;
 using MOD4.Web.Models;
 using MOD4.Web.ViewModel;
@@ -17,14 +18,18 @@ namespace MOD4.Web.Controllers
     public class EquipmentController : BaseController
     {
         private readonly IEquipmentDomainService _equipmentDomainService;
+        private readonly IOptionDomainService _optionDomainService;
 
         public EquipmentController(IEquipmentDomainService equipmentDomainService,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IOptionDomainService optionDomainService)
             : base(httpContextAccessor)
         {
             _equipmentDomainService = equipmentDomainService;
+            _optionDomainService = optionDomainService;
         }
 
+        
         [HttpGet]
         public IActionResult SearchUnrepairedEq([FromQuery] string date, string toolIdList)
         {
@@ -165,40 +170,65 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                List<OptionViewModel> _eqpOptions = new List<OptionViewModel>() {
-                    new OptionViewModel{ EquipmentId = 1,EquipmentDesc = "GDD100BC0010S"},
-                    new OptionViewModel{ EquipmentId = 2,EquipmentDesc = "GDD101IA0030S"},
-                    new OptionViewModel{ EquipmentId = 3,EquipmentDesc = "GDJ070IA7110S"},
-                    new OptionViewModel{ EquipmentId = 4,EquipmentDesc = "GDD340IA0090S"},
-                    new OptionViewModel{ EquipmentId = 5,EquipmentDesc = "GJ0900IA00150"},
+                List<OptionViewModel> _shiftOptions = new List<OptionViewModel>() {
+                    new OptionViewModel{ Id = 1,Value = "A"},
+                    new OptionViewModel{ Id = 2,Value = "B"},
+                    new OptionViewModel{ Id = 3,Value = "C"},
+                    new OptionViewModel{ Id = 4,Value = "D"}
                 };
 
-                SelectList _eqpSelect = new SelectList(_eqpOptions, "EquipmentId", "EquipmentDesc");
+                List<OptionViewModel> _processOptions = _optionDomainService.GetOptionByType(OptionTypeEnum.ProcessOption).CopyAToB<OptionViewModel>();
+
+                SelectList _shiftSelect = new SelectList(_shiftOptions, "Id", "Value");
+                SelectList _processSelect = new SelectList(_processOptions, "Id", "Value");
+                SelectList _prioritySelect = new SelectList(new List<OptionViewModel>() 
+                {
+                    new OptionViewModel{ Id = 1,Value = "一般"},
+                    new OptionViewModel{ Id = 2,Value = "嚴重"},
+                    new OptionViewModel{ Id = 3,Value = "追蹤"}
+                }, "Id", "Value");
 
                 var _res = _equipmentDomainService.GetEditEqpinfo(sn, GetUserInfo());
 
-                return View(new EquipmentEditViewModel
+                EquipmentEditViewModel _resModel = new EquipmentEditViewModel
                 {
                     sn = _res.sn,
                     ToolId = _res.Equipment,
                     Code = _res.Code,
                     Codedesc = _res.CodeDesc,
+                    Product = "GDD340IA0090S",
+                    ProductShortName = "VCS",
+                    ModelName = "VCS 1234",
                     Comment = _res.Comments,
                     StartTime = _res.StartTime.ToString("yyyy/MM/dd HH:mm:ss"),
-                    Shift = _res.Shift ?? "",
-                    EqUnit = _res.EqUnit ?? "",
+                    Shift = _res.Shift,
+                    ProcessId = _res.ProcessId,
+                    EqUnitId = _res.EqUnitId,
+                    EqUnitPartId = _res.EqUnitPartId,
                     MntUser = _res.MntUser ?? "",
                     MntMinutes = _res.MntMinutes ?? "",
                     DefectQty = _res.DefectQty,
                     DefectRate = _res.DefectRate ?? "",
                     Engineer = _res.Engineer ?? "",
-                    Category = _res.Category ?? "",
+                    PriorityId = _res.PriorityId,
                     Memo = _res.Memo ?? "",
                     IsPMProcess = isPM,
                     IsEngineerProcess = isEng,
                     SearchVal = searchVal,
-                    EqpOptionList = _eqpSelect
-                });
+                    ProcessOptionList = _processSelect,
+                    ShiftOptionList = _shiftSelect,
+                    PriorityOptionList = _prioritySelect
+                };
+
+                if (isPM == 0 && isEng == 1)
+                {
+                    _resModel.EqUnitOptionList =
+                        new SelectList(_optionDomainService.GetOptionByType(OptionTypeEnum.EqUnit, _res.ProcessId, 0).CopyAToB<OptionViewModel>(), "Id", "Value");
+                    _resModel.EqUnitPartOptionList =
+                        new SelectList(_optionDomainService.GetOptionByType(OptionTypeEnum.EqUnitPart, _res.ProcessId, _res.EqUnitId).CopyAToB<OptionViewModel>(), "Id", "Value");
+                }
+
+                return View(_resModel);
             }
             catch (Exception ex)
             {
@@ -215,14 +245,16 @@ namespace MOD4.Web.Controllers
                 {
                     sn = eidtModel.sn,
                     Comments = eidtModel.Comment,
+                    ProcessId = eidtModel.ProcessId,
+                    EqUnitId = eidtModel.EqUnitId,
+                    EqUnitPartId = eidtModel.EqUnitPartId,
                     Shift = eidtModel.Shift,
-                    EqUnit = eidtModel.EqUnit,
                     DefectQty = eidtModel.DefectQty,
                     DefectRate = eidtModel.DefectRate,
                     MntUser = eidtModel.MntUser,
                     MntMinutes = eidtModel.MntMinutes,
                     Engineer = eidtModel.Engineer,
-                    Category = eidtModel.Category,
+                    PriorityId = eidtModel.PriorityId,
                     Memo = eidtModel.Memo,
                     IsPMProcess = eidtModel.IsPMProcess,
                     IsEngineerProcess = eidtModel.IsEngineerProcess
@@ -230,67 +262,24 @@ namespace MOD4.Web.Controllers
 
                 if (res != "")
                 {
-                    return Json(new { IsException = true, msg = $"錯誤：{res}" });
+                    return Json($"錯誤：{res}");
                 }
 
                 return Json("");
             }
             catch (Exception ex)
             {
-                return Json(new { IsException = true, msg = $"錯誤：{ex.Message}" });
+                return Json($"錯誤：{ex.Message}");
             }
         }
 
 
         [HttpGet]
-        public IActionResult ModelNameOption([FromQuery] int id)
+        public IActionResult GetSubOption([FromQuery] OptionTypeEnum optionTypeId, int mainId, int subId)
         {
-            List<OptionViewModel> _test = new List<OptionViewModel>();
+            List<OptionViewModel> _processOptions = _optionDomainService.GetOptionByType(optionTypeId, mainId, subId).CopyAToB<OptionViewModel>();
 
-            switch (id)
-            {
-                case 1:
-                    _test.AddRange(new List<OptionViewModel> {
-                        new OptionViewModel{EquipmentId = 1,EquipmentDesc = "LCD+OCA" },
-                        new OptionViewModel{EquipmentId = 2,EquipmentDesc = "TPM+LCD"},
-                        new OptionViewModel{EquipmentId = 3,EquipmentDesc = "SG+OCA"},
-                        new OptionViewModel{EquipmentId = 4,EquipmentDesc = "VCS SG"},
-                    });
-                    break;
-                case 2:
-                    _test.AddRange(new List<OptionViewModel> {
-                        new OptionViewModel{EquipmentId = 1,EquipmentDesc = "PADI+LCD" },
-                        new OptionViewModel{EquipmentId = 2,EquipmentDesc = "CG+SG"},
-                        new OptionViewModel{EquipmentId = 3,EquipmentDesc = "SG"}
-                    });
-                    break;
-                case 3:
-                    _test.AddRange(new List<OptionViewModel> {
-                        new OptionViewModel{EquipmentId = 1,EquipmentDesc = "OCA" },
-                        new OptionViewModel{EquipmentId = 2,EquipmentDesc = "TPM"},
-                        new OptionViewModel{EquipmentId = 3,EquipmentDesc = "FILM"}
-                    });
-                    break;
-                case 4:
-                    _test.AddRange(new List<OptionViewModel> {
-                        new OptionViewModel{EquipmentId = 1,EquipmentDesc = "AZV" },
-                        new OptionViewModel{EquipmentId = 2,EquipmentDesc = "PADI"},
-                        new OptionViewModel{EquipmentId = 3,EquipmentDesc = "GM"}
-                    });
-                    break;
-                case 5:
-                    _test.AddRange(new List<OptionViewModel> {
-                        new OptionViewModel{EquipmentId = 1,EquipmentDesc = "0" },
-                        new OptionViewModel{EquipmentId = 2,EquipmentDesc = "1"},
-                        new OptionViewModel{EquipmentId = 3,EquipmentDesc = "2"},
-                        new OptionViewModel{EquipmentId = 4,EquipmentDesc = "3"}
-                    });
-                    break;
-                default:
-                    break;
-            }
-
-            return Json(_test);
+            return Json(_processOptions);
         }
 
         [HttpGet]
@@ -313,14 +302,13 @@ namespace MOD4.Web.Controllers
                     Codedesc = _res.CodeDesc,
                     Comment = _res.Comments,
                     StartTime = _res.StartTime.ToString("yyyy/MM/dd HH:mm:ss"),
-                    Shift = _res.Shift ?? "",
-                    EqUnit = _res.EqUnit ?? "",
+                    Shift = _res.Shift,
                     MntUser = _res.MntUser ?? "",
                     MntMinutes = _res.MntMinutes ?? "",
                     DefectQty = _res.DefectQty,
                     DefectRate = _res.DefectRate ?? "",
                     Engineer = _res.Engineer ?? "",
-                    Category = _res.Category ?? "",
+                    PriorityId = _res.PriorityId,
                     Memo = _res.Memo ?? ""
                 });
             }
@@ -329,7 +317,6 @@ namespace MOD4.Web.Controllers
                 return Json(new { IsException = true, msg = $"錯誤：{ex.Message}" });
             }
         }
-
 
         [HttpGet]
         public IActionResult VerifyEqStatus([FromQuery] int eqsn, int isPM, int isEng)
@@ -348,10 +335,9 @@ namespace MOD4.Web.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { IsException = true, msg = $"錯誤：{ex.Message}" });
+                return Json($"錯誤：{ex.Message}");
             }
         }
-
 
 
         public IActionResult Dashboard()
@@ -359,7 +345,7 @@ namespace MOD4.Web.Controllers
             try
             {
                 //DateTime dt = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
-                
+
 
                 return View();
             }

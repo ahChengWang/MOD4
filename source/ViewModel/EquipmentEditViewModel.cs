@@ -32,11 +32,20 @@ namespace MOD4.Web.ViewModel
 
         [Display(Name = "班別")]
         [Required(ErrorMessage = "*必填")]
-        public string Shift { get; set; }
+        public int Shift { get; set; }
 
-        [Display(Name = "機台單元")]
+        [Display(Name = "Process")]
         [Required(ErrorMessage = "*必填")]
-        public string EqUnit { get; set; }
+        public int ProcessId { get; set; }
+
+        [Display(Name = "Unit")]
+        [Required(ErrorMessage = "*必填")]
+        public int EqUnitId { get; set; }
+
+        [Display(Name = "Unit-Part")]
+        [Required(ErrorMessage = "*必填")]
+        public int EqUnitPartId { get; set; }
+
 
         [Display(Name = "維修人員")]
         [Required(ErrorMessage = "*必填")]
@@ -62,17 +71,17 @@ namespace MOD4.Web.ViewModel
 
         [Display(Name = "分類")]
         [Required(ErrorMessage = "*必填")]
-        public string Category { get; set; }
+        public int PriorityId { get; set; }
 
 
         [Display(Name = "機種")]
-        [Required(ErrorMessage = "*必填")]
-        public int EquipmentId { get; set; }
+        public string Product { get; set; }
 
+        [Display(Name = "簡稱")]
+        public string ProductShortName { get; set; }
 
         [Display(Name = "Model Name")]
-        [Required(ErrorMessage = "*必填")]
-        public int ModelId { get; set; }
+        public string ModelName { get; set; }
 
 
         [Display(Name = "memo")]
@@ -81,6 +90,19 @@ namespace MOD4.Web.ViewModel
         public int IsEngineerProcess { get; set; }
         public string SearchVal { get; set; }
 
-        public SelectList EqpOptionList { get; set; }
+        // 班別
+        public SelectList ShiftOptionList { get; set; }
+
+        // 設備-單元
+        public SelectList ProcessOptionList { get; set; }
+
+        // 設備-單元
+        public SelectList EqUnitOptionList { get; set; }
+
+        // 設備-單元
+        public SelectList EqUnitPartOptionList { get; set; }
+
+        // 分類
+        public SelectList PriorityOptionList { get; set; }
     }
 }

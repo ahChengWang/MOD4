@@ -1,6 +1,6 @@
-﻿namespace MOD4.Web.ViewModel
+﻿namespace MOD4.Web.DomainService.Entity
 {
-    public class OptionViewModel
+    public class OptionEntity
     {
         public int Id { get; set; }
 

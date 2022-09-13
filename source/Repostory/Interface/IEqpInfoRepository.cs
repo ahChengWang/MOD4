@@ -8,6 +8,7 @@ namespace MOD4.Web.Repostory
         List<string> SelectToolList(string date);
         List<EqpInfoDao> SelectByConditions(string date, List<string> equipmentList, bool isDefault);
         EqpInfoDao SelectEqpinfoByConditions(int sn);
-        int UpdateEqpinfo(EqpInfoDao updDao);
+        int UpdateEqpinfoByPM(EqpInfoDao updDao);
+        int UpdateEqpinfoByENG(EqpInfoDao updDao);
     }
 }

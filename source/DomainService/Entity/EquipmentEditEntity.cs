@@ -14,12 +14,19 @@ namespace MOD4.Web.DomainService.Entity
         public string MFGHr { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime UpdateTime { get; set; }
-        public string Shift { get; set; }
+        public int Shift { get; set; }
+        public string ShiftDesc { get; set; }
+        public int ProcessId { get; set; }
+        public string Process { get; set; }
+        public int EqUnitId { get; set; }
         public string EqUnit { get; set; }
+        public int EqUnitPartId { get; set; }
+        public string EqUnitPart { get; set; }
         public int DefectQty { get; set; }
         public string DefectRate { get; set; }
         public string Engineer { get; set; }
-        public string Category { get; set; }
+        public int PriorityId { get; set; }
+        public string Priority { get; set; }
         public string Memo { get; set; }
         public string MntUser { get; set; }
         public string MntMinutes { get; set; }

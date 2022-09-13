@@ -6,6 +6,7 @@ namespace MOD4.Web.DomainService.Entity
 {
     public class PassQtyEntity
     {
+        public int NodeNo { get; set; }
         public string Node { get; set; }
         public string NodeName { get; set; }
         public List<PassQtyDetailEntity> DetailList { get; set; }
@@ -101,6 +102,8 @@ namespace MOD4.Web.DomainService.Entity
         public string eqpInfoTOP1 { get; set; }
         public string eqpInfoTOP2 { get; set; }
         public string eqpInfoTOP3 { get; set; }
+        public string LineTTTOP1 { get; set; }
+        public string LineTTTOP2 { get; set; }
     }
 
 }
