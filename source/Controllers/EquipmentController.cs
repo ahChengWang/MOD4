@@ -29,7 +29,7 @@ namespace MOD4.Web.Controllers
             _optionDomainService = optionDomainService;
         }
 
-        
+
         [HttpGet]
         public IActionResult SearchUnrepairedEq([FromQuery] string date, string toolIdList)
         {
@@ -69,6 +69,8 @@ namespace MOD4.Web.Controllers
             {
                 var res = _equipmentDomainService.GetRepairedEqList(date, toolIdList, statusIdList);
 
+                //ViewBag.LineList = res.GroupBy(gb => gb.ToolId).Select(s => s.Key).ToList();
+
                 List<EquipmentDetailModel> response = res.Select(s =>
                 {
                     return new EquipmentDetailModel()
@@ -83,8 +85,7 @@ namespace MOD4.Web.Controllers
                         RepairedTime = s.RepairTime,
                         MFGDay = s.MFGDay,
                         MFGHr = s.MFGHr,
-                        IsPMProcess = s.IsPMProcess,
-                        IsEngineerProcess = s.IsEngineerProcess
+                        StatusId = s.StatusId
                     };
                 }).ToList();
 
@@ -110,6 +111,8 @@ namespace MOD4.Web.Controllers
                 ViewBag.RepairedToolId = _equipmentDomainService.GetRepairedEqDropdown();
 
                 List<EquipmentEntity> _repairedEqList = new List<EquipmentEntity>();
+                int _pmPending = 0;
+                int _engPending = 0;
 
                 var _unrepairedList = _equipmentDomainService.GetUnrepairedEqList();
 
@@ -117,6 +120,8 @@ namespace MOD4.Web.Controllers
                     _repairedEqList = _equipmentDomainService.GetRepairedEqList(date: searchConditions[0], toolId: searchConditions[1], statusIdList: searchConditions[2]);
                 else
                     _repairedEqList = _equipmentDomainService.GetRepairedEqList();
+
+                (_pmPending, _engPending) = _equipmentDomainService.GetTodayRepairedEqPendingList();
 
                 List<EquipmentDetailModel> _unrepairedRes = _unrepairedList.Select(s =>
                 {
@@ -148,15 +153,16 @@ namespace MOD4.Web.Controllers
                         RepairedTime = s.RepairTime,
                         MFGDay = s.MFGDay,
                         MFGHr = s.MFGHr,
-                        IsPMProcess = s.IsPMProcess,
-                        IsEngineerProcess = s.IsEngineerProcess
+                        StatusId = s.StatusId
                     };
                 }).ToList();
 
                 return View(new EquipmentViewModel
                 {
                     UnrepairedEqList = _unrepairedRes,
-                    RepairedEqInfoList = _repairedEqRes
+                    RepairedEqInfoList = _repairedEqRes,
+                    PMPending = _pmPending,
+                    ENGPending = _engPending
                 });
             }
             catch (Exception ex)
@@ -166,27 +172,14 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Edit(int sn, int isPM, int isEng, string searchVal)
+        public IActionResult Edit(int sn, EqIssueStatusEnum statusId, string searchVal)
         {
             try
             {
-                List<OptionViewModel> _shiftOptions = new List<OptionViewModel>() {
-                    new OptionViewModel{ Id = 1,Value = "A"},
-                    new OptionViewModel{ Id = 2,Value = "B"},
-                    new OptionViewModel{ Id = 3,Value = "C"},
-                    new OptionViewModel{ Id = 4,Value = "D"}
-                };
-
-                List<OptionViewModel> _processOptions = _optionDomainService.GetOptionByType(OptionTypeEnum.ProcessOption).CopyAToB<OptionViewModel>();
-
-                SelectList _shiftSelect = new SelectList(_shiftOptions, "Id", "Value");
-                SelectList _processSelect = new SelectList(_processOptions, "Id", "Value");
-                SelectList _prioritySelect = new SelectList(new List<OptionViewModel>() 
-                {
-                    new OptionViewModel{ Id = 1,Value = "一般"},
-                    new OptionViewModel{ Id = 2,Value = "嚴重"},
-                    new OptionViewModel{ Id = 3,Value = "追蹤"}
-                }, "Id", "Value");
+                SelectList _shiftSelect = new SelectList(_optionDomainService.GetShiftOptionList().CopyAToB<OptionViewModel>(), "Id", "Value");
+                SelectList _processSelect = new SelectList(_optionDomainService.GetOptionByType(OptionTypeEnum.ProcessOption).CopyAToB<OptionViewModel>(), "Id", "Value");
+                SelectList _prioritySelect = new SelectList(_optionDomainService.GetPriorityOptionList().CopyAToB<OptionViewModel>(), "Id", "Value");
+                SelectList _eqEvenCodeSelect = new SelectList(_optionDomainService.GetEqEvenCodeOptionList().CopyAToB<OptionViewModel>(), "Id", "Value");
 
                 var _res = _equipmentDomainService.GetEditEqpinfo(sn, GetUserInfo());
 
@@ -211,16 +204,22 @@ namespace MOD4.Web.Controllers
                     DefectRate = _res.DefectRate ?? "",
                     Engineer = _res.Engineer ?? "",
                     PriorityId = _res.PriorityId,
+                    TypeDesc = _res.TypeDesc,
+                    YDesc = _res.YDesc,
+                    SubYDesc = _res.SubYDesc,
+                    XDesc = _res.XDesc,
+                    SubXDesc = _res.SubXDesc,
+                    RDesc = _res.RDesc,
                     Memo = _res.Memo ?? "",
-                    IsPMProcess = isPM,
-                    IsEngineerProcess = isEng,
                     SearchVal = searchVal,
+                    StatusId = _res.StatusId,
                     ProcessOptionList = _processSelect,
                     ShiftOptionList = _shiftSelect,
-                    PriorityOptionList = _prioritySelect
+                    PriorityOptionList = _prioritySelect,
+                    EvenCodeOptionList = _eqEvenCodeSelect
                 };
 
-                if (isPM == 0 && isEng == 1)
+                if (statusId == EqIssueStatusEnum.PendingENG)
                 {
                     _resModel.EqUnitOptionList =
                         new SelectList(_optionDomainService.GetOptionByType(OptionTypeEnum.EqUnit, _res.ProcessId, 0).CopyAToB<OptionViewModel>(), "Id", "Value");
@@ -256,8 +255,13 @@ namespace MOD4.Web.Controllers
                     Engineer = eidtModel.Engineer,
                     PriorityId = eidtModel.PriorityId,
                     Memo = eidtModel.Memo,
-                    IsPMProcess = eidtModel.IsPMProcess,
-                    IsEngineerProcess = eidtModel.IsEngineerProcess
+                    TypeId = eidtModel.TypeId,
+                    YId = eidtModel.YId,
+                    SubYId = eidtModel.SubYId,
+                    XId = eidtModel.XId,
+                    SubXId = eidtModel.SubXId,
+                    RId = eidtModel.RId,
+                    StatusId = eidtModel.StatusId
                 });
 
                 if (res != "")
@@ -282,33 +286,54 @@ namespace MOD4.Web.Controllers
             return Json(_processOptions);
         }
 
+
+        [HttpGet]
+        public IActionResult GetEvenCodeOption([FromQuery] int typeId, int yId = 0, int subYId = 0, int xId = 0, int subXId = 0, int rId = 0)
+        {
+            List<OptionViewModel> _processOptions = _optionDomainService.GetEqEvenCodeOptionList(typeId, yId, subYId, xId, subXId, rId).CopyAToB<OptionViewModel>();
+
+            return Json(_processOptions);
+        }
+
         [HttpGet]
         public IActionResult Detail([FromQuery] int sn)
         {
             try
             {
-                var _res = _equipmentDomainService.GetEditEqpinfo(sn);
+                var _res = _equipmentDomainService.GetDetailEqpinfo(sn);
 
                 if (_res == null)
                 {
                     return Json(new { IsException = true, msg = $"查無資料" });
                 }
 
-                return PartialView("_PartialDetail", new EquipmentEditViewModel
+                return PartialView("_PartialDetail", new EquipmentDetailViewModel
                 {
                     sn = _res.sn,
                     ToolId = _res.Equipment,
+                    Product = _res.Product,
+                    ProductShortName = "",
+                    ModelName = "",
                     Code = _res.Code,
                     Codedesc = _res.CodeDesc,
                     Comment = _res.Comments,
                     StartTime = _res.StartTime.ToString("yyyy/MM/dd HH:mm:ss"),
-                    Shift = _res.Shift,
+                    Shift = _res.ShiftDesc,
+                    Process = _res.Process,
+                    EqUnit = _res.EqUnit,
+                    EqUnitPart = _res.EqUnitPart,
                     MntUser = _res.MntUser ?? "",
+                    Type = _res.TypeDesc,
+                    Y = _res.YDesc,
+                    SubY = _res.SubYDesc,
+                    X = _res.XDesc,
+                    SubX = _res.SubXDesc,
+                    R = _res.RDesc,
                     MntMinutes = _res.MntMinutes ?? "",
                     DefectQty = _res.DefectQty,
                     DefectRate = _res.DefectRate ?? "",
                     Engineer = _res.Engineer ?? "",
-                    PriorityId = _res.PriorityId,
+                    Priority = _res.Priority,
                     Memo = _res.Memo ?? ""
                 });
             }
@@ -319,12 +344,11 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult VerifyEqStatus([FromQuery] int eqsn, int isPM, int isEng)
+        public IActionResult VerifyEqStatus([FromQuery] int eqsn, EqIssueStatusEnum statusId)
         {
             try
             {
-
-                string _verifyRes = _equipmentDomainService.VerifyEqpStatus(eqsn, isPM, isEng, GetUserInfo());
+                string _verifyRes = _equipmentDomainService.VerifyEqpStatus(eqsn, statusId, GetUserInfo());
 
                 if (_verifyRes != "")
                 {

@@ -123,6 +123,7 @@
                                 <div class="row" style="display: flex; margin-top: 10px; ">
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="Comment"></label>
+                                        <span asp-validation-for="Comment" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-10">
                                         <textarea class="form-control pmEdit" asp-for="Comment" id="Comment" rows="2"></textarea>
@@ -194,19 +195,80 @@
                                         <input class="form-control pmEdit" type="text" asp-for="MntUser" />
                                     </div>
                                 </div>
+
+                                <div class="row" style="display: flex; margin-top: 10px;">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="TypeId"></label>
+                                        <span asp-validation-for="TypeId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-2">
+                                        <select class="form-control" asp-for="TypeId" asp-items="Model.EvenCodeOptionList">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-1">
+                                        <label class="col-form-label" asp-for="YId"></label>
+                                        <span asp-validation-for="YId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-2">
+                                        <select class="form-control" asp-for="YId">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-1">
+                                        <label class="col-form-label" asp-for="SubYId" style="font-size:15px"></label>
+                                        <span asp-validation-for="SubYId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-2">
+                                        <select class="form-control" asp-for="SubYId">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row" style="display: flex; margin-top: 10px;">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="XId"></label>
+                                        <span asp-validation-for="XId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-2">
+                                        <select class="form-control" asp-for="XId">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-1">
+                                        <label class="col-form-label" asp-for="SubXId"></label>
+                                        <span asp-validation-for="SubXId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-2">
+                                        <select class="form-control" asp-for="SubXId">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-1">
+                                        <label class="col-form-label" asp-for="RId" style="font-size:15px"></label>
+                                        <span asp-validation-for="RId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-2">
+                                        <select class="form-control" asp-for="RId">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </div>
+
                                 <div class="row" style="margin-top:10px;">
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="MntMinutes"></label>
                                         <span asp-validation-for="MntMinutes" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-10">
-                                        <textarea class="form-control pmEdit" asp-for="MntMinutes" id="Comment" rows="5" cols="75"></textarea>
+                                        <textarea class="form-control pmEdit" asp-for="MntMinutes" rows="5" cols="75"></textarea>
                                     </div>
                                     <br />
                                 </div>
 
                                 @{
-                                    if (Model.IsEngineerProcess == 1)
+                                    if (Model.StatusId == MOD4.Web.Enum.EqIssueStatusEnum.PendingENG)
                                     {
                                         <hr style="border-width:3px;border-color:gray" />
                                         <div class="row" style="display: flex;margin-top:10px;">
@@ -238,8 +300,7 @@
                                     }
                                 }
                                 <input type="hidden" asp-for="sn" value="@Model.sn" />
-                                <input type="hidden" asp-for="IsPMProcess" value="@Model.IsPMProcess" />
-                                <input type="hidden" asp-for="IsEngineerProcess" value="@Model.IsEngineerProcess" />
+                                <input type="hidden" asp-for="StatusId" value="@((int)Model.StatusId)" />
                                 <input type="hidden" asp-for="SearchVal" value="@Model.SearchVal" />
                             </div>
                             <!-- /.card-body -->
@@ -259,6 +320,20 @@
 
 
 <script type="text/javascript">
+    $(function () {
+        const _model = @Json.Serialize(Model);
+        if (_model["statusId"] == 2) {
+            $(".pmEdit").prop("disabled", true);
+            $("#TypeId").empty();
+            $("<option></option>").text(_model["typeDesc"]).attr("selected", "selected").appendTo($("#TypeId").attr("disabled", true));
+            $("<option></option>").text(_model["yDesc"]).attr("selected", "selected").appendTo($("#YId").attr("disabled", true));
+            $("<option></option>").text(_model["subYDesc"]).attr("selected", "selected").appendTo($("#SubYId").attr("disabled", true));
+            $("<option></option>").text(_model["xDesc"]).attr("selected", "selected").appendTo($("#XId").attr("disabled", true));
+            $("<option></option>").text(_model["subXDesc"]).attr("selected", "selected").appendTo($("#SubXId").attr("disabled", true));
+            $("<option></option>").text(_model["rDesc"]).attr("selected", "selected").appendTo($("#RId").attr("disabled", true));
+        }
+    });
+
     $('#btnSave').click(function (e) {
         e.preventDefault();
         if ($("#quickForm").valid()) {
@@ -297,13 +372,9 @@
         $.unblockUI();
     });
 
-    if(@Model.IsEngineerProcess == 1) {
-        $(".pmEdit").prop("disabled", true);
-    }
-
     $("#ProcessId").change(function (e) {
-        var eqUnitIdSelector = $("#EqUnitId");
-        var eqUnitPartSelector = $("#EqUnitPartId");
+        let eqUnitIdSelector = $("#EqUnitId");
+        let eqUnitPartSelector = $("#EqUnitPartId");
         $.ajax({
             type: "GET",
             url: "/Equipment/GetSubOption?optionTypeId=2&mainId=" + e.currentTarget.value + "&subId=0",
@@ -313,10 +384,10 @@
                 eqUnitPartSelector.empty();
                 $("<option></option>").appendTo(eqUnitIdSelector);
                 $("<option></option>").appendTo(eqUnitPartSelector);
-                var currVal = $("#ProcessId").val();
-                for (var i = 0; i < options.length; i++) {
-                    var option = options[i];
-                    var opEl = $("<option></option>").attr("value", option.id).text(option.value);
+                const currVal = $("#ProcessId").val();
+                for (let i = 0; i < options.length; i++) {
+                    let option = options[i];
+                    let opEl = $("<option></option>").attr("value", option.id).text(option.value);
                     if (currVal == option)
                         opEl.attr("selected", "selected");
 
@@ -327,8 +398,8 @@
     });
 
     $("#EqUnitId").change(function (e) {
-        var eqUnitPartSelector = $("#EqUnitPartId");
-        var processId = $("#ProcessId").val();
+        let eqUnitPartSelector = $("#EqUnitPartId");
+        let processId = $("#ProcessId").val();
         $.ajax({
             type: "GET",
             url: "/Equipment/GetSubOption?optionTypeId=3&mainId=" + processId + "&subId=" + e.currentTarget.value,
@@ -336,11 +407,10 @@
             success: function (options) {
                 eqUnitPartSelector.empty();
                 $("<option></option>").appendTo(eqUnitPartSelector);
-
-                var currVal = $("#EqUnitId").val();
+                const currVal = $("#EqUnitId").val();
                 for (var i = 0; i < options.length; i++) {
-                    var option = options[i];
-                    var opEl = $("<option></option>").attr("value", option.id).text(option.value);
+                    let option = options[i];
+                    let opEl = $("<option></option>").attr("value", option.id).text(option.value);
                     if (currVal == option)
                         opEl.attr("selected", "selected");
 
@@ -351,22 +421,146 @@
     });
 
     $("#EquipmentId").change(function (e) {
-        var modelCatgSelector = $("#ModelId");
+        let modelCatgSelector = $("#ModelId");
         $.ajax({
             type: "GET",
             url: "/Equipment/ModelNameOption?id=" + e.currentTarget.value,
             dataType: 'json',
             success: function (options) {
                 modelCatgSelector.empty();
-                var currVal = $("#EquipmentId").val();
-                for (var i = 0; i < options.length; i++) {
-                    var option = options[i];
-                    var opEl = $("<option></option>").attr("value", option.id).text(option.value);
+                const currVal = $("#EquipmentId").val();
+                for (let i = 0; i < options.length; i++) {
+                    let option = options[i];
+                    let opEl = $("<option></option>").attr("value", option.id).text(option.value);
                     if (currVal == option) opEl.attr("selected", "selected");
                     opEl.appendTo(modelCatgSelector);
                 }
             }
         });
     });
+
+    $("#TypeId").change(function (e) {
+        let ySelector = $("#YId");
+        const _options = getEvenCodeOption(e.currentTarget.value);
+
+        $("#YId, #SubYId, #XId, #SubXId, #RId").empty();
+        $("<option></option>").appendTo(ySelector);
+
+        if (e.currentTarget.value == 99) {
+            $("#YId-error, #SubYId-error, #XId-error, #SubXId-error, #RId-error").remove();
+            $("#YId, #SubYId, #XId, #SubXId, #RId").attr("disabled", true);
+        }
+        else if (e.currentTarget.value != 0) {
+            $("#YId, #SubYId, #XId, #SubXId, #RId").removeAttr("disabled");
+            setOptions("#YId", _options);
+            $("<option></option>").attr("value", 99).text("Other").appendTo(ySelector);
+        }
+    });
+
+    $("#YId").change(function (e) {
+        let typeSelector = $("#TypeId").find(":selected").val();
+        let subYIdSelector = $("#SubYId");
+        const _options = getEvenCodeOption(typeSelector, e.currentTarget.value);
+
+        $("#SubYId, #XId, #SubXId, #RId").empty();
+        $("<option></option>").appendTo(subYIdSelector);
+
+        if (e.currentTarget.value == 99) {
+            $("#SubYId-error, #XId-error, #SubXId-error, #RId-error").remove();
+            $("#SubYId, #XId, #SubXId, #RId").attr("disabled", true);
+        }
+        else if (e.currentTarget.value != 0) {
+            $("#SubYId, #XId, #SubXId, #RId").removeAttr("disabled");
+            setOptions("#SubYId", _options);
+            $("<option></option>").attr("value", 99).text("Other").appendTo(subYIdSelector);
+        }
+    });
+
+    $("#SubYId").change(function (e) {
+        const typeSelector = $("#TypeId").find(":selected").val();
+        const ySelector = $("#YId").find(":selected").val();
+        let xIdSelector = $("#XId");
+        const _options = getEvenCodeOption(typeSelector, ySelector, e.currentTarget.value);
+
+        $("#XId, #SubXId, #RId").empty();
+        $("<option></option>").appendTo(xIdSelector);
+
+        if (e.currentTarget.value == 99) {
+            $("#XId-error, #SubXId-error, #RId-error").remove();
+            $("#XId, #SubXId, #RId").attr("disabled", true);
+        }
+        else if (e.currentTarget.value != 0) {
+            $("#XId, #SubXId, #RId").removeAttr("disabled");
+            setOptions("#XId", _options);
+            $("<option></option>").attr("value", 99).text("Other").appendTo(xIdSelector);
+        }
+    });
+
+    $("#XId").change(function (e) {
+        const typeSelector = $("#TypeId").find(":selected").val();
+        const ySelector = $("#YId").find(":selected").val();
+        const subYIdSelector = $("#SubYId").find(":selected").val();
+        let subXIdSelector = $("#SubXId");
+        const _options = getEvenCodeOption(typeSelector, ySelector, subYIdSelector, e.currentTarget.value);
+
+        $("#SubXId, #RId").empty();
+        $("<option></option>").appendTo(subXIdSelector);
+
+        if (e.currentTarget.value == 99) {
+            $("#SubXId-error, #RId-error").remove();
+            $("#SubXId, #RId").attr("disabled", true);
+        }
+        else if (e.currentTarget.value != 0) {
+            $("#SubXId, #RId").removeAttr("disabled");
+            setOptions("#SubXId", _options);
+            $("<option></option>").attr("value", 99).text("Other").appendTo(subXIdSelector);
+        }
+    });
+
+    $("#SubXId").change(function (e) {
+        const typeSelector = $("#TypeId").find(":selected").val();
+        const ySelector = $("#YId").find(":selected").val();
+        const subYIdSelector = $("#SubYId").find(":selected").val();
+        const xIdSelector = $("#XId").find(":selected").val();
+        let rIdSelector = $("#RId");
+        const _options = getEvenCodeOption(typeSelector, ySelector, subYIdSelector, xIdSelector, e.currentTarget.value);
+
+        rIdSelector.empty();
+        $("<option></option>").appendTo(rIdSelector);
+
+        if (e.currentTarget.value == 99) {
+            $("#RId-error").remove();
+            $("#RId").attr("disabled", true);
+        }
+        else if (e.currentTarget.value != 0) {
+            $("#RId").removeAttr("disabled");
+            setOptions("#RId", _options);
+            $("<option></option>").attr("value", 99).text("Other").appendTo(rIdSelector);
+        }
+
+    });
+
+    function getEvenCodeOption(type, y, subY, x, subX, r) {
+        let response = [];
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: "/Equipment/GetEvenCodeOption?typeId=" + type + "&yId=" + y + "&subYId=" + subY + "&xId=" + x + "&subXId=" + subX + "&rId=" + r,
+            dataType: 'json',
+            success: function (options) {
+                response = options;
+            }
+        });
+        return response;
+    }
+
+    function setOptions(destSelectId, options) {
+        let _destSelect = $(destSelectId);
+        for (var i = 0; i < options.length; i++) {
+            var option = options[i];
+            var opEl = $("<option></option>").attr("value", option.id).text(option.value);
+            opEl.appendTo(_destSelect);
+        }
+    }
 
 </script>

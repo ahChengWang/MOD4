@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MOD4.Web.Enum;
+using System;
 
 namespace MOD4.Web.DomainService.Entity
 {
@@ -28,5 +29,6 @@ namespace MOD4.Web.DomainService.Entity
         public string memo { get; set; }
         public bool IsPMProcess { get; set; }
         public bool IsEngineerProcess { get; set; }
+        public EqIssueStatusEnum StatusId { get; set; }
     }
 }

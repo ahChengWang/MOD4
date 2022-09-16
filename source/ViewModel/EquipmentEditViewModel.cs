@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using MOD4.Web.Enum;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -21,6 +22,7 @@ namespace MOD4.Web.ViewModel
         public string Operator { get; set; }
 
         [Display(Name = "Comment")]
+        [Required(ErrorMessage = "*必填")]
         public string Comment { get; set; }
 
         [Display(Name = "當機時間")]
@@ -64,6 +66,36 @@ namespace MOD4.Web.ViewModel
         [RegularExpression(@"^[0-9]{1,3}.([0-9]{0,5})?$", ErrorMessage = "請輸入正確的不良率")]
         public string DefectRate { get; set; }
 
+        [Display(Name = "ME\\PE")]
+        [Required(ErrorMessage = "*必填")]
+        public int TypeId { get; set; }
+        public string TypeDesc { get; set; }
+
+        [Display(Name = "Y")]
+        [Required(ErrorMessage = "*必填")]
+        public int YId { get; set; }
+        public string YDesc { get; set; }
+
+        [Display(Name = "y")]
+        [Required(ErrorMessage = "*必填")]
+        public int SubYId { get; set; }
+        public string SubYDesc { get; set; }
+
+        [Display(Name = "X")]
+        [Required(ErrorMessage = "*必填")]
+        public int XId { get; set; }
+        public string XDesc { get; set; }
+
+        [Display(Name = "x")]
+        [Required(ErrorMessage = "*必填")]
+        public int SubXId { get; set; }
+        public string SubXDesc { get; set; }
+
+        [Display(Name = "R")]
+        [Required(ErrorMessage = "*必填")]
+        public int RId { get; set; }
+        public string RDesc { get; set; }
+
 
         [Display(Name = "工程師")]
         [Required(ErrorMessage = "*必填")]
@@ -88,6 +120,7 @@ namespace MOD4.Web.ViewModel
         public string Memo { get; set; }
         public int IsPMProcess { get; set; }
         public int IsEngineerProcess { get; set; }
+        public EqIssueStatusEnum StatusId { get; set; }
         public string SearchVal { get; set; }
 
         // 班別
@@ -104,5 +137,8 @@ namespace MOD4.Web.ViewModel
 
         // 分類
         public SelectList PriorityOptionList { get; set; }
+
+        // Even Code
+        public SelectList EvenCodeOptionList { get; set; }
     }
 }

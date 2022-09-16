@@ -27,21 +27,21 @@
                     <td style="width:25%">@eqinfo.Comment</td>
                     <td style="width:10%">@eqinfo.LmTime</td>
                     <td style="width:8%">@eqinfo.RepairedTime</td>
-                    <td style="width:8%">@eqinfo.UserId</td>    
+                    <td style="width:8%">@eqinfo.UserId</td>
                     <td style="width:10%">
                         @{
-                            if (eqinfo.IsPMProcess)
+                            if (eqinfo.StatusId == MOD4.Web.Enum.EqIssueStatusEnum.PendingPM)
                             {
-                                <button name="PM" class="btn btn-sm btn-secondary" onclick="editClick(@eqinfo.sn,1,0,this)" style="position:relative">
+                                <button name="PM" class="btn btn-sm btn-secondary" onclick="editClick(@eqinfo.sn, @((int)eqinfo.StatusId),this)" style="position:relative">
                                     <img class="eqimg" src="~/img/icons/pencil-2-128.gif" />
                                     <span>PM</span>
                                 </button>
                                 @*<a class="btn btn-secondary" style="width:50px;height:15px;font-size:8px;" onclick="editClick(@eqinfo.sn,1,0,this)"><img class="eqimg" src="~/img/icons/pencil-2-128.gif" />PM</a>*@
                                 @*<input class="btn-sm btn-outline-primary" type="button" disabled value="工程師" />*@
                             }
-                            else if (eqinfo.IsEngineerProcess)
+                            else if (eqinfo.StatusId == MOD4.Web.Enum.EqIssueStatusEnum.PendingENG)
                             {
-                                <button name="Eng" class="btn btn-sm btn-primary" onclick="editClick(@eqinfo.sn,0,1,this)" style="position:relative">
+                                <button name="Eng" class="btn btn-sm btn-primary" onclick="editClick(@eqinfo.sn,@((int)eqinfo.StatusId),this)" style="position:relative">
                                     <img class="eqimg" src="~/img/icons/pencil-2-128.gif" />
                                     <span style="font-size:5px">工程師</span>
                                 </button>
@@ -61,3 +61,23 @@
     </tbody>
 </table>
 
+<script>
+    @*$(function () {
+        var optionList = @Html.Raw(Json.Serialize(ViewBag.LineList));
+
+        if (optionList != null) {
+            $("#selTool").removeAttr("multiple");
+            $("#selTool").empty();
+            var _selTool = $("#hisLine").children().eq(1).children().eq(1).children().eq(1);
+            var _titleEle = $("#hisLine").children().eq(1).children().eq(1).children().first();
+            _selTool.children().remove();
+            optionList.forEach(function (f) {
+                _selTool.append("<button type='button' class='multiselect-option dropdown-item' title=" + f + ">"
+                    + "<span class='form-check'><input class='form-check-input' type='checkbox' value=" + f + "><label class='form-check-label'>" + f + "</label></span></button > ");
+                $("<option></option>").attr("value", f).text(f).appendTo($("#selTool"));
+            });
+
+            $("#selTool").attr("multiple",true);
+        }
+    })*@
+</script>

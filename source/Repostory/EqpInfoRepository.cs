@@ -83,7 +83,14 @@ namespace MOD4.Web.Repostory
                 defect_qty = @defect_qty ,
                 defect_rate = @defect_rate ,
                 mnt_user = @mnt_user ,
-                mnt_minutes = @mnt_minutes 
+                mnt_minutes = @mnt_minutes ,
+                typeId = @typeId ,
+                yId = @yId ,
+                subYId = @subYId ,
+                xId = @xId ,
+                subXId = @subXId ,
+                rId = @rId  ,
+                statusId = @statusId  
                 where sn = @sn ";
 
             var response = _dbHelper.ExecuteNonQuery(sql, new
@@ -97,7 +104,14 @@ namespace MOD4.Web.Repostory
                 defect_qty = updDao.defect_qty,
                 defect_rate = updDao.defect_rate,
                 mnt_user = updDao.mnt_user,
-                mnt_minutes = updDao.mnt_minutes
+                mnt_minutes = updDao.mnt_minutes,
+                typeId = updDao.typeId,
+                yId = updDao.yId,
+                subYId = updDao.subYId,
+                xId = updDao.xId,
+                subXId = updDao.subXId,
+                rId = updDao.rId,
+                statusId = updDao.statusId
             });
 
             return response;
@@ -108,15 +122,17 @@ namespace MOD4.Web.Repostory
             string sql = @"update eqpinfo set 
                 priority = @priority ,
                 engineer = @engineer ,
-                memo = @memo 
+                memo = @memo ,
+                statusId = @statusId  
                 where sn = @sn ";
 
             var response = _dbHelper.ExecuteNonQuery(sql, new
             {
                 sn = updDao.sn,
-                priority = updDao.priorityId,
+                priority = updDao.priority,
                 engineer = updDao.engineer,
-                memo = updDao.memo
+                memo = updDao.memo,
+                statusId = updDao.statusId
             });
 
             return response;

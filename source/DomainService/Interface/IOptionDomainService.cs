@@ -7,5 +7,13 @@ namespace MOD4.Web.DomainService
     public interface IOptionDomainService
     {
         List<OptionEntity> GetOptionByType(OptionTypeEnum optionTypeId, int mainId = 0, int subId = 0);
+
+        List<OptionEntity> GetShiftOptionList();
+
+        List<OptionEntity> GetPriorityOptionList();
+
+        List<OptionEntity> GetEqEvenCodeOptionList(int typeId = 0, int yId = 0, int subyId = 0, int xId = 0, int subxId = 0, int rId = 0);
+
+        List<EqEvanCodeMappingEntity> GetEqEvenCode(int typeId = 0, int yId = 0, int subyId = 0, int xId = 0, int subxId = 0, int rId = 0);
     }
 }

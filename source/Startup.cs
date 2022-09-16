@@ -9,6 +9,8 @@ using MOD4.Web.Helper;
 using MOD4.Web.Repostory;
 using System;
 using System.Text;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 
 namespace MOD4.Web
 {
@@ -41,6 +43,14 @@ namespace MOD4.Web
                 //↓和CSRF資安有關，這裡就加入全域驗證範圍Filter的話，待會Controller就不必再加上[AutoValidateAntiforgeryToken]屬性
                 //options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             });
+            //    .AddJsonOptions(options =>
+            //{
+            //    //原本是 JsonNamingPolicy.CamelCase，強制頭文字轉小寫，我偏好維持原樣，設為null
+            //    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+            //    //允許基本拉丁英文及中日韓文字維持原字元
+            //    options.JsonSerializerOptions.Encoder =
+            //    JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.CjkUnifiedIdeographs);
+            //});
 
             services.AddSingleton<IEquipmentDomainService, EquipmentDomainService>();
             services.AddSingleton<IAccountDomainService, AccountDomainService>();
@@ -58,6 +68,7 @@ namespace MOD4.Web
             services.AddSingleton<ITargetSettingRepository, TargetSettingRepository>();
             services.AddSingleton<ILineTTRepository, LineTTRepository>();
             services.AddSingleton<IEqSituationMappingRepository, EqSituationMappingRepository>();
+            services.AddSingleton<IEqEvanCodeMappingRepository, EqEvanCodeMappingRepository>();
 
             services.AddScoped<MenuService>();
             services.Add(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));

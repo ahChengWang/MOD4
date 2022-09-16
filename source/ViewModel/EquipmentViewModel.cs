@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using MOD4.Web.Enum;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace MOD4.Web.ViewModel
@@ -7,6 +8,8 @@ namespace MOD4.Web.ViewModel
     {
         public List<EquipmentDetailModel> UnrepairedEqList { get; set; }
         public List<EquipmentDetailModel> RepairedEqInfoList { get; set; }
+        public int PMPending { get; set; }
+        public int ENGPending { get; set; }
     }
 
     public class EquipmentDetailModel
@@ -41,7 +44,7 @@ namespace MOD4.Web.ViewModel
         public string EndTime { get; set; }
         public string Remark4 { get; set; }
         public string Remark5 { get; set; }
-        public bool IsPMProcess { get; set; }
-        public bool IsEngineerProcess { get; set; }
+
+        public EqIssueStatusEnum StatusId { get; set; }
     }
 }

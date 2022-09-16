@@ -103,7 +103,6 @@ namespace MOD4.Web.DomainService
                         response.Content.Headers.ContentType.CharSet = "Big5";
 
                         string result = response.Content.ReadAsStringAsync().Result;
-                        //result = Encoding.GetEncoding("big5").GetString(Convert.FromBase64String(result));
 
                         result = result.Remove(0, 12200);
 
@@ -224,112 +223,6 @@ namespace MOD4.Web.DomainService
                 }
 
                 _response.Add(_tResponse);
-
-                //_response.AddRange(_performanceDetail.GroupBy(gb => new { gb.Node, gb.NodeNo }).Select(s =>
-                //{
-                //    var _temp = new PassQtyEntity();
-
-                //    var _currentLineTT = _lineTTList.Where(w =>
-                //        _dailyEqpList.FirstOrDefault(daily => daily.Node == s.Key.Node).Equipments.Split(",").Contains(w.line))
-                //        .Select(s => new LineTTEntity
-                //        {
-                //            sn = s.sn,
-                //            line = s.line,
-                //            MFG_Day = s.MFG_Day,
-                //            MFG_HR = s.MFG_HR,
-                //            Line_TT = s.Line_TT
-                //        }).ToList();
-
-                //    var _lineSetting = _settingList.First(f => f.Node == s.Key.Node);
-                //    var _eqpHistory = _eqpHistoryList.Where(w => w.ToolId.Contains(_lineSetting.DownEquipment)).ToList();
-                //    //_downEqDic.ContainsKey(s.Key) ? _eqpHistoryList.Where(w => _downEqDic[s.Key].Contains(w.ToolId)).ToList() : new List<EquipmentEntity>();
-
-                //    _temp.NodeNo = s.Key.NodeNo;
-                //    _temp.Node = s.Key.Node;
-                //    _temp.NodeName = _lineSetting.Node_Name;
-                //    _temp.DetailList = new List<PassQtyDetailEntity>();
-
-                //    if (_shift == "A")
-                //    {
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time0730 && w.Time.TimeOfDay < _time0830)?.ToList(), "0730",
-                //                _lineSetting.Time0730, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time0730 && w.LmTime.TimeOfDay < _time0830).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 0).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time0830 && w.Time.TimeOfDay < _time0930)?.ToList(), "0830",
-                //                _lineSetting.Time0830, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time0830 && w.LmTime.TimeOfDay < _time0930).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 1).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time0930 && w.Time.TimeOfDay < _time1030)?.ToList(), "0930",
-                //                _lineSetting.Time0930, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time0930 && w.LmTime.TimeOfDay < _time1030).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 2).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time1030 && w.Time.TimeOfDay < _time1130)?.ToList(), "1030",
-                //                _lineSetting.Time1030, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time1030 && w.LmTime.TimeOfDay < _time1130).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 3).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time1130 && w.Time.TimeOfDay < _time1230)?.ToList(), "1130",
-                //                _lineSetting.Time1130, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time1130 && w.LmTime.TimeOfDay < _time1230).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 4).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time1230 && w.Time.TimeOfDay < _time1330)?.ToList(), "1230",
-                //                _lineSetting.Time1230, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time1230 && w.LmTime.TimeOfDay < _time1330).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 5).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time1330 && w.Time.TimeOfDay < _time1430)?.ToList(), "1330",
-                //                _lineSetting.Time1330, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time1330 && w.LmTime.TimeOfDay < _time1430).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 6).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time1430 && w.Time.TimeOfDay < _time1530)?.ToList(), "1430",
-                //                _lineSetting.Time1430, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time1430 && w.LmTime.TimeOfDay < _time1530).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 7).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time1530 && w.Time.TimeOfDay < _time1630)?.ToList(), "1530",
-                //                _lineSetting.Time1530, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time1530 && w.LmTime.TimeOfDay < _time1630).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 8).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time1630 && w.Time.TimeOfDay < _time1730)?.ToList(), "1630",
-                //                _lineSetting.Time1630, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time1630 && w.LmTime.TimeOfDay < _time1730).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 9).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time1730 && w.Time.TimeOfDay < _time1830)?.ToList(), "1730",
-                //                _lineSetting.Time1730, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time1730 && w.LmTime.TimeOfDay < _time1830).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 10).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time1830 && w.Time.TimeOfDay < _time1930)?.ToList(), "1830",
-                //                _lineSetting.Time1830, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time1830 && w.LmTime.TimeOfDay < _time1930).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 11).ToList()));
-                //    }
-                //    else
-                //    {
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time1930 && w.Time.TimeOfDay < _time2030)?.ToList(), "1930",
-                //                _lineSetting.Time1930, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time1930 && w.LmTime.TimeOfDay < _time2030).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 12).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time2030 && w.Time.TimeOfDay < _time2130)?.ToList(), "2030",
-                //                _lineSetting.Time2030, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time2030 && w.LmTime.TimeOfDay < _time2130).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 13).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time2130 && w.Time.TimeOfDay < _time2230)?.ToList(), "2130",
-                //                _lineSetting.Time2130, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time2130 && w.LmTime.TimeOfDay < _time2230).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 14).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time2230 && w.Time.TimeOfDay < _time2330)?.ToList(), "2230",
-                //                _lineSetting.Time2230, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time2230 && w.LmTime.TimeOfDay < _time2330).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 15).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time2330 && w.Time.TimeOfDay < _time0030)?.ToList(), "2330",
-                //                _lineSetting.Time2330, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time2330 && w.LmTime.TimeOfDay < _time0030).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 16).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time0030 && w.Time.TimeOfDay < _time0130)?.ToList(), "0030",
-                //                _lineSetting.Time0030, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time0030 && w.LmTime.TimeOfDay < _time0130).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 17).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time0130 && w.Time.TimeOfDay < _time0230)?.ToList(), "0130",
-                //                _lineSetting.Time0130, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time0130 && w.LmTime.TimeOfDay < _time0230).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 18).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time0230 && w.Time.TimeOfDay < _time0330)?.ToList(), "0230",
-                //                _lineSetting.Time0230, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time0230 && w.LmTime.TimeOfDay < _time0330).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 19).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time0330 && w.Time.TimeOfDay < _time0430)?.ToList(), "0330",
-                //                _lineSetting.Time0330, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time0330 && w.LmTime.TimeOfDay < _time0430).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 20).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time0430 && w.Time.TimeOfDay < _time0530)?.ToList(), "0430",
-                //                _lineSetting.Time0430, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time0430 && w.LmTime.TimeOfDay < _time0530).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 21).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time0530 && w.Time.TimeOfDay < _time0630)?.ToList(), "0530",
-                //                _lineSetting.Time0530, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time0530 && w.LmTime.TimeOfDay < _time0630).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 22).ToList()));
-                //        _temp.DetailList.Add(GroupDetail(s.Where(w => w.Time.TimeOfDay > _time0630 && w.Time.TimeOfDay < _time0730)?.ToList(), "0630",
-                //                _lineSetting.Time0630, _eqpHistory.Where(w => w.LmTime.TimeOfDay > _time0630 && w.LmTime.TimeOfDay < _time0730).ToList(),
-                //                _currentLineTT.Where(tt => tt.MFG_HR == 23).ToList()));
-                //    }
-
-                //    return _temp;
-                //}));
 
             });
 

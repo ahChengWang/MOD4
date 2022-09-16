@@ -1,4 +1,5 @@
 ﻿using MOD4.Web.DomainService.Entity;
+using MOD4.Web.Enum;
 using System.Collections.Generic;
 
 namespace MOD4.Web.DomainService
@@ -13,9 +14,13 @@ namespace MOD4.Web.DomainService
 
         List<EquipmentEntity> GetRepairedEqList(string date = null, string toolId = null, string statusIdList = null);
 
+        (int, int) GetTodayRepairedEqPendingList();
+
         EquipmentEditEntity GetEditEqpinfo(int sn, UserEntity userEntity = null);
 
-        string VerifyEqpStatus(int sn, int isPM, int isEng, UserEntity userEntity);
+        EquipmentEditEntity GetDetailEqpinfo(int sn);
+
+        string VerifyEqpStatus(int sn, EqIssueStatusEnum statusId, UserEntity userEntity);
 
         List<EquipmentEntity> GetEntityHistoryDetail(string mfgDay, List<string> eqpListStr);
 

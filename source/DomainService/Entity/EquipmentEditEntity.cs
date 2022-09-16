@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MOD4.Web.Enum;
+using System;
 
 namespace MOD4.Web.DomainService.Entity
 {
@@ -8,6 +9,7 @@ namespace MOD4.Web.DomainService.Entity
         public string Equipment { get; set; }
         public string Code { get; set; }
         public string CodeDesc { get; set; }
+        public string Product { get; set; }
         public string Operator { get; set; }
         public string Comments { get; set; }
         public string MFGDay { get; set; }
@@ -30,7 +32,18 @@ namespace MOD4.Web.DomainService.Entity
         public string Memo { get; set; }
         public string MntUser { get; set; }
         public string MntMinutes { get; set; }
-        public int IsPMProcess { get; set; }
-        public int IsEngineerProcess { get; set; }
+        public int TypeId { get; set; }
+        public string TypeDesc { get; set; }
+        public int YId { get; set; }
+        public string YDesc { get; set; }
+        public int SubYId { get; set; }
+        public string SubYDesc { get; set; }
+        public int XId { get; set; }
+        public string XDesc { get; set; }
+        public int SubXId { get; set; }
+        public string SubXDesc { get; set; }
+        public int RId { get; set; }
+        public string RDesc { get; set; }
+        public EqIssueStatusEnum StatusId { get; set; }
     }
 }

@@ -16,7 +16,7 @@ namespace MOD4.Web.DomainService
         private readonly IEqpInfoRepository _eqpInfoRepository;
         private readonly IOptionDomainService _optionDomainService;
 
-        public EquipmentDomainService(IAlarmXmlRepository alarmXmlRepository, 
+        public EquipmentDomainService(IAlarmXmlRepository alarmXmlRepository,
             IEqpInfoRepository eqpInfoRepository,
             IOptionDomainService optionDomainService)
         {
@@ -41,7 +41,7 @@ namespace MOD4.Web.DomainService
         {
             try
             {
-                string beginDTE = DateTime.Now.ToString("yyyy-MM") + "-01";
+                string beginDTE = DateTime.Now.AddMonths(-2).ToString("yyyy-MM") + "-01";
 
                 return _eqpInfoRepository.SelectToolList(date ?? beginDTE);
             }
@@ -101,13 +101,13 @@ namespace MOD4.Web.DomainService
                         switch (fe)
                         {
                             case 1:
-                                _resEquipmentList.AddRange(_eqpInfoList.Where(w => string.IsNullOrEmpty(w.mnt_user)).ToList());
+                                _resEquipmentList.AddRange(_eqpInfoList.Where(w => w.statusId == EqIssueStatusEnum.PendingPM).ToList());
                                 break;
                             case 2:
-                                _resEquipmentList.AddRange(_eqpInfoList.Where(w => !string.IsNullOrEmpty(w.mnt_user) && string.IsNullOrEmpty(w.engineer)).ToList());
+                                _resEquipmentList.AddRange(_eqpInfoList.Where(w => w.statusId == EqIssueStatusEnum.PendingENG).ToList());
                                 break;
                             case 3:
-                                _resEquipmentList.AddRange(_eqpInfoList.Where(w => !string.IsNullOrEmpty(w.mnt_user) && !string.IsNullOrEmpty(w.engineer)).ToList());
+                                _resEquipmentList.AddRange(_eqpInfoList.Where(w => w.statusId == EqIssueStatusEnum.Complete).ToList());
                                 break;
                             default:
                                 break;
@@ -133,8 +133,7 @@ namespace MOD4.Web.DomainService
                         RepairTime = s.Repair_Time,
                         MFGDay = s.MFG_Day.ToString("yyyy-MM-dd"),
                         MFGHr = s.MFG_HR.ToString(),
-                        IsPMProcess = s.shift == 0 && string.IsNullOrEmpty(s.mnt_user),
-                        IsEngineerProcess = !string.IsNullOrEmpty(s.mnt_user) && string.IsNullOrEmpty(s.engineer)
+                        StatusId = s.statusId
                     };
                 })).ToList();
             }
@@ -142,6 +141,14 @@ namespace MOD4.Web.DomainService
             {
                 throw ex;
             }
+        }
+
+        public (int, int) GetTodayRepairedEqPendingList()
+        {
+            var _eqpInfoList = _eqpInfoRepository.SelectByConditions(DateTime.Now.ToString("yyyy-MM-dd"), null, false);
+
+            return (_eqpInfoList.Where(w => string.IsNullOrEmpty(w.mnt_user)).ToList().Count(),
+                    _eqpInfoList.Where(w => !string.IsNullOrEmpty(w.mnt_user) && string.IsNullOrEmpty(w.engineer)).ToList().Count());
         }
 
         public EquipmentEditEntity GetEditEqpinfo(int sn, UserEntity userEntity = null)
@@ -157,6 +164,8 @@ namespace MOD4.Web.DomainService
 
                 if (userEntity != null)
                     CatchHelper.Set($"Eq_Edit:{sn}", userEntity.Account, 600);
+
+                var _evenCodeList = _optionDomainService.GetEqEvenCode(_r.typeId, _r.yId, _r.subYId, _r.xId, _r.subXId, _r.rId);
 
                 return new EquipmentEditEntity
                 {
@@ -177,7 +186,14 @@ namespace MOD4.Web.DomainService
                     Engineer = _r.engineer,
                     Memo = _r.memo,
                     MntUser = _r.mnt_user,
-                    MntMinutes = _r.mnt_minutes
+                    MntMinutes = _r.mnt_minutes,
+                    TypeDesc = _r.typeId == 0 ? "" : _evenCodeList.FirstOrDefault(f => f.TypeId == _r.typeId)?.Type ?? "Other",
+                    YDesc = _r.yId == 0 ? "" : _evenCodeList.FirstOrDefault(f => f.YId == _r.yId)?.Y ?? "Other",
+                    SubYDesc = _r.subYId == 0 ? "" : _evenCodeList.FirstOrDefault(f => f.SubYId == _r.subYId)?.SubY ?? "Other",
+                    XDesc = _r.xId == 0 ? "" : _evenCodeList.FirstOrDefault(f => f.XId == _r.xId)?.X ?? "Other",
+                    SubXDesc = _r.subXId == 0 ? "" : _evenCodeList.FirstOrDefault(f => f.SubXId == _r.subXId)?.SubX ?? "Other",
+                    RDesc = _r.rId == 0 ? "" : _evenCodeList.FirstOrDefault(f => f.RId == _r.rId)?.R ?? "Other",
+                    StatusId = _r.statusId
                 };
             }
             catch (Exception ex)
@@ -200,7 +216,10 @@ namespace MOD4.Web.DomainService
 
                 var _processOptions = _optionDomainService.GetOptionByType(OptionTypeEnum.ProcessOption);
                 var _eqUnitOptions = _optionDomainService.GetOptionByType(OptionTypeEnum.EqUnit, _r.processId);
-                var _eqUnitPartOptions = _optionDomainService.GetOptionByType(OptionTypeEnum.EqUnitPart, _r.processId,_r.eq_unitId);
+                var _eqUnitPartOptions = _optionDomainService.GetOptionByType(OptionTypeEnum.EqUnitPart, _r.processId, _r.eq_unitId);
+                var _shiftOptions = _optionDomainService.GetShiftOptionList();
+                var _priorityOptions = _optionDomainService.GetPriorityOptionList();
+                var _evenCodeList = _optionDomainService.GetEqEvenCode(_r.typeId, _r.yId, _r.subYId, _r.xId, _r.subXId, _r.rId);
 
                 return new EquipmentEditEntity
                 {
@@ -208,23 +227,31 @@ namespace MOD4.Web.DomainService
                     Equipment = _r.Equipment,
                     Code = _r.Code,
                     CodeDesc = _r.Code_Desc,
+                    Product = _r.prod_id,
                     Operator = _r.Operator,
                     Comments = _r.Comments,
                     StartTime = _r.Start_Time,
                     UpdateTime = _r.Update_Time,
-                    Shift = _r.shift,
+                    ShiftDesc = _shiftOptions.FirstOrDefault(w => w.Id == _r.shift)?.Value ?? "",
                     ProcessId = _r.processId,
-                    Process = _processOptions.FirstOrDefault(w => w.Id == _r.processId).Value,
+                    Process = _processOptions.FirstOrDefault(w => w.Id == _r.processId)?.Value ?? "",
                     EqUnitId = _r.eq_unitId,
-                    EqUnit = _eqUnitOptions.FirstOrDefault(w => w.Id == _r.eq_unitId).Value,
+                    EqUnit = _eqUnitOptions.FirstOrDefault(w => w.Id == _r.eq_unitId)?.Value ?? "",
                     EqUnitPartId = _r.eq_unit_partId,
-                    EqUnitPart = _eqUnitPartOptions.FirstOrDefault(w => w.Id == _r.eq_unit_partId).Value,
+                    EqUnitPart = _eqUnitPartOptions.FirstOrDefault(w => w.Id == _r.eq_unit_partId)?.Value ?? "",
                     DefectQty = _r.defect_qty,
                     DefectRate = _r.defect_rate,
                     Engineer = _r.engineer,
+                    Priority = _priorityOptions.FirstOrDefault(w => w.Id == _r.priority)?.Value ?? "",
                     Memo = _r.memo,
                     MntUser = _r.mnt_user,
-                    MntMinutes = _r.mnt_minutes
+                    MntMinutes = _r.mnt_minutes,
+                    TypeDesc = _r.typeId == 0 ? "" : _evenCodeList.FirstOrDefault(f => f.TypeId == _r.typeId)?.Type ?? "Other",
+                    YDesc = _r.yId == 0 ? "" : _evenCodeList.FirstOrDefault(f => f.YId == _r.yId)?.Y ?? "Other",
+                    SubYDesc = _r.subYId == 0 ? "" : _evenCodeList.FirstOrDefault(f => f.SubYId == _r.subYId)?.SubY ?? "Other",
+                    XDesc = _r.xId == 0 ? "" : _evenCodeList.FirstOrDefault(f => f.XId == _r.xId)?.X ?? "Other",
+                    SubXDesc = _r.subXId == 0 ? "" : _evenCodeList.FirstOrDefault(f => f.SubXId == _r.subXId)?.SubX ?? "Other",
+                    RDesc = _r.rId == 0 ? "" : _evenCodeList.FirstOrDefault(f => f.RId == _r.rId)?.R ?? "Other"
                 };
             }
             catch (Exception ex)
@@ -234,10 +261,7 @@ namespace MOD4.Web.DomainService
         }
 
 
-
-
-
-        public string VerifyEqpStatus(int sn, int isPM, int isEng, UserEntity userEntity)
+        public string VerifyEqpStatus(int sn, EqIssueStatusEnum statusId, UserEntity userEntity)
         {
             try
             {
@@ -248,14 +272,14 @@ namespace MOD4.Web.DomainService
                     return $"{_catchInfo} 編輯機況中";
                 }
 
-                if ((isPM != 0 && isPM != 1 && isEng != 0 && isEng != 1) || (isPM == isEng))
+                if (statusId == 0)
                     return "參數異常";
 
                 var _eqpinfo = _eqpInfoRepository.SelectEqpinfoByConditions(sn);
 
-                if (isPM == 1 && !string.IsNullOrEmpty(_eqpinfo.mnt_user))
+                if (statusId == EqIssueStatusEnum.PendingPM && !string.IsNullOrEmpty(_eqpinfo.mnt_user))
                     return "機況已更新";
-                else if (isEng == 1 && !string.IsNullOrEmpty(_eqpinfo.engineer))
+                else if (statusId == EqIssueStatusEnum.PendingENG && !string.IsNullOrEmpty(_eqpinfo.engineer))
                     return "機況已更新";
 
                 return "";
@@ -299,19 +323,21 @@ namespace MOD4.Web.DomainService
                 var _updateResponse = "";
                 var oldEqpinfo = _eqpInfoRepository.SelectEqpinfoByConditions(editEntity.sn);
 
-                if ((editEntity.IsPMProcess == 1 && editEntity.IsEngineerProcess == 1) ||
-                    (editEntity.IsPMProcess == 0 && editEntity.IsEngineerProcess == 0))
-                    return "Process error";
-
                 if (oldEqpinfo == null)
                     return "查無機況";
+
+                if (editEntity.StatusId == 0 ||
+                    (editEntity.StatusId == EqIssueStatusEnum.PendingPM && !string.IsNullOrEmpty(oldEqpinfo.mnt_user)) ||
+                    (editEntity.StatusId == EqIssueStatusEnum.PendingENG && !string.IsNullOrEmpty(oldEqpinfo.engineer)) ||
+                    editEntity.StatusId == EqIssueStatusEnum.Complete)
+                    return "流程錯誤";
 
                 EqpInfoDao _updEqpinfo = new EqpInfoDao
                 {
                     sn = editEntity.sn
                 };
 
-                if (editEntity.IsPMProcess == 1)
+                if (editEntity.StatusId == EqIssueStatusEnum.PendingPM)
                 {
                     _updEqpinfo.Comments = editEntity.Comments;
                     _updEqpinfo.processId = editEntity.ProcessId;
@@ -322,21 +348,29 @@ namespace MOD4.Web.DomainService
                     _updEqpinfo.defect_rate = editEntity.DefectRate;
                     _updEqpinfo.mnt_user = editEntity.MntUser;
                     _updEqpinfo.mnt_minutes = editEntity.MntMinutes;
+                    _updEqpinfo.typeId = editEntity.TypeId;
+                    _updEqpinfo.yId = editEntity.YId;
+                    _updEqpinfo.subYId = editEntity.SubYId;
+                    _updEqpinfo.xId = editEntity.XId;
+                    _updEqpinfo.subXId = editEntity.SubXId;
+                    _updEqpinfo.rId = editEntity.RId;
+                    _updEqpinfo.statusId = EqIssueStatusEnum.PendingENG;
                 }
-                else if (editEntity.IsEngineerProcess == 1)
+                else if (editEntity.StatusId == EqIssueStatusEnum.PendingENG)
                 {
-                    _updEqpinfo.priorityId = editEntity.PriorityId;
+                    _updEqpinfo.priority = editEntity.PriorityId;
                     _updEqpinfo.engineer = editEntity.Engineer;
                     _updEqpinfo.memo = editEntity.Memo;
+                    _updEqpinfo.statusId = EqIssueStatusEnum.Complete;
                 }
 
                 using (var scope = new TransactionScope())
                 {
                     var _uprdResult = false;
 
-                    if (editEntity.IsPMProcess == 1)
+                    if (editEntity.StatusId == EqIssueStatusEnum.PendingPM)
                         _uprdResult = _eqpInfoRepository.UpdateEqpinfoByPM(_updEqpinfo) == 2; //含觸發自動更新 updateTime trigger
-                    else if (editEntity.IsEngineerProcess == 1)
+                    else if (editEntity.StatusId == EqIssueStatusEnum.PendingENG)
                         _uprdResult = _eqpInfoRepository.UpdateEqpinfoByENG(_updEqpinfo) == 2; //含觸發自動更新 updateTime trigger
 
                     if (_uprdResult)

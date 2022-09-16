@@ -1,4 +1,4 @@
-﻿@model MOD4.Web.ViewModel.EquipmentEditViewModel
+﻿@model MOD4.Web.ViewModel.EquipmentDetailViewModel
 
 <style>
     .col-md-10 {
@@ -26,16 +26,24 @@
     .unit {
         position: absolute;
         bottom: 0px;
-        right: 10px;
+        right: -5px;
         font-weight: 700;
+    }
+
+    label[name="underline"] {
+        text-decoration: underline;
+    }
+
+    input {
+        text-align: right;
     }
 </style>
 
 
 <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">機況記錄</h5>
+        <div class="modal-header" style="height: 40px; align-items: center; display: flex; ">
+            <h3 class="modal-title" id="exampleModalLabel">機況記錄</h3>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismissModal()">
                 <span aria-hidden="true" style="color:white">&times;</span>
             </button>
@@ -43,110 +51,183 @@
         <div class="modal-body">
             <form>
                 <div class="card-body">
-                    <div class="row" style="display: flex;">
+                    <div class="row">
+                        <label class="col-form-label col-2" asp-for="StartTime"></label>
+                        <label class="col-form-label col-4" name="underline">@Model.StartTime</label>
+                        <label class="col-form-label col-2" asp-for="ToolId"></label>
+                        <label class="col-form-label col-4" name="underline">@Model.ToolId</label>
+                    </div>
+                    <div class="row">
+                    </div>
+                    <div class="row">
                         <div class="col-2">
-                            <label class="col-form-label" asp-for="StartTime"></label>
-                        </div>
-                        <div class="col-3">
-                            <label class="col-form-label">@Model.StartTime</label>
+                            <label class="col-form-label" asp-for="Product"></label>
                         </div>
                         <div class="col-2">
-                            <label class="col-form-label" asp-for="ToolId"></label>
+                            <label class="col-form-label" name="underline">@Model.Product</label>
+                        </div>
+                        <div class="col-1">
+                            <label class="col-form-label" asp-for="ProductShortName"></label>
                         </div>
                         <div class="col-2">
-                            <label class="col-form-label">@Model.ToolId</label>
+                            <label class="col-form-label" name="underline">@Model.ProductShortName</label>
+                        </div>
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="ModelName"></label>
+                        </div>
+                        <div class="col-2">
+                            <label class="col-form-label" name="underline">@Model.ModelName</label>
                         </div>
                     </div>
-
                     <div class="row" style="display: flex;">
                         <div class="col-2">
                             <label class="col-form-label" asp-for="Code"></label>
                         </div>
-                        <div class="col-3">
-                            <label class="col-form-label">@Model.Code</label>
+                        <div class="col-2">
+                            <label class="col-form-label" name="underline">@Model.Code</label>
                         </div>
-                        <div class="col-3">
+                        <div class="col-2">
                             <label class="col-form-label" asp-for="Codedesc"></label>
                         </div>
-                        <div class="col-3">
-                            <label class="col-form-label">@Model.Codedesc</label>
+                        <div class="col-4">
+                            <label class="col-form-label" name="underline">@Model.Codedesc</label>
                         </div>
                     </div>
                     <div class="row" style="display: flex; margin-top: 10px; ">
                         <div class="col-2">
                             <label class="col-form-label" asp-for="Comment"></label>
                         </div>
-                        <div class="col-8">
-                            <textarea class="form-control pmEdit" disabled asp-for="Comment" id="Comment" rows="2"></textarea>
+                        <div class="col-10">
+                            <textarea class="form-control detail" asp-for="Comment" id="Comment" rows="2"></textarea>
                         </div>
                     </div>
                     <div class="row" style="display: flex; margin-top: 10px;">
                         <div class="col-2">
-                            <label class="col-form-label" asp-for="Shift"></label>
+                            <label class="col-form-label" asp-for="Process"></label>
                         </div>
                         <div class="col-2">
-                            <input class="form-control pmEdit" disabled type="text" asp-for="Shift" />
+                            <input class="form-control detail" type="text" asp-for="Process" />
                         </div>
                         <div class="col-2">
-                            <label class="col-form-label" asp-for="EqUnitId"></label>
+                            <label class="col-form-label" asp-for="EqUnit"></label>
                         </div>
                         <div class="col-2">
-                            <input class="form-control pmEdit" disabled type="text" asp-for="EqUnitId" />
+                            <input class="form-control detail" type="text" asp-for="EqUnit" />
                         </div>
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="EqUnitPart" style="font-size:15px"></label>
+                        </div>
+                        <div class="col-2">
+                            <input class="form-control detail" type="text" asp-for="EqUnitPart" />
+                        </div>
+                    </div>
+                    <div class="row" style="display: flex;margin-top:10px;">
                         <div class="col-2">
                             <label class="col-form-label" asp-for="DefectQty"></label>
                         </div>
                         <div class="col-2">
-                            <input class="form-control pmEdit" disabled style="text-align:right" type="number" min="0" asp-for="DefectQty" />
+                            <input class="form-control detail" style="text-align:right" type="number" min="0" asp-for="DefectQty" />
                         </div>
-                    </div>
-                    <div class="row" style="display: flex;margin-top:10px;">
                         <div class="col-2">
                             <label class="col-form-label" asp-for="DefectRate"></label>
                         </div>
                         <div class="col-2">
                             <div>
-                                <input class="form-control pmEdit" disabled type="text" min="0" max="100" maxlength="8" placeholder="ex:95.1234" asp-for="DefectRate" />
+                                <input class="form-control detail" type="text" min="0" max="100" maxlength="8" placeholder="ex:95.1234" asp-for="DefectRate" />
                                 <span class="unit">%</span>
                             </div>
+                        </div>
+                    </div>
+                    <div class="row" style="display: flex;margin-top:10px;">
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="Shift"></label>
+                        </div>
+                        <div class="col-2">
+                            <input class="form-control detail" type="text" asp-for="Shift" />
                         </div>
                         <div class="col-2">
                             <label class="col-form-label" asp-for="MntUser"></label>
                         </div>
                         <div class="col-2">
-                            <input class="form-control pmEdit" disabled type="text" asp-for="MntUser" />
+                            <input class="form-control detail pmEdit" type="text" asp-for="MntUser" />
                         </div>
                     </div>
+
+
+                    <div class="row" style="display: flex; margin-top: 10px;">
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="Type"></label>
+                        </div>
+                        <div class="col-2">
+                            <input class="form-control detail" type="text" asp-for="Type" />
+                        </div>
+                        <div class="col-1">
+                            <label class="col-form-label" asp-for="Y"></label>
+                        </div>
+                        <div class="col-2">
+                            <input class="form-control detail" type="text" asp-for="Y" />
+                        </div>
+                        <div class="col-1">
+                            <label class="col-form-label" asp-for="SubY" style="font-size:15px"></label>
+                        </div>
+                        <div class="col-2">
+                            <input class="form-control detail" type="text" asp-for="SubY" />
+                        </div>
+                    </div>
+
+                    <div class="row" style="display: flex; margin-top: 10px;">
+                        <div class="col-2">
+                            <label class="col-form-label" asp-for="X"></label>
+                        </div>
+                        <div class="col-2">
+                            <input class="form-control detail" type="text" asp-for="X" />
+                        </div>
+                        <div class="col-1">
+                            <label class="col-form-label" asp-for="SubX"></label>
+                        </div>
+                        <div class="col-2">
+                            <input class="form-control detail" type="text" asp-for="SubX" />
+                        </div>
+                        <div class="col-1">
+                            <label class="col-form-label" asp-for="R" style="font-size:15px"></label>
+                        </div>
+                        <div class="col-2">
+                            <input class="form-control detail" type="text" asp-for="R" />
+                        </div>
+                    </div>
+
+
                     <div class="row" style="margin-top:10px;">
                         <div class="col-2">
                             <label class="col-form-label" asp-for="MntMinutes"></label>
                         </div>
-                        <div class="col-8">
-                            <textarea class="form-control pmEdit" disabled asp-for="MntMinutes" id="Comment" rows="3" cols="75"></textarea>
+                        <div class="col-10">
+                            <textarea class="form-control detail" asp-for="MntMinutes" id="Comment" rows="4" cols="75"></textarea>
                         </div>
                         <br />
                     </div>
 
+                    <hr style="border-width:3px;border-color:gray" />
                     <div class="row" style="display: flex;margin-top:10px;">
                         <div class="col-2">
                             <label class="col-form-label" asp-for="Engineer"></label>
                         </div>
-                        <div class="col-2">
-                            <input class="form-control" disabled type="text" asp-for="Engineer" />
+                        <div class="col-3">
+                            <input class="form-control detail" type="text" asp-for="Engineer" />
                         </div>
                         <div class="col-2">
-                            <label class="col-form-label" asp-for="PriorityId"></label>
+                            <label class="col-form-label" asp-for="Priority"></label>
                         </div>
                         <div class="col-2">
-                            <input class="form-control" disabled type="text" asp-for="PriorityId" />
+                            <input class="form-control detail" type="text" asp-for="Priority" />
                         </div>
                     </div>
                     <div class="row" style="margin-top:10px;">
                         <div class="col-2">
                             <label class="col-form-label" asp-for="Memo"></label>
                         </div>
-                        <div class="col-6">
-                            <textarea class="form-control" disabled asp-for="Memo" rows="3" cols="75"></textarea>
+                        <div class="col-7">
+                            <textarea class="form-control detail" asp-for="Memo" rows="3" cols="75"></textarea>
                         </div>
                     </div>
                 </div>
@@ -154,3 +235,9 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    $(function () {
+        $(".detail").attr("disabled", true);
+    });
+</script>

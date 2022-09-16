@@ -167,7 +167,7 @@
                                     <label>日期：</label>
                                     <input id="srcHisDate" class="my-control" type="date" name="name" value="" />
                                 </div>
-                                <div style="margin-right: 5px;">
+                                <div id="hisLine" style="margin-right: 5px;">
                                     <label>線體：</label>
                                     <select class="my-select" id="selTool" multiple="multiple">
                                         @{
@@ -203,43 +203,7 @@
                                     <i id="engttl">待工程師確認 (0)</i>
                                 </div>
                             </div>
-
                             <partial name="_PartialEqHisotry" model="Model" />
-                            @*<table id="example2" class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th class="myth2">@Html.DisplayNameFor(model => model.RepairedEqInfoList.First().MFGDay)</th>
-                                            <th class="myth2">@Html.DisplayNameFor(model => model.RepairedEqInfoList.First().ToolId)</th>
-                                            <th class="myth2">@Html.DisplayNameFor(model => model.RepairedEqInfoList.First().ToolStatus)</th>
-                                            <th class="myth2">@Html.DisplayNameFor(model => model.RepairedEqInfoList.First().StatusCdsc)</th>
-                                            <th class="myth2">@Html.DisplayNameFor(model => model.RepairedEqInfoList.First().Comment)</th>
-                                            <th class="myth2">@Html.DisplayNameFor(model => model.RepairedEqInfoList.First().LmTime)</th>
-                                            <th class="myth2">@Html.DisplayNameFor(model => model.RepairedEqInfoList.First().RepairedTime)</th>
-                                            <th class="myth2">@Html.DisplayNameFor(model => model.RepairedEqInfoList.First().UserId)</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @{
-                                            foreach (var eqinfo in Model.RepairedEqInfoList)
-                                            {
-                                                <tr>
-                                                    <td style="width:10%">@eqinfo.MFGDay</td>
-                                                    <td style="width:8%">@eqinfo.ToolId</td>
-                                                    <td style="width:5%">@eqinfo.ToolStatus</td>
-                                                    <td style="width:15%">@eqinfo.StatusCdsc</td>
-                                                    <td style="width:30%">@eqinfo.Comment</td>
-                                                    <td style="width:10%">@eqinfo.LmTime</td>
-                                                    <td style="width:8%">@eqinfo.RepairedTime</td>
-                                                    <td style="width:12%">@eqinfo.UserId</td>
-                                                    <td style="width:5%">
-                                                        <input class="btn-sm btn-outline-danger" type="button" name="" value="編輯" onclick="editClick(@eqinfo.sn,this)" />
-                                                    </td>
-                                                </tr>
-                                            }
-                                        }
-                                    </tbody>
-                                </table>*@
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -354,10 +318,25 @@
             "buttons": ["excel", "colvis"]
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
 
-        var _forPMcnt = $('button[name=PM]').length
-        var _forEngcnt = $('button[name=Eng]').length
-        $('#pmttl').html("待 PM 確認 (" + _forPMcnt + ")");
-        $('#engttl').html("待工程師確認 (" + _forEngcnt + ")");
+
+        const m = new Date();
+        const year = m.getFullYear();
+        let month = '' + (m.getMonth() + 1);
+        let day = '' + m.getDate();
+        if (month.length < 2)
+            month = '0' + month;
+        if (day.length < 2)
+            day = '0' + day;
+        const dateString = year + "-" + month + "-" + day;
+        const _model = @Json.Serialize(Model);
+        const _repairedEqInfoList = @Json.Serialize(Model.RepairedEqInfoList.FirstOrDefault());
+
+        $('#pmttl').html("待 PM 確認 (" + _model["pmPending"] + ")");
+        $('#engttl').html("待工程師確認 (" + _model["engPending"] + ")");
+
+        if (_repairedEqInfoList != null && _repairedEqInfoList["mfgDay"] != dateString) {
+            $("#srcHisDate").val(_repairedEqInfoList["mfgDay"]);
+        }
 
         $("#example2").DataTable({
             "responsive": false
@@ -367,10 +346,7 @@
             /*,"buttons": ["excel", "colvis"]*/
         }).buttons().container().appendTo('#example2_wrapper .col-md-6:eq(0)');
 
-        $("#selLoc, #selTool, #selStatus").multiselect({
-            enableClickableOptGroups: true
-        });
-
+        $("#selLoc,#selTool, #selStatus").multiselect({});
 
     });
 
@@ -379,15 +355,15 @@
     $("#btnSearchHis").click(myFuc.SearchEqHis);
 
 
-    function editClick(id, isPM, isEng, e) {
+    function editClick(id, statusId, isEng, e) {
         $.ajax({
-            url: "Equipment/VerifyEqStatus?eqsn=" + id + "&isPM=" + isPM + "&isEng=" + isEng,
+            url: "Equipment/VerifyEqStatus?eqsn=" + id + "&statusId=" + statusId,
             type: "GET",
             async: false,
             dataType: 'json',
             success: function (chkResponse) {
                 if (chkResponse == "") {
-                    location.href = "Equipment/Edit?sn=" + id + "&isPM=" + isPM + "&isEng=" + isEng + "&searchVal=" + $("#srcHisDate").val() + ";" + $("#selTool").val() + ";" + $("#selStatus").val();
+                    location.href = "Equipment/Edit?sn=" + id + "&statusId=" + statusId + "&searchVal=" + $("#srcHisDate").val() + ";" + $("#selTool").val() + ";" + $("#selStatus").val();
                 }
                 else {
                     alert(chkResponse);

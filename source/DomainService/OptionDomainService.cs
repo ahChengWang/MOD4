@@ -6,7 +6,6 @@ using MOD4.Web.Repostory.Dao;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace MOD4.Web.DomainService
@@ -14,12 +13,15 @@ namespace MOD4.Web.DomainService
     public class OptionDomainService : IOptionDomainService
     {
         private readonly IEqSituationMappingRepository _eqSituationMappingRepository;
+        private readonly IEqEvanCodeMappingRepository _eqEvanCodeMappingRepository;
 
-        public OptionDomainService(IEqSituationMappingRepository eqSituationMappingRepository)
+        public OptionDomainService(IEqSituationMappingRepository eqSituationMappingRepository,
+            IEqEvanCodeMappingRepository eqEvanCodeMappingRepository)
         {
             _eqSituationMappingRepository = eqSituationMappingRepository;
+            _eqEvanCodeMappingRepository = eqEvanCodeMappingRepository;
         }
-                
+
 
         public List<OptionEntity> GetOptionByType(OptionTypeEnum optionTypeId, int mainId = 0, int subId = 0)
         {
@@ -62,135 +64,107 @@ namespace MOD4.Web.DomainService
             }
         }
 
-        private List<OptionEntity> GetEqUnitOptionList(int id)
+        public List<OptionEntity> GetShiftOptionList()
+            => new List<OptionEntity> {
+                new OptionEntity { Id = 1, Value = "A" },
+                new OptionEntity { Id = 2, Value = "B" },
+                new OptionEntity { Id = 3, Value = "C" },
+                new OptionEntity { Id = 4, Value = "D" }
+            };
+
+        public List<OptionEntity> GetPriorityOptionList()
+            => new List<OptionEntity> {
+                new OptionEntity { Id = 1, Value = "一般" },
+                new OptionEntity { Id = 2, Value = "嚴重" },
+                new OptionEntity { Id = 3, Value = "追蹤" }
+            };
+
+        public List<OptionEntity> GetEqEvenCodeOptionList(int typeId = 0, int yId = 0, int subyId = 0, int xId = 0, int subxId = 0, int rId = 0)
         {
-            switch (id)
+            var _catchEqMapping = CatchHelper.Get($"eqEvenCodeList");
+            List<EqEvanCodeMappingDao> _eqEvenCodeList = new List<EqEvanCodeMappingDao>();
+
+            if (_catchEqMapping == null)
             {
-                case 1:
-                    return new List<OptionEntity> {
-                        new OptionEntity{Id = 1,Value = "Loader" },
-                        new OptionEntity{Id = 2,Value = "Clean"},
-                        new OptionEntity{Id = 3,Value = "OLB"},
-                        new OptionEntity{Id = 4,Value = "AOI"},
-                        new OptionEntity{Id = 5,Value = "OLB Testing"},
-                        new OptionEntity{Id = 6,Value = "DISP"},
-                        new OptionEntity{Id = 7,Value = "PCB"},
-                        new OptionEntity{Id = 8,Value = "PCBI"},
-                        new OptionEntity{Id = 9,Value = "Unloader"}
-                    };
-                case 2:
-                    return new List<OptionEntity> {
-                        new OptionEntity{Id = 1,Value = "Loader" },
-                        new OptionEntity{Id = 2,Value = "Clean"},
-                        new OptionEntity{Id = 3,Value = "FOG"},
-                        new OptionEntity{Id = 4,Value = "AOI"},
-                        new OptionEntity{Id = 6,Value = "DISP"},
-                        new OptionEntity{Id = 7,Value = "BT"},
-                        new OptionEntity{Id = 8,Value = "VI"},
-                        new OptionEntity{Id = 9,Value = "Unloader"}
-                    };
-                case 3:
-                    return new List<OptionEntity> {
-                        new OptionEntity{Id = 1,Value = "STH" },
-                        new OptionEntity{Id = 2,Value = "STH API"},
-                        new OptionEntity{Id = 3,Value = "貼膜機"},
-                        new OptionEntity{Id = 4,Value = "乾擦機"},
-                        new OptionEntity{Id = 5,Value = "HTH"},
-                        new OptionEntity{Id = 6,Value = "HTH API"},
-                        new OptionEntity{Id = 7,Value = "ACLV"},
-                        new OptionEntity{Id = 8,Value = "PTVI"},
-                        new OptionEntity{Id = 9,Value = "UVM"},
-                        new OptionEntity{Id = 10,Value = "Unloader"}
-                    };
-                case 4:
-                    return new List<OptionEntity> {
-                        new OptionEntity{Id = 1,Value = "STH" },
-                        new OptionEntity{Id = 2,Value = "STH API"},
-                        new OptionEntity{Id = 5,Value = "HTH"},
-                        new OptionEntity{Id = 6,Value = "HTH API"},
-                        new OptionEntity{Id = 7,Value = "ACLV"},
-                        new OptionEntity{Id = 8,Value = "PTVI"},
-                        new OptionEntity{Id = 9,Value = "UVM"},
-                        new OptionEntity{Id = 10,Value = "Unloader"}
-                    };
-                case 5:
-                    return new List<OptionEntity> {
-                        new OptionEntity{Id = 1,Value = "STH" },
-                        new OptionEntity{Id = 2,Value = "STH API"},
-                        new OptionEntity{Id = 3,Value = "Unloader"}
-                    };
-                case 6:
-                    return new List<OptionEntity> {
-                        new OptionEntity{Id = 1,Value = "STH" },
-                        new OptionEntity{Id = 2,Value = "STH API"},
-                        new OptionEntity{Id = 3,Value = "Unloader"}
-                    };
-                case 7:
-                    return new List<OptionEntity> {
-                        new OptionEntity{Id = 1,Value = "覆膜乾擦機" },
-                        new OptionEntity{Id = 2,Value = "HTH"},
-                        new OptionEntity{Id = 3,Value = "HTH API"},
-                        new OptionEntity{Id = 4,Value = "ACLV"},
-                        new OptionEntity{Id = 5,Value = "PTVI"},
-                        new OptionEntity{Id = 6,Value = "UVM"},
-                        new OptionEntity{Id = 7,Value = "Unloader"}
-                    };
-                default:
-                    return new List<OptionEntity>();
+                _eqEvenCodeList = _eqEvanCodeMappingRepository.SelectList();
+                CatchHelper.Set($"eqEvenCodeList", JsonConvert.SerializeObject(_eqEvenCodeList), 86400);
             }
+            else
+            {
+                _eqEvenCodeList = JsonConvert.DeserializeObject<List<EqEvanCodeMappingDao>>(_catchEqMapping);
+            }
+
+            if (subxId != 0)
+            {
+                _eqEvenCodeList =
+                    _eqEvenCodeList.Where(w => w.TypeId == typeId && w.YId == yId && w.SubYId == subyId &&
+                                               w.XId == xId && w.SubXId == subxId && w.RId != 0).ToList();
+                return _eqEvenCodeList.GroupBy(eq => new { eq.R, eq.RId })
+                                .Select(s => new OptionEntity { Id = s.Key.RId, Value = s.Key.R }).ToList();
+            }
+            else if (xId != 0)
+            {
+                _eqEvenCodeList = 
+                    _eqEvenCodeList.Where(w => w.TypeId == typeId && w.YId == yId && w.SubYId == subyId && w.XId == xId && w.SubXId != 0).ToList();
+                return _eqEvenCodeList.GroupBy(eq => new { eq.SubXId, eq.SubX })
+                                .Select(s => new OptionEntity { Id = s.Key.SubXId, Value = s.Key.SubX }).ToList();
+            }
+            else if (subyId != 0)
+            {
+                _eqEvenCodeList = _eqEvenCodeList.Where(w => w.TypeId == typeId && w.YId == yId && w.SubYId == subyId && w.XId != 0).ToList();
+                return _eqEvenCodeList.GroupBy(eq => new { eq.X, eq.XId })
+                                .Select(s => new OptionEntity { Id = s.Key.XId, Value = s.Key.X }).ToList();
+            }
+            else if (yId != 0)
+            {
+                _eqEvenCodeList = _eqEvenCodeList.Where(w => w.TypeId == typeId && w.YId == yId && w.SubYId != 0).ToList();
+                return _eqEvenCodeList.GroupBy(eq => new { eq.SubY, eq.SubYId })
+                            .Select(s => new OptionEntity { Id = s.Key.SubYId, Value = s.Key.SubY }).ToList();
+            }
+            else if (typeId != 0)
+            {
+                _eqEvenCodeList = _eqEvenCodeList.Where(w => w.TypeId == typeId && w.YId != 0).ToList();
+                return _eqEvenCodeList.GroupBy(eq => new { eq.Y, eq.YId })
+                            .Select(s => new OptionEntity { Id = s.Key.YId, Value = s.Key.Y }).ToList();
+            }
+            else
+                return _eqEvenCodeList.GroupBy(eq => new { eq.Type, eq.TypeId })
+                            .Select(s => new OptionEntity { Id = s.Key.TypeId, Value = s.Key.Type }).ToList();
+
         }
 
-        private List<OptionEntity> GetEqUnitPartOptionList(int parentId, int id)
+        public List<EqEvanCodeMappingEntity> GetEqEvenCode(int typeId = 0, int yId = 0, int subyId = 0, int xId = 0, int subxId = 0, int rId = 0)
         {
-            switch (id)
+            var _catchEqMapping = CatchHelper.Get($"eqEvenCodeList");
+            List<EqEvanCodeMappingDao> _eqEvenCodeList = new List<EqEvanCodeMappingDao>();
+
+            if (_catchEqMapping == null)
             {
-                case 1:
-                    return new List<OptionEntity> {
-                        new OptionEntity{Id = 1,Value = "Loader" }
-                    };
-                case 2:
-                    return new List<OptionEntity> {
-                        new OptionEntity{Id = 1,Value = "Clean" }
-                    };
-                case 3:
-                    return new List<OptionEntity> {
-                        new OptionEntity{Id = 1,Value = "OLB1-ACF" },
-                        new OptionEntity{Id = 2,Value = "OLB1-PreB"},
-                        new OptionEntity{Id = 3,Value = "OLB1-MB1"}
-                    };
-                case 4:
-                    return new List<OptionEntity> {
-                        new OptionEntity{Id = 1,Value = "AOI" },
-                        new OptionEntity{Id = 2,Value = "AOI-Stage1"},
-                        new OptionEntity{Id = 3,Value = "AOI-Stage2"},
-                        new OptionEntity{Id = 4,Value = "AOI-Stage3"}
-                    };
-                case 5:
-                    return new List<OptionEntity> {
-                        new OptionEntity{Id = 1,Value = "OLB-Testing" }
-                    };
-                case 6:
-                    return new List<OptionEntity> {
-                        new OptionEntity{Id = 1,Value = "DISP1-B-ME" }
-                    };
-                case 7:
-                    return new List<OptionEntity> {
-                        new OptionEntity{Id = 1,Value = "PCB1-LD" },
-                        new OptionEntity{Id = 2,Value = "PCB1-ACF"}
-                    };
-                case 8:
-                    return new List<OptionEntity> {
-                        new OptionEntity{Id = 1,Value = "PCB1" },
-                        new OptionEntity{Id = 2,Value = "PCB1-API"}
-                    };
-                case 9:
-                    return new List<OptionEntity> {
-                        new OptionEntity{Id = 1,Value = "Unloader" }
-                    };
-                default:
-                    return new List<OptionEntity>();
+                _eqEvenCodeList = _eqEvanCodeMappingRepository.SelectList();
+                CatchHelper.Set($"eqEvenCodeList", JsonConvert.SerializeObject(_eqEvenCodeList), 86400);
             }
+            else
+            {
+                _eqEvenCodeList = JsonConvert.DeserializeObject<List<EqEvanCodeMappingDao>>(_catchEqMapping);
+            }
+
+            
+            if (typeId != 0 && typeId != 99)
+                _eqEvenCodeList = _eqEvenCodeList.Where(w => w.TypeId == typeId).ToList();
+            if (yId != 0 && yId != 99)
+                _eqEvenCodeList = _eqEvenCodeList.Where(w => w.YId == yId).ToList();
+            if (subyId != 0 && subyId != 99)
+                _eqEvenCodeList = _eqEvenCodeList.Where(w => w.SubYId == subyId).ToList();
+            if (xId != 0 && xId != 99)
+                _eqEvenCodeList = _eqEvenCodeList.Where(w => w.XId == xId).ToList();
+            if (subxId != 0 && subxId != 99)
+                _eqEvenCodeList = _eqEvenCodeList.Where(w => w.SubXId == subxId).ToList();
+            if (rId != 0 && rId != 99)
+                _eqEvenCodeList = _eqEvenCodeList.Where(w => w.RId == rId).ToList();
+
+            return _eqEvenCodeList.CopyAToB<EqEvanCodeMappingEntity>();
         }
+
 
         private List<OptionEntity> GetEqProdOptionList(int id)
         {
