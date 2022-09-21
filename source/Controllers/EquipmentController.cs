@@ -231,6 +231,10 @@ namespace MOD4.Web.Controllers
                         new SelectList(_optionDomainService.GetOptionByType(OptionTypeEnum.EqUnit, _res.ProcessId, 0).CopyAToB<OptionViewModel>(), "Id", "Value");
                     _resModel.EqUnitPartOptionList =
                         new SelectList(_optionDomainService.GetOptionByType(OptionTypeEnum.EqUnitPart, _res.ProcessId, _res.EqUnitId).CopyAToB<OptionViewModel>(), "Id", "Value");
+                    _resModel.EvenCodeYOptionList =
+                        new SelectList(_optionDomainService.GetEqEvenCodeOptionList(_res.TypeId).CopyAToB<OptionViewModel>(), "Id", "Value");
+                    _resModel.EvenCodeSubYOptionList =
+                        new SelectList(_optionDomainService.GetEqEvenCodeOptionList(_res.TypeId, _res.YId).CopyAToB<OptionViewModel>(), "Id", "Value");
                     _resModel.EvenCodeXOptionList = 
                         new SelectList(_optionDomainService.GetEqEvenCodeOptionList(_res.TypeId, _res.YId, _res.SubYId).CopyAToB<OptionViewModel>(), "Id", "Value");
                     _resModel.EvenCodeSubXOptionList = 
