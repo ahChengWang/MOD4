@@ -36,7 +36,21 @@ namespace MOD4.Web.Controllers
         [HttpPost]
         public IActionResult Login([FromForm] LoginViewModel loginViewMode)
         {
+            // fab 無法 call InxSSO
+            var _domainName = Environment.UserDomainName;
+
+            if (_domainName == "CMINL")
+            {
+                // call InxSSO 確認帳密
+                bool _verifyResult = _accountDomainService.VerifyInxSSO(loginViewMode.Account, loginViewMode.Password);
+
+                if (!_verifyResult)
+                    return Json("帳號密碼錯誤");
+            }
+
             var _encryptPw = Encrypt(loginViewMode.Password, _shaKey);
+
+            _accountDomainService.InsertUpdateAccountInfo(loginViewMode.Account, _encryptPw);
 
             var _result = _accountDomainService.GetAccountInfo(loginViewMode.Account, _encryptPw);
 

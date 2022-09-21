@@ -124,6 +124,24 @@
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <!-- include BlockUI -->
     <script src="~/lib/jquery-blockUI/dist/jquery.blockUI.js"></script>
+    <script type="text/javascript">
+        //寫在_Layout.cshtml 供其他頁面使用
+        //為所有的$.ajax呼叫設定預設值，當遇到StatusCode為401時，頁面導至登入頁
+            $.ajaxSetup({
+                statusCode: {
+                    401: function () {//未授權，Unauthorized
+                        //JS前端導頁
+                       window.location.href = "@Url.Action("Index","Account");"
+
+                    },
+                    404: function () {
+                        //JS前端導頁
+                       window.location.href = "@Url.Action("Index","Account");"
+
+                    }
+                }
+            });
+    </script>
 
     <div class="wrapper">
         <!-- Preloader -->

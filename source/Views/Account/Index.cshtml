@@ -14,7 +14,29 @@
     <link rel="stylesheet" href="~/plugins/fontawesome-free/css/fontawesome.min.css">
     <link rel="stylesheet" href="~/css/adminlte.css">
     <link rel="stylesheet" href="~/lib/iCheck/skins/square/blue.min.css">
+    <link rel="stylesheet" href="~/plugins/toastr/toastr.min.css">
+    <link rel="stylesheet" href="~/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.css">
+
+    <style>
+        #logoSpan {
+            color: black;
+            text-shadow: 0 0 3px black;
+            font-family: Consolas;
+            font-weight: bolder;
+            font-size: 50px;
+            font-style: italic;
+            text-align: end;
+            display: inline-block;
+        }
+
+        .mylauoutimg {
+            width: 90px;
+            height: 80px;
+            margin-bottom:8px;
+        }
+    </style>
 </head>
+
 <body class="hold-transition login-page">
     <!-- /.login-box -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -24,6 +46,8 @@
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <!-- include BlockUI -->
     <script src="~/lib/jquery-blockUI/dist/jquery.blockUI.js"></script>
+    <script src="~/plugins/toastr/toastr.min.js"></script>
+    <script src="~/plugins/sweetalert2/sweetalert2.min.js"></script>
     <script>
         $(function () {
             $('input').iCheck({
@@ -35,7 +59,10 @@
     </script>
     <div class="login-box">
         <div class="login-logo">
-            <a href="http://fonour.cnblogs.com" target="_blank"><b>MOD4</b></a>
+            <a href="">
+                <img class="mylauoutimg" src="~/img/CarUX.png">
+                <span id="logoSpan" class="brand-text font-weight-light">MOD4</span>
+            </a>
         </div>
         <!-- /.login-logo -->
         <div class="login-box-body">
@@ -76,6 +103,14 @@
 
     let myFuc = {
         login() {
+
+            var Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+
             if ($("#form").valid()) {
                 $.blockUI({
                     message: '登錄中...',
@@ -88,7 +123,7 @@
                         opacity: '.5',
                         color: '#fff',
                         fontSize: '25px',
-                        fontFamily:'微軟正黑體',
+                        fontFamily: '微軟正黑體',
                         fontWeight: 300,
                     }
                 });
@@ -99,7 +134,11 @@
                     data: $("#form").serialize(),
                     success: function (result) {
                         if (result != '') {
-                            alert(result);
+                            //alert(result);
+                            Toast.fire({
+                                icon: 'error',
+                                title: result
+                            })
                         }
                         else {
                             alert('登錄成功');

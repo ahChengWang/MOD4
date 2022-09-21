@@ -189,7 +189,7 @@ namespace MOD4.Web.Controllers
                     ToolId = _res.Equipment,
                     Code = _res.Code,
                     Codedesc = _res.CodeDesc,
-                    Product = "GDD340IA0090S",
+                    Product = _res.Product,
                     ProductShortName = "VCS",
                     ModelName = "VCS 1234",
                     Comment = _res.Comments,
@@ -204,11 +204,17 @@ namespace MOD4.Web.Controllers
                     DefectRate = _res.DefectRate ?? "",
                     Engineer = _res.Engineer ?? "",
                     PriorityId = _res.PriorityId,
+                    TypeId = _res.TypeId,
                     TypeDesc = _res.TypeDesc,
+                    YId = _res.YId,
                     YDesc = _res.YDesc,
+                    SubYId = _res.SubYId,
                     SubYDesc = _res.SubYDesc,
+                    XId = _res.XId,
                     XDesc = _res.XDesc,
+                    SubXId = _res.SubXId,
                     SubXDesc = _res.SubXDesc,
+                    RId = _res.RId,
                     RDesc = _res.RDesc,
                     Memo = _res.Memo ?? "",
                     SearchVal = searchVal,
@@ -216,7 +222,7 @@ namespace MOD4.Web.Controllers
                     ProcessOptionList = _processSelect,
                     ShiftOptionList = _shiftSelect,
                     PriorityOptionList = _prioritySelect,
-                    EvenCodeOptionList = _eqEvenCodeSelect
+                    EvenCodeOptionList = _eqEvenCodeSelect,
                 };
 
                 if (statusId == EqIssueStatusEnum.PendingENG)
@@ -225,6 +231,12 @@ namespace MOD4.Web.Controllers
                         new SelectList(_optionDomainService.GetOptionByType(OptionTypeEnum.EqUnit, _res.ProcessId, 0).CopyAToB<OptionViewModel>(), "Id", "Value");
                     _resModel.EqUnitPartOptionList =
                         new SelectList(_optionDomainService.GetOptionByType(OptionTypeEnum.EqUnitPart, _res.ProcessId, _res.EqUnitId).CopyAToB<OptionViewModel>(), "Id", "Value");
+                    _resModel.EvenCodeXOptionList = 
+                        new SelectList(_optionDomainService.GetEqEvenCodeOptionList(_res.TypeId, _res.YId, _res.SubYId).CopyAToB<OptionViewModel>(), "Id", "Value");
+                    _resModel.EvenCodeSubXOptionList = 
+                        new SelectList(_optionDomainService.GetEqEvenCodeOptionList(_res.TypeId, _res.YId, _res.SubYId, _res.XId).CopyAToB<OptionViewModel>(), "Id", "Value");
+                    _resModel.EvenCodeROptionList = 
+                        new SelectList(_optionDomainService.GetEqEvenCodeOptionList(_res.TypeId, _res.YId, _res.SubYId, _res.XId, _res.SubXId).CopyAToB<OptionViewModel>(), "Id", "Value");
                 }
 
                 return View(_resModel);

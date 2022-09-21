@@ -99,38 +99,51 @@ namespace MOD4.Web.DomainService
                 _eqEvenCodeList =
                     _eqEvenCodeList.Where(w => w.TypeId == typeId && w.YId == yId && w.SubYId == subyId &&
                                                w.XId == xId && w.SubXId == subxId && w.RId != 0).ToList();
-                return _eqEvenCodeList.GroupBy(eq => new { eq.R, eq.RId })
-                                .Select(s => new OptionEntity { Id = s.Key.RId, Value = s.Key.R }).ToList();
+                var _tempOption = _eqEvenCodeList.GroupBy(eq => new { eq.R, eq.RId })
+                        .Select(s => new OptionEntity { Id = s.Key.RId, Value = s.Key.R }).ToList();
+                _tempOption.Add(new OptionEntity { Id = 99, Value = "Other" });
+                return _tempOption;
             }
             else if (xId != 0)
             {
-                _eqEvenCodeList = 
-                    _eqEvenCodeList.Where(w => w.TypeId == typeId && w.YId == yId && w.SubYId == subyId && w.XId == xId && w.SubXId != 0).ToList();
-                return _eqEvenCodeList.GroupBy(eq => new { eq.SubXId, eq.SubX })
+                _eqEvenCodeList =
+                        _eqEvenCodeList.Where(w => w.TypeId == typeId && w.YId == yId && w.SubYId == subyId && w.XId == xId && w.SubXId != 0).ToList();
+                var _tempOption = _eqEvenCodeList.GroupBy(eq => new { eq.SubXId, eq.SubX })
                                 .Select(s => new OptionEntity { Id = s.Key.SubXId, Value = s.Key.SubX }).ToList();
+                _tempOption.Add(new OptionEntity { Id = 99, Value = "Other" });
+                return _tempOption;
             }
             else if (subyId != 0)
             {
                 _eqEvenCodeList = _eqEvenCodeList.Where(w => w.TypeId == typeId && w.YId == yId && w.SubYId == subyId && w.XId != 0).ToList();
-                return _eqEvenCodeList.GroupBy(eq => new { eq.X, eq.XId })
+                var _tempOption = _eqEvenCodeList.GroupBy(eq => new { eq.X, eq.XId })
                                 .Select(s => new OptionEntity { Id = s.Key.XId, Value = s.Key.X }).ToList();
+                _tempOption.Add(new OptionEntity { Id = 99, Value = "Other" });
+                return _tempOption;
             }
             else if (yId != 0)
             {
                 _eqEvenCodeList = _eqEvenCodeList.Where(w => w.TypeId == typeId && w.YId == yId && w.SubYId != 0).ToList();
-                return _eqEvenCodeList.GroupBy(eq => new { eq.SubY, eq.SubYId })
+                var _tempOption = _eqEvenCodeList.GroupBy(eq => new { eq.SubY, eq.SubYId })
                             .Select(s => new OptionEntity { Id = s.Key.SubYId, Value = s.Key.SubY }).ToList();
+                _tempOption.Add(new OptionEntity { Id = 99, Value = "Other" });
+                return _tempOption;
             }
             else if (typeId != 0)
             {
                 _eqEvenCodeList = _eqEvenCodeList.Where(w => w.TypeId == typeId && w.YId != 0).ToList();
-                return _eqEvenCodeList.GroupBy(eq => new { eq.Y, eq.YId })
+                var _tempOption = _eqEvenCodeList.GroupBy(eq => new { eq.Y, eq.YId })
                             .Select(s => new OptionEntity { Id = s.Key.YId, Value = s.Key.Y }).ToList();
+                _tempOption.Add(new OptionEntity { Id = 99, Value = "Other" });
+                return _tempOption;
             }
             else
-                return _eqEvenCodeList.GroupBy(eq => new { eq.Type, eq.TypeId })
+            {
+                var _tempOption = _eqEvenCodeList.GroupBy(eq => new { eq.Type, eq.TypeId })
                             .Select(s => new OptionEntity { Id = s.Key.TypeId, Value = s.Key.Type }).ToList();
-
+                _tempOption.Add(new OptionEntity { Id = 99, Value = "Other" });
+                return _tempOption;
+            }
         }
 
         public List<EqEvanCodeMappingEntity> GetEqEvenCode(int typeId = 0, int yId = 0, int subyId = 0, int xId = 0, int subxId = 0, int rId = 0)
@@ -148,7 +161,7 @@ namespace MOD4.Web.DomainService
                 _eqEvenCodeList = JsonConvert.DeserializeObject<List<EqEvanCodeMappingDao>>(_catchEqMapping);
             }
 
-            
+
             if (typeId != 0 && typeId != 99)
                 _eqEvenCodeList = _eqEvenCodeList.Where(w => w.TypeId == typeId).ToList();
             if (yId != 0 && yId != 99)

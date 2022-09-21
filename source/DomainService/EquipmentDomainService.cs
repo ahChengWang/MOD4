@@ -187,11 +187,17 @@ namespace MOD4.Web.DomainService
                     Memo = _r.memo,
                     MntUser = _r.mnt_user,
                     MntMinutes = _r.mnt_minutes,
+                    TypeId = _r.typeId,
                     TypeDesc = _r.typeId == 0 ? "" : _evenCodeList.FirstOrDefault(f => f.TypeId == _r.typeId)?.Type ?? "Other",
+                    YId = _r.yId,
                     YDesc = _r.yId == 0 ? "" : _evenCodeList.FirstOrDefault(f => f.YId == _r.yId)?.Y ?? "Other",
+                    SubYId = _r.subYId,
                     SubYDesc = _r.subYId == 0 ? "" : _evenCodeList.FirstOrDefault(f => f.SubYId == _r.subYId)?.SubY ?? "Other",
+                    XId = _r.xId,
                     XDesc = _r.xId == 0 ? "" : _evenCodeList.FirstOrDefault(f => f.XId == _r.xId)?.X ?? "Other",
+                    SubXId = _r.subXId,
                     SubXDesc = _r.subXId == 0 ? "" : _evenCodeList.FirstOrDefault(f => f.SubXId == _r.subXId)?.SubX ?? "Other",
+                    RId = _r.rId,
                     RDesc = _r.rId == 0 ? "" : _evenCodeList.FirstOrDefault(f => f.RId == _r.rId)?.R ?? "Other",
                     StatusId = _r.statusId
                 };
@@ -358,6 +364,9 @@ namespace MOD4.Web.DomainService
                 }
                 else if (editEntity.StatusId == EqIssueStatusEnum.PendingENG)
                 {
+                    _updEqpinfo.xId = editEntity.XId;
+                    _updEqpinfo.subXId = editEntity.SubXId;
+                    _updEqpinfo.rId = editEntity.RId;
                     _updEqpinfo.priority = editEntity.PriorityId;
                     _updEqpinfo.engineer = editEntity.Engineer;
                     _updEqpinfo.memo = editEntity.Memo;

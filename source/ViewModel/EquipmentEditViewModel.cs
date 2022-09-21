@@ -140,5 +140,14 @@ namespace MOD4.Web.ViewModel
 
         // Even Code
         public SelectList EvenCodeOptionList { get; set; }
+
+        // Even Code X option
+        public SelectList EvenCodeXOptionList { get; set; }
+
+        // Even Code subX option
+        public SelectList EvenCodeSubXOptionList { get; set; }
+
+        // Even Code R option
+        public SelectList EvenCodeROptionList { get; set; }
     }
 }

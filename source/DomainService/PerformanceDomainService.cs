@@ -3,7 +3,6 @@ using MOD4.Web.Repostory;
 //using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -62,7 +61,7 @@ namespace MOD4.Web.DomainService
                     ? _nowTime.TimeOfDay >= _time0730 && _nowTime.TimeOfDay < _time1930 ? "A" : "B"
                     : _shift;
             var _nodeList = string.IsNullOrEmpty(_nodeAryStr)
-                    ? new List<string> { "1415", "1420", "1460", "1600", "1700", "1720" }
+                    ? new List<string> { "1415", "1420", "1460", "1500", "1600", "1720", "1700" }
                     : _nodeAryStr.Split(",").ToList();
 
             var _mfgDteEnd = DateTime.Parse(_mfgDTE).AddDays(1).ToString("yyyy-MM-dd");
@@ -79,6 +78,9 @@ namespace MOD4.Web.DomainService
 
             List<PassQtyEntity> _response = new List<PassQtyEntity>();
             var url = "http://zipsum/modreport/Report/SHOPMOD/OperPerfDetail8.asp?";
+
+            //foreach (var _dailyEqp in _dailyEqpList)
+            //{
 
             Parallel.ForEach(_dailyEqpList, (_dailyEqp) =>
             {
@@ -223,9 +225,9 @@ namespace MOD4.Web.DomainService
                 }
 
                 _response.Add(_tResponse);
-
             });
 
+            //};
 
             return _response.OrderBy(ob => ob.NodeNo).ToList();
         }

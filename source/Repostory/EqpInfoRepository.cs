@@ -120,6 +120,9 @@ namespace MOD4.Web.Repostory
         public int UpdateEqpinfoByENG(EqpInfoDao updDao)
         {
             string sql = @"update eqpinfo set 
+                xId = @xId ,
+                subXId = @subXId ,
+                rId = @rId ,
                 priority = @priority ,
                 engineer = @engineer ,
                 memo = @memo ,
@@ -129,6 +132,9 @@ namespace MOD4.Web.Repostory
             var response = _dbHelper.ExecuteNonQuery(sql, new
             {
                 sn = updDao.sn,
+                xId = updDao.xId,
+                subXId = updDao.subXId,
+                rId = updDao.rId,
                 priority = updDao.priority,
                 engineer = updDao.engineer,
                 memo = updDao.memo,

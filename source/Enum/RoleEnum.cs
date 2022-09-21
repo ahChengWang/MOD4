@@ -18,5 +18,8 @@ namespace MOD4.Web.Enum
 
         [Description("PM")]
         PM = 5,
+
+        [Description("User")]
+        User = 6,
     }
 }

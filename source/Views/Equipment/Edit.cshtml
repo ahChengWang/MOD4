@@ -226,13 +226,13 @@
                                     </div>
                                 </div>
 
-                                <div class="row" style="display: flex; margin-top: 10px;">
+                                <div id="xblock" class="row" style="display: flex; margin-top: 10px;">
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="XId"></label>
                                         <span asp-validation-for="XId" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-2">
-                                        <select class="form-control" asp-for="XId">
+                                        <select class="form-control" asp-for="XId" asp-items="Model.EvenCodeXOptionList">
                                             <option></option>
                                         </select>
                                     </div>
@@ -241,7 +241,7 @@
                                         <span asp-validation-for="SubXId" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-2">
-                                        <select class="form-control" asp-for="SubXId">
+                                        <select class="form-control" asp-for="SubXId" asp-items="Model.EvenCodeSubXOptionList">
                                             <option></option>
                                         </select>
                                     </div>
@@ -250,7 +250,7 @@
                                         <span asp-validation-for="RId" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-2">
-                                        <select class="form-control" asp-for="RId">
+                                        <select class="form-control" asp-for="RId" asp-items="Model.EvenCodeROptionList">
                                             <option></option>
                                         </select>
                                     </div>
@@ -270,7 +270,8 @@
                                 @{
                                     if (Model.StatusId == MOD4.Web.Enum.EqIssueStatusEnum.PendingENG)
                                     {
-                                        <hr style="border-width:3px;border-color:gray" />
+                                        <hr id="hr" style="border-width:3px;border-color:gray" />
+
                                         <div class="row" style="display: flex;margin-top:10px;">
                                             <div class="col-2">
                                                 <label class="col-form-label" asp-for="Engineer"></label>
@@ -323,14 +324,25 @@
     $(function () {
         const _model = @Json.Serialize(Model);
         if (_model["statusId"] == 2) {
+            var moveXBlock = $("#xblock")[0].outerHTML;
+            $("#xblock").empty();
+            $("#hr").after(moveXBlock);
+
             $(".pmEdit").prop("disabled", true);
             $("#TypeId").empty();
-            $("<option></option>").text(_model["typeDesc"]).attr("selected", "selected").appendTo($("#TypeId").attr("disabled", true));
-            $("<option></option>").text(_model["yDesc"]).attr("selected", "selected").appendTo($("#YId").attr("disabled", true));
-            $("<option></option>").text(_model["subYDesc"]).attr("selected", "selected").appendTo($("#SubYId").attr("disabled", true));
-            $("<option></option>").text(_model["xDesc"]).attr("selected", "selected").appendTo($("#XId").attr("disabled", true));
-            $("<option></option>").text(_model["subXDesc"]).attr("selected", "selected").appendTo($("#SubXId").attr("disabled", true));
-            $("<option></option>").text(_model["rDesc"]).attr("selected", "selected").appendTo($("#RId").attr("disabled", true));
+            $("<option></option>").attr("value", _model["typeId"]).text(_model["typeDesc"]).attr("selected", "selected").appendTo($("#TypeId").attr("disabled", true));
+            $("<option></option>").attr("value", _model["yId"]).text(_model["yDesc"]).attr("selected", "selected").appendTo($("#YId").attr("disabled", true));
+            $("<option></option>").attr("value", _model["subYId"]).text(_model["subYDesc"]).attr("selected", "selected").appendTo($("#SubYId").attr("disabled", true));
+
+            if ($("#XId").children().length == 2)
+                $("#XId").attr("disabled", true);
+            if ($("#SubXId").children().length == 2)
+                $("#SubXId").attr("disabled", true);
+            if ($("#RId").children().length == 2)
+                $("#RId").attr("disabled", true);
+            //$("<option></option>").text(_model["xDesc"]).attr("selected", "selected").appendTo($("#XId").attr("disabled", true));
+            //$("<option></option>").text(_model["subXDesc"]).attr("selected", "selected").appendTo($("#SubXId").attr("disabled", true));
+            //$("<option></option>").text(_model["rDesc"]).attr("selected", "selected").appendTo($("#RId").attr("disabled", true));
         }
     });
 
@@ -453,7 +465,7 @@
         else if (e.currentTarget.value != 0) {
             $("#YId, #SubYId, #XId, #SubXId, #RId").removeAttr("disabled");
             setOptions("#YId", _options);
-            $("<option></option>").attr("value", 99).text("Other").appendTo(ySelector);
+            //$("<option></option>").attr("value", 99).text("Other").appendTo(ySelector);
         }
     });
 
@@ -472,7 +484,7 @@
         else if (e.currentTarget.value != 0) {
             $("#SubYId, #XId, #SubXId, #RId").removeAttr("disabled");
             setOptions("#SubYId", _options);
-            $("<option></option>").attr("value", 99).text("Other").appendTo(subYIdSelector);
+            //$("<option></option>").attr("value", 99).text("Other").appendTo(subYIdSelector);
         }
     });
 
@@ -492,11 +504,11 @@
         else if (e.currentTarget.value != 0) {
             $("#XId, #SubXId, #RId").removeAttr("disabled");
             setOptions("#XId", _options);
-            $("<option></option>").attr("value", 99).text("Other").appendTo(xIdSelector);
+            //$("<option></option>").attr("value", 99).text("Other").appendTo(xIdSelector);
         }
     });
 
-    $("#XId").change(function (e) {
+    $("#quickForm").on("change", "#XId", function (e) {
         const typeSelector = $("#TypeId").find(":selected").val();
         const ySelector = $("#YId").find(":selected").val();
         const subYIdSelector = $("#SubYId").find(":selected").val();
@@ -513,11 +525,11 @@
         else if (e.currentTarget.value != 0) {
             $("#SubXId, #RId").removeAttr("disabled");
             setOptions("#SubXId", _options);
-            $("<option></option>").attr("value", 99).text("Other").appendTo(subXIdSelector);
+            //$("<option></option>").attr("value", 99).text("Other").appendTo(subXIdSelector);
         }
     });
 
-    $("#SubXId").change(function (e) {
+    $("#quickForm").on("change", "#SubXId", function (e) {
         const typeSelector = $("#TypeId").find(":selected").val();
         const ySelector = $("#YId").find(":selected").val();
         const subYIdSelector = $("#SubYId").find(":selected").val();
@@ -535,10 +547,11 @@
         else if (e.currentTarget.value != 0) {
             $("#RId").removeAttr("disabled");
             setOptions("#RId", _options);
-            $("<option></option>").attr("value", 99).text("Other").appendTo(rIdSelector);
+            //$("<option></option>").attr("value", 99).text("Other").appendTo(rIdSelector);
         }
 
     });
+
 
     function getEvenCodeOption(type, y, subY, x, subX, r) {
         let response = [];
