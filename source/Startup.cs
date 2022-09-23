@@ -58,6 +58,7 @@ namespace MOD4.Web
             services.AddSingleton<IPerformanceDomainService, PerformanceDomainService>();
             services.AddSingleton<ITargetSettingDomainService, TargetSettingDomainService>();
             services.AddSingleton<IOptionDomainService, OptionDomainService>();
+            services.AddSingleton<IDemandDomainService, DemandDomainService>();
 
 
             services.AddSingleton<IAlarmXmlRepository, AlarmXmlRepository>();
@@ -69,6 +70,8 @@ namespace MOD4.Web
             services.AddSingleton<ILineTTRepository, LineTTRepository>();
             services.AddSingleton<IEqSituationMappingRepository, EqSituationMappingRepository>();
             services.AddSingleton<IEqEvanCodeMappingRepository, EqEvanCodeMappingRepository>();
+            services.AddSingleton<IEquipMappingRepository, EquipMappingRepository>(); 
+            services.AddSingleton<IDemandsRepository, DemandsRepository>();
 
             services.AddScoped<MenuService>();
             services.Add(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));

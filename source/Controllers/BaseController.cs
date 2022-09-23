@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MOD4.Web.DomainService.Entity;
+using MOD4.Web.Enum;
 using MOD4.Web.Models;
 using System;
 using System.Collections.Generic;
@@ -27,9 +28,10 @@ namespace MOD4.Web.Controllers
 
             return new UserEntity
             {
+                sn = Convert.ToInt32(_userClaims.FirstOrDefault(m => m.Type == "sn").Value),
                 Account = _userClaims.FirstOrDefault(m => m.Type == "Account")?.Value,
                 Name = _userClaims.FirstOrDefault(m => m.Type == "Name")?.Value,
-                sn = Convert.ToInt32(_userClaims.FirstOrDefault(m => m.Type == "sn").Value)
+                RoleId = (RoleEnum)(Convert.ToInt32(_userClaims.FirstOrDefault(m => m.Type == "Role")?.Value))
             };
         }
     }

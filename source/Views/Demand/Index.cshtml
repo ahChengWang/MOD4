@@ -1,6 +1,4 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model List<MOD4.Web.ViewModel.DemanMainViewModel>
 
 @{
     ViewBag.Title = "系統需求單";
@@ -101,12 +99,12 @@
                             </div>
                             <div class="row">
                                 <div style="float:left">
-                                    <a class="btn btn-danger btn-sm" style="font-size:15px" data-target="#detailModal"><i class="fa fa-plus">建立</i></a>
+                                    <a id="btnCreate" class="btn btn-danger btn-sm" style="font-size:15px"><i class="fa fa-plus">建立</i></a>
                                     @*<input id="btnCreate" type="button" class="btn btn-danger" style="margin-left:7px" name="name" value="建立" />*@
                                 </div>
                             </div>
                             <span style="color:red;font-size:8px">*預設顯示近半年需求申請單</span>
-                            <partial name="_PartialTable" />
+                            <partial name="_PartialTable" model="Model"/>
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -131,47 +129,14 @@
                 url: "Demand/Search",
                 type: "GET",
                 dataType: 'html',
-                //beforeSend: function () {
-                //    var _bfAjax = $.ajax({
-                //        url: "Equipment/CheckUser?eqsn=2",
-                //        type: "GET",
-                //        async: false,
-                //        dataType: 'json',
-                //        success: function (chkResponse) {
-                //            return chkResponse;
-                //        }
-                //    });
-                //    if (_bfAjax["responseJSON"] != "") {
-                //        alert(_bfAjax["responseJSON"]);
-                //        return false
-                //    }
-                //},
                 success: function (result) {
 
                     alert('查無資料');
-                    //if (isJsonString(result)) {
-                    //    var _res = JSON.parse(result);
-                    //    if (result == '""') {
-                    //        alert('查無資料');
-                    //    }
-                    //    if ('isException' in _res) {
-                    //        alert(_res.msg);
-                    //        return false;
-                    //    }
-                    //}
-                    //else {
-                    //    $("#table1_wrapper").remove();
-                    //    $("#barDiv2").after(result);
-                    //    $('#table1').DataTable({
-                    //        "responsive": false
-                    //        , "lengthChange": true
-                    //        , "autoWidth": false
-                    //        , "order": [[5, "asc"]]
-                    //        /*,"buttons": ["excel", "colvis"]*/
-                    //    }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
-                    //}
                 }
             });
+        },
+        CreateOrder() {
+            location.href = "Demand/Create";
         }
     }
 
@@ -193,6 +158,8 @@
     });
 
     $("#btnSearch").click(myFuc.SearchOrder);
+
+    $("#btnCreate").click(myFuc.CreateOrder);
 
     function editClick(id, statusId, isEng, e) {
         $.ajax({

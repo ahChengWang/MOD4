@@ -1,34 +1,93 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MOD4.Web.DomainService;
+using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Models;
+using MOD4.Web.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace MOD4.Web.Controllers
 {
     [Authorize]
-    public class DemandController : Controller
+    public class DemandController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IDemandDomainService _demandDomainService;
+        private readonly IOptionDomainService _optionDomainService;
 
-        public DemandController(ILogger<HomeController> logger)
+        public DemandController(IDemandDomainService demandDomainService,
+            IHttpContextAccessor httpContextAccessor,
+            IOptionDomainService optionDomainService,
+            ILogger<HomeController> logger)
+            : base(httpContextAccessor)
         {
+            _demandDomainService = demandDomainService;
+            _optionDomainService = optionDomainService;
             _logger = logger;
         }
 
         public IActionResult Index()
         {
-            return View();
+            var _demands = _demandDomainService.GetDemands();
+
+            List<DemanMainViewModel> _response = _demands.Select(s => new DemanMainViewModel
+            {
+                OrderId = s.OrderNo,
+                DemandCategory = s.CategoryId.GetDescription(),
+                DemandCategoryId = s.CategoryId,
+                DemandStatus = s.StatusId.GetDescription(),
+                DemandStatusId = s.StatusId,
+                Subject = s.Subject,
+                Applicant = s.Applicant,
+                JobNo = s.JobNo,
+                CreateDate = s.CreateTime.ToString("yyyy-MM-dd")
+            }).ToList();
+
+            return View(_response);
         }
 
         [HttpGet]
         public IActionResult Search()
         {
             return Json("");
+        }
+
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            ViewBag.CategoryOptions = _optionDomainService.GetDemandCategoryOptionList();
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Create(DemanCreateViewModel createModel)
+        {
+            try
+            {
+                string _res = _demandDomainService.InsertDemand(new DemandEntity
+                {
+                    CategoryId = createModel.DemandCategoryId,
+                    Subject = createModel.Subject,
+                    Content = createModel.Content,
+                    Applicant = createModel.Applicant,
+                    JobNo = createModel.JobNo,
+                    UploadFileList = createModel.UploadFile
+                }, GetUserInfo());
+
+                return Json(_res);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message);
+            }
         }
     }
 }

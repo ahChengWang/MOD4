@@ -21,43 +21,53 @@
             <!-- Add icons to the links using the .nav-icon class
     with font-awesome or any other icon font library -->
 
+
+            @*<li class="nav-item">
+                <a class="nav-link" href="">
+                    <i class="nav-icon fa fa-clipboard-list"></i>
+                    <p>Test</p>
+                </a>
+            </li>*@
+
+
+
             @{
-                foreach (var menu in Model)
+            foreach (var menu in Model)
+            {
+                if (menu.HaveSub)
                 {
-                    if (menu.HaveSub)
-                    {
-                        <li class="nav-item">
-                            <a href="@menu.Href" name="nava" class="nav-link">
-                                <i class="@menu.ClassName"></i>
-                                <p>
-                                    @menu.PageName
-                                    <i class="fas fa-angle-left right"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                @foreach (var sub in menu.SubMenuList)
-                                {
-                                    <li class="nav-item">
-                                        <a href="@sub.Href" class="nav-link">
-                                            <i class="@sub.ClassName"></i>
-                                            <p>@sub.PageName</p>
-                                        </a>
-                                    </li>
-                                }
-                            </ul>
-                        </li>
-                    }
-                    else
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link" href="@menu.Href">
-                                <i class="@menu.ClassName"></i>
-                                <p>@menu.PageName</p>
-                            </a>
-                        </li>
-                    }
+                    <li class="nav-item">
+                        <a href="@menu.Href" name="nava" class="nav-link">
+                            <i class="@menu.ClassName"></i>
+                            <p>
+                                @menu.PageName
+                                <i class="fas fa-angle-left right"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            @foreach (var sub in menu.SubMenuList)
+                            {
+                                <li class="nav-item">
+                                    <a href="@sub.Href" class="nav-link">
+                                        <i class="@sub.ClassName"></i>
+                                        <p>@sub.PageName</p>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="@menu.Href">
+                            <i class="@menu.ClassName"></i>
+                            <p>@menu.PageName</p>
+                        </a>
+                    </li>
                 }
             }
+        }
         </ul>
     </nav>
     <!-- /.sidebar-menu -->

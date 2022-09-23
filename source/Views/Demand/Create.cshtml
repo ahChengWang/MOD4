@@ -1,0 +1,172 @@
+﻿@model MOD4.Web.ViewModel.DemanCreateViewModel
+
+@{
+    ViewBag.Title = "新增需求單";
+}
+
+<style>
+
+    .card {
+        box-shadow: 1px 2px 2px 2px #999;
+        margin-top: 5px;
+    }
+
+    .card-header, .card-body, .card-footer {
+        background-color: #c3cadb;
+    }
+
+    .card-title {
+        font-family: "Microsoft JhengHei";
+        font-weight: 900;
+        font-style: italic;
+        font-size: 30px;
+    }
+
+    .custom-file-label {
+        left: 8px;
+    }
+</style>
+
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">新 增 需 求 單</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <!-- form start -->
+                        <form id="demandForm" action="Create" enctype="multipart/form-data">
+                            <div class="card-body">
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="DemandCategoryId"></label>
+                                        <span asp-validation-for="DemandCategoryId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-6">
+                                        @*<select class="custom-select" style="width:30%">
+                                                <option value="1">設定</option>
+                                                <option value="2">新增</option>
+                                                <option value="3">其他</option>
+                                            </select>*@
+
+                                        <select class="custom-select" style="width:30%" asp-for="DemandCategoryId">
+                                            @{
+                                                foreach (var category in ViewBag.CategoryOptions)
+                                                {
+                                                    <option value="@category.Id">@category.Value</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="Subject"></label>
+                                        <span asp-validation-for="Subject" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-9">
+                                        <input type="text" class="form-control" asp-for="Subject">
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display: flex;">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="Content"></label>
+                                        <span asp-validation-for="Content" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-9">
+                                        <textarea class="form-control" rows="4" asp-for="Content"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="Applicant"></label>
+                                        <span asp-validation-for="Applicant" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-2">
+                                        <input type="text" class="form-control" asp-for="Applicant">
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="JobNo"></label>
+                                        <span asp-validation-for="JobNo" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-2">
+                                        <input type="text" class="form-control" asp-for="JobNo">
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="UploadFile"></label>
+                                        <span asp-validation-for="UploadFile" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-3 custom-file">
+                                        <input type="file" class="custom-file-input" asp-for="UploadFile">
+                                        <label class="custom-file-label">Choose file</label>
+                                    </div>
+                                    <div class="col-3 custom-file">
+                                        <input type="file" class="custom-file-input" asp-for="UploadFile">
+                                        <label class="custom-file-label">Choose file</label>
+                                    </div>
+                                    <div class="col-3 custom-file">
+                                        <input type="file" class="custom-file-input" asp-for="UploadFile">
+                                        <label class="custom-file-label">Choose file</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.card-body -->
+                            <div class="card-footer">
+                                <input id="btnCreate" type="button" class="btn btn-primary" value="建立" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        bsCustomFileInput.init();
+    });
+
+    $("#btnCreate").click(function (e) {
+        $.blockUI({
+            message: '請稍等...',
+            css: {
+                border: 'none',
+                padding: '5px',
+                backgroundColor: '#000',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: '.5',
+                color: '#fff',
+                fontSize: '25px',
+                fontFamily: '微軟正黑體',
+                fontWeight: 300,
+            }
+        });
+        var formData = new FormData(document.getElementById("demandForm"));
+        $.ajax({
+            type: "POST",
+            url: "/Demand/Create",
+            dataType: 'json',
+            processData: false,
+            contentType: false,
+            data: formData,
+            success: function (result) {
+                if (result != "") {
+                    alert(result);
+                    $.unblockUI();
+                }
+                else {
+                    alert('建立成功');
+                    location.href = "@Url.ActionLink("Index", "Demand")";
+                }
+            }
+        });
+    });
+</script>

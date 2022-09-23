@@ -1,5 +1,6 @@
 ﻿using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
+using MOD4.Web.Helper;
 using MOD4.Web.Repostory;
 using MOD4.Web.Repostory.Dao;
 using System.Collections.Generic;
@@ -18,6 +19,15 @@ namespace MOD4.Web.DomainService
             _accountInfoRepository = accountInfoRepository;
         }
 
+        public List<AccountInfoEntity> GetAllAccountInfo()
+            => _accountInfoRepository.SelectByConditions().Select(s => new AccountInfoEntity
+            {
+                sn = s.sn,
+                Account = s.account,
+                Name = s.name,
+                Password = s.password,
+                RoleId = s.role
+            }).ToList();
 
         public AccountInfoEntity GetAccountInfo(string account, string password)
         {
@@ -77,9 +87,15 @@ namespace MOD4.Web.DomainService
             bool _updPwAcc = _accountInfoRepository.SelectByConditions(account).Count == 1;
 
             if (!_alreadyAcc && !_updPwAcc)
+            {
                 InsertUserAndPermission(account, password);
+                CatchHelper.Delete(new string[] { $"accInfo" });
+            }
             else if (!_alreadyAcc && _updPwAcc)
+            {
                 UpdateUserPw(account, password);
+                CatchHelper.Delete(new string[] { $"accInfo" });
+            }
         }
 
         private string InsertUserAndPermission(string acc, string pw)

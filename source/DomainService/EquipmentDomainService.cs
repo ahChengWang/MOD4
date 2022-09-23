@@ -25,11 +25,11 @@ namespace MOD4.Web.DomainService
             _optionDomainService = optionDomainService;
         }
 
-        public List<string> GetUnrepairedEqDropdown()
+        public List<(string, List<string>)> GetEqPageDropdown()
         {
             try
             {
-                return _alarmXmlRepository.SelectToolList();
+                return _optionDomainService.GetAreaEqGroupOptions();
             }
             catch (Exception ex)
             {
@@ -37,13 +37,20 @@ namespace MOD4.Web.DomainService
             }
         }
 
-        public List<string> GetRepairedEqDropdown(string date = null)
+        public List<(string, List<string>)> GetRepairedEqDropdown(string date = null)
         {
             try
             {
                 string beginDTE = DateTime.Now.AddMonths(-2).ToString("yyyy-MM") + "-01";
 
-                return _eqpInfoRepository.SelectToolList(date ?? beginDTE);
+                var _eqpInfoList = _eqpInfoRepository.SelectToolList(date ?? beginDTE);
+
+                return new List<(string, List<string>)> {
+                    ("BONDING", _eqpInfoList.Where(w => "ACOG,AOLB,PCBI,AOVC".Contains(w.Substring(0,4))).ToList()),
+                    ("LAM", _eqpInfoList.Where(w => "AFOG,CLAM,PTI2,LEST".Contains(w.Substring(0,4))).ToList()),
+                    ("ASSY", _eqpInfoList.Where(w => "ASSY,AATS,OTP,AAFC,DMUR,AAT2,M3UV".Contains(w.Substring(0,4))).ToList()),
+                    ("ACDP", _eqpInfoList.Where(w => "CKEN,ACKE,DKEN,DTWO".Contains(w.Substring(0,4))).ToList())
+                };
             }
             catch (Exception ex)
             {
@@ -162,8 +169,8 @@ namespace MOD4.Web.DomainService
                     return null;
                 }
 
-                if (userEntity != null)
-                    CatchHelper.Set($"Eq_Edit:{sn}", userEntity.Account, 600);
+                //if (userEntity != null)
+                //    CatchHelper.Set($"Eq_Edit:{sn}", userEntity.Account, 600);
 
                 var _evenCodeList = _optionDomainService.GetEqEvenCode(_r.typeId, _r.yId, _r.subYId, _r.xId, _r.subXId, _r.rId);
 
@@ -271,12 +278,12 @@ namespace MOD4.Web.DomainService
         {
             try
             {
-                var _catchInfo = CatchHelper.Get($"Eq_Edit:{sn}");
+                //var _catchInfo = CatchHelper.Get($"Eq_Edit:{sn}");
 
-                if (_catchInfo != null && _catchInfo != userEntity.Account)
-                {
-                    return $"{_catchInfo} 編輯機況中";
-                }
+                //if (_catchInfo != null && _catchInfo != userEntity.Account)
+                //{
+                //    return $"{_catchInfo} 編輯機況中";
+                //}
 
                 if (statusId == 0)
                     return "參數異常";
@@ -284,9 +291,9 @@ namespace MOD4.Web.DomainService
                 var _eqpinfo = _eqpInfoRepository.SelectEqpinfoByConditions(sn);
 
                 if (statusId == EqIssueStatusEnum.PendingPM && !string.IsNullOrEmpty(_eqpinfo.mnt_user))
-                    return "機況已更新";
+                    return "機況已更新, 請重整頁面";
                 else if (statusId == EqIssueStatusEnum.PendingENG && !string.IsNullOrEmpty(_eqpinfo.engineer))
-                    return "機況已更新";
+                    return "機況已更新, 請重整頁面";
 
                 return "";
             }
@@ -322,7 +329,7 @@ namespace MOD4.Web.DomainService
             }
         }
 
-        public string UpdateEqpinfo(EquipmentEditEntity editEntity)
+        public string UpdateEqpinfo(EquipmentEditEntity editEntity, UserEntity userEntity)
         {
             try
             {
@@ -336,7 +343,7 @@ namespace MOD4.Web.DomainService
                     (editEntity.StatusId == EqIssueStatusEnum.PendingPM && !string.IsNullOrEmpty(oldEqpinfo.mnt_user)) ||
                     (editEntity.StatusId == EqIssueStatusEnum.PendingENG && !string.IsNullOrEmpty(oldEqpinfo.engineer)) ||
                     editEntity.StatusId == EqIssueStatusEnum.Complete)
-                    return "流程錯誤";
+                    return "機況內容已變更, 無法覆寫";
 
                 EqpInfoDao _updEqpinfo = new EqpInfoDao
                 {
@@ -352,7 +359,7 @@ namespace MOD4.Web.DomainService
                     _updEqpinfo.shift = editEntity.Shift;
                     _updEqpinfo.defect_qty = editEntity.DefectQty;
                     _updEqpinfo.defect_rate = editEntity.DefectRate;
-                    _updEqpinfo.mnt_user = editEntity.MntUser;
+                    _updEqpinfo.mnt_user = userEntity.Name;
                     _updEqpinfo.mnt_minutes = editEntity.MntMinutes;
                     _updEqpinfo.typeId = editEntity.TypeId;
                     _updEqpinfo.yId = editEntity.YId;
@@ -368,7 +375,7 @@ namespace MOD4.Web.DomainService
                     _updEqpinfo.subXId = editEntity.SubXId;
                     _updEqpinfo.rId = editEntity.RId;
                     _updEqpinfo.priority = editEntity.PriorityId;
-                    _updEqpinfo.engineer = editEntity.Engineer;
+                    _updEqpinfo.engineer = userEntity.Name;
                     _updEqpinfo.memo = editEntity.Memo;
                     _updEqpinfo.statusId = EqIssueStatusEnum.Complete;
                 }
@@ -384,7 +391,7 @@ namespace MOD4.Web.DomainService
 
                     if (_uprdResult)
                     {
-                        CatchHelper.Delete(new string[] { $"Eq_Edit:{editEntity.sn}" });
+                        //CatchHelper.Delete(new string[] { $"Eq_Edit:{editEntity.sn}" });
                         scope.Complete();
                     }
                     else

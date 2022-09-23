@@ -5,7 +5,7 @@ namespace MOD4.Web.Repostory
 {
     public interface IAccountInfoRepository
     {
-        List<AccountInfoDao> SelectByConditions(string account, string password = "");
+        List<AccountInfoDao> SelectByConditions(string account = "", string password = "");
 
         int UpdateUserAccount(string account, string password);
 

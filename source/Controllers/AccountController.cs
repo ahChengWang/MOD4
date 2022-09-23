@@ -3,10 +3,15 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MOD4.Web.DomainService;
+using MOD4.Web.DomainService.Entity;
+using MOD4.Web.Helper;
+using MOD4.Web.Repostory.Dao;
 using MOD4.Web.ViewModel;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -39,29 +44,45 @@ namespace MOD4.Web.Controllers
             // fab 無法 call InxSSO
             var _domainName = Environment.UserDomainName;
 
-            if (_domainName == "CMINL")
-            {
-                // call InxSSO 確認帳密
-                bool _verifyResult = _accountDomainService.VerifyInxSSO(loginViewMode.Account, loginViewMode.Password);
+            //if (_domainName == "CMINL")
+            //{
+            //    // call InxSSO 確認帳密
+            //    bool _verifyResult = _accountDomainService.VerifyInxSSO(loginViewMode.Account, loginViewMode.Password);
 
-                if (!_verifyResult)
-                    return Json("帳號密碼錯誤");
-            }
+            //    if (!_verifyResult)
+            //        return Json("帳號密碼錯誤");
+            //}
 
             var _encryptPw = Encrypt(loginViewMode.Password, _shaKey);
 
             _accountDomainService.InsertUpdateAccountInfo(loginViewMode.Account, _encryptPw);
 
-            var _result = _accountDomainService.GetAccountInfo(loginViewMode.Account, _encryptPw);
+            var _catchAccInfo = CatchHelper.Get($"accInfo");
+            AccountInfoEntity _currentUser = new AccountInfoEntity();
 
-            if (_result != null)
+            if (_catchAccInfo == null)
+            {
+                var _allAccInfo = _accountDomainService.GetAllAccountInfo();
+                CatchHelper.Set("accInfo", JsonConvert.SerializeObject(_allAccInfo), 604800);
+                _currentUser = _allAccInfo.FirstOrDefault(f => f.Account == loginViewMode.Account && f.Password == _encryptPw);
+            }
+            else
+            {
+                _currentUser = JsonConvert.DeserializeObject<List<AccountInfoEntity>>(_catchAccInfo)
+                    .FirstOrDefault(f => f.Account == loginViewMode.Account && f.Password == _encryptPw);
+            }
+
+            //var _result = _accountDomainService.GetAccountInfo(loginViewMode.Account, _encryptPw);
+
+            if (_currentUser != null)
             {
                 var claims = new List<Claim>()
                 {
-                    new Claim(ClaimTypes.NameIdentifier, Convert.ToString(_result.Account)),
-                    new Claim("Name", _result.Name),
-                    new Claim("Account", _result.Account),
-                    new Claim("sn", Convert.ToString(_result.sn, 16)),
+                    new Claim(ClaimTypes.NameIdentifier, Convert.ToString(_currentUser.Account)),
+                    new Claim("sn", Convert.ToString(_currentUser.sn, 16)),
+                    new Claim("Account", _currentUser.Account),
+                    new Claim("Name", _currentUser.Name),
+                    new Claim("Role", Convert.ToString((int)_currentUser.RoleId))
                 };
                 //Initialize a new instance of the ClaimsIdentity with the claims and authentication scheme    
                 var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

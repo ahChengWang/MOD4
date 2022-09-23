@@ -6,9 +6,9 @@ namespace MOD4.Web.DomainService
 {
     public interface IEquipmentDomainService
     {
-        List<string> GetUnrepairedEqDropdown();
+        List<(string, List<string>)> GetEqPageDropdown();
 
-        List<string> GetRepairedEqDropdown(string date = null);
+        List<(string, List<string>)> GetRepairedEqDropdown(string date = null);
 
         List<EquipmentEntity> GetUnrepairedEqList(string date = null, string toolId = null);
 
@@ -24,6 +24,6 @@ namespace MOD4.Web.DomainService
 
         List<EquipmentEntity> GetEntityHistoryDetail(string mfgDay, List<string> eqpListStr);
 
-        string UpdateEqpinfo(EquipmentEditEntity editEntity);
+        string UpdateEqpinfo(EquipmentEditEntity editEntity, UserEntity userEntity);
     }
 }

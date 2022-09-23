@@ -1,4 +1,5 @@
 ﻿@model MOD4.Web.ViewModel.EquipmentViewModel
+@using MOD4.Web.Enum;
 
 
 <table id="example2" class="table table-bordered table-hover">
@@ -39,7 +40,7 @@
                                 @*<a class="btn btn-secondary" style="width:50px;height:15px;font-size:8px;" onclick="editClick(@eqinfo.sn,1,0,this)"><img class="eqimg" src="~/img/icons/pencil-2-128.gif" />PM</a>*@
                                 @*<input class="btn-sm btn-outline-primary" type="button" disabled value="工程師" />*@
                             }
-                            else if (eqinfo.StatusId == MOD4.Web.Enum.EqIssueStatusEnum.PendingENG)
+                            else if (eqinfo.StatusId == MOD4.Web.Enum.EqIssueStatusEnum.PendingENG && ViewBag.RoleId == RoleEnum.Engineer)
                             {
                                 <button name="Eng" class="btn btn-sm btn-primary" onclick="editClick(@eqinfo.sn,@((int)eqinfo.StatusId),this)" style="position:relative">
                                     <img class="eqimg" src="~/img/icons/pencil-2-128.gif" />
@@ -48,9 +49,17 @@
                                 @*<input class="btn-sm btn-outline-secondary" type="button" disabled name="" value="PM" />*@
                                 @*<a class="btn btn-primary" onclick="editClick(@eqinfo.sn,0,1,this)"><img class="eqimg" src="~/img/icons/pencil-2-128.gif" />工程師</a>*@
                             }
+                            else if (eqinfo.StatusId == MOD4.Web.Enum.EqIssueStatusEnum.PendingENG)
+                            {
+                                <a class="btn btn-sm" data-toggle="modal" data-target="#detailModal" onclick="detailClick(@eqinfo.sn,this)">
+                                    <i class="fa fa-search" style="color:darkblue">工程師確認中</i>
+                                </a>
+                            }
                             else
                             {
-                                <a class="btn btn-sm" data-toggle="modal" style="font-size:15px" data-target="#detailModal" onclick="detailClick(@eqinfo.sn,this)"><i class="fa fa-search">明細</i></a>
+                                <a class="btn btn-sm" data-toggle="modal" style="font-size:15px" data-target="#detailModal" onclick="detailClick(@eqinfo.sn,this)">
+                                    <i class="fa fa-search">已完成</i>
+                                </a>
                                 @*<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#detailModal" ></button>*@
                             }
                         }

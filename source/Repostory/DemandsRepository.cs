@@ -3,27 +3,27 @@ using System.Collections.Generic;
 
 namespace MOD4.Web.Repostory
 {
-    public class AccountInfoRepository : BaseRepository, IAccountInfoRepository
+    public class DemandsRepository : BaseRepository, IDemandsRepository
     {
 
-        public List<AccountInfoDao> SelectByConditions(string account = "", string password = "")
+        public List<DemandsDao> SelectByConditions(string orderSn = "", string orderNo = "")
         {
-            string sql = "select * from account_info where 1=1 ";
+            string sql = "select * from demands where 1=1 ";
 
-            if (!string.IsNullOrEmpty(account))
+            if (!string.IsNullOrEmpty(orderSn))
             {
-                sql += " and account=@account ";
+                sql += " and orderSn=@orderNo ";
             }
 
-            if (!string.IsNullOrEmpty(password))
+            if (!string.IsNullOrEmpty(orderNo))
             {
-                sql += " and password=@password ";
+                sql += " and orderNo=@orderNo ";
             }
 
-            var dao = _dbHelper.ExecuteQuery<AccountInfoDao>(sql, new
+            var dao = _dbHelper.ExecuteQuery<DemandsDao>(sql, new
             {
-                account = account,
-                password = password
+                orderSn = orderSn,
+                orderNo = orderNo
             });
 
             return dao;
@@ -43,22 +43,36 @@ namespace MOD4.Web.Repostory
         }
 
 
-        public int InsertUserAccount(AccountInfoDao insAccountInfo)
+        public int Insert(DemandsDao insDemands)
         {
-            string sql = @"INSERT INTO [dbo].[account_info]
-([account],
-[password],
-[name],
-[role],
-[level_id])
+            string sql = @"INSERT INTO [dbo].[demands]
+([orderNo],
+[categoryId],
+[statusId],
+[subject],
+[content],
+[applicant],
+[jobNo],
+[uploadFiles],
+[createUser],
+[createTime],
+[updateUser],
+[updateTime])
 VALUES
-(@account,
-@password,
-@name,
-@role,
-@level_id); ";
+(@orderNo,
+@categoryId,
+@statusId,
+@subject,
+@content,
+@applicant,
+@jobNo,
+@uploadFiles,
+@createUser,
+@createTime,
+@updateUser,
+@updateTime); ";
 
-            var dao = _dbHelper.ExecuteNonQuery(sql, insAccountInfo);
+            var dao = _dbHelper.ExecuteNonQuery(sql, insDemands);
 
             return dao;
         }

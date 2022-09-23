@@ -14,12 +14,15 @@ namespace MOD4.Web.DomainService
     {
         private readonly IEqSituationMappingRepository _eqSituationMappingRepository;
         private readonly IEqEvanCodeMappingRepository _eqEvanCodeMappingRepository;
+        private readonly IEquipMappingRepository _equipMappingRepository;
 
         public OptionDomainService(IEqSituationMappingRepository eqSituationMappingRepository,
-            IEqEvanCodeMappingRepository eqEvanCodeMappingRepository)
+            IEqEvanCodeMappingRepository eqEvanCodeMappingRepository,
+            IEquipMappingRepository equipMappingRepository)
         {
             _eqSituationMappingRepository = eqSituationMappingRepository;
             _eqEvanCodeMappingRepository = eqEvanCodeMappingRepository;
+            _equipMappingRepository = equipMappingRepository;
         }
 
 
@@ -77,6 +80,13 @@ namespace MOD4.Web.DomainService
                 new OptionEntity { Id = 1, Value = "一般" },
                 new OptionEntity { Id = 2, Value = "嚴重" },
                 new OptionEntity { Id = 3, Value = "追蹤" }
+            };
+
+        public List<OptionEntity> GetDemandCategoryOptionList()
+            => new List<OptionEntity> {
+                new OptionEntity { Id = (int)DemandCategoryEnum.Setting, Value = "設定" },
+                new OptionEntity { Id = (int)DemandCategoryEnum.NewItems, Value = "新增" },
+                new OptionEntity { Id = (int)DemandCategoryEnum.Other, Value = "其它" }
             };
 
         public List<OptionEntity> GetEqEvenCodeOptionList(int typeId = 0, int yId = 0, int subyId = 0, int xId = 0, int subxId = 0, int rId = 0)
@@ -178,6 +188,8 @@ namespace MOD4.Web.DomainService
             return _eqEvenCodeList.CopyAToB<EqEvanCodeMappingEntity>();
         }
 
+        public List<(string, List<string>)> GetAreaEqGroupOptions()
+            => _equipMappingRepository.SelectAll().GroupBy(gb => gb.AREA).Select(s => (s.Key, s.Select(ss => ss.EQUIP_NBR).ToList())).ToList();
 
         private List<OptionEntity> GetEqProdOptionList(int id)
         {
