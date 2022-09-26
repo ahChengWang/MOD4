@@ -25,6 +25,11 @@
     .custom-file-label {
         left: 8px;
     }
+
+    .unit {
+        font-size:8px;
+        color:darkred;
+    }
 </style>
 
 
@@ -94,24 +99,29 @@
                                         <span asp-validation-for="JobNo" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-2">
-                                        <input type="text" class="form-control" asp-for="JobNo">
+                                        <input type="text" class="form-control" maxlength="8" asp-for="JobNo">
                                     </div>
                                 </div>
                                 <div class="form-group" style="display:flex">
                                     <div class="col-2">
-                                        <label class="col-form-label" asp-for="UploadFile"></label>
+                                        <label class="col-form-label" asp-for="UploadFile"></label>                                        
                                         <span asp-validation-for="UploadFile" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                        <div>
+                                            <span class="unit">(允許 xls,xlsx,docx,jpg,png,jpeg)</span>
+                                            <br />
+                                            <span class="unit">單檔最大2MB</span>
+                                        </div>
                                     </div>
                                     <div class="col-3 custom-file">
-                                        <input type="file" class="custom-file-input" asp-for="UploadFile">
+                                        <input type="file" class="custom-file-input" asp-for="UploadFile" onchange="verifyFile(this)">
                                         <label class="custom-file-label">Choose file</label>
                                     </div>
                                     <div class="col-3 custom-file">
-                                        <input type="file" class="custom-file-input" asp-for="UploadFile">
+                                        <input type="file" class="custom-file-input" asp-for="UploadFile" onchange="verifyFile(this)">
                                         <label class="custom-file-label">Choose file</label>
                                     </div>
                                     <div class="col-3 custom-file">
-                                        <input type="file" class="custom-file-input" asp-for="UploadFile">
+                                        <input type="file" class="custom-file-input" asp-for="UploadFile" onchange="verifyFile(this)">
                                         <label class="custom-file-label">Choose file</label>
                                     </div>
                                 </div>
@@ -134,39 +144,64 @@
     });
 
     $("#btnCreate").click(function (e) {
-        $.blockUI({
-            message: '請稍等...',
-            css: {
-                border: 'none',
-                padding: '5px',
-                backgroundColor: '#000',
-                '-webkit-border-radius': '10px',
-                '-moz-border-radius': '10px',
-                opacity: '.5',
-                color: '#fff',
-                fontSize: '25px',
-                fontFamily: '微軟正黑體',
-                fontWeight: 300,
-            }
-        });
-        var formData = new FormData(document.getElementById("demandForm"));
-        $.ajax({
-            type: "POST",
-            url: "/Demand/Create",
-            dataType: 'json',
-            processData: false,
-            contentType: false,
-            data: formData,
-            success: function (result) {
-                if (result != "") {
-                    alert(result);
+        if ($("#demandForm").valid()) {
+            $.blockUI({
+                message: '請稍等...',
+                css: {
+                    border: 'none',
+                    padding: '5px',
+                    backgroundColor: '#000',
+                    '-webkit-border-radius': '10px',
+                    '-moz-border-radius': '10px',
+                    opacity: '.5',
+                    color: '#fff',
+                    fontSize: '25px',
+                    fontFamily: '微軟正黑體',
+                    fontWeight: 300,
+                }
+            });
+            var formData = new FormData(document.getElementById("demandForm"));
+            $.ajax({
+                type: "POST",
+                url: "/Demand/Create",
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function (result) {
                     $.unblockUI();
+                    if (result.isSuccess) {
+                        alert(result.msg);
+                        location.href = "@Url.ActionLink("Index", "Demand")";
+                    }
+                    else {
+                        alert(result.msg);
+                    }
+                    @*if (result != "") {
+                        alert(result);
+                        $.unblockUI();
+                        }
+                        else {
+                        alert('建立成功');
+                        location.href = "@Url.ActionLink("Index", "Demand")";
+                        }*@
                 }
-                else {
-                    alert('建立成功');
-                    location.href = "@Url.ActionLink("Index", "Demand")";
-                }
-            }
-        });
+            });
+        }
     });
+
+    function verifyFile(e) {
+        var validExtensions = ['xls', 'xlsx', 'docx', 'jpg', 'png', 'jpeg'];
+        let fileEx = e.files[0].name.replace(/^.*\./, '');
+        let fileSize = e.files[0].size;
+
+        if ($.inArray(fileEx, validExtensions) == -1) {
+            alert("無效檔案類型");
+            e.value = "";
+        }
+        else if (fileSize > 2097152) {
+            alert("檔案過大");
+            e.value = "";
+        }
+    }
 </script>

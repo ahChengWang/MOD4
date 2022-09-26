@@ -6,21 +6,18 @@ using System.Xml.Linq;
 
 namespace MOD4.Web.ViewModel
 {
-    public class DemanMainViewModel
+    public class DemanEditViewModel
     {
-        public int OrderSn { get; set; }
+        public string OrderSn { get; set; }
 
+        [Display(Name = "單號")]
         public string OrderId { get; set; }
 
         [Display(Name = "系統類型")]
         public string DemandCategory { get; set; }
 
-        public DemandCategoryEnum DemandCategoryId { get; set; }
-
         [Display(Name = "狀態")]
         public string DemandStatus { get; set; }
-
-        public DemandStatusEnum DemandStatusId { get; set; }
 
         [Display(Name = "主旨")]
         public string Subject { get; set; }
@@ -28,7 +25,7 @@ namespace MOD4.Web.ViewModel
         [Display(Name = "需求內容")]
         public string Content { get; set; }
 
-        [Display(Name = "申請人")]
+        [Display(Name = "申請人姓名")]
         public string Applicant { get; set; }
 
         [Display(Name = "申請人工號")]
@@ -38,6 +35,10 @@ namespace MOD4.Web.ViewModel
         public string CreateDate { get; set; }
 
         [Display(Name = "上傳檔案")]
-        public List<IFormFile> UploadFile { get; set; }
+        public string UploadFile1 { get; set; }
+
+        public string UploadFile2 { get; set; }
+
+        public string UploadFile3 { get; set; }
     }
 }

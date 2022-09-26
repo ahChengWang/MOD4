@@ -25,14 +25,17 @@ namespace MOD4.Web.ViewModel
         public string Content { get; set; }
 
         [Display(Name = "申請人姓名")]
+        [RegularExpression(@"^[\u4e00-\u9fa5a-zA-Z]+$", ErrorMessage = "*輸入中英文")]
         [Required(ErrorMessage = "*必填")]
         public string Applicant { get; set; }
 
         [Display(Name = "申請人工號")]
+        [RegularExpression(@"^[0-9]{8}?$", ErrorMessage = "*輸入8位數字")]
         [Required(ErrorMessage = "*必填")]
         public string JobNo { get; set; }
 
         [Display(Name = "上傳檔案")]
+        [Required(ErrorMessage = "*必填")]
         public List<IFormFile> UploadFile { get; set; }
 
         //public IFormFile UploadFile2 { get; set; }

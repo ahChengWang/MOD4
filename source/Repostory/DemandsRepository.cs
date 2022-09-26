@@ -1,30 +1,58 @@
 ﻿using MOD4.Web.Repostory.Dao;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MOD4.Web.Repostory
 {
     public class DemandsRepository : BaseRepository, IDemandsRepository
     {
 
-        public List<DemandsDao> SelectByConditions(string orderSn = "", string orderNo = "")
+        public List<DemandsDao> SelectByConditions(
+            DateTime dateStart
+            , DateTime dateEnd
+            , string orderSn = ""
+            , string orderNo = ""
+            , string[] categoryArray = null
+            , string[] statusArray = null)
         {
-            string sql = "select * from demands where 1=1 ";
+            string sql = "select * from demands where createTime between @dateStart and @dateEnd ";
 
             if (!string.IsNullOrEmpty(orderSn))
-            {
-                sql += " and orderSn=@orderNo ";
-            }
+                sql += " and orderSn=@orderSn ";
 
             if (!string.IsNullOrEmpty(orderNo))
-            {
                 sql += " and orderNo=@orderNo ";
-            }
+
+            if (categoryArray != null)
+                sql += " and categoryId in @categoryId ";
+
+            if (statusArray != null)
+                sql += " and statusId in @statusId ";
+
+            var dao = _dbHelper.ExecuteQuery<DemandsDao>(sql, new
+            {
+                dateStart = dateStart,
+                dateEnd = dateEnd,
+                orderSn = orderSn,
+                orderNo = orderNo,
+                categoryId = categoryArray,
+                statusId = statusArray
+            });
+
+            return dao;
+        }
+
+
+        public DemandsDao SelectDetail(int orderSn, string orderNo)
+        {
+            string sql = "select * from demands where orderSn=@orderSn and orderNo=@orderNo ";
 
             var dao = _dbHelper.ExecuteQuery<DemandsDao>(sql, new
             {
                 orderSn = orderSn,
                 orderNo = orderNo
-            });
+            }).FirstOrDefault();
 
             return dao;
         }

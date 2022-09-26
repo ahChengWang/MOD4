@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using MOD4.Web.DomainService;
 using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Models;
+using MOD4.Web.Repostory.Dao;
 using MOD4.Web.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -54,9 +55,48 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Search()
+        public IActionResult Search([FromQuery] string startDate, string endDate, string category, string status)
         {
-            return Json("");
+            var _demands = _demandDomainService.GetDemands(dateStart: startDate, dateEnd: endDate, categoryId: category, statusId: status);
+
+            List<DemanMainViewModel> _response = _demands.Select(s => new DemanMainViewModel
+            {
+                OrderId = s.OrderNo,
+                DemandCategory = s.CategoryId.GetDescription(),
+                DemandCategoryId = s.CategoryId,
+                DemandStatus = s.StatusId.GetDescription(),
+                DemandStatusId = s.StatusId,
+                Subject = s.Subject,
+                Applicant = s.Applicant,
+                JobNo = s.JobNo,
+                CreateDate = s.CreateTime.ToString("yyyy-MM-dd")
+            }).ToList();
+
+            return PartialView("_PartialTable", _response);
+        }
+
+
+        [HttpGet]
+        public IActionResult Edit([FromQuery] int sn, string orderId)
+        {
+            var _res = _demandDomainService.GetDemandDetail(sn, orderId);
+
+            DemanEditViewModel _response = new DemanEditViewModel
+            {
+                OrderId = _res.OrderNo,
+                CreateDate = _res.CreateTimeStr,
+                DemandCategory = _res.Category,
+                DemandStatus = _res.Status,
+                Subject = _res.Subject,
+                Content = _res.Content,
+                Applicant = _res.Applicant,
+                JobNo = _res.JobNo,
+                UploadFile1 = _res.UploadFile1,
+                UploadFile2 = _res.UploadFile2,
+                UploadFile3 = _res.UploadFile3,
+            };
+
+            return View(_response);
         }
 
 
@@ -72,7 +112,7 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                string _res = _demandDomainService.InsertDemand(new DemandEntity
+                var _res = _demandDomainService.InsertDemand(new DemandEntity
                 {
                     CategoryId = createModel.DemandCategoryId,
                     Subject = createModel.Subject,
@@ -82,11 +122,11 @@ namespace MOD4.Web.Controllers
                     UploadFileList = createModel.UploadFile
                 }, GetUserInfo());
 
-                return Json(_res);
+                return Json(new { IsSuccess = _res.Item1, msg = _res.Item2 });
             }
             catch (Exception ex)
             {
-                return Json(ex.Message);
+                return Json(new { IsSuccess = false, msg = ex.Message });
             }
         }
     }

@@ -24,7 +24,7 @@
                     <td style="width:8%">@demand.Applicant</td>
                     <td style="width:10%">@demand.CreateDate</td>
                     <td style="width:8%">
-                        <button name="Eng" class="btn btn-sm btn-primary" style="position:relative">
+                        <button name="Eng" class="btn btn-sm btn-primary" style="position:relative" onclick="editClick(@demand.OrderSn,@((string)demand.OrderId))">
                             <span style="font-size:5px">編輯</span>
                         </button>
                     </td>

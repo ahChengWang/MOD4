@@ -68,11 +68,11 @@
                             <div id="barDiv1" class="row" style="margin-bottom:5px">
                                 <div class="col-3" style="margin-right:0px;">
                                     <label>申請起日：</label>
-                                    <input class="my-control" type="date" name="name" value="" />
+                                    <input id="startDTE" class="my-control" type="date" name="name" value="" />
                                 </div>
                                 <div class="col-3" style="margin-right:0px;">
                                     <label>申請訖日：</label>
-                                    <input class="my-control" type="date" name="name" value="" />
+                                    <input id="endDTE" class="my-control" type="date" name="name" value="" />
                                 </div>
                                 <div style="margin-right:0px;">
                                     <label>分類：</label>
@@ -103,8 +103,10 @@
                                     @*<input id="btnCreate" type="button" class="btn btn-danger" style="margin-left:7px" name="name" value="建立" />*@
                                 </div>
                             </div>
-                            <span style="color:red;font-size:8px">*預設顯示近半年需求申請單</span>
-                            <partial name="_PartialTable" model="Model"/>
+                            <div id="divMark">
+                                <span style="color:red;font-size:8px">*預設顯示近半年需求申請單</span>
+                            </div>
+                            <partial name="_PartialTable" model="Model" />
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -125,13 +127,30 @@
     let myFuc = {
         SearchOrder() {
             $.ajax({
-                //url: "Demand/Search?date=" + $("#srcHisDate").val() + "&toolIdList=" + $("#selTool").val() + "&statusIdList=" + $("#selStatus").val(),
-                url: "Demand/Search",
+                url: "Demand/Search?startDate=" + $("#startDTE").val() + "&endDate=" + $("#endDTE").val() + "&category=" + $("#dropCat").val() + "&status=" + $("#dropStatus").val(),
                 type: "GET",
                 dataType: 'html',
                 success: function (result) {
-
-                    alert('查無資料');
+                    if (isJsonString(result)) {
+                        var _res = JSON.parse(result);
+                        if (result == '""') {
+                            alert('查無資料');
+                        }
+                        if ('isException' in _res) {
+                            alert(_res.msg);
+                            return false;
+                        }
+                    }
+                    else {
+                        $("#table1_wrapper").remove();
+                        $("#divMark").after(result);
+                        $('#table1').DataTable({
+                            "paging": true,
+                            "responsive": false,
+                            "lengthChange": true,
+                            "autoWidth": true,
+                        }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
+                    }
                 }
             });
         },
@@ -161,21 +180,8 @@
 
     $("#btnCreate").click(myFuc.CreateOrder);
 
-    function editClick(id, statusId, isEng, e) {
-        $.ajax({
-            url: "Demand/VerifyEqStatus?eqsn=" + id + "&statusId=" + statusId,
-            type: "GET",
-            async: false,
-            dataType: 'json',
-            success: function (chkResponse) {
-                if (chkResponse == "") {
-                    location.href = "Demand/Edit?sn=" + id + "&statusId=" + statusId + "&searchVal=" + $("#srcHisDate").val() + ";" + $("#selTool").val() + ";" + $("#selStatus").val();
-                }
-                else {
-                    alert(chkResponse);
-                }
-            }
-        });
+    function editClick(id, orderId) {
+        location.href = "Demand/Edit?sn=" + id + "&orderId=" + orderId;
     }
 
     function detailClick(id, e) {

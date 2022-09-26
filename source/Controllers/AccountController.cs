@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using MOD4.Web.DomainService;
 using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Helper;
-using MOD4.Web.Repostory.Dao;
 using MOD4.Web.ViewModel;
 using Newtonsoft.Json;
 using System;
@@ -41,42 +40,44 @@ namespace MOD4.Web.Controllers
         [HttpPost]
         public IActionResult Login([FromForm] LoginViewModel loginViewMode)
         {
-            // fab 無法 call InxSSO
-            var _domainName = Environment.UserDomainName;
-
-            //if (_domainName == "CMINL")
-            //{
-            //    // call InxSSO 確認帳密
-            //    bool _verifyResult = _accountDomainService.VerifyInxSSO(loginViewMode.Account, loginViewMode.Password);
-
-            //    if (!_verifyResult)
-            //        return Json("帳號密碼錯誤");
-            //}
-
-            var _encryptPw = Encrypt(loginViewMode.Password, _shaKey);
-
-            _accountDomainService.InsertUpdateAccountInfo(loginViewMode.Account, _encryptPw);
-
-            var _catchAccInfo = CatchHelper.Get($"accInfo");
-            AccountInfoEntity _currentUser = new AccountInfoEntity();
-
-            if (_catchAccInfo == null)
+            try
             {
-                var _allAccInfo = _accountDomainService.GetAllAccountInfo();
-                CatchHelper.Set("accInfo", JsonConvert.SerializeObject(_allAccInfo), 604800);
-                _currentUser = _allAccInfo.FirstOrDefault(f => f.Account == loginViewMode.Account && f.Password == _encryptPw);
-            }
-            else
-            {
-                _currentUser = JsonConvert.DeserializeObject<List<AccountInfoEntity>>(_catchAccInfo)
-                    .FirstOrDefault(f => f.Account == loginViewMode.Account && f.Password == _encryptPw);
-            }
+                // fab 無法 call InxSSO
+                var _domainName = Environment.UserDomainName;
 
-            //var _result = _accountDomainService.GetAccountInfo(loginViewMode.Account, _encryptPw);
+                if (_domainName == "CMINL")
+                {
+                    // call InxSSO 確認帳密
+                    bool _verifyResult = _accountDomainService.VerifyInxSSO(loginViewMode.Account, loginViewMode.Password);
 
-            if (_currentUser != null)
-            {
-                var claims = new List<Claim>()
+                    if (!_verifyResult)
+                        return Json("帳號密碼錯誤");
+                }
+
+                var _encryptPw = Encrypt(loginViewMode.Password, _shaKey);
+
+                _accountDomainService.InsertUpdateAccountInfo(loginViewMode.Account, _encryptPw);
+
+                var _catchAccInfo = CatchHelper.Get($"accInfo");
+                AccountInfoEntity _currentUser = new AccountInfoEntity();
+
+                if (_catchAccInfo == null)
+                {
+                    var _allAccInfo = _accountDomainService.GetAllAccountInfo();
+                    CatchHelper.Set("accInfo", JsonConvert.SerializeObject(_allAccInfo), 604800);
+                    _currentUser = _allAccInfo.FirstOrDefault(f => f.Account == loginViewMode.Account && f.Password == _encryptPw);
+                }
+                else
+                {
+                    _currentUser = JsonConvert.DeserializeObject<List<AccountInfoEntity>>(_catchAccInfo)
+                        .FirstOrDefault(f => f.Account == loginViewMode.Account && f.Password == _encryptPw);
+                }
+
+                //var _result = _accountDomainService.GetAccountInfo(loginViewMode.Account, _encryptPw);
+
+                if (_currentUser != null)
+                {
+                    var claims = new List<Claim>()
                 {
                     new Claim(ClaimTypes.NameIdentifier, Convert.ToString(_currentUser.Account)),
                     new Claim("sn", Convert.ToString(_currentUser.sn, 16)),
@@ -84,23 +85,29 @@ namespace MOD4.Web.Controllers
                     new Claim("Name", _currentUser.Name),
                     new Claim("Role", Convert.ToString((int)_currentUser.RoleId))
                 };
-                //Initialize a new instance of the ClaimsIdentity with the claims and authentication scheme    
-                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                //Initialize a new instance of the ClaimsPrincipal with ClaimsIdentity    
-                var principal = new ClaimsPrincipal(identity);
-                //SignInAsync is a Extension method for Sign in a principal for the specified scheme.    
-                HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties()
-                {
-                    IsPersistent = loginViewMode.RememberMe //IsPersistent = false：瀏覽器關閉立馬登出；IsPersistent = true 就變成常見的Remember Me功能
-                }).Wait();
+                    //Initialize a new instance of the ClaimsIdentity with the claims and authentication scheme    
+                    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    //Initialize a new instance of the ClaimsPrincipal with ClaimsIdentity    
+                    var principal = new ClaimsPrincipal(identity);
+                    //SignInAsync is a Extension method for Sign in a principal for the specified scheme.    
+                    HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties()
+                    {
+                        IsPersistent = loginViewMode.RememberMe //IsPersistent = false：瀏覽器關閉立馬登出；IsPersistent = true 就變成常見的Remember Me功能
+                    }).Wait();
 
-                //紀錄Session
-                //HttpContext.Session.Set("CurrentAccount", ByteConvertHelper.Object2Bytes(_result.sn));
+                    //紀錄Session
+                    //HttpContext.Session.Set("CurrentAccount", ByteConvertHelper.Object2Bytes(_result.sn));
 
-                return Json("");
+                    return Json("");
+                }
+
+                return Json("帳號密碼錯誤");
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message);
             }
 
-            return Json("帳號密碼錯誤");
         }
 
 
