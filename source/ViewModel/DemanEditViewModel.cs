@@ -14,7 +14,8 @@ namespace MOD4.Web.ViewModel
         public string OrderId { get; set; }
 
         [Display(Name = "系統類型")]
-        public string DemandCategory { get; set; }
+        //public string DemandCategory { get; set; }
+        public DemandCategoryEnum DemandCategoryId { get; set; }
 
         [Display(Name = "狀態")]
         public string DemandStatus { get; set; }

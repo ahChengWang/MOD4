@@ -1,0 +1,132 @@
+﻿@model MOD4.Web.ViewModel.DemanEditViewModel
+
+
+<div>
+    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-sm-process">
+        核准
+    </button>
+</div>
+<div style="margin-left:8px">
+    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modal-sm-reject">
+        駁回
+    </button>
+</div>
+
+
+<script type="text/javascript">
+
+    function saveClick() {
+        $.blockUI({
+            message: '請稍等...',
+            css: {
+                border: 'none',
+                padding: '5px',
+                backgroundColor: '#000',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: '.5',
+                color: '#fff',
+                fontSize: '25px',
+                fontFamily: '微軟正黑體',
+                fontWeight: 300,
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: "/Demand/EditToProcess",
+            dataType: 'json',
+            data: $("#demandForm").serialize(),
+            success: function (result) {
+                $.unblockUI();
+                if (result.isSuccess) {
+                    alert(result.msg);
+                    location.href = "@Url.ActionLink("Index", "Demand")";
+                }
+                else {
+                    alert(result.msg);
+                }
+            }
+        });
+    }
+
+    function rejectClick() {
+        var _rr = $("#RejectReason").val();
+        if (_rr == "") {
+            alert("駁回原因必填");
+            return false;
+        }
+
+        $.blockUI({
+            message: '請稍等...',
+            css: {
+                border: 'none',
+                padding: '5px',
+                backgroundColor: '#000',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: '.5',
+                color: '#fff',
+                fontSize: '25px',
+                fontFamily: '微軟正黑體',
+                fontWeight: 300,
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: "/Demand/EditToReject",
+            dataType: 'json',
+            data: $("#demandForm").serialize(),
+            success: function (result) {
+                $.unblockUI();
+                if (result.isSuccess) {
+                    alert(result.msg);
+                    location.href = "@Url.ActionLink("Index", "Demand")";
+                }
+                else {
+                    alert(result.msg);
+                }
+            }
+        });
+    }
+
+
+    @*$("#modal-sm-reject").on("onClick", "#btnReject", function () {
+        var _rr = $("#RejectReason").val();
+        if (_rr == "") {
+            alert("駁回原因必填");
+            return false;
+        }
+
+        $.blockUI({
+            message: '請稍等...',
+            css: {
+                border: 'none',
+                padding: '5px',
+                backgroundColor: '#000',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: '.5',
+                color: '#fff',
+                fontSize: '25px',
+                fontFamily: '微軟正黑體',
+                fontWeight: 300,
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: "/Demand/EditToReject",
+            dataType: 'json',
+            data: $("#demandForm").serialize(),
+            success: function (result) {
+                $.unblockUI();
+                if (result.isSuccess) {
+                    alert(result.msg);
+                    location.href = "@Url.ActionLink("Index", "Demand")";
+                }
+                else {
+                    alert(result.msg);
+                }
+            }
+        });
+    });*@
+</script>

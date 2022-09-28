@@ -21,5 +21,6 @@ namespace MOD4.Web.Repostory.Dao
         public string rejectReason { get; set; }
         public string completeFiles { get; set; }
         public string remark { get; set; }
+        public bool isCancel { get; set; }
     }
 }

@@ -16,7 +16,7 @@ namespace MOD4.Web.Repostory
             , string[] categoryArray = null
             , string[] statusArray = null)
         {
-            string sql = "select * from demands where createTime between @dateStart and @dateEnd ";
+            string sql = "select * from demands where isCancel = 0 and createTime between @dateStart and @dateEnd ";
 
             if (!string.IsNullOrEmpty(orderSn))
                 sql += " and orderSn=@orderSn ";
@@ -46,7 +46,7 @@ namespace MOD4.Web.Repostory
 
         public DemandsDao SelectDetail(int orderSn, string orderNo = "")
         {
-            string sql = "select * from demands where orderSn=@orderSn ";
+            string sql = "select * from demands where isCancel = 0 and orderSn=@orderSn ";
 
             if (!string.IsNullOrEmpty(orderNo))
             {
@@ -98,14 +98,59 @@ VALUES
         }
 
 
-        public int Update(DemandsDao updDao)
+        public int UpdateToProcess(DemandsDao updDao)
         {
             string sql = @" UPDATE [dbo].[demands]
    SET [statusId] = @statusId
       ,[updateUser] = @updateUser
       ,[updateTime] = @updateTime
-      ,[rejectReason] = @rejectReason
-      ,[completeFiles] = @completeFiles
+ WHERE orderSn=@orderSn and orderNo=@orderNo 
+ ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, updDao);
+
+            return dao;
+        }
+
+        public int UpdateToReject(DemandsDao updDao)
+        {
+            string sql = @" UPDATE [dbo].[demands]
+   SET [statusId] = @statusId
+      ,[updateUser] = @updateUser
+      ,[updateTime] = @updateTime
+      ,[rejectReason] = @rejectReason 
+ WHERE orderSn=@orderSn and orderNo=@orderNo 
+ ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, updDao);
+
+            return dao;
+        }
+
+        public int UpdateToComplete(DemandsDao updDao)
+        {
+            string sql = @" UPDATE [dbo].[demands]
+   SET [statusId] = @statusId
+      ,[updateUser] = @updateUser
+      ,[updateTime] = @updateTime
+      ,[completeFiles] = @completeFiles 
+ WHERE orderSn=@orderSn and orderNo=@orderNo 
+ ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, updDao);
+
+            return dao;
+        }
+
+        public int UpdateToPending(DemandsDao updDao)
+        {
+            string sql = @" UPDATE [dbo].[demands]
+   SET [statusId] = @statusId
+      ,[subject] = @subject
+      ,[content] = @content
+      ,[updateUser] = @updateUser
+      ,[updateTime] = @updateTime
+      ,[uploadFiles] = @uploadFiles 
  WHERE orderSn=@orderSn and orderNo=@orderNo 
  ";
 
@@ -115,18 +160,17 @@ VALUES
         }
 
 
-        public int InsertUserPermission(List<AccountMenuInfoDao> insAccountMenuInfo)
+        public int UpdateToCancel(DemandsDao updDao)
         {
-            string sql = @"INSERT INTO [dbo].[account_menu_info]
-           ([account_sn],
-            [menu_sn],
-            [menu_group_sn])
-           VALUES
-           (@account_sn,
-            @menu_sn,
-            @menu_group_sn);";
+            string sql = @" UPDATE [dbo].[demands]
+   SET [statusId] = @statusId
+      ,[isCancel] = @isCancel
+      ,[updateUser] = @updateUser
+      ,[updateTime] = @updateTime
+ WHERE orderSn=@orderSn and orderNo=@orderNo 
+ ";
 
-            var dao = _dbHelper.ExecuteNonQuery(sql, insAccountMenuInfo);
+            var dao = _dbHelper.ExecuteNonQuery(sql, updDao);
 
             return dao;
         }

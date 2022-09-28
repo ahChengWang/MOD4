@@ -78,10 +78,11 @@ namespace MOD4.Web.Controllers
             return PartialView("_PartialTable", _response);
         }
 
-
         [HttpGet]
         public IActionResult Edit([FromQuery] int sn, string orderId)
         {
+            ViewBag.CategoryOptions = _optionDomainService.GetDemandCategoryOptionList();
+
             var _res = _demandDomainService.GetDemandDetail(sn, orderId);
 
             DemanEditViewModel _response = new DemanEditViewModel
@@ -89,7 +90,7 @@ namespace MOD4.Web.Controllers
                 OrderSn = sn,
                 OrderId = _res.OrderNo,
                 CreateDate = _res.CreateTimeStr,
-                DemandCategory = _res.Category,
+                DemandCategoryId = _res.CategoryId,
                 DemandStatus = _res.Status,
                 DemandStatusId = (int)_res.StatusId,
                 Subject = _res.Subject,
@@ -105,9 +106,17 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpPost]
+        public IActionResult EditToPending(DemanEditViewModel updModel)
+        {
+            var _response = Edit(updModel, DemandStatusEnum.Pending);
+
+            return Json(new { IsSuccess = _response.Item1, msg = _response.Item2 });
+        }
+
+        [HttpPost]
         public IActionResult EditToProcess(DemanEditViewModel updModel)
         {
-            var _response = Edit(updModel, DemandStatusEnum.Peocessing);
+            var _response = Edit(updModel, DemandStatusEnum.Processing);
 
             return Json(new { IsSuccess = _response.Item1, msg = _response.Item2 });
         }
@@ -116,6 +125,14 @@ namespace MOD4.Web.Controllers
         public IActionResult EditToReject(DemanEditViewModel updModel)
         {
             var _response = Edit(updModel, DemandStatusEnum.Rejected);
+
+            return Json(new { IsSuccess = _response.Item1, msg = _response.Item2 });
+        }
+
+        [HttpPost]
+        public IActionResult EditToCancel(DemanEditViewModel updModel)
+        {
+            var _response = Edit(updModel, DemandStatusEnum.Cancel);
 
             return Json(new { IsSuccess = _response.Item1, msg = _response.Item2 });
         }

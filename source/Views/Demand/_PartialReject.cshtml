@@ -1,0 +1,84 @@
+﻿@model MOD4.Web.ViewModel.DemanEditViewModel
+
+
+<div>
+    <input id="btnResend" type="button" class="btn" style="background-color: #e5e83c" value="重送" onclick="resendClick()" />
+</div>
+<div style="margin-left:8px">
+    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-sm-cancel">
+        作廢
+    </button>
+</div>
+
+
+<script type="text/javascript">
+
+    function resendClick() {
+        $.blockUI({
+            message: '請稍等...',
+            css: {
+                border: 'none',
+                padding: '5px',
+                backgroundColor: '#000',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: '.5',
+                color: '#fff',
+                fontSize: '25px',
+                fontFamily: '微軟正黑體',
+                fontWeight: 300,
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: "/Demand/EditToPending",
+            dataType: 'json',
+            data: $("#demandForm").serialize(),
+            success: function (result) {
+                $.unblockUI();
+                if (result.isSuccess) {
+                    alert(result.msg);
+                    location.href = "@Url.ActionLink("Index", "Demand")";
+                }
+                else {
+                    alert(result.msg);
+                }
+            }
+        });
+    }
+
+    function cancelClick() {
+        $.blockUI({
+            message: '請稍等...',
+            css: {
+                border: 'none',
+                padding: '5px',
+                backgroundColor: '#000',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: '.5',
+                color: '#fff',
+                fontSize: '25px',
+                fontFamily: '微軟正黑體',
+                fontWeight: 300,
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: "/Demand/EditToCancel",
+            dataType: 'json',
+            data: $("#demandForm").serialize(),
+            success: function (result) {
+                $.unblockUI();
+                if (result.isSuccess) {
+                    alert(result.msg);
+                    location.href = "@Url.ActionLink("Index", "Demand")";
+                }
+                else {
+                    alert(result.msg);
+                }
+            }
+        });
+    }
+
+</script>

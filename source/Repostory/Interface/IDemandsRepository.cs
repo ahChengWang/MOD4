@@ -12,6 +12,14 @@ namespace MOD4.Web.Repostory
 
         int Insert(DemandsDao insDemands);
 
-        int Update(DemandsDao updDao);
+        int UpdateToProcess(DemandsDao updDao);
+
+        int UpdateToReject(DemandsDao updDao);
+
+        int UpdateToComplete(DemandsDao updDao);
+
+        int UpdateToPending(DemandsDao updDao);
+
+        int UpdateToCancel(DemandsDao updDao);
     }
 }

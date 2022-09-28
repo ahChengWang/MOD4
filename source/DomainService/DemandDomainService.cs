@@ -1,10 +1,12 @@
-﻿using MOD4.Web.DomainService.Entity;
+﻿using Microsoft.AspNetCore.Http;
+using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
 using MOD4.Web.Helper;
 using MOD4.Web.Repostory;
 using MOD4.Web.Repostory.Dao;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Transactions;
@@ -108,19 +110,20 @@ namespace MOD4.Web.DomainService
             try
             {
                 var _nowTime = DateTime.Now;
-                var _url = _uploadDomainService.GetFileServerUrl();
-                var _folder = $@"upload\{userEntity.Account}\{_nowTime.ToString("yyMMdd")}";
                 var _fileNameStr = "";
                 var _insResponse = "";
 
+                _fileNameStr = DoUploadFiles(insertEntity.UploadFileList, userEntity.Account, _nowTime.ToString("yyMMdd"));
+
                 DemandsDao _insDemandsDao = new DemandsDao
                 {
-                    createUser = userEntity.Name,
+                    createUser = userEntity.Account,
                     createTime = _nowTime,
                     updateUser = "",
                     updateTime = _nowTime
                 };
 
+                /*
                 if (!Directory.Exists($@"{_url}\{_folder}"))
                 {
                     Directory.CreateDirectory($@"{_url}\{_folder}");
@@ -140,10 +143,7 @@ namespace MOD4.Web.DomainService
                         _fileNameStr += file.FileName + ",";
                     }
                 }
-
-                // 移除結尾逗號
-                if (_fileNameStr.Length > 0)
-                    _fileNameStr = _fileNameStr.Remove(_fileNameStr.Length - 1, 1);
+                */
 
                 _insDemandsDao.orderNo = $"DE{_nowTime.ToString("yyMMddHHmmss")}";
                 _insDemandsDao.categoryId = insertEntity.CategoryId;
@@ -185,6 +185,9 @@ namespace MOD4.Web.DomainService
             try
             {
                 var _nowTime = DateTime.Now;
+                var _url = _uploadDomainService.GetFileServerUrl();
+                var _folder = $@"upload\{userEntity.Account}\{_nowTime.ToString("yyMMdd")}";
+                var _fileNameStr = "";
                 var _updResponse = "";
 
                 DemandsDao _oldDemand = _demandsRepository.SelectDetail(updEntity.OrderSn, updEntity.OrderNo);
@@ -193,44 +196,168 @@ namespace MOD4.Web.DomainService
                 {
                     orderSn = updEntity.OrderSn,
                     orderNo = updEntity.OrderNo,
+                    statusId = newStatusId,
                     updateUser = userEntity.Name,
                     updateTime = _nowTime
                 };
 
-                if (_oldDemand.statusId == DemandStatusEnum.Pending)
+                if (_oldDemand.statusId == DemandStatusEnum.Pending && newStatusId == DemandStatusEnum.Rejected)
                 {
-                    _updDemandsDao.statusId = newStatusId;
                     _updDemandsDao.rejectReason = updEntity.RejectReason ?? "";
+                    return UpdateToReject(_updDemandsDao);
                 }
-                else if (_oldDemand.statusId == DemandStatusEnum.Peocessing)
+                else if (_oldDemand.statusId == DemandStatusEnum.Pending && newStatusId == DemandStatusEnum.Processing)
+                    return UpdateToProcess(_updDemandsDao);
+                else if (_oldDemand.statusId == DemandStatusEnum.Processing && newStatusId == DemandStatusEnum.Completed)
                 {
-                    _updDemandsDao.statusId = newStatusId;
+                    _fileNameStr = DoUploadFiles(updEntity.UploadFileList, userEntity.Account, _nowTime.ToString("yyMMdd"));
+                    _updDemandsDao.completeFiles = _fileNameStr;
+                    return UpdateToCompleted(_updDemandsDao);
                 }
-
-                using (var scope = new TransactionScope())
+                else if (_oldDemand.statusId == DemandStatusEnum.Rejected && newStatusId == DemandStatusEnum.Pending)
                 {
-                    var _insResult = false;
-
-                    _insResult = _demandsRepository.Update(_updDemandsDao) == 1;
-
-                    if (_insResult)
-                    {
-                        //CatchHelper.Delete(new string[] { $"Eq_Edit:{editEntity.sn}" });
-                        scope.Complete();
-                    }
-                    else
-                        _updResponse = "更新失敗";
+                    _updDemandsDao.subject = updEntity.Subject;
+                    _updDemandsDao.content = updEntity.Content;
+                    _fileNameStr = DoUploadFiles(updEntity.UploadFileList, userEntity.Account, _nowTime.ToString("yyMMdd"));
+                    _updDemandsDao.uploadFiles = _fileNameStr;
+                    return UpdateToPending(_updDemandsDao);
                 }
-
-                return string.IsNullOrEmpty(_updResponse)
-                    ? (true, $"需求單:{_updDemandsDao.orderNo} \n{newStatusId.GetDescription()}")
-                    : (false, _updResponse);
+                else if (_oldDemand.statusId == DemandStatusEnum.Rejected && newStatusId == DemandStatusEnum.Cancel)
+                {
+                    _updDemandsDao.isCancel = true;
+                    return UpdateToCancel(_updDemandsDao);
+                }
+                else
+                    return (false, "需求單狀態異常");
             }
             catch (Exception ex)
             {
                 throw ex;
             }
 
+        }
+
+        private string DoUploadFiles(List<IFormFile> uploadFiles, string userAcc, string dateTimeStr)
+        {
+            var _url = _uploadDomainService.GetFileServerUrl();
+            var _folder = $@"upload\{userAcc}\{dateTimeStr}";
+            var _fileNameStr = "";
+
+            if (!Directory.Exists($@"{_url}\{_folder}"))
+            {
+                Directory.CreateDirectory($@"{_url}\{_folder}");
+            }
+
+            foreach (var file in uploadFiles)
+            {
+                if (file.Length > 0)
+                {
+                    var path = $@"{_url}\{_folder}\{file.FileName}";
+
+                    using (var stream = new FileStream(path, FileMode.Create))
+                    {
+                        file.CopyTo(stream);
+                    }
+
+                    _fileNameStr += file.FileName + ",";
+                }
+            }
+
+            // 移除結尾逗號
+            if (_fileNameStr.Length > 0)
+                _fileNameStr = _fileNameStr.Remove(_fileNameStr.Length - 1, 1);
+
+            return _fileNameStr;
+        }
+
+        private (bool, string) UpdateToPending(DemandsDao updDao)
+        {
+            using (var scope = new TransactionScope())
+            {
+                var _insResult = false;
+
+                _insResult = _demandsRepository.UpdateToPending(updDao) == 1;
+
+                if (_insResult)
+                {
+                    scope.Complete();
+                    return (true, $"需求單:{updDao.orderNo} \n{updDao.statusId.GetDescription()}");
+                }
+                else
+                    return (false, "更新失敗");
+            }
+        }
+
+        private (bool, string) UpdateToProcess(DemandsDao updDao)
+        {
+            using (var scope = new TransactionScope())
+            {
+                var _insResult = false;
+
+                _insResult = _demandsRepository.UpdateToProcess(updDao) == 1;
+
+                if (_insResult)
+                {
+                    scope.Complete();
+                    return (true, $"需求單:{updDao.orderNo} \n{updDao.statusId.GetDescription()}");
+                }
+                else
+                    return (false, "更新失敗");
+            }
+        }
+
+        private (bool, string) UpdateToReject(DemandsDao updDao)
+        {
+            using (var scope = new TransactionScope())
+            {
+                var _insResult = false;
+
+                _insResult = _demandsRepository.UpdateToReject(updDao) == 1;
+
+                if (_insResult)
+                {
+                    scope.Complete();
+                    return (true, $"需求單:{updDao.orderNo} \n{updDao.statusId.GetDescription()}");
+                }
+                else
+                    return (false, "更新失敗");
+            }
+        }
+
+        private (bool, string) UpdateToCancel(DemandsDao updDao)
+        {
+            using (var scope = new TransactionScope())
+            {
+                var _insResult = false;
+
+                _insResult = _demandsRepository.UpdateToCancel(updDao) == 1;
+
+                if (_insResult)
+                {
+                    scope.Complete();
+                    return (true, $"需求單:{updDao.orderNo} \n{updDao.statusId.GetDescription()}");
+                }
+                else
+                    return (false, "更新失敗");
+            }
+        }
+
+        private (bool, string) UpdateToCompleted(DemandsDao updDao)
+        {
+            using (var scope = new TransactionScope())
+            {
+                var _insResult = false;
+
+                _insResult = _demandsRepository.UpdateToComplete(updDao) == 1;
+
+                if (_insResult)
+                {
+                    scope.Complete();
+                    return (true, $"需求單:{updDao.orderNo} \n{updDao.statusId.GetDescription()}");
+                }
+                else
+                    return (false, "更新失敗");
+            }
         }
     }
 }

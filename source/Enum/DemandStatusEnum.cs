@@ -11,9 +11,12 @@ namespace MOD4.Web.Enum
         Rejected = 2,
 
         [Description("進行中")]
-        Peocessing = 3,
+        Processing = 3,
 
         [Description("已完成")]
         Completed = 4,
+
+        [Description("已取消")]
+        Cancel = 5,
     }
 }

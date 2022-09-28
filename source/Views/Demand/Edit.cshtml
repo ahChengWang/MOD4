@@ -63,19 +63,26 @@
                                     <div class="col-2">
                                         <label class="col-form-label" name="underline">@Model.CreateDate</label>
                                     </div>
-                                </div>
-                                <div class="form-group" style="display:flex">
-                                    <div class="col-2">
-                                        <label class="col-form-label" asp-for="DemandCategory"></label>
-                                    </div>
-                                    <div class="col-2">
-                                        <label class="col-form-label" name="underline">@Model.DemandCategory</label>
-                                    </div>
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="DemandStatus"></label>
                                     </div>
                                     <div class="col-2">
                                         <label class="col-form-label" name="underline">@Model.DemandStatus</label>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="DemandCategoryId"></label>
+                                    </div>
+                                    <div class="col-6">
+                                        <select class="custom-select" style="width:30%" asp-for="DemandCategoryId">
+                                            @{
+                                                foreach (var category in ViewBag.CategoryOptions)
+                                                {
+                                                    <option value="@category.Id">@category.Value</option>
+                                                }
+                                            }
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="form-group" style="display:flex">
@@ -203,34 +210,47 @@
                                 @{
                                     if (@Model.DemandStatusId == 1)
                                     {
-                                        <div>
-                                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-sm-success">
-                                                核准
-                                            </button>
-                                            @*<input id="btnSave" type="button" class="btn btn-success" value="核准" />*@
-                                        </div>
+                                        <partial name="_PartialPending" model="Model" />
+                                        <!--<div>
+                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-sm-process">
+                                            核准
+                                        </button>-->
+                                        @*<input id="btnSave" type="button" class="btn btn-success" value="核准" />*@
+                                        <!--</div>
                                         <div style="margin-left:8px">
-                                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modal-sm-rej">
+                                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modal-sm-reject">
                                                 駁回
-                                            </button>
-                                            @*<input id="btnReject" type="button" class="btn btn-warning" value="駁回" />*@
-                                        </div>
+                                            </button>-->
+                                        @*<input id="btnReject" type="button" class="btn btn-warning" value="駁回" />*@
+                                        <!--</div>-->
+                                    }
+                                    else if (@Model.DemandStatusId == 2)
+                                    {
+                                        <partial name="_PartialReject" model="Model" />
+                                        @*<div>
+                                                <input id="btnReject" type="button" class="btn" style="background-color: #e5e83c" value="重送" />
+                                            </div>
+                                            <div style="margin-left:8px">
+                                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-sm-cancel">
+                                                    作廢
+                                                </button>
+                                            </div>*@
                                     }
                                     else if (@Model.DemandStatusId == 3)
                                     {
                                         <div>
-                                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-sm-success">
+                                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-sm">
                                                 完成
                                             </button>
-                                            @*<input id="btnSave" type="button" class="btn btn-success" value="核准" />*@
                                         </div>
                                     }
                                 }
                             </div>
                             <input type="hidden" asp-for="OrderSn" value="@Model.OrderSn" />
                             <input type="hidden" asp-for="OrderId" value="@((string)Model.OrderId)" />
+                            <input type="hidden" asp-for="DemandStatusId" value="" />
                         </form>
-                        <div class="modal fade" id="modal-sm-success">
+                        <div class="modal fade" id="modal-sm-process">
                             <div class="modal-dialog modal-sm">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -243,14 +263,14 @@
                                     </div>
                                     <div class="modal-footer justify-content-between">
                                         <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
-                                        <input id="btnSave" type="button" class="btn btn-success" value="確認" />
+                                        <input id="btnSave" type="button" class="btn btn-primary" value="確認" onclick="saveClick()" />
                                     </div>
                                 </div>
                                 <!-- /.modal-content -->
                             </div>
                             <!-- /.modal-dialog -->
                         </div>
-                        <div class="modal fade" id="modal-sm-rej">
+                        <div class="modal fade" id="modal-sm-reject">
                             <div class="modal-dialog modal-sm">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -263,7 +283,27 @@
                                     </div>
                                     <div class="modal-footer justify-content-between">
                                         <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
-                                        <input id="btnReject" type="button" class="btn btn-warning" value="確認" />
+                                        <input type="button" class="btn btn-primary" value="確認" onclick="rejectClick()" />
+                                    </div>
+                                </div>
+                                <!-- /.modal-content -->
+                            </div>
+                            <!-- /.modal-dialog -->
+                        </div>
+                        <div class="modal fade" id="modal-sm-cancel">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>確認作廢?</p>
+                                    </div>
+                                    <div class="modal-footer justify-content-between">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
+                                        <input id="btnCancel" type="button" class="btn btn-primary" value="確認" onclick="cancelClick()" />
                                     </div>
                                 </div>
                                 <!-- /.modal-content -->
@@ -280,7 +320,7 @@
 
 <script type="text/javascript">
 
-    $("#btnSave").click(function () {
+    @*$("#btnSave").click(function () {
         $.blockUI({
             message: '請稍等...',
             css: {
@@ -313,7 +353,6 @@
             }
         });
     });
-
 
     $("#btnReject").click(function () {
         var _rr = $("#RejectReason").val();
@@ -354,4 +393,38 @@
             }
         });
     });
+
+    $("#btnCancel").click(function () {
+        $.blockUI({
+            message: '請稍等...',
+            css: {
+                border: 'none',
+                padding: '5px',
+                backgroundColor: '#000',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: '.5',
+                color: '#fff',
+                fontSize: '25px',
+                fontFamily: '微軟正黑體',
+                fontWeight: 300,
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: "/Demand/EditToReject",
+            dataType: 'json',
+            data: $("#demandForm").serialize(),
+            success: function (result) {
+                $.unblockUI();
+                if (result.isSuccess) {
+                    alert(result.msg);
+                    location.href = "@Url.ActionLink("Index", "Demand")";
+                }
+                else {
+                    alert(result.msg);
+                }
+            }
+        });
+    });*@
 </script>
