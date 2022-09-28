@@ -27,5 +27,7 @@ namespace MOD4.Web.DomainService.Entity
         public string UploadFile1 { get; set; }
         public string UploadFile2 { get; set; }
         public string UploadFile3 { get; set; }
+
+        public string RejectReason { get; set; }
     }
 }

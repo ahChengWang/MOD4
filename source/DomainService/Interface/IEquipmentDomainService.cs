@@ -12,7 +12,7 @@ namespace MOD4.Web.DomainService
 
         List<EquipmentEntity> GetUnrepairedEqList(string date = null, string toolId = null);
 
-        List<EquipmentEntity> GetRepairedEqList(string date = null, string toolId = null, string statusIdList = null);
+        List<EquipmentEntity> GetRepairedEqList(string date = null, string toolId = null, string statusIdList = null, bool showAuto = false);
 
         (int, int) GetTodayRepairedEqPendingList();
 

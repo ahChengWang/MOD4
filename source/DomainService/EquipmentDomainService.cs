@@ -89,7 +89,7 @@ namespace MOD4.Web.DomainService
             }
         }
 
-        public List<EquipmentEntity> GetRepairedEqList(string date = null, string toolId = null, string statusIdList = null)
+        public List<EquipmentEntity> GetRepairedEqList(string date = null, string toolId = null, string statusIdList = null, bool showAuto = false)
         {
             try
             {
@@ -97,7 +97,11 @@ namespace MOD4.Web.DomainService
 
                 List<EqpInfoDao> _resEquipmentList = new List<EqpInfoDao>();
 
-                var _eqpInfoList = _eqpInfoRepository.SelectByConditions(date ?? beginDTE, string.IsNullOrEmpty(toolId) ? null : toolId.Split(",").ToList() ?? null, date == null);
+                var _eqpInfoList = _eqpInfoRepository.SelectByConditions(
+                        date ?? beginDTE, 
+                        string.IsNullOrEmpty(toolId) ? null : toolId.Split(",").ToList() ?? null, 
+                        date == null,
+                        showAuto);
 
                 if (!string.IsNullOrEmpty(statusIdList))
                 {
@@ -132,6 +136,7 @@ namespace MOD4.Web.DomainService
                     {
                         sn = s.sn,
                         ToolId = s.Equipment,
+                        ToolName = s.tool_name,
                         ToolStatus = s.Code,
                         StatusCdsc = s.Code_Desc,
                         UserId = s.Operator,
@@ -152,7 +157,7 @@ namespace MOD4.Web.DomainService
 
         public (int, int) GetTodayRepairedEqPendingList()
         {
-            var _eqpInfoList = _eqpInfoRepository.SelectByConditions(DateTime.Now.ToString("yyyy-MM-dd"), null, false);
+            var _eqpInfoList = _eqpInfoRepository.SelectByConditions(DateTime.Now.ToString("yyyy-MM-dd"), null, false, false);
 
             return (_eqpInfoList.Where(w => string.IsNullOrEmpty(w.mnt_user)).ToList().Count(),
                     _eqpInfoList.Where(w => !string.IsNullOrEmpty(w.mnt_user) && string.IsNullOrEmpty(w.engineer)).ToList().Count());
@@ -178,6 +183,8 @@ namespace MOD4.Web.DomainService
                 {
                     sn = _r.sn,
                     Equipment = _r.Equipment,
+                    ToolName = _r.tool_name,
+                    Product = _r.prod_id,
                     Code = _r.Code,
                     CodeDesc = _r.Code_Desc,
                     Operator = _r.Operator,
@@ -238,6 +245,7 @@ namespace MOD4.Web.DomainService
                 {
                     sn = _r.sn,
                     Equipment = _r.Equipment,
+                    ToolName = _r.tool_name,
                     Code = _r.Code,
                     CodeDesc = _r.Code_Desc,
                     Product = _r.prod_id,
@@ -307,7 +315,7 @@ namespace MOD4.Web.DomainService
         {
             try
             {
-                var _eqpHisList = _eqpInfoRepository.SelectByConditions(mfgDay, eqpListStr, false);
+                var _eqpHisList = _eqpInfoRepository.SelectByConditions(mfgDay, eqpListStr, false, false);
 
                 return (_eqpHisList.Select(s =>
                 {

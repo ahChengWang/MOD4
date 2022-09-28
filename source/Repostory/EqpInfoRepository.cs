@@ -28,7 +28,7 @@ namespace MOD4.Web.Repostory
         }
 
 
-        public List<EqpInfoDao> SelectByConditions(string date, List<string> equipmentList, bool isDefault)
+        public List<EqpInfoDao> SelectByConditions(string date, List<string> equipmentList, bool isDefault, bool showAuto)
         {
             string sql = "select * from vw_eqpinfo_repaired where 1=1";
 
@@ -44,6 +44,11 @@ namespace MOD4.Web.Repostory
             {
                 sql += " and Equipment in @Equipment ";
             }
+            if (!showAuto)
+            {
+                sql += " and Operator != 'AUTO' ";
+            }
+
 
             var dao = _dbHelper.ExecuteQuery<EqpInfoDao>(sql, new
             {

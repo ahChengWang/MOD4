@@ -8,7 +8,7 @@ namespace MOD4.Web.ViewModel
 {
     public class DemanEditViewModel
     {
-        public string OrderSn { get; set; }
+        public int OrderSn { get; set; }
 
         [Display(Name = "單號")]
         public string OrderId { get; set; }
@@ -18,6 +18,7 @@ namespace MOD4.Web.ViewModel
 
         [Display(Name = "狀態")]
         public string DemandStatus { get; set; }
+        public int DemandStatusId { get; set; }
 
         [Display(Name = "主旨")]
         public string Subject { get; set; }
@@ -34,11 +35,19 @@ namespace MOD4.Web.ViewModel
         [Display(Name = "申請日")]
         public string CreateDate { get; set; }
 
-        [Display(Name = "上傳檔案")]
+        [Display(Name = "申請人上傳檔案")]
         public string UploadFile1 { get; set; }
 
         public string UploadFile2 { get; set; }
 
         public string UploadFile3 { get; set; }
+
+
+
+        [Display(Name = "駁回原因")]
+        public string RejectReason { get; set; }
+
+        [Display(Name = "上傳檔案")]
+        public List<IFormFile> UploadFile { get; set; }
     }
 }

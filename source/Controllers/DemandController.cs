@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MOD4.Web.DomainService;
 using MOD4.Web.DomainService.Entity;
+using MOD4.Web.Enum;
 using MOD4.Web.Models;
 using MOD4.Web.Repostory.Dao;
 using MOD4.Web.ViewModel;
@@ -40,6 +41,7 @@ namespace MOD4.Web.Controllers
 
             List<DemanMainViewModel> _response = _demands.Select(s => new DemanMainViewModel
             {
+                OrderSn = s.OrderSn,
                 OrderId = s.OrderNo,
                 DemandCategory = s.CategoryId.GetDescription(),
                 DemandCategoryId = s.CategoryId,
@@ -61,6 +63,7 @@ namespace MOD4.Web.Controllers
 
             List<DemanMainViewModel> _response = _demands.Select(s => new DemanMainViewModel
             {
+                OrderSn = s.OrderSn,
                 OrderId = s.OrderNo,
                 DemandCategory = s.CategoryId.GetDescription(),
                 DemandCategoryId = s.CategoryId,
@@ -83,10 +86,12 @@ namespace MOD4.Web.Controllers
 
             DemanEditViewModel _response = new DemanEditViewModel
             {
+                OrderSn = sn,
                 OrderId = _res.OrderNo,
                 CreateDate = _res.CreateTimeStr,
                 DemandCategory = _res.Category,
                 DemandStatus = _res.Status,
+                DemandStatusId = (int)_res.StatusId,
                 Subject = _res.Subject,
                 Content = _res.Content,
                 Applicant = _res.Applicant,
@@ -99,6 +104,36 @@ namespace MOD4.Web.Controllers
             return View(_response);
         }
 
+        [HttpPost]
+        public IActionResult EditToProcess(DemanEditViewModel updModel)
+        {
+            var _response = Edit(updModel, DemandStatusEnum.Peocessing);
+
+            return Json(new { IsSuccess = _response.Item1, msg = _response.Item2 });
+        }
+
+        [HttpPost]
+        public IActionResult EditToReject(DemanEditViewModel updModel)
+        {
+            var _response = Edit(updModel, DemandStatusEnum.Rejected);
+
+            return Json(new { IsSuccess = _response.Item1, msg = _response.Item2 });
+        }
+
+        [HttpGet]
+        public IActionResult Download([FromQuery] int orderSn, int fileNo)
+        {
+            try
+            {
+                var _res = _demandDomainService.GetDownFileStr(orderSn, fileNo);
+
+                return File(_res.Item1, "application/octet-stream", _res.Item2);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
 
         [HttpGet]
         public IActionResult Create()
@@ -127,6 +162,28 @@ namespace MOD4.Web.Controllers
             catch (Exception ex)
             {
                 return Json(new { IsSuccess = false, msg = ex.Message });
+            }
+        }
+
+
+        private (bool, string) Edit(DemanEditViewModel updModel, DemandStatusEnum newStatusId)
+        {
+            try
+            {
+                var _res = _demandDomainService.UpdateDemand(new DemandEntity
+                {
+                    OrderSn = updModel.OrderSn,
+                    OrderNo = updModel.OrderId,
+                    RejectReason = updModel.RejectReason
+                },
+                newStatusId,
+                GetUserInfo());
+
+                return _res;
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
             }
         }
     }

@@ -16,7 +16,7 @@ namespace MOD4.Web.ViewModel
     {
         public int sn { get; set; }
 
-        [Display(Name ="線體")]
+        [Display(Name ="機台")]
         public string ToolId { get; set; }
 
         [Display(Name = "Code")]

@@ -44,28 +44,20 @@ namespace MOD4.Web.Repostory
         }
 
 
-        public DemandsDao SelectDetail(int orderSn, string orderNo)
+        public DemandsDao SelectDetail(int orderSn, string orderNo = "")
         {
-            string sql = "select * from demands where orderSn=@orderSn and orderNo=@orderNo ";
+            string sql = "select * from demands where orderSn=@orderSn ";
+
+            if (!string.IsNullOrEmpty(orderNo))
+            {
+                sql += " and orderNo=@orderNo ";
+            }
 
             var dao = _dbHelper.ExecuteQuery<DemandsDao>(sql, new
             {
                 orderSn = orderSn,
                 orderNo = orderNo
             }).FirstOrDefault();
-
-            return dao;
-        }
-
-        public int UpdateUserAccount(string account, string password)
-        {
-            string sql = "Update account_info set password=@password where account=@account ";
-
-            var dao = _dbHelper.ExecuteNonQuery(sql, new
-            {
-                account = account,
-                password = password
-            });
 
             return dao;
         }
@@ -101,6 +93,23 @@ VALUES
 @updateTime); ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, insDemands);
+
+            return dao;
+        }
+
+
+        public int Update(DemandsDao updDao)
+        {
+            string sql = @" UPDATE [dbo].[demands]
+   SET [statusId] = @statusId
+      ,[updateUser] = @updateUser
+      ,[updateTime] = @updateTime
+      ,[rejectReason] = @rejectReason
+      ,[completeFiles] = @completeFiles
+ WHERE orderSn=@orderSn and orderNo=@orderNo 
+ ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, updDao);
 
             return dao;
         }

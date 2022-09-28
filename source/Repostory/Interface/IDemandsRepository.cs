@@ -8,8 +8,10 @@ namespace MOD4.Web.Repostory
     {
         List<DemandsDao> SelectByConditions(DateTime dateStart, DateTime dateEnd, string orderSn = "", string orderNo = "", string[] categoryArray = null, string[] statusArray = null);
 
-        DemandsDao SelectDetail(int orderSn, string orderNo);
+        DemandsDao SelectDetail(int orderSn, string orderNo = "");
 
         int Insert(DemandsDao insDemands);
+
+        int Update(DemandsDao updDao);
     }
 }

@@ -35,5 +35,6 @@ namespace MOD4.Web.Repostory.Dao
         public int subXId { get; set; }
         public int rId { get; set; }
         public EqIssueStatusEnum statusId { get; set; }
+        public string tool_name { get; set; }
     }
 }

@@ -86,11 +86,21 @@ namespace MOD4.Web.DomainService
             if (fileArray != null && fileArray.Any())
             {
                 _result.UploadFile1 = fileArray[0] ?? "";
-                _result.UploadFile2 = fileArray[1] ?? "";
-                _result.UploadFile3 = fileArray[2] ?? "";
+                _result.UploadFile2 = fileArray.Length > 1 ? fileArray[1] : "";
+                _result.UploadFile3 = fileArray.Length > 2 ? fileArray[2] : "";
             }
 
             return _result;
+        }
+
+        public (FileStream, string) GetDownFileStr(int sn, int fileNo)
+        {
+            DemandsDao _demandDao = _demandsRepository.SelectDetail(sn);
+            string[] fileArray = _demandDao.uploadFiles.Split(",");
+
+            return (new FileStream($@"{_uploadDomainService.GetFileServerUrl()}\upload\{_demandDao.createUser}\{_demandDao.createTime.ToString("yyMMdd")}\{fileArray[fileNo]}",
+                FileMode.Open, FileAccess.Read, FileShare.Read)
+                , fileArray[fileNo]);
         }
 
         public (bool, string) InsertDemand(DemandEntity insertEntity, UserEntity userEntity)
@@ -162,6 +172,59 @@ namespace MOD4.Web.DomainService
                 return string.IsNullOrEmpty(_insResponse)
                     ? (true, $"需求單:{_insDemandsDao.orderNo} \n待評估")
                     : (false, _insResponse);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public (bool, string) UpdateDemand(DemandEntity updEntity, DemandStatusEnum newStatusId, UserEntity userEntity)
+        {
+            try
+            {
+                var _nowTime = DateTime.Now;
+                var _updResponse = "";
+
+                DemandsDao _oldDemand = _demandsRepository.SelectDetail(updEntity.OrderSn, updEntity.OrderNo);
+
+                DemandsDao _updDemandsDao = new DemandsDao
+                {
+                    orderSn = updEntity.OrderSn,
+                    orderNo = updEntity.OrderNo,
+                    updateUser = userEntity.Name,
+                    updateTime = _nowTime
+                };
+
+                if (_oldDemand.statusId == DemandStatusEnum.Pending)
+                {
+                    _updDemandsDao.statusId = newStatusId;
+                    _updDemandsDao.rejectReason = updEntity.RejectReason ?? "";
+                }
+                else if (_oldDemand.statusId == DemandStatusEnum.Peocessing)
+                {
+                    _updDemandsDao.statusId = newStatusId;
+                }
+
+                using (var scope = new TransactionScope())
+                {
+                    var _insResult = false;
+
+                    _insResult = _demandsRepository.Update(_updDemandsDao) == 1;
+
+                    if (_insResult)
+                    {
+                        //CatchHelper.Delete(new string[] { $"Eq_Edit:{editEntity.sn}" });
+                        scope.Complete();
+                    }
+                    else
+                        _updResponse = "更新失敗";
+                }
+
+                return string.IsNullOrEmpty(_updResponse)
+                    ? (true, $"需求單:{_updDemandsDao.orderNo} \n{newStatusId.GetDescription()}")
+                    : (false, _updResponse);
             }
             catch (Exception ex)
             {

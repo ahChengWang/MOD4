@@ -8,5 +8,6 @@
         public string OPERATION { get; set; }
         public string EQUIP_NBR_M { get; set; }
         public string AREA { get; set; }
+        public int ENABLE { get; set; }
     }
 }

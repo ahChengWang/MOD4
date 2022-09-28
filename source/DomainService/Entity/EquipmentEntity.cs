@@ -7,6 +7,7 @@ namespace MOD4.Web.DomainService.Entity
     {
         public int sn { get; set; }
         public string ToolId { get; set; }
+        public string ToolName { get; set; }
         public string ToolStatus { get; set; }
         public string StatusCdsc { get; set; }
         public string UserId { get; set; }

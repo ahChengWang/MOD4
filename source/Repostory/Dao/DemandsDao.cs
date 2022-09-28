@@ -18,5 +18,8 @@ namespace MOD4.Web.Repostory.Dao
         public DateTime createTime { get; set; }
         public string updateUser { get; set; }
         public DateTime updateTime { get; set; }
+        public string rejectReason { get; set; }
+        public string completeFiles { get; set; }
+        public string remark { get; set; }
     }
 }

@@ -8,7 +8,7 @@ namespace MOD4.Web.Repostory
 
         public List<EquipMappingDao> SelectAll()
         {
-            string sql = "select * from equip_mapping ";
+            string sql = "select * from equip_mapping where ENABLE = 1; ";
 
             var dao = _dbHelper.ExecuteQuery<EquipMappingDao>(sql);
 

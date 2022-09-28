@@ -1,6 +1,7 @@
 ﻿using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
 using System.Collections.Generic;
+using System.IO;
 
 namespace MOD4.Web.DomainService
 {
@@ -10,7 +11,11 @@ namespace MOD4.Web.DomainService
 
         DemandEntity GetDemandDetail(int sn, string orderId);
 
+        (FileStream, string) GetDownFileStr(int sn, int fileNo);
+
         (bool, string) InsertDemand(DemandEntity insertEntity, UserEntity userEntity);
+
+        (bool, string) UpdateDemand(DemandEntity updEntity, DemandStatusEnum newStatusId, UserEntity userEntity);
 
     }
 }

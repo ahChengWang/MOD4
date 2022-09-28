@@ -45,5 +45,6 @@ namespace MOD4.Web.DomainService.Entity
         public int RId { get; set; }
         public string RDesc { get; set; }
         public EqIssueStatusEnum StatusId { get; set; }
+        public string ToolName { get; set; }
     }
 }

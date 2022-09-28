@@ -180,8 +180,9 @@
 
     $("#btnCreate").click(myFuc.CreateOrder);
 
-    function editClick(id, orderId) {
+    function editClick(id, orderId, e) {
         location.href = "Demand/Edit?sn=" + id + "&orderId=" + orderId;
+        //location.href = "Demand/Edit?sn=4&orderId='DE220926114602'";
     }
 
     function detailClick(id, e) {

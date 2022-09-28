@@ -35,11 +35,6 @@ namespace MOD4.Web.ViewModel
         public string JobNo { get; set; }
 
         [Display(Name = "上傳檔案")]
-        [Required(ErrorMessage = "*必填")]
         public List<IFormFile> UploadFile { get; set; }
-
-        //public IFormFile UploadFile2 { get; set; }
-
-        //public IFormFile UploadFile3 { get; set; }
     }
 }

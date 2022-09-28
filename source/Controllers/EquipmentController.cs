@@ -64,11 +64,11 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult SearchRepairedEqHistory([FromQuery] string date, string toolIdList, string statusIdList)
+        public IActionResult SearchRepairedEqHistory([FromQuery] string date, string toolIdList, string statusIdList, bool showAuto)
         {
             try
             {
-                var res = _equipmentDomainService.GetRepairedEqList(date, toolIdList, statusIdList);
+                var res = _equipmentDomainService.GetRepairedEqList(date, toolIdList, statusIdList, showAuto: showAuto);
                 ViewBag.RoleId = GetUserInfo().RoleId;
 
                 //ViewBag.LineList = res.GroupBy(gb => gb.ToolId).Select(s => s.Key).ToList();
@@ -78,7 +78,7 @@ namespace MOD4.Web.Controllers
                     return new EquipmentDetailModel()
                     {
                         sn = s.sn,
-                        ToolId = s.ToolId,
+                        ToolId = string.IsNullOrEmpty(s.ToolName) ? s.ToolId : $"{s.ToolId} ({s.ToolName})",
                         ToolStatus = s.ToolStatus,
                         StatusCdsc = s.StatusCdsc,
                         UserId = s.UserId,
@@ -147,7 +147,7 @@ namespace MOD4.Web.Controllers
                     return new EquipmentDetailModel()
                     {
                         sn = s.sn,
-                        ToolId = s.ToolId,
+                        ToolId = string.IsNullOrEmpty(s.ToolName) ? s.ToolId : $"{s.ToolId}({s.ToolName})",
                         ToolStatus = s.ToolStatus,
                         StatusCdsc = s.StatusCdsc,
                         UserId = s.UserId,
@@ -189,7 +189,7 @@ namespace MOD4.Web.Controllers
                 EquipmentEditViewModel _resModel = new EquipmentEditViewModel
                 {
                     sn = _res.sn,
-                    ToolId = _res.Equipment,
+                    ToolId = string.IsNullOrEmpty(_res.ToolName) ? _res.Equipment : $"{_res.Equipment} ({_res.ToolName})",
                     Code = _res.Code,
                     Codedesc = _res.CodeDesc,
                     Product = _res.Product,
@@ -329,7 +329,7 @@ namespace MOD4.Web.Controllers
                 return PartialView("_PartialDetail", new EquipmentDetailViewModel
                 {
                     sn = _res.sn,
-                    ToolId = _res.Equipment,
+                    ToolId = string.IsNullOrEmpty(_res.ToolName) ? _res.Equipment : $"{_res.Equipment} ({_res.ToolName})",
                     Product = _res.Product,
                     ProductShortName = "",
                     ModelName = "",
