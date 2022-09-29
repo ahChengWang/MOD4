@@ -323,6 +323,10 @@
             //$("<option></option>").attr("value", _model["yId"]).text(_model["yDesc"]).attr("selected", "selected").appendTo($("#YId").attr("disabled", true));
             //$("<option></option>").attr("value", _model["subYId"]).text(_model["subYDesc"]).attr("selected", "selected").appendTo($("#SubYId").attr("disabled", true));
 
+            if ($("#YId").children().length == 2)
+                $("#YId").attr("disabled", true);
+            if ($("#SubYId").children().length == 2)
+                $("#SubYId").attr("disabled", true);
             if ($("#XId").children().length == 2)
                 $("#XId").attr("disabled", true);
             if ($("#SubXId").children().length == 2)
