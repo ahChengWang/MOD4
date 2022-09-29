@@ -80,7 +80,7 @@ namespace MOD4.Web.Controllers
                     var claims = new List<Claim>()
                 {
                     new Claim(ClaimTypes.NameIdentifier, Convert.ToString(_currentUser.Account)),
-                    new Claim("sn", Convert.ToString(_currentUser.sn, 16)),
+                    new Claim("sn", Convert.ToString(_currentUser.sn)),
                     new Claim("Account", _currentUser.Account),
                     new Claim("Name", _currentUser.Name),
                     new Claim("Role", Convert.ToString((int)_currentUser.RoleId))

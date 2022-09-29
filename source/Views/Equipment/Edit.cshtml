@@ -125,7 +125,7 @@
                                         <label class="col-form-label" name="underline">@Model.Codedesc</label>
                                     </div>
                                 </div>
-                                <div class="row" style="display: flex; margin-top: 10px; ">
+                                <div class="row" style="display: flex; margin-top: 5px; ">
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="Comment"></label>
                                         <span asp-validation-for="Comment" style="font-size:10px;font-weight:700" class="text-danger"></span>
@@ -134,7 +134,7 @@
                                         <textarea class="form-control pmEdit" asp-for="Comment" id="Comment" rows="2"></textarea>
                                     </div>
                                 </div>
-                                <div class="row" style="display: flex; margin-top: 10px;">
+                                <div class="row" style="display: flex; margin-top: 5px;">
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="ProcessId"></label>
                                         <span asp-validation-for="ProcessId" style="font-size:10px;font-weight:700" class="text-danger"></span>
@@ -163,7 +163,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div id="blockPM" class="row" style="display: flex;margin-top:10px;">
+                                <div class="row" style="display: flex;margin-top:10px;">
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="DefectQty"></label>
                                         <span asp-validation-for="DefectQty" style="font-size:10px;font-weight:700" class="text-danger"></span>
@@ -192,7 +192,22 @@
                                     </div>
                                 </div>
 
-                                <div class="row" style="display: flex; margin-top: 10px;">
+                                @{
+                                    if (Model.StatusId == MOD4.Web.Enum.EqIssueStatusEnum.PendingENG)
+                                    {
+                                        <div id="blockPM" class="row" style="margin-top:10px;">
+                                            <div class="col-2">
+                                                <label class="col-form-label" asp-for="MntUser"></label>
+                                            </div>
+                                            <div class="col-2">
+                                                <input class="form-control" disabled style="text-align:right" type="text" value="@Model.MntUser" asp-for="MntUser" />
+                                            </div>
+                                            <br />
+                                        </div>
+                                    }
+                                }
+
+                                <div class="row" style="display: flex; margin-top: 5px;">
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="TypeId"></label>
                                         <span asp-validation-for="TypeId" style="font-size:10px;font-weight:700" class="text-danger"></span>
@@ -222,7 +237,7 @@
                                     </div>
                                 </div>
 
-                                <div class="row" style="display: flex; margin-top: 10px;">
+                                <div class="row" style="display: flex; margin-top: 5px;">
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="XId"></label>
                                         <span asp-validation-for="XId" style="font-size:10px;font-weight:700" class="text-danger"></span>
@@ -252,7 +267,7 @@
                                     </div>
                                 </div>
 
-                                <div id="mntMinutesBlock" class="row" style="margin-top:10px;">
+                                <div id="mntMinutesBlock" class="row" style="margin-top:5px;">
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="MntMinutes"></label>
                                         <span asp-validation-for="MntMinutes" style="font-size:10px;font-weight:700" class="text-danger"></span>
@@ -260,13 +275,13 @@
                                     <div class="col-10">
                                         <textarea class="form-control pmEdit" asp-for="MntMinutes" rows="5" cols="75"></textarea>
                                     </div>
-                                    <br />
                                 </div>
 
                                 @{
                                     if (Model.StatusId == MOD4.Web.Enum.EqIssueStatusEnum.PendingENG)
                                     {
-                                        <div class="row" style="display: flex;margin-top:10px;">
+
+                                        <div class="row" style="display: flex;margin-top:5px;">
                                             <div class="col-2">
                                                 <label class="col-form-label" asp-for="PriorityId"></label>
                                                 <span asp-validation-for="PriorityId" style="font-size:10px;font-weight:700" class="text-danger"></span>
@@ -277,7 +292,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="row" style="margin-top:10px;">
+                                        <div class="row" style="margin-top:5px;">
                                             <div class="col-2">
                                                 <label class="col-form-label" asp-for="Memo"></label>
                                             </div>
