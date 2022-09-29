@@ -110,6 +110,9 @@
                         </div>
                         <!-- /.card-body -->
                     </div>
+                    <!-- Modal -->
+                    <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
+                    </div>
                 </div>
                 <!-- /.col -->
             </div>
@@ -150,6 +153,10 @@
                             "lengthChange": true,
                             "autoWidth": true,
                         }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
+
+                        $(".status:contains('待評估')").css('color', '#088c01');
+                        $(".status:contains('進行中')").css('color', '#145cba');
+                        $(".status:contains('已退件')").css('color', '#b00c0f');
                     }
                 }
             });
@@ -172,8 +179,12 @@
             /*"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]*/
         }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
 
-
         $("#dropCat,#dropStatus").multiselect({});
+
+        $(".status:contains('待評估')").css('color', '#088c01');
+        $(".status:contains('進行中')").css('color', '#145cba');
+        $(".status:contains('已退件')").css('color', '#b00c0f');
+
     });
 
     $("#btnSearch").click(myFuc.SearchOrder);
@@ -182,10 +193,9 @@
 
     function editClick(id, orderId) {
         location.href = "Demand/Edit?sn=" + id + "&orderId=" + orderId;
-        //location.href = "Demand/Edit?sn=4&orderId='DE220926114602'";
     }
 
-    function detailClick(id, e) {
+    function detailClick(id) {
         $.ajax({
             url: "Demand/Detail?sn=" + id,
             type: 'GET',
@@ -209,6 +219,14 @@
                 }
             }
         });
+    }
+
+    function dismissModal() {
+        $('body').removeClass('modal-open');
+        $('#detailModal').removeClass('show');
+        $('#detailModal').css('display', 'none');
+        $('.modal-backdrop').remove();
+        $('.modal-dialog').remove();
     }
 
 </script>

@@ -62,7 +62,7 @@ namespace MOD4.Web.DomainService
         }
 
 
-        public DemandEntity GetDemandDetail(int sn, string orderId)
+        public DemandEntity GetDemandDetail(int sn, string orderId = "")
         {
             DemandsDao _demandDao = _demandsRepository.SelectDetail(sn, orderId);
 
@@ -81,6 +81,8 @@ namespace MOD4.Web.DomainService
                 CreateUser = _demandDao.createUser,
                 CreateTime = _demandDao.createTime,
                 CreateTimeStr = _demandDao.createTime.ToString("yyyy-MM-dd"),
+                RejectReason = string.IsNullOrEmpty(_demandDao.rejectReason) ? "" : _demandDao.rejectReason,
+                Remark = string.IsNullOrEmpty(_demandDao.remark) ? "" : _demandDao.remark
             };
 
             var fileArray = _demandDao.uploadFiles.Split(",");
@@ -90,6 +92,15 @@ namespace MOD4.Web.DomainService
                 _result.UploadFile1 = fileArray[0] ?? "";
                 _result.UploadFile2 = fileArray.Length > 1 ? fileArray[1] : "";
                 _result.UploadFile3 = fileArray.Length > 2 ? fileArray[2] : "";
+            }
+
+            fileArray = _demandDao.completeFiles?.Split(",") ?? new string[0];
+
+            if (fileArray != null && fileArray.Any())
+            {
+                _result.CompleteUploadFile1 = fileArray[0] ?? "";
+                _result.CompleteUploadFile2 = fileArray.Length > 1 ? fileArray[1] : "";
+                _result.CompleteUploadFile3 = fileArray.Length > 2 ? fileArray[2] : "";
             }
 
             return _result;
@@ -120,7 +131,8 @@ namespace MOD4.Web.DomainService
                     createUser = userEntity.Account,
                     createTime = _nowTime,
                     updateUser = "",
-                    updateTime = _nowTime
+                    updateTime = _nowTime,
+                    isCancel = false
                 };
 
                 /*
@@ -210,15 +222,19 @@ namespace MOD4.Web.DomainService
                     return UpdateToProcess(_updDemandsDao);
                 else if (_oldDemand.statusId == DemandStatusEnum.Processing && newStatusId == DemandStatusEnum.Completed)
                 {
-                    _fileNameStr = DoUploadFiles(updEntity.UploadFileList, userEntity.Account, _nowTime.ToString("yyMMdd"));
+                    _fileNameStr = DoUploadFiles(updEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime.ToString("yyMMdd"));
                     _updDemandsDao.completeFiles = _fileNameStr;
+                    _updDemandsDao.remark = updEntity.Remark;
                     return UpdateToCompleted(_updDemandsDao);
                 }
                 else if (_oldDemand.statusId == DemandStatusEnum.Rejected && newStatusId == DemandStatusEnum.Pending)
                 {
+                    _updDemandsDao.categoryId = updEntity.CategoryId;
                     _updDemandsDao.subject = updEntity.Subject;
                     _updDemandsDao.content = updEntity.Content;
-                    _fileNameStr = DoUploadFiles(updEntity.UploadFileList, userEntity.Account, _nowTime.ToString("yyMMdd"));
+                    _updDemandsDao.applicant = updEntity.Applicant;
+                    _updDemandsDao.jobNo = updEntity.JobNo;
+                    _fileNameStr = DoUploadFiles(updEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime.ToString("yyMMdd"));
                     _updDemandsDao.uploadFiles = _fileNameStr;
                     return UpdateToPending(_updDemandsDao);
                 }

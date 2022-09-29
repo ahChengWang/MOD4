@@ -100,6 +100,7 @@ namespace MOD4.Web.Controllers
                 UploadFile1 = _res.UploadFile1,
                 UploadFile2 = _res.UploadFile2,
                 UploadFile3 = _res.UploadFile3,
+                RejectReason = _res.RejectReason
             };
 
             return View(_response);
@@ -135,6 +136,48 @@ namespace MOD4.Web.Controllers
             var _response = Edit(updModel, DemandStatusEnum.Cancel);
 
             return Json(new { IsSuccess = _response.Item1, msg = _response.Item2 });
+        }
+
+
+        [HttpPost]
+        public IActionResult EditToCompleted(DemanEditViewModel updModel)
+        {
+            var _response = Edit(updModel, DemandStatusEnum.Completed);
+
+            return Json(new { IsSuccess = _response.Item1, msg = _response.Item2 });
+        }
+
+
+        [HttpGet]
+        public IActionResult Detail([FromQuery] int sn)
+        {
+            ViewBag.CategoryOptions = _optionDomainService.GetDemandCategoryOptionList();
+
+            var _res = _demandDomainService.GetDemandDetail(sn);
+
+            DemanEditViewModel _response = new DemanEditViewModel
+            {
+                OrderSn = sn,
+                OrderId = _res.OrderNo,
+                CreateDate = _res.CreateTimeStr,
+                DemandCategoryId = _res.CategoryId,
+                DemandStatus = _res.Status,
+                DemandStatusId = (int)_res.StatusId,
+                Subject = _res.Subject,
+                Content = _res.Content,
+                Applicant = _res.Applicant,
+                JobNo = _res.JobNo,
+                UploadFile1 = _res.UploadFile1,
+                UploadFile2 = _res.UploadFile2,
+                UploadFile3 = _res.UploadFile3,
+                RejectReason = _res.RejectReason,
+                Remark = _res.Remark,
+                CompleteUploadFile1 = _res.CompleteUploadFile1, 
+                CompleteUploadFile2 = _res.CompleteUploadFile2,
+                CompleteUploadFile3 = _res.CompleteUploadFile3
+            };
+
+            return PartialView("_PartialDetail", _response);
         }
 
         [HttpGet]
@@ -191,7 +234,14 @@ namespace MOD4.Web.Controllers
                 {
                     OrderSn = updModel.OrderSn,
                     OrderNo = updModel.OrderId,
-                    RejectReason = updModel.RejectReason
+                    CategoryId = updModel.DemandCategoryId,
+                    Subject = updModel.Subject,
+                    Content = updModel.Content,
+                    Applicant = updModel.Applicant,
+                    JobNo = updModel.JobNo,
+                    UploadFileList = updModel.UploadFile,
+                    RejectReason = updModel.RejectReason,
+                    Remark = updModel.Remark
                 },
                 newStatusId,
                 GetUserInfo());

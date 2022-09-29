@@ -50,5 +50,16 @@ namespace MOD4.Web.ViewModel
 
         [Display(Name = "上傳檔案")]
         public List<IFormFile> UploadFile { get; set; }
+
+
+        [Display(Name = "備註")]
+        public string Remark { get; set; }
+
+        [Display(Name = "負責人上傳檔案")]
+        public string CompleteUploadFile1 { get; set; }
+
+        public string CompleteUploadFile2 { get; set; }
+
+        public string CompleteUploadFile3 { get; set; }
     }
 }

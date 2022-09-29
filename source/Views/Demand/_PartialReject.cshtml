@@ -1,50 +1,162 @@
 ﻿@model MOD4.Web.ViewModel.DemanEditViewModel
 
-
-<div>
-    <input id="btnResend" type="button" class="btn" style="background-color: #e5e83c" value="重送" onclick="resendClick()" />
+<div class="card-body">
+    <div class="form-group" style="display:flex">
+        <div class="col-2">
+            <label class="col-form-label" asp-for="OrderId"></label>
+        </div>
+        <div class="col-2">
+            <label class="col-form-label" name="underline">@Model.OrderId</label>
+        </div>
+        <div class="col-2">
+            <label class="col-form-label" asp-for="CreateDate"></label>
+        </div>
+        <div class="col-2">
+            <label class="col-form-label" name="underline">@Model.CreateDate</label>
+        </div>
+    </div>
+    <div class="form-group" style="display:flex">
+        <div class="col-2">
+            <label class="col-form-label" asp-for="DemandStatus"></label>
+        </div>
+        <div class="col-2">
+            <label class="col-form-label" name="underline">@Model.DemandStatus</label>
+        </div>
+        <div class="col-2">
+            <label class="col-form-label" asp-for="RejectReason"></label>
+        </div>
+        <div class="col-2">
+            <label class="col-form-label" name="underline">@Model.RejectReason</label>
+        </div>
+    </div>
+    <div class="form-group" style="display:flex">
+        <div class="col-2">
+            <label class="col-form-label" asp-for="DemandCategoryId"></label>
+        </div>
+        <div class="col-6">
+            <select class="custom-select" style="width:30%" asp-for="DemandCategoryId">
+                @{
+                    foreach (var category in ViewBag.CategoryOptions)
+                    {
+                        <option value="@category.Id">@category.Value</option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+    <div class="form-group" style="display:flex">
+        <div class="col-2">
+            <label class="col-form-label" asp-for="Subject"></label>
+        </div>
+        <div class="col-9">
+            <input type="text" class="form-control" asp-for="Subject">
+        </div>
+    </div>
+    <div class="form-group" style="display: flex;">
+        <div class="col-2">
+            <label class="col-form-label" asp-for="Content"></label>
+        </div>
+        <div class="col-9">
+            <textarea class="form-control" rows="4" asp-for="Content"></textarea>
+        </div>
+    </div>
+    <div class="form-group" style="display:flex">
+        <div class="col-2">
+            <label class="col-form-label" asp-for="Applicant"></label>
+        </div>
+        <div class="col-2">
+            <input type="text" class="form-control" asp-for="Applicant">
+        </div>
+        <div class="col-2">
+            <label class="col-form-label" asp-for="JobNo"></label>
+        </div>
+        <div class="col-2">
+            <input type="text" class="form-control" maxlength="8" asp-for="JobNo">
+        </div>
+    </div>
+    <div class="form-group" style="display:flex">
+        <div class="col-2">
+            <label class="col-form-label" asp-for="UploadFile"></label>
+            <span asp-validation-for="UploadFile" style="font-size:10px;font-weight:700" class="text-danger"></span>
+            <div>
+                <span class="unit">(允許 xls,xlsx,docx,jpg,png,jpeg)</span>
+                <br />
+                <span class="unit">單檔最大2MB</span>
+            </div>
+        </div>
+        <div class="col-3 custom-file">
+            <input type="file" class="custom-file-input" asp-for="UploadFile" onchange="verifyFile(this)" />
+            <label class="custom-file-label">Choose file</label>
+        </div>
+        <div class="col-3 custom-file">
+            <input type="file" class="custom-file-input" asp-for="UploadFile" onchange="verifyFile(this)" />
+            <label class="custom-file-label">Choose file</label>
+        </div>
+        <div class="col-3 custom-file">
+            <input type="file" class="custom-file-input" asp-for="UploadFile" onchange="verifyFile(this)" />
+            <label class="custom-file-label">Choose file</label>
+        </div>
+    </div>
 </div>
-<div style="margin-left:8px">
-    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-sm-cancel">
-        作廢
-    </button>
-</div>
 
+<div class="card-footer" style="display:flex">
+    <div>
+        <input id="btnResend" type="button" class="btn" style="background-color: #e5e83c" value="重送" onclick="resendClick()" />
+    </div>
+    <div style="margin-left:8px">
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-sm-cancel">
+            作廢
+        </button>
+    </div>
+</div>
 
 <script type="text/javascript">
 
     function resendClick() {
-        $.blockUI({
-            message: '請稍等...',
-            css: {
-                border: 'none',
-                padding: '5px',
-                backgroundColor: '#000',
-                '-webkit-border-radius': '10px',
-                '-moz-border-radius': '10px',
-                opacity: '.5',
-                color: '#fff',
-                fontSize: '25px',
-                fontFamily: '微軟正黑體',
-                fontWeight: 300,
-            }
-        });
-        $.ajax({
-            type: "POST",
-            url: "/Demand/EditToPending",
-            dataType: 'json',
-            data: $("#demandForm").serialize(),
-            success: function (result) {
-                $.unblockUI();
-                if (result.isSuccess) {
-                    alert(result.msg);
-                    location.href = "@Url.ActionLink("Index", "Demand")";
+        if ($("#demandForm").valid()) {
+            $.blockUI({
+                message: '請稍等...',
+                css: {
+                    border: 'none',
+                    padding: '5px',
+                    backgroundColor: '#000',
+                    '-webkit-border-radius': '10px',
+                    '-moz-border-radius': '10px',
+                    opacity: '.5',
+                    color: '#fff',
+                    fontSize: '25px',
+                    fontFamily: '微軟正黑體',
+                    fontWeight: 300,
                 }
-                else {
-                    alert(result.msg);
+            });
+            var formData = new FormData(document.getElementById("demandForm"));
+            $.ajax({
+                type: "POST",
+                url: "/Demand/EditToPending",
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function (result) {
+                    $.unblockUI();
+                    if (result.isSuccess) {
+                        alert(result.msg);
+                        location.href = "@Url.ActionLink("Index", "Demand")";
+                    }
+                    else {
+                        alert(result.msg);
+                    }
+                    @*if (result != "") {
+                        alert(result);
+                        $.unblockUI();
+                        }
+                        else {
+                        alert('建立成功');
+                        location.href = "@Url.ActionLink("Index", "Demand")";
+                        }*@
                 }
-            }
-        });
+            });
+        }
     }
 
     function cancelClick() {

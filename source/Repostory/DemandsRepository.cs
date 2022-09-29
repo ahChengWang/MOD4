@@ -77,7 +77,8 @@ namespace MOD4.Web.Repostory
 [createUser],
 [createTime],
 [updateUser],
-[updateTime])
+[updateTime],
+[isCancel])
 VALUES
 (@orderNo,
 @categoryId,
@@ -90,7 +91,8 @@ VALUES
 @createUser,
 @createTime,
 @updateUser,
-@updateTime); ";
+@updateTime,
+@isCancel); ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, insDemands);
 
@@ -133,7 +135,8 @@ VALUES
    SET [statusId] = @statusId
       ,[updateUser] = @updateUser
       ,[updateTime] = @updateTime
-      ,[completeFiles] = @completeFiles 
+      ,[completeFiles] = @completeFiles
+      ,[remark] = @remark
  WHERE orderSn=@orderSn and orderNo=@orderNo 
  ";
 
@@ -146,8 +149,11 @@ VALUES
         {
             string sql = @" UPDATE [dbo].[demands]
    SET [statusId] = @statusId
+      ,[categoryId] = @categoryId
       ,[subject] = @subject
       ,[content] = @content
+      ,[applicant] = @applicant
+      ,[jobNo] = @jobNo
       ,[updateUser] = @updateUser
       ,[updateTime] = @updateTime
       ,[uploadFiles] = @uploadFiles 
