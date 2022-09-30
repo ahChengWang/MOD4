@@ -25,7 +25,7 @@ namespace MOD4.Web.DomainService
             _uploadDomainService = uploadDomainService;
         }
 
-        public List<DemandEntity> GetDemands(
+        public List<DemandEntity> GetDemands(UserEntity userEntity,
             string sn = null, string dateStart = null, string dateEnd = null, string categoryId = null, string statusId = null)
         {
             try
@@ -52,7 +52,8 @@ namespace MOD4.Web.DomainService
                         CreateUser = s.createUser,
                         CreateTime = s.createTime,
                         UpdateUser = s.updateUser,
-                        UpdateTime = s.updateTime
+                        UpdateTime = s.updateTime,
+                        UserEditable = s.createUser == userEntity.Account && s.statusId == DemandStatusEnum.Rejected
                     }).OrderByDescending(ob => ob.CreateTime).ToList();
             }
             catch (Exception ex)
@@ -124,7 +125,7 @@ namespace MOD4.Web.DomainService
                 var _fileNameStr = "";
                 var _insResponse = "";
 
-                _fileNameStr = DoUploadFiles(insertEntity.UploadFileList, userEntity.Account, _nowTime.ToString("yyMMdd"));
+                _fileNameStr = DoUploadFiles(insertEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime);
 
                 DemandsDao _insDemandsDao = new DemandsDao
                 {
@@ -135,27 +136,6 @@ namespace MOD4.Web.DomainService
                     isCancel = false
                 };
 
-                /*
-                if (!Directory.Exists($@"{_url}\{_folder}"))
-                {
-                    Directory.CreateDirectory($@"{_url}\{_folder}");
-                }
-
-                foreach (var file in insertEntity.UploadFileList)
-                {
-                    if (file.Length > 0)
-                    {
-                        var path = $@"{_url}\{_folder}\{file.FileName}";
-
-                        using (var stream = new FileStream(path, FileMode.Create))
-                        {
-                            file.CopyTo(stream);
-                        }
-
-                        _fileNameStr += file.FileName + ",";
-                    }
-                }
-                */
 
                 _insDemandsDao.orderNo = $"DE{_nowTime.ToString("yyMMddHHmmss")}";
                 _insDemandsDao.categoryId = insertEntity.CategoryId;
@@ -200,7 +180,6 @@ namespace MOD4.Web.DomainService
                 var _url = _uploadDomainService.GetFileServerUrl();
                 var _folder = $@"upload\{userEntity.Account}\{_nowTime.ToString("yyMMdd")}";
                 var _fileNameStr = "";
-                var _updResponse = "";
 
                 DemandsDao _oldDemand = _demandsRepository.SelectDetail(updEntity.OrderSn, updEntity.OrderNo);
 
@@ -222,7 +201,7 @@ namespace MOD4.Web.DomainService
                     return UpdateToProcess(_updDemandsDao);
                 else if (_oldDemand.statusId == DemandStatusEnum.Processing && newStatusId == DemandStatusEnum.Completed)
                 {
-                    _fileNameStr = DoUploadFiles(updEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime.ToString("yyMMdd"));
+                    _fileNameStr = DoUploadFiles(updEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime);
                     _updDemandsDao.completeFiles = _fileNameStr;
                     _updDemandsDao.remark = updEntity.Remark;
                     return UpdateToCompleted(_updDemandsDao);
@@ -234,7 +213,7 @@ namespace MOD4.Web.DomainService
                     _updDemandsDao.content = updEntity.Content;
                     _updDemandsDao.applicant = updEntity.Applicant;
                     _updDemandsDao.jobNo = updEntity.JobNo;
-                    _fileNameStr = DoUploadFiles(updEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime.ToString("yyMMdd"));
+                    _fileNameStr = DoUploadFiles(updEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime);
                     _updDemandsDao.uploadFiles = _fileNameStr;
                     return UpdateToPending(_updDemandsDao);
                 }
@@ -253,10 +232,10 @@ namespace MOD4.Web.DomainService
 
         }
 
-        private string DoUploadFiles(List<IFormFile> uploadFiles, string userAcc, string dateTimeStr)
+        private string DoUploadFiles(List<IFormFile> uploadFiles, string userAcc, DateTime nowTime)
         {
             var _url = _uploadDomainService.GetFileServerUrl();
-            var _folder = $@"upload\{userAcc}\{dateTimeStr}";
+            var _folder = $@"upload\{userAcc}\{nowTime.ToString("yyMMdd")}";
             var _fileNameStr = "";
 
             if (!Directory.Exists($@"{_url}\{_folder}"))
@@ -268,14 +247,23 @@ namespace MOD4.Web.DomainService
             {
                 if (file.Length > 0)
                 {
-                    var path = $@"{_url}\{_folder}\{file.FileName}";
+                    var _fileArray = file.FileName.Split(".");
+
+                    string _newFileName = "";
+
+                    for (int i = 0; i < _fileArray.Length; i++)
+                    {
+                        _newFileName += i == (_fileArray.Length - 2) ? $"{_fileArray[i]}_{nowTime.ToString("ffff")}." : _fileArray[i];
+                    }
+
+                    var path = $@"{_url}\{_folder}\{_newFileName}";
 
                     using (var stream = new FileStream(path, FileMode.Create))
                     {
                         file.CopyTo(stream);
                     }
 
-                    _fileNameStr += file.FileName + ",";
+                    _fileNameStr += _newFileName + ",";
                 }
             }
 

@@ -7,7 +7,7 @@ namespace MOD4.Web.DomainService
 {
     public interface IDemandDomainService
     {
-        List<DemandEntity> GetDemands(string sn = null, string dateStart = null, string dateEnd = null, string categoryId = null, string statusId = null);
+        List<DemandEntity> GetDemands(UserEntity userEntity, string sn = null, string dateStart = null, string dateEnd = null, string categoryId = null, string statusId = null);
 
         DemandEntity GetDemandDetail(int sn, string orderId = "");
 

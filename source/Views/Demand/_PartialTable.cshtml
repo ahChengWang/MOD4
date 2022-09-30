@@ -25,17 +25,23 @@
                     <td style="width:10%">@demand.CreateDate</td>
                     <td style="width:8%">
                         @{
-                            if (demand.DemandStatusId == MOD4.Web.Enum.DemandStatusEnum.Completed)
-                            {
-                                <a class="btn btn-sm" data-toggle="modal" style="font-size:15px" data-target="#detailModal" onclick="detailClick(@demand.OrderSn)">
-                                    <i class="fa fa-search">明細</i>
-                                </a>
-                            }
-                            else
+                            if (demand.RoleId == MOD4.Web.Enum.RoleEnum.Manager)
                             {
                                 <button class="btn btn-sm btn-primary" style="position:relative" onclick="editClick(@demand.OrderSn,'@(demand.OrderId)')">
                                     <span style="font-size:5px">編輯</span>
                                 </button>
+                            }
+                            else if (demand.UserEditable)
+                            {
+                                <button class="btn btn-sm btn-primary" style="position:relative" onclick="editClick(@demand.OrderSn,'@(demand.OrderId)')">
+                                    <span style="font-size:5px">編輯</span>
+                                </button>
+                            }
+                            else
+                            {
+                                <a class="btn btn-sm" data-toggle="modal" style="font-size:15px" data-target="#detailModal" onclick="detailClick(@demand.OrderSn)">
+                                    <i class="fa fa-search">明細</i>
+                                </a>
                             }
                         }
 

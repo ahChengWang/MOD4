@@ -37,7 +37,9 @@ namespace MOD4.Web.Controllers
 
         public IActionResult Index()
         {
-            var _demands = _demandDomainService.GetDemands();
+            var _userInfo = GetUserInfo();
+
+            var _demands = _demandDomainService.GetDemands(_userInfo);
 
             List<DemanMainViewModel> _response = _demands.Select(s => new DemanMainViewModel
             {
@@ -50,7 +52,9 @@ namespace MOD4.Web.Controllers
                 Subject = s.Subject,
                 Applicant = s.Applicant,
                 JobNo = s.JobNo,
-                CreateDate = s.CreateTime.ToString("yyyy-MM-dd")
+                CreateDate = s.CreateTime.ToString("yyyy-MM-dd"),
+                UserEditable = s.UserEditable,
+                RoleId = _userInfo.RoleId
             }).ToList();
 
             return View(_response);
@@ -59,7 +63,9 @@ namespace MOD4.Web.Controllers
         [HttpGet]
         public IActionResult Search([FromQuery] string startDate, string endDate, string category, string status)
         {
-            var _demands = _demandDomainService.GetDemands(dateStart: startDate, dateEnd: endDate, categoryId: category, statusId: status);
+            var _userInfo = GetUserInfo();
+
+            var _demands = _demandDomainService.GetDemands(_userInfo, dateStart: startDate, dateEnd: endDate, categoryId: category, statusId: status);
 
             List<DemanMainViewModel> _response = _demands.Select(s => new DemanMainViewModel
             {
@@ -72,7 +78,9 @@ namespace MOD4.Web.Controllers
                 Subject = s.Subject,
                 Applicant = s.Applicant,
                 JobNo = s.JobNo,
-                CreateDate = s.CreateTime.ToString("yyyy-MM-dd")
+                CreateDate = s.CreateTime.ToString("yyyy-MM-dd"),
+                UserEditable = s.UserEditable,
+                RoleId = _userInfo.RoleId
             }).ToList();
 
             return PartialView("_PartialTable", _response);

@@ -39,5 +39,9 @@ namespace MOD4.Web.ViewModel
 
         [Display(Name = "上傳檔案")]
         public List<IFormFile> UploadFile { get; set; }
+
+        public bool UserEditable { get; set; }
+
+        public RoleEnum RoleId { get; set; }
     }
 }

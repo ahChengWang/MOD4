@@ -33,5 +33,7 @@ namespace MOD4.Web.DomainService.Entity
         public string CompleteUploadFile2 { get; set; }
         public string CompleteUploadFile3 { get; set; }
         public string Remark { get; set; }
+
+        public bool UserEditable { get; set; }
     }
 }

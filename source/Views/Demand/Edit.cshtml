@@ -62,6 +62,10 @@
                                 {
                                     <partial name="_PartialProcess" model="Model" />
                                 }
+                                else if (@Model.DemandStatusId == 4)
+                                {
+                                    <partial name="_PartialProcess" model="Model" />
+                                }
                             }
 
                             <input type="hidden" asp-for="OrderSn" value="@Model.OrderSn" />

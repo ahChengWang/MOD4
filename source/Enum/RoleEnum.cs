@@ -7,7 +7,7 @@ namespace MOD4.Web.Enum
         [Description("管理者")]
         Admin = 1,
 
-        [Description("經理")]
+        [Description("管理者")]
         Manager = 2,
 
         [Description("組長")]

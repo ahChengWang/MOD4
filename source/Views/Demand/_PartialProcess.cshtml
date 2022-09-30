@@ -152,18 +152,34 @@
             <label class="col-form-label" asp-for="Remark"></label>
         </div>
         <div class="col-9">
-            <textarea class="form-control" rows="3" asp-for="Remark"></textarea>
+            <textarea class="form-control" rows="3" asp-for="Remark">@Model.Remark</textarea>
         </div>
     </div>
 
 </div>
-<div class="card-footer" style="display:flex">
-    <div>
-        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-sm-completed">
-            完成
-        </button>
-    </div>
-</div>
+
+@{
+    if (Model.DemandStatusId == 4)
+    {
+        <div class="card-footer" style="display:flex">
+            <div>
+                <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#modal-sm-completed">
+                    更新
+                </button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card-footer" style="display:flex">
+            <div>
+                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-sm-completed">
+                    完成
+                </button>
+            </div>
+        </div>
+    }
+}
 
 
 <script type="text/javascript">
