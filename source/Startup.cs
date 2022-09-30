@@ -30,7 +30,7 @@ namespace MOD4.Web
             int LoginExpireMinute = this.Configuration.GetSection("Logging").GetValue<int>("LoginExpireMinute");
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(x =>
             {
-                x.LoginPath = "/Account/Index";//登入頁
+                x.LoginPath = "/Account";//登入頁
                 //x.LogoutPath = new PathString("/Home/Logout");//登出Action
                 x.ExpireTimeSpan = TimeSpan.FromMinutes(LoginExpireMinute);
                 //↓資安建議false，白箱弱掃軟體會要求cookie不能延展效期，這時設false變成絕對逾期時間

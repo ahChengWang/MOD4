@@ -129,7 +129,7 @@
                 });
                 $.ajax({
                     type: "POST",
-                    url: "/Account/Login",
+                    url: "./Account/Login",
                     dataType: 'json',
                     data: $("#form").serialize(),
                     success: function (result) {
@@ -142,7 +142,7 @@
                         }
                         else {
                             alert('登錄成功');
-                            location.href = "/Home/Index";
+                            location.href = "./Home/Index";
                         }
                     }
                 });
