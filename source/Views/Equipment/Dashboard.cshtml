@@ -69,143 +69,145 @@
 <!-- CHARTS -->
 <script src="~/lib/echarts/echarts.js"></script>
 
-<script type="text/javascript">
+@section scripts {
+    <script type="text/javascript">
 
-    $(document).ready(function () {
+        $(document).ready(function () {
 
-        var chartDom = document.getElementById('bar-chart');
-        var echar = echarts.init(chartDom);
+            var chartDom = document.getElementById('bar-chart');
+            var echar = echarts.init(chartDom);
 
-        var option = {
-            title: {
-                text: ''
-            },
-            tooltip: {},
-            legend: {
-                data: ['BONDING', 'LAM', 'ASSY', 'CKEN', 'DKEN'],
-                textStyle: { color: "white" }
-            },
-            xAxis: {
-                data: ['9/5', '9/6', '9/7', '9/8', '9/9', '9/10', '9/11'],
-                axisLabel: { color: "white" }
-            },
-            yAxis: {
-                name: "機況數量",
-                nameTextStyle: {
-                    color: "white"
+            var option = {
+                title: {
+                    text: ''
                 },
-                axisLabel: {
-                    color: "white"
-                }
-            },
-            series: [
-                {
-                    name: 'BONDING',
-                    type: 'bar',
-                    data: [28, 48, 86, 27, 1, 33, 77]
+                tooltip: {},
+                legend: {
+                    data: ['BONDING', 'LAM', 'ASSY', 'CKEN', 'DKEN'],
+                    textStyle: { color: "white" }
                 },
-                {
-                    name: 'LAM',
-                    type: 'bar',
-                    data: [5, 22, 47, 69, 19, 12, 7]
+                xAxis: {
+                    data: ['9/5', '9/6', '9/7', '9/8', '9/9', '9/10', '9/11'],
+                    axisLabel: { color: "white" }
                 },
-                {
-                    name: 'ASSY',
-                    type: 'bar',
-                    data: [9, 33, 87, 46, 7, 44, 13]
+                yAxis: {
+                    name: "機況數量",
+                    nameTextStyle: {
+                        color: "white"
+                    },
+                    axisLabel: {
+                        color: "white"
+                    }
                 },
-                {
-                    name: 'CKEN',
-                    type: 'bar',
-                    data: [7, 9, 36, 4, 52, 21, 38]
-                },
-                {
-                    name: 'DKEN',
-                    type: 'bar',
-                    data: [7, 9, 36, 4, 52, 21, 38]
-                }
-            ]
-        };
+                series: [
+                    {
+                        name: 'BONDING',
+                        type: 'bar',
+                        data: [28, 48, 86, 27, 1, 33, 77]
+                    },
+                    {
+                        name: 'LAM',
+                        type: 'bar',
+                        data: [5, 22, 47, 69, 19, 12, 7]
+                    },
+                    {
+                        name: 'ASSY',
+                        type: 'bar',
+                        data: [9, 33, 87, 46, 7, 44, 13]
+                    },
+                    {
+                        name: 'CKEN',
+                        type: 'bar',
+                        data: [7, 9, 36, 4, 52, 21, 38]
+                    },
+                    {
+                        name: 'DKEN',
+                        type: 'bar',
+                        data: [7, 9, 36, 4, 52, 21, 38]
+                    }
+                ]
+            };
 
-        echar.setOption(option);
+            echar.setOption(option);
 
-        //var areaChartData = {
-        //    labels: ['9/5', '9/6', '9/7', '9/8', '9/9', '9/10', '9/11'],
-        //    datasets: [
-        //        {
-        //            label: 'BONDING',
-        //            backgroundColor: '#3483eb',
-        //            borderColor: 'rgba(60,141,188,0.8)',
-        //            pointRadius: false,
-        //            pointColor: '#3b8bba',
-        //            pointStrokeColor: 'rgba(60,141,188,1)',
-        //            pointHighlightFill: '#fff',
-        //            pointHighlightStroke: 'rgba(60,141,188,1)',
-        //            data: [28, 48, 86, 27, 1, 33, 77]
-        //        },
-        //        {
-        //            label: 'LAM',
-        //            backgroundColor: '#e6b239',
-        //            borderColor: 'rgba(60,141,188,0.8)',
-        //            pointRadius: false,
-        //            pointColor: '#3b8bba',
-        //            pointStrokeColor: 'rgba(60,141,188,1)',
-        //            pointHighlightFill: '#fff',
-        //            pointHighlightStroke: 'rgba(60,141,188,1)',
-        //            data: [5, 22, 47, 69, 19, 12, 7]
-        //        },
-        //        {
-        //            label: 'ASSY',
-        //            backgroundColor: '#db3b32',
-        //            borderColor: 'rgba(60,141,188,0.8)',
-        //            pointRadius: false,
-        //            pointColor: '#3b8bba',
-        //            pointStrokeColor: 'rgba(60,141,188,1)',
-        //            pointHighlightFill: '#fff',
-        //            pointHighlightStroke: 'rgba(60,141,188,1)',
-        //            data: [9, 33, 87, 46, 7, 44, 13]
-        //        },
-        //        {
-        //            label: 'CKEN',
-        //            backgroundColor: '#1d4180',
-        //            borderColor: 'rgba(60,141,188,0.8)',
-        //            pointRadius: false,
-        //            pointColor: '#3b8bba',
-        //            pointStrokeColor: 'rgba(60,141,188,1)',
-        //            pointHighlightFill: '#fff',
-        //            pointHighlightStroke: 'rgba(60,141,188,1)',
-        //            data: [15, 76, 13, 24, 7, 63, 2]
-        //        },
-        //        {
-        //            label: 'DKEN',
-        //            backgroundColor: '#929aa8',
-        //            borderColor: 'rgba(60,141,188,0.8)',
-        //            pointRadius: false,
-        //            pointColor: '#3b8bba',
-        //            pointStrokeColor: 'rgba(60,141,188,1)',
-        //            pointHighlightFill: '#fff',
-        //            pointHighlightStroke: 'rgba(60,141,188,1)',
-        //            data: [7, 9, 36, 4, 52, 21, 38]
-        //        }
-        //    ]
-        //}
+            //var areaChartData = {
+            //    labels: ['9/5', '9/6', '9/7', '9/8', '9/9', '9/10', '9/11'],
+            //    datasets: [
+            //        {
+            //            label: 'BONDING',
+            //            backgroundColor: '#3483eb',
+            //            borderColor: 'rgba(60,141,188,0.8)',
+            //            pointRadius: false,
+            //            pointColor: '#3b8bba',
+            //            pointStrokeColor: 'rgba(60,141,188,1)',
+            //            pointHighlightFill: '#fff',
+            //            pointHighlightStroke: 'rgba(60,141,188,1)',
+            //            data: [28, 48, 86, 27, 1, 33, 77]
+            //        },
+            //        {
+            //            label: 'LAM',
+            //            backgroundColor: '#e6b239',
+            //            borderColor: 'rgba(60,141,188,0.8)',
+            //            pointRadius: false,
+            //            pointColor: '#3b8bba',
+            //            pointStrokeColor: 'rgba(60,141,188,1)',
+            //            pointHighlightFill: '#fff',
+            //            pointHighlightStroke: 'rgba(60,141,188,1)',
+            //            data: [5, 22, 47, 69, 19, 12, 7]
+            //        },
+            //        {
+            //            label: 'ASSY',
+            //            backgroundColor: '#db3b32',
+            //            borderColor: 'rgba(60,141,188,0.8)',
+            //            pointRadius: false,
+            //            pointColor: '#3b8bba',
+            //            pointStrokeColor: 'rgba(60,141,188,1)',
+            //            pointHighlightFill: '#fff',
+            //            pointHighlightStroke: 'rgba(60,141,188,1)',
+            //            data: [9, 33, 87, 46, 7, 44, 13]
+            //        },
+            //        {
+            //            label: 'CKEN',
+            //            backgroundColor: '#1d4180',
+            //            borderColor: 'rgba(60,141,188,0.8)',
+            //            pointRadius: false,
+            //            pointColor: '#3b8bba',
+            //            pointStrokeColor: 'rgba(60,141,188,1)',
+            //            pointHighlightFill: '#fff',
+            //            pointHighlightStroke: 'rgba(60,141,188,1)',
+            //            data: [15, 76, 13, 24, 7, 63, 2]
+            //        },
+            //        {
+            //            label: 'DKEN',
+            //            backgroundColor: '#929aa8',
+            //            borderColor: 'rgba(60,141,188,0.8)',
+            //            pointRadius: false,
+            //            pointColor: '#3b8bba',
+            //            pointStrokeColor: 'rgba(60,141,188,1)',
+            //            pointHighlightFill: '#fff',
+            //            pointHighlightStroke: 'rgba(60,141,188,1)',
+            //            data: [7, 9, 36, 4, 52, 21, 38]
+            //        }
+            //    ]
+            //}
 
 
-        //var barChartCanvas = $('#bar-chart').get(0).getContext('2d')
-        ////var barChartData = $.extend(true, {}, areaChartData)
+            //var barChartCanvas = $('#bar-chart').get(0).getContext('2d')
+            ////var barChartData = $.extend(true, {}, areaChartData)
 
-        //var barChartOptions = {
-        //    responsive: true,
-        //    maintainAspectRatio: false,
-        //    datasetFill: false
-        //}
+            //var barChartOptions = {
+            //    responsive: true,
+            //    maintainAspectRatio: false,
+            //    datasetFill: false
+            //}
 
-        //new Chart(barChartCanvas, {
-        //    type: 'bar',
-        //    data: areaChartData,
-        //    options: barChartOptions,
-        //    outerWidth: 500
-        //})
-    });
+            //new Chart(barChartCanvas, {
+            //    type: 'bar',
+            //    data: areaChartData,
+            //    options: barChartOptions,
+            //    outerWidth: 500
+            //})
+        });
 
-</script>
+    </script>
+}

@@ -1,7 +1,5 @@
 ﻿@model MOD4.Web.ViewModel.DemanEditViewModel
 
-
-
 <div class="card-body">
     <div class="form-group" style="display:flex">
         <div class="col-2">
@@ -140,7 +138,8 @@
 </div>
 
 
-<script type="text/javascript">
+@section scripts {
+    <script type="text/javascript">
 
     function saveClick() {
         $.blockUI({
@@ -256,4 +255,5 @@
             }
         });
     });*@
-</script>
+    </script>
+}

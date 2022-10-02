@@ -91,7 +91,7 @@
         .main-footer {
             min-height: 20px;
             font-size: 0.5rem;
-            text-align:end;
+            text-align: end;
         }
     </style>
 </head>
@@ -210,8 +210,8 @@
                     </li>*@
                 <!-- Messages Dropdown Menu -->
                 <!--<li class="nav-item dropdown">
-                    <a class="nav-link" style="color:lightgray" data-toggle="dropdown" href="#">
-                        <i class="far fa-comments"></i>-->
+                <a class="nav-link" style="color:lightgray" data-toggle="dropdown" href="#">
+                    <i class="far fa-comments"></i>-->
                 @*<span class="badge badge-danger navbar-badge">3</span>*@
                 <!--</a>
                 </li>-->
@@ -244,21 +244,21 @@
             @await Component.InvokeAsync("Navigation")
             <!--<div class="sidebar">
 
-                <!-- SidebarSearch Form -->
+            <!-- SidebarSearch Form -->
             -->
             <!--@*<div class="form-inline">
-                    <div class="input-group" data-widget="sidebar-search">
-                        <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
-                        <div class="input-group-append">
-                            <button class="btn btn-sidebar">
-                                <i class="fas fa-search fa-fw"></i>
-                            </button>
-                        </div>
+                <div class="input-group" data-widget="sidebar-search">
+                    <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
+                    <div class="input-group-append">
+                        <button class="btn btn-sidebar">
+                            <i class="fas fa-search fa-fw"></i>
+                        </button>
                     </div>
-                </div>*@-->
+                </div>
+            </div>*@-->
             <!--<!-- Sidebar Menu -->
             <!--<nav class="mt-2">
-                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">-->
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">-->
             <!-- Add icons to the links using the .nav-icon class
             with font-awesome or any other icon font library -->
             -->
@@ -340,6 +340,7 @@
         </footer>*@
 
 
+    @RenderSection("scripts", required: false)
     <script type="text/javascript">
         $(document).ready(function () {
             //$("a[class='nav-link active']").removeClass('active').removeAttr('aria-current');
@@ -348,8 +349,6 @@
             $('a[href="' + location.pathname + '"]').parent().parent().parent().addClass('menu-is-opening menu-open');
             $('a[href="' + location.pathname + '"]').parent().parent().parent().children('a:first').addClass('active').attr('aria-current', 'page');
         });
-
-        @RenderSection("script", required: false)
 
         function isJsonString(str) {
             try {

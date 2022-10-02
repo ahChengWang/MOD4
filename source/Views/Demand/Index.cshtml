@@ -124,109 +124,111 @@
 </div>
 
 
+@section scripts {
+    <script type="text/javascript">
 
-<script type="text/javascript">
+        let myFuc = {
+            SearchOrder() {
+                $.ajax({
+                    url: "./Demand/Search?startDate=" + $("#startDTE").val() + "&endDate=" + $("#endDTE").val() + "&category=" + $("#dropCat").val() + "&status=" + $("#dropStatus").val(),
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (result) {
+                        if (isJsonString(result)) {
+                            var _res = JSON.parse(result);
+                            if (result == '""') {
+                                alert('查無資料');
+                            }
+                            if ('isException' in _res) {
+                                alert(_res.msg);
+                                return false;
+                            }
+                        }
+                        else {
+                            $("#table1_wrapper").remove();
+                            $("#divMark").after(result);
+                            $('#table1').DataTable({
+                                "paging": true,
+                                "responsive": false,
+                                "lengthChange": true,
+                                "autoWidth": true,
+                            }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
 
-    let myFuc = {
-        SearchOrder() {
+                            $(".status:contains('待評估')").css('color', '#088c01');
+                            $(".status:contains('進行中')").css('color', '#145cba');
+                            $(".status:contains('已退件')").css('color', '#b00c0f');
+                        }
+                    }
+                });
+            },
+            CreateOrder() {
+                location.href = "./Demand/Create";
+            }
+        }
+
+        $(function () {
+            $('#table1').DataTable({
+                "paging": true,
+                //"searching": false,
+                //"ordering": true,
+                //"info": true,
+                "responsive": false,
+                "lengthChange": true,
+                "autoWidth": true,
+                //"order": [[5, "asc"]],
+                /*"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]*/
+            }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
+
+            $("#dropCat,#dropStatus").multiselect({});
+
+            $(".status:contains('待評估')").css('color', '#088c01');
+            $(".status:contains('進行中')").css('color', '#145cba');
+            $(".status:contains('已退件')").css('color', '#b00c0f');
+
+        });
+
+        $("#btnSearch").click(myFuc.SearchOrder);
+
+        $("#btnCreate").click(myFuc.CreateOrder);
+
+        function editClick(id, orderId) {
+            location.href = "./Demand/Edit?sn=" + id + "&orderId=" + orderId;
+        }
+
+        function detailClick(id) {
             $.ajax({
-                url: "./Demand/Search?startDate=" + $("#startDTE").val() + "&endDate=" + $("#endDTE").val() + "&category=" + $("#dropCat").val() + "&status=" + $("#dropStatus").val(),
-                type: "GET",
+                url: "./Demand/Detail?sn=" + id,
+                type: 'GET',
                 dataType: 'html',
                 success: function (result) {
                     if (isJsonString(result)) {
                         var _res = JSON.parse(result);
-                        if (result == '""') {
-                            alert('查無資料');
-                        }
-                        if ('isException' in _res) {
-                            alert(_res.msg);
-                            return false;
-                        }
+                        alert(_res.msg);
+                        dismissModal();
+                        return false;
                     }
                     else {
-                        $("#table1_wrapper").remove();
-                        $("#divMark").after(result);
-                        $('#table1').DataTable({
-                            "paging": true,
-                            "responsive": false,
-                            "lengthChange": true,
-                            "autoWidth": true,
-                        }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
-
-                        $(".status:contains('待評估')").css('color', '#088c01');
-                        $(".status:contains('進行中')").css('color', '#145cba');
-                        $(".status:contains('已退件')").css('color', '#b00c0f');
+                        $('body').addClass('modal-open');
+                        var ele = $('body').find('.modal-backdrop');
+                        if (ele.length == 0) {
+                            $('body').append('<div class="modal-backdrop fade show"></div>');
+                        }
+                        $('#detailModal').html(result);
+                        $('#detailModal').addClass('show');
+                        $('#detailModal').css('display', 'block');
                     }
                 }
             });
-        },
-        CreateOrder() {
-            location.href = "./Demand/Create";
         }
-    }
 
-    $(function () {
-        $('#table1').DataTable({
-            "paging": true,
-            //"searching": false,
-            //"ordering": true,
-            //"info": true,
-            "responsive": false,
-            "lengthChange": true,
-            "autoWidth": true,
-            //"order": [[5, "asc"]],
-            /*"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]*/
-        }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
+        function dismissModal() {
+            $('body').removeClass('modal-open');
+            $('#detailModal').removeClass('show');
+            $('#detailModal').css('display', 'none');
+            $('.modal-backdrop').remove();
+            $('.modal-dialog').remove();
+        }
 
-        $("#dropCat,#dropStatus").multiselect({});
+    </script>
+}
 
-        $(".status:contains('待評估')").css('color', '#088c01');
-        $(".status:contains('進行中')").css('color', '#145cba');
-        $(".status:contains('已退件')").css('color', '#b00c0f');
-
-    });
-
-    $("#btnSearch").click(myFuc.SearchOrder);
-
-    $("#btnCreate").click(myFuc.CreateOrder);
-
-    function editClick(id, orderId) {
-        location.href = "./Demand/Edit?sn=" + id + "&orderId=" + orderId;
-    }
-
-    function detailClick(id) {
-        $.ajax({
-            url: "./Demand/Detail?sn=" + id,
-            type: 'GET',
-            dataType: 'html',
-            success: function (result) {
-                if (isJsonString(result)) {
-                    var _res = JSON.parse(result);
-                    alert(_res.msg);
-                    dismissModal();
-                    return false;
-                }
-                else {
-                    $('body').addClass('modal-open');
-                    var ele = $('body').find('.modal-backdrop');
-                    if (ele.length == 0) {
-                        $('body').append('<div class="modal-backdrop fade show"></div>');
-                    }
-                    $('#detailModal').html(result);
-                    $('#detailModal').addClass('show');
-                    $('#detailModal').css('display', 'block');
-                }
-            }
-        });
-    }
-
-    function dismissModal() {
-        $('body').removeClass('modal-open');
-        $('#detailModal').removeClass('show');
-        $('#detailModal').css('display', 'none');
-        $('.modal-backdrop').remove();
-        $('.modal-dialog').remove();
-    }
-
-</script>

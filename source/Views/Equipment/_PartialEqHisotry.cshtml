@@ -69,24 +69,3 @@
         }
     </tbody>
 </table>
-
-<script>
-    @*$(function () {
-        var optionList = @Html.Raw(Json.Serialize(ViewBag.LineList));
-
-        if (optionList != null) {
-            $("#selTool").removeAttr("multiple");
-            $("#selTool").empty();
-            var _selTool = $("#hisLine").children().eq(1).children().eq(1).children().eq(1);
-            var _titleEle = $("#hisLine").children().eq(1).children().eq(1).children().first();
-            _selTool.children().remove();
-            optionList.forEach(function (f) {
-                _selTool.append("<button type='button' class='multiselect-option dropdown-item' title=" + f + ">"
-                    + "<span class='form-check'><input class='form-check-input' type='checkbox' value=" + f + "><label class='form-check-label'>" + f + "</label></span></button > ");
-                $("<option></option>").attr("value", f).text(f).appendTo($("#selTool"));
-            });
-
-            $("#selTool").attr("multiple",true);
-        }
-    })*@
-</script>

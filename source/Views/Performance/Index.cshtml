@@ -68,11 +68,11 @@
                                     <label>線體：</label>
                                     <select id="dropLine" multiple="multiple">
                                         @*@{
-                                            foreach (var item in ViewBag.ToolId)
-                                            {
-                                                <option value="@item">@item</option>
-                                            }
-                                        }*@
+                                                foreach (var item in ViewBag.ToolId)
+                                                {
+                                                    <option value="@item">@item</option>
+                                                }
+                                            }*@
                                         <option value="1415">1415</option>
                                         <option value="1420">1420</option>
                                         <option value="1460">1460</option>
@@ -121,96 +121,98 @@
     </section>
 </div>
 
-<script type="text/javascript">
-    $(document).ready(function () {
-        var _newTime = new Date();
-        var _currTimeStr = _newTime.getTime();
-        var _shiftAStart = (new Date(_newTime.getFullYear(), _newTime.getMonth(), _newTime.getDate(), 07, 30, 0)).getTime();
-        var _shiftAEnd = (new Date(_newTime.getFullYear(), _newTime.getMonth(), _newTime.getDate(), 19, 30, 0)).getTime();
-        if (_currTimeStr >= _shiftAStart && _shiftAStart < _shiftAEnd) {
-            $("#dropShift option[value=A]").attr('selected', 'selected');
-        }
-        else {
-            $("#dropShift option[value=B]").attr('selected', 'selected');
-        }
-
-        alarmCSS($("td[name='diff']"));
-        alarmDefectCSS($("td[name='defect']"));
-    });
-
-    $("#dropLine").multiselect({
-        enableClickableOptGroups: true
-    });
-
-    $("#btnSearch").click(function () {
-        $.blockUI({
-            message: '取得過帳資料中',
-            css: {
-                border: 'none',
-                padding: '5px',
-                backgroundColor: '#000',
-                '-webkit-border-radius': '10px',
-                '-moz-border-radius': '10px',
-                opacity: '.5',
-                color: '#fff',
-                fontSize: '25px',
-                fontFamily: '微軟正黑體',
-                fontWeight: 300,
+@section scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var _newTime = new Date();
+            var _currTimeStr = _newTime.getTime();
+            var _shiftAStart = (new Date(_newTime.getFullYear(), _newTime.getMonth(), _newTime.getDate(), 07, 30, 0)).getTime();
+            var _shiftAEnd = (new Date(_newTime.getFullYear(), _newTime.getMonth(), _newTime.getDate(), 19, 30, 0)).getTime();
+            if (_currTimeStr >= _shiftAStart && _shiftAStart < _shiftAEnd) {
+                $("#dropShift option[value=A]").attr('selected', 'selected');
             }
+            else {
+                $("#dropShift option[value=B]").attr('selected', 'selected');
+            }
+
+            alarmCSS($("td[name='diff']"));
+            alarmDefectCSS($("td[name='defect']"));
         });
-        $.ajax({
-            url: "./Performance/Search?mfgDay=" + $("#srcDate").val() + "&shift=" + $("#dropShift").val() + "&node=" + $("#dropLine").val(),
-            type: "GET",
-            dataType: 'html',
-            success: function (result) {
-                if (isJsonString(result)) {
-                    var _res = JSON.parse(result);
-                    $("#performance").remove();
-                    alert(_res);
-                    $.unblockUI();
-                    return false;
-                    //if (result == '""') {
-                    //    $("#performance").remove();
-                    //    alert('查無資料');
-                    //    $.unblockUI();
-                    //}
-                    //if ('isException' in _res) {
-                    //    $("#performance").remove();
-                    //    alert(_res.msg);
-                    //    $.unblockUI();
-                    //    return false;
-                    //}
+
+        $("#dropLine").multiselect({
+            enableClickableOptGroups: true
+        });
+
+        $("#btnSearch").click(function () {
+            $.blockUI({
+                message: '取得過帳資料中',
+                css: {
+                    border: 'none',
+                    padding: '5px',
+                    backgroundColor: '#000',
+                    '-webkit-border-radius': '10px',
+                    '-moz-border-radius': '10px',
+                    opacity: '.5',
+                    color: '#fff',
+                    fontSize: '25px',
+                    fontFamily: '微軟正黑體',
+                    fontWeight: 300,
                 }
-                else {
-                    $("#performance").remove();
-                    $("#barDiv1").after(result);
-                    alarmCSS($("td[name='diff']"));
-                    alarmDefectCSS($("td[name='defect']"));
-                    $.unblockUI();
+            });
+            $.ajax({
+                url: "./Performance/Search?mfgDay=" + $("#srcDate").val() + "&shift=" + $("#dropShift").val() + "&node=" + $("#dropLine").val(),
+                type: "GET",
+                dataType: 'html',
+                success: function (result) {
+                    if (isJsonString(result)) {
+                        var _res = JSON.parse(result);
+                        $("#performance").remove();
+                        alert(_res);
+                        $.unblockUI();
+                        return false;
+                        //if (result == '""') {
+                        //    $("#performance").remove();
+                        //    alert('查無資料');
+                        //    $.unblockUI();
+                        //}
+                        //if ('isException' in _res) {
+                        //    $("#performance").remove();
+                        //    alert(_res.msg);
+                        //    $.unblockUI();
+                        //    return false;
+                        //}
+                    }
+                    else {
+                        $("#performance").remove();
+                        $("#barDiv1").after(result);
+                        alarmCSS($("td[name='diff']"));
+                        alarmDefectCSS($("td[name='defect']"));
+                        $.unblockUI();
+                    }
                 }
-            }
+            });
         });
-    });
 
-    $(function dateMAX(e) {
-        $('#srcDate').attr("max", new Date().toISOString().slice(0, 10));
-    });
-
-    function alarmCSS(tdList) {
-        tdList.each(function (idx, td) {
-            if (parseInt(td.innerHTML) < 0) {
-                td.style.fontWeight = 700;
-                td.style.color = 'red';
-            }
+        $(function dateMAX(e) {
+            $('#srcDate').attr("max", new Date().toISOString().slice(0, 10));
         });
-    }
 
-    function alarmDefectCSS(tdList) {
-        tdList.each(function (idx, td) {
-            if (td.innerHTML != "0" && td.innerHTML != "0.00%") {
-                td.style.fontWeight = 700;
-            }
-        });
-    }
+        function alarmCSS(tdList) {
+            tdList.each(function (idx, td) {
+                if (parseInt(td.innerHTML) < 0) {
+                    td.style.fontWeight = 700;
+                    td.style.color = 'red';
+                }
+            });
+        }
 
-</script>
+        function alarmDefectCSS(tdList) {
+            tdList.each(function (idx, td) {
+                if (td.innerHTML != "0" && td.innerHTML != "0.00%") {
+                    td.style.fontWeight = 700;
+                }
+            });
+        }
+
+    </script>
+}

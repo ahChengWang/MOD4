@@ -18,6 +18,7 @@
         box-shadow: 2px 2px 2px #999;
         background-color: #c3cadb;
     }
+
     .eqimg {
         width: 12px;
         height: 12px;
@@ -67,7 +68,7 @@
                     <!-- /.card -->
                     <!-- Modal -->
                     <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
-                        
+
                     </div>
                 </div>
                 <!-- /.col -->
@@ -79,61 +80,63 @@
     <!-- /.content -->
 </div>
 
-<script type="text/javascript">
+@section scripts {
+    <script type="text/javascript">
 
-    $(function () {
-        $('#example1').DataTable({
-            //"responsive": true,
-            //"lengthChange": true,
-            //"autoWidth": false,
-            //"paging": true,
-            //"searching": false,
-            //"ordering": true,
-            //"info": true,
-            "responsive": true,
-            "lengthChange": false,
-            "autoWidth": false,
-            "buttons": ["excel", "colvis"]
-        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+        $(function () {
+            $('#example1').DataTable({
+                //"responsive": true,
+                //"lengthChange": true,
+                //"autoWidth": false,
+                //"paging": true,
+                //"searching": false,
+                //"ordering": true,
+                //"info": true,
+                "responsive": true,
+                "lengthChange": false,
+                "autoWidth": false,
+                "buttons": ["excel", "colvis"]
+            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
 
-        $("#selLoc, #selTool, #selStatus").multiselect({
-            enableClickableOptGroups: true
+            $("#selLoc, #selTool, #selStatus").multiselect({
+                enableClickableOptGroups: true
+            });
+
         });
 
-    });
-
-    function addClick(e) {
-        $.ajax({
-            url: "Create",
-            type: 'GET',
-            dataType: 'html',
-            success: function (result) {
-                if (isJsonString(result)) {
-                    var _res = JSON.parse(result);
-                    alert(_res.msg);
-                    dismissModal();
-                    return false;
-                }
-                else {
-                    $('body').addClass('modal-open');
-                    var ele = $('body').find('.modal-backdrop');
-                    if (ele.length == 0) {
-                        $('body').append('<div class="modal-backdrop fade show"></div>');
+        function addClick(e) {
+            $.ajax({
+                url: "Create",
+                type: 'GET',
+                dataType: 'html',
+                success: function (result) {
+                    if (isJsonString(result)) {
+                        var _res = JSON.parse(result);
+                        alert(_res.msg);
+                        dismissModal();
+                        return false;
                     }
-                    $('#addModal').html(result);
-                    $('#addModal').addClass('show');
-                    $('#addModal').css('display', 'block');
+                    else {
+                        $('body').addClass('modal-open');
+                        var ele = $('body').find('.modal-backdrop');
+                        if (ele.length == 0) {
+                            $('body').append('<div class="modal-backdrop fade show"></div>');
+                        }
+                        $('#addModal').html(result);
+                        $('#addModal').addClass('show');
+                        $('#addModal').css('display', 'block');
+                    }
                 }
-            }
-        });
-    }
+            });
+        }
 
-    function dismissModal() {
-        $('body').removeClass('modal-open');
-        $('#addModal').removeClass('show');
-        $('#addModal').css('display', 'none');
-        $('.modal-backdrop').remove();
-        $('.modal-dialog').remove();
-    }
+        function dismissModal() {
+            $('body').removeClass('modal-open');
+            $('#addModal').removeClass('show');
+            $('#addModal').css('display', 'none');
+            $('.modal-backdrop').remove();
+            $('.modal-dialog').remove();
+        }
 
-</script>
+    </script>
+}

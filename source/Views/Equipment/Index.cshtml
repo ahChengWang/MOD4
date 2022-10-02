@@ -178,12 +178,12 @@
                                         @{
                                             foreach (var node in ViewBag.RepairedToolId)
                                             {
-                                            <optgroup label="@node.Item1">
-                                                @foreach (var eq in node.Item2)
+                                                <optgroup label="@node.Item1">
+                                                    @foreach (var eq in node.Item2)
                                                     {
-                                                <option value="@eq">@eq</option>
+                                                        <option value="@eq">@eq</option>
                                                     }
-                                            </optgroup>
+                                                </optgroup>
                                             }
                                         }
                                     </select>
@@ -235,7 +235,8 @@
     <!-- /.content -->
 </div>
 
-<script type="text/javascript">
+@section scripts {
+    <script type="text/javascript">
 
     let myFuc = {
         SearchUnrepairedEq() {
@@ -449,4 +450,5 @@
     // reload repaired history block
     /*setInterval(myFuc.SearchEqHis, 600000);*/
 
-</script>
+    </script>
+}
