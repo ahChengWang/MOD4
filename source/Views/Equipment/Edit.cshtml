@@ -374,7 +374,7 @@
             });
             $.ajax({
                 type: "POST",
-                url: "/Equipment/Edit",
+                url: "./Edit",
                 dataType: 'json',
                 data: $("#quickForm").serialize(),
                 success: function (result) {
@@ -397,7 +397,7 @@
         let eqUnitPartSelector = $("#EqUnitPartId");
         $.ajax({
             type: "GET",
-            url: "/Equipment/GetSubOption?optionTypeId=2&mainId=" + e.currentTarget.value + "&subId=0",
+            url: "./GetSubOption?optionTypeId=2&mainId=" + e.currentTarget.value + "&subId=0",
             dataType: 'json',
             success: function (options) {
                 eqUnitIdSelector.empty();
@@ -422,7 +422,7 @@
         let processId = $("#ProcessId").val();
         $.ajax({
             type: "GET",
-            url: "/Equipment/GetSubOption?optionTypeId=3&mainId=" + processId + "&subId=" + e.currentTarget.value,
+            url: "./GetSubOption?optionTypeId=3&mainId=" + processId + "&subId=" + e.currentTarget.value,
             dataType: 'json',
             success: function (options) {
                 eqUnitPartSelector.empty();
@@ -444,7 +444,7 @@
         let modelCatgSelector = $("#ModelId");
         $.ajax({
             type: "GET",
-            url: "/Equipment/ModelNameOption?id=" + e.currentTarget.value,
+            url: "./ModelNameOption?id=" + e.currentTarget.value,
             dataType: 'json',
             success: function (options) {
                 modelCatgSelector.empty();
@@ -566,7 +566,7 @@
         $.ajax({
             type: "GET",
             async: false,
-            url: "/Equipment/GetEvenCodeOption?typeId=" + type + "&yId=" + y + "&subYId=" + subY + "&xId=" + x + "&subXId=" + subX + "&rId=" + r,
+            url: "./GetEvenCodeOption?typeId=" + type + "&yId=" + y + "&subYId=" + subY + "&xId=" + x + "&subXId=" + subX + "&rId=" + r,
             dataType: 'json',
             success: function (options) {
                 response = options;

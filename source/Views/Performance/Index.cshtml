@@ -159,7 +159,7 @@
             }
         });
         $.ajax({
-            url: "Performance/Search?mfgDay=" + $("#srcDate").val() + "&shift=" + $("#dropShift").val() + "&node=" + $("#dropLine").val(),
+            url: "./Performance/Search?mfgDay=" + $("#srcDate").val() + "&shift=" + $("#dropShift").val() + "&node=" + $("#dropLine").val(),
             type: "GET",
             dataType: 'html',
             success: function (result) {

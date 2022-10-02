@@ -240,7 +240,7 @@
     let myFuc = {
         SearchUnrepairedEq() {
             $.ajax({
-                url: "Equipment/SearchUnrepairedEq?date=" + $("#srcDate").val() + "&toolIdList=" + $("#selLoc").val(),
+                url: "./Equipment/SearchUnrepairedEq?date=" + $("#srcDate").val() + "&toolIdList=" + $("#selLoc").val(),
                 type: "GET",
                 dataType: 'html',
                 success: function (result) {
@@ -272,7 +272,7 @@
             let = _test = $("#autoChk").val();
 
             $.ajax({
-                url: "Equipment/SearchRepairedEqHistory?date=" + $("#srcHisDate").val() + "&toolIdList=" + $("#selTool").val() + "&statusIdList=" + $("#selStatus").val() + "&showAuto=" + $("#autoChk").val(),
+                url: "./Equipment/SearchRepairedEqHistory?date=" + $("#srcHisDate").val() + "&toolIdList=" + $("#selTool").val() + "&statusIdList=" + $("#selStatus").val() + "&showAuto=" + $("#autoChk").val(),
                 type: "GET",
                 dataType: 'html',
                 //beforeSend: function () {
@@ -383,13 +383,13 @@
 
     function editClick(id, statusId, isEng, e) {
         $.ajax({
-            url: "Equipment/VerifyEqStatus?eqsn=" + id + "&statusId=" + statusId,
+            url: "./Equipment/VerifyEqStatus?eqsn=" + id + "&statusId=" + statusId,
             type: "GET",
             async: false,
             dataType: 'json',
             success: function (chkResponse) {
                 if (chkResponse == "") {
-                    location.href = "Equipment/Edit?sn=" + id + "&statusId=" + statusId + "&searchVal=" + $("#srcHisDate").val() + ";" + $("#selTool").val() + ";" + $("#selStatus").val();
+                    location.href = "./Equipment/Edit?sn=" + id + "&statusId=" + statusId + "&searchVal=" + $("#srcHisDate").val() + ";" + $("#selTool").val() + ";" + $("#selStatus").val();
                 }
                 else {
                     alert(chkResponse);
@@ -400,7 +400,7 @@
 
     function detailClick(id, e) {
         $.ajax({
-            url: "Equipment/Detail?sn=" + id,
+            url: "./Equipment/Detail?sn=" + id,
             type: 'GET',
             dataType: 'html',
             success: function (result) {

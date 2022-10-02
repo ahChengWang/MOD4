@@ -132,7 +132,7 @@
             var formData = new FormData(document.getElementById("demandForm"));
             $.ajax({
                 type: "POST",
-                url: "/Demand/EditToPending",
+                url: "./EditToPending",
                 dataType: 'json',
                 processData: false,
                 contentType: false,
@@ -177,7 +177,7 @@
         });
         $.ajax({
             type: "POST",
-            url: "/Demand/EditToCancel",
+            url: "./EditToCancel",
             dataType: 'json',
             data: $("#demandForm").serialize(),
             success: function (result) {

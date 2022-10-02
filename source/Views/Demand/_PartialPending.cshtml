@@ -160,7 +160,7 @@
         });
         $.ajax({
             type: "POST",
-            url: "/Demand/EditToProcess",
+            url: "./EditToProcess",
             dataType: 'json',
             data: $("#demandForm").serialize(),
             success: function (result) {
@@ -200,7 +200,7 @@
         });
         $.ajax({
             type: "POST",
-            url: "/Demand/EditToReject",
+            url: "./EditToReject",
             dataType: 'json',
             data: $("#demandForm").serialize(),
             success: function (result) {

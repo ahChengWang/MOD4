@@ -130,7 +130,7 @@
     let myFuc = {
         SearchOrder() {
             $.ajax({
-                url: "Demand/Search?startDate=" + $("#startDTE").val() + "&endDate=" + $("#endDTE").val() + "&category=" + $("#dropCat").val() + "&status=" + $("#dropStatus").val(),
+                url: "./Demand/Search?startDate=" + $("#startDTE").val() + "&endDate=" + $("#endDTE").val() + "&category=" + $("#dropCat").val() + "&status=" + $("#dropStatus").val(),
                 type: "GET",
                 dataType: 'html',
                 success: function (result) {
@@ -162,7 +162,7 @@
             });
         },
         CreateOrder() {
-            location.href = "Demand/Create";
+            location.href = "./Demand/Create";
         }
     }
 
@@ -192,12 +192,12 @@
     $("#btnCreate").click(myFuc.CreateOrder);
 
     function editClick(id, orderId) {
-        location.href = "Demand/Edit?sn=" + id + "&orderId=" + orderId;
+        location.href = "./Demand/Edit?sn=" + id + "&orderId=" + orderId;
     }
 
     function detailClick(id) {
         $.ajax({
-            url: "Demand/Detail?sn=" + id,
+            url: "./Demand/Detail?sn=" + id,
             type: 'GET',
             dataType: 'html',
             success: function (result) {
