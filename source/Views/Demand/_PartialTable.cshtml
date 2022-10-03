@@ -25,7 +25,16 @@
                     <td style="width:10%">@demand.CreateDate</td>
                     <td style="width:8%">
                         @{
-                            if (demand.RoleId == MOD4.Web.Enum.RoleEnum.Manager)
+                            if (demand.DemandStatusId == MOD4.Web.Enum.DemandStatusEnum.Completed && demand.RoleId == MOD4.Web.Enum.RoleEnum.Manager)
+                            {
+                                <a class="btn btn-sm" data-toggle="modal" style="font-size:15px" data-target="#detailModal" onclick="detailClick(@demand.OrderSn)">
+                                    <i class="fa fa-search"></i>
+                                </a>
+                                <button class="btn btn-sm btn-primary" style="position:relative" onclick="editClick(@demand.OrderSn,'@(demand.OrderId)')">
+                                    <span style="font-size:5px">編輯</span>
+                                </button>
+                            }
+                            else if (demand.RoleId == MOD4.Web.Enum.RoleEnum.Manager)
                             {
                                 <button class="btn btn-sm btn-primary" style="position:relative" onclick="editClick(@demand.OrderSn,'@(demand.OrderId)')">
                                     <span style="font-size:5px">編輯</span>
@@ -44,27 +53,6 @@
                                 </a>
                             }
                         }
-
-                        @*@{
-                                if (demand.DemandStatusId == MOD4.Web.Enum.DemandStatusEnum.Pending)
-                                {
-                                    <button class="btn btn-sm btn-primary" style="position:relative" onclick="editClick(@demand.OrderSn,'@(demand.OrderId)')">
-                                        <span style="font-size:5px">編輯</span>
-                                    </button>
-                                }
-                                else if (demand.DemandStatusId == MOD4.Web.Enum.DemandStatusEnum.Processing)
-                                {
-                                    <button class="btn btn-sm btn-default" style="position:relative;background-color:forestgreen" onclick="editClick(@demand.OrderSn,'@(demand.OrderId)')">
-                                        <span style="font-size:5px;color:white">編輯</span>
-                                    </button>
-                                }
-                                else if (demand.DemandStatusId == MOD4.Web.Enum.DemandStatusEnum.Rejected)
-                                {
-                                    <button class="btn btn-sm btn-default" style="position:relative;background-color:orangered" onclick="editClick(@demand.OrderSn,'@(demand.OrderId)')">
-                                        <span style="font-size:5px">編輯</span>
-                                    </button>
-                                }
-                            }*@
                     </td>
                 </tr>
             }

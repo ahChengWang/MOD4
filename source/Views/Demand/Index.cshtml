@@ -223,6 +223,7 @@
 
         function dismissModal() {
             $('body').removeClass('modal-open');
+            $('body').css({ 'padding-right': ''});
             $('#detailModal').removeClass('show');
             $('#detailModal').css('display', 'none');
             $('.modal-backdrop').remove();

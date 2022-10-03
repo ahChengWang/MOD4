@@ -30,16 +30,35 @@
     <link rel="stylesheet" href="~/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
     <link rel="stylesheet" href="~/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
     <link rel="stylesheet" href="~/lib/bootstrap-multiselect/css/bootstrap-multiselect.min.css">
+
     <style>
-        .wrapper {
-            background-color: #c3cadb;
+        @@media (min-width: 768px) {
+            body:not(.sidebar-mini-md):not(.sidebar-mini-xs):not(.layout-top-nav) .content-wrapper,
+            body:not(.sidebar-mini-md):not(.sidebar-mini-xs):not(.layout-top-nav) .main-footer,
+            body:not(.sidebar-mini-md):not(.sidebar-mini-xs):not(.layout-top-nav) .main-header {
+                transition: margin-left .3s ease-in-out;
+                margin-left: 200px;
+            }
         }
 
-        body:not(.sidebar-mini-md):not(.sidebar-mini-xs):not(.layout-top-nav) .content-wrapper, 
-        body:not(.sidebar-mini-md):not(.sidebar-mini-xs):not(.layout-top-nav) .main-footer, 
-        body:not(.sidebar-mini-md):not(.sidebar-mini-xs):not(.layout-top-nav) .main-header {
-            transition: margin-left .3s ease-in-out;
-            margin-left: 200px;
+        @@media (max-width: 991.98px) {
+            body:not(.sidebar-mini-md):not(.sidebar-mini-xs):not(.layout-top-nav) .content-wrapper,
+            body:not(.sidebar-mini-md):not(.sidebar-mini-xs):not(.layout-top-nav) .main-footer,
+            body:not(.sidebar-mini-md):not(.sidebar-mini-xs):not(.layout-top-nav) .main-header {
+                margin-left: 0;
+            }
+        }
+
+        @@media (min-width: 992px) {
+            .sidebar-mini.sidebar-collapse .content-wrapper,
+            .sidebar-mini.sidebar-collapse .main-footer,
+            .sidebar-mini.sidebar-collapse .main-header {
+                margin-left: 4.6rem !important;
+            }
+        }
+
+        .wrapper {
+            background-color: #c3cadb;
         }
 
         .main-sidebar {
@@ -303,7 +322,6 @@
             <!-- Control sidebar content goes here -->
         </aside>
     </div>
-
 
     @*<header>
             <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">

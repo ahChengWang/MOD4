@@ -132,6 +132,7 @@
 
         function dismissModal() {
             $('body').removeClass('modal-open');
+            $('body').css({ 'padding-right': '' });
             $('#addModal').removeClass('show');
             $('#addModal').css('display', 'none');
             $('.modal-backdrop').remove();
