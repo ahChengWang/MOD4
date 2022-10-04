@@ -92,6 +92,7 @@ namespace MOD4.Web.Controllers
                     //SignInAsync is a Extension method for Sign in a principal for the specified scheme.    
                     HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties()
                     {
+                        ExpiresUtc = DateTime.UtcNow.AddDays(7),
                         IsPersistent = loginViewMode.RememberMe //IsPersistent = false：瀏覽器關閉立馬登出；IsPersistent = true 就變成常見的Remember Me功能
                     }).Wait();
 

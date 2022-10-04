@@ -30,7 +30,7 @@
                 @{
                     foreach (var category in ViewBag.CategoryOptions)
                     {
-                        <option value="@category.Id">@category.Value</option>
+                    <option value="@category.Id">@category.Value</option>
                     }
                 }
             </select>
@@ -74,13 +74,13 @@
             @{
                 if (Model.UploadFile1 == "")
                 {
-                    <a href="#"><label class="custom-file-label">@Model.UploadFile1</label></a>
+                <a href="#"><label class="custom-file-label">@Model.UploadFile1</label></a>
                 }
                 else
                 {
-                    <a target="_blank" href="/Demand/Download?orderSn=@Model.OrderSn&fileNo=0">
-                        <label class="custom-file-label">@Model.UploadFile1</label>
-                    </a>
+                <a target="_blank" href="./Download?orderSn=@Model.OrderSn&fileNo=0">
+                    <label class="custom-file-label">@Model.UploadFile1</label>
+                </a>
                 }
             }
         </div>
@@ -88,13 +88,13 @@
             @{
                 if (Model.UploadFile2 == "")
                 {
-                    <a href="#"><label class="custom-file-label">@Model.UploadFile2</label></a>
+                <a href="#"><label class="custom-file-label">@Model.UploadFile2</label></a>
                 }
                 else
                 {
-                    <a target="_blank" href="/Demand/Download?orderSn=@Model.OrderSn&fileNo=1">
-                        <label class="custom-file-label">@Model.UploadFile2</label>
-                    </a>
+                <a target="_blank" href="./Download?orderSn=@Model.OrderSn&fileNo=1">
+                    <label class="custom-file-label">@Model.UploadFile2</label>
+                </a>
                 }
             }
         </div>
@@ -102,13 +102,13 @@
             @{
                 if (Model.UploadFile3 == "")
                 {
-                    <a><label class="custom-file-label">@Model.UploadFile3</label></a>
+                <a><label class="custom-file-label">@Model.UploadFile3</label></a>
                 }
                 else
                 {
-                    <a target="_blank" href="/Demand/Download?orderSn=@Model.OrderSn&fileNo=2">
-                        <label class="custom-file-label">@Model.UploadFile3</label>
-                    </a>
+                <a target="_blank" href="./Download?orderSn=@Model.OrderSn&fileNo=2">
+                    <label class="custom-file-label">@Model.UploadFile3</label>
+                </a>
                 }
             }
         </div>
@@ -138,8 +138,7 @@
 </div>
 
 
-@section scripts {
-    <script type="text/javascript">
+<script type="text/javascript">
 
     function saveClick() {
         $.blockUI({
@@ -214,46 +213,4 @@
             }
         });
     }
-
-
-    @*$("#modal-sm-reject").on("onClick", "#btnReject", function () {
-        var _rr = $("#RejectReason").val();
-        if (_rr == "") {
-            alert("駁回原因必填");
-            return false;
-        }
-
-        $.blockUI({
-            message: '請稍等...',
-            css: {
-                border: 'none',
-                padding: '5px',
-                backgroundColor: '#000',
-                '-webkit-border-radius': '10px',
-                '-moz-border-radius': '10px',
-                opacity: '.5',
-                color: '#fff',
-                fontSize: '25px',
-                fontFamily: '微軟正黑體',
-                fontWeight: 300,
-            }
-        });
-        $.ajax({
-            type: "POST",
-            url: "/Demand/EditToReject",
-            dataType: 'json',
-            data: $("#demandForm").serialize(),
-            success: function (result) {
-                $.unblockUI();
-                if (result.isSuccess) {
-                    alert(result.msg);
-                    location.href = "@Url.ActionLink("Index", "Demand")";
-                }
-                else {
-                    alert(result.msg);
-                }
-            }
-        });
-    });*@
-    </script>
-}
+</script>

@@ -160,4 +160,16 @@
     $('#login').click(function (e) {
         myFuc.login()
     });
+
+    $("#RememberMe").click(function (e) {
+        if ($("#RememberMe")[0].checked) {
+            $("#RememberMe").attr('checked', true);
+            $("#RememberMe").val('true');
+        }
+        else {
+            $("#RememberMe").attr('checked', false);
+            $("#RememberMe").val('false');
+        }
+    });
+
 </script>

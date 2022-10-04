@@ -140,75 +140,76 @@
 
 @section scripts {
     <script type="text/javascript">
-    $(function () {
-        bsCustomFileInput.init();
-    });
+        $(function () {
+            bsCustomFileInput.init();
+        });
 
-    $("#btnCreate").click(function (e) {
-        if ($("#demandForm").valid()) {
-            $.blockUI({
-                message: '請稍等...',
-                css: {
-                    border: 'none',
-                    padding: '5px',
-                    backgroundColor: '#000',
-                    '-webkit-border-radius': '10px',
-                    '-moz-border-radius': '10px',
-                    opacity: '.5',
-                    color: '#fff',
-                    fontSize: '25px',
-                    fontFamily: '微軟正黑體',
-                    fontWeight: 300,
-                }
-            });
-            var formData = new FormData(document.getElementById("demandForm"));
-            $.ajax({
-                type: "POST",
-                url: "./Create",
-                dataType: 'json',
-                processData: false,
-                contentType: false,
-                data: formData,
-                success: function (result) {
-                    $.unblockUI();
-                    if (result.isSuccess) {
-                        alert(result.msg);
-                        location.href = "@Url.ActionLink("Index", "Demand")";
+        $("#btnCreate").click(function (e) {
+            if ($("#demandForm").valid()) {
+                $.blockUI({
+                    message: '請稍等...',
+                    css: {
+                        border: 'none',
+                        padding: '5px',
+                        backgroundColor: '#000',
+                        '-webkit-border-radius': '10px',
+                        '-moz-border-radius': '10px',
+                        opacity: '.5',
+                        color: '#fff',
+                        fontSize: '25px',
+                        fontFamily: '微軟正黑體',
+                        fontWeight: 300,
                     }
-                    else {
-                        alert(result.msg);
-                    }
-                    @*if (result != "") {
-                        alert(result);
+                });
+                var formData = new FormData(document.getElementById("demandForm"));
+                $.ajax({
+                    type: "POST",
+                    url: "./Create",
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                    success: function (result) {
                         $.unblockUI();
+                        if (result.isSuccess) {
+                            alert(result.msg);
+                            location.href = "@Url.ActionLink("Index", "Demand")";
                         }
                         else {
-                        alert('建立成功');
-                        location.href = "@Url.ActionLink("Index", "Demand")";
-                        }*@
-                }
-            });
-        }
-    });
+                            alert(result.msg);
+                        }
+                        @*if (result != "") {
+                            alert(result);
+                            $.unblockUI();
+                            }
+                            else {
+                            alert('建立成功');
+                            location.href = "@Url.ActionLink("Index", "Demand")";
+                            }*@
+                    }
+                });
+            }
+        });
 
-    function verifyFile(e) {
-        var validExtensions = ['xls', 'xlsx', 'docx', 'jpg', 'png', 'jpeg'];
-        var rg1 = /[^0-9a-zA-Z ._-\u4e00-\u9fa5]/;
-        let fileEx = e.files[0].name.replace(/^.*\./, '');
-        let fileSize = e.files[0].size;
+        function verifyFile(e) {
+            var validExtensions = ['xls', 'xlsx', 'docx', 'jpg', 'png', 'jpeg'];
+            var rg1 = /[^0-9a-zA-Z ._-\u4e00-\u9fa5]/;
+            let fileName = e.files[0].name;
+            let fileEx = e.files[0].name.replace(/^.*\./, '');
+            let fileSize = e.files[0].size;
 
-        if ($.inArray(fileEx, validExtensions) == -1) {
-            alert("無效檔案類型");
-            e.value = "";
+            if ($.inArray(fileEx, validExtensions) == -1) {
+                alert("無效檔案類型");
+                e.value = "";
+            }
+            else if (fileSize > 2097152) {
+                alert("檔案過大");
+                e.value = "";
+            }
+            //else if (!rg1.test(fileName)) {
+            //    alert("格式有誤");
+            //    e.value = "";
+            //}
         }
-        else if (fileSize > 2097152) {
-            alert("檔案過大");
-            e.value = "";
-        }
-        //else if (!rg1.test(fileName)) {
-        //    alert("格式有誤");
-        //    e.value = "";
-        //}
-    }
     </script>
 }

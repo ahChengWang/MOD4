@@ -31,6 +31,23 @@
     input {
         text-align: right;
     }
+
+    .divUploadFile {
+        border-right: 1px solid black;
+    }
+
+    .uploadFile {
+        overflow: hidden;
+        display: -webkit-box;
+        text-overflow: ellipsis;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        white-space: normal;
+    }
+
+        .uploadFile:hover {
+            overflow: visible;
+        }
 </style>
 
 <div class="modal-dialog modal-lg" role="document">
@@ -73,7 +90,7 @@
                                 @{
                                     foreach (var category in ViewBag.CategoryOptions)
                                     {
-                                        <option value="@category.Id">@category.Value</option>
+                                    <option value="@category.Id">@category.Value</option>
                                     }
                                 }
                             </select>
@@ -84,7 +101,7 @@
                             <label class="col-form-label" asp-for="Subject"></label>
                         </div>
                         <div class="col-9">
-                            <input type="text" disabled class="form-control" asp-for="Subject">
+                            <label class="col-form-label" name="underline" asp-for="Subject"></label>
                         </div>
                     </div>
                     <div class="form-group" style="display: flex;">
@@ -111,96 +128,84 @@
                     </div>
                     <div class="form-group" style="display:flex">
                         <div class="col-2">
-                            <label class="col-form-label" asp-for="UploadFile1"></label>
+                            <label class="col-form-label" style="font-size:15px" asp-for="UploadFile1"></label>
                         </div>
-                        <div class="col-3 custom-file">
+                        <div class="col-3 divUploadFile">
                             @{
-                                if (Model.UploadFile1 == "")
-                                {
-                                    <a href="#"><label class="custom-file-label">@Model.UploadFile1</label></a>
-                                }
-                                else
-                                {
-                                    <a target="_blank" href="/Demand/Download?orderSn=@Model.OrderSn&fileNo=0">
-                                        <label class="custom-file-label">@Model.UploadFile1</label>
-                                    </a>
-                                }
+                            if (Model.UploadFile1 == "")
+                            {
+                                <a href="#">@Model.UploadFile1</a>
+                            }
+                            else
+                            {
+                                <a class="uploadFile" target="_blank" href="./Demand/Download?orderSn=@Model.OrderSn&fileNo=0">@Model.UploadFile1</a>
+                            }
                             }
                         </div>
-                        <div class="col-3 custom-file">
+                        <div class="col-3 divUploadFile">
                             @{
-                                if (Model.UploadFile2 == "")
-                                {
-                                    <a href="#"><label class="custom-file-label">@Model.UploadFile2</label></a>
-                                }
-                                else
-                                {
-                                    <a target="_blank" href="/Demand/Download?orderSn=@Model.OrderSn&fileNo=1">
-                                        <label class="custom-file-label">@Model.UploadFile2</label>
-                                    </a>
-                                }
+                            if (Model.UploadFile2 == "")
+                            {
+                                <a href="#">@Model.UploadFile2</a>
+                            }
+                            else
+                            {
+                                <a class="uploadFile" target="_blank" href="./Demand/Download?orderSn=@Model.OrderSn&fileNo=1">@Model.UploadFile2</a>
+                            }
                             }
                         </div>
-                        <div class="col-3 custom-file">
+                        <div class="col-3 divUploadFile">
                             @{
-                                if (Model.UploadFile3 == "")
-                                {
-                                    <a><label class="custom-file-label">@Model.UploadFile3</label></a>
-                                }
-                                else
-                                {
-                                    <a target="_blank" href="/Demand/Download?orderSn=@Model.OrderSn&fileNo=2">
-                                        <label class="custom-file-label">@Model.UploadFile3</label>
-                                    </a>
-                                }
+                            if (Model.UploadFile3 == "")
+                            {
+                                <a>@Model.UploadFile3</a>
+                            }
+                            else
+                            {
+                                <a class="uploadFile" target="_blank" href="./Demand/Download?orderSn=@Model.OrderSn&fileNo=2">@Model.UploadFile3</a>
+                            }
                             }
                         </div>
                     </div>
                     <hr style="border-width:3px;border-color:gray" />
                     <div class="form-group" style="display:flex">
                         <div class="col-2">
-                            <label class="col-form-label" asp-for="CompleteUploadFile1"></label>
+                            <label class="col-form-label" style="font-size:15px" asp-for="CompleteUploadFile1"></label>
                         </div>
-                        <div class="col-3 custom-file">
+                        <div class="col-3 divUploadFile">
                             @{
-                                if (Model.CompleteUploadFile1 == "")
-                                {
-                                    <a href="#"><label class="custom-file-label">@Model.CompleteUploadFile1</label></a>
-                                }
-                                else
-                                {
-                                    <a target="_blank" href="/Demand/Download?orderSn=@Model.OrderSn&fileNo=0">
-                                        <label class="custom-file-label">@Model.CompleteUploadFile1</label>
-                                    </a>
-                                }
+                            if (Model.CompleteUploadFile1 == "")
+                            {
+                                <a href="#">@Model.CompleteUploadFile1</a>
+                            }
+                            else
+                            {
+                                <a class="uploadFile" target="_blank" href="./Demand/Download?orderSn=@Model.OrderSn&fileNo=0">@Model.CompleteUploadFile1</a>
+                            }
                             }
                         </div>
-                        <div class="col-3 custom-file">
+                        <div class="col-3 divUploadFile">
                             @{
-                                if (Model.CompleteUploadFile2 == "")
-                                {
-                                    <a href="#"><label class="custom-file-label">@Model.CompleteUploadFile2</label></a>
-                                }
-                                else
-                                {
-                                    <a target="_blank" href="/Demand/Download?orderSn=@Model.OrderSn&fileNo=1">
-                                        <label class="custom-file-label">@Model.CompleteUploadFile2</label>
-                                    </a>
-                                }
+                            if (Model.CompleteUploadFile2 == "")
+                            {
+                                <a href="#">@Model.CompleteUploadFile2</a>
+                            }
+                            else
+                            {
+                                <a class="uploadFile" target="_blank" href="./Demand/Download?orderSn=@Model.OrderSn&fileNo=1">@Model.CompleteUploadFile2</a>
+                            }
                             }
                         </div>
-                        <div class="col-3 custom-file">
+                        <div class="col-3 divUploadFile">
                             @{
-                                if (Model.CompleteUploadFile3 == "")
-                                {
-                                    <a><label class="custom-file-label">@Model.CompleteUploadFile3</label></a>
-                                }
-                                else
-                                {
-                                    <a target="_blank" href="/Demand/Download?orderSn=@Model.OrderSn&fileNo=2">
-                                        <label class="custom-file-label">@Model.CompleteUploadFile3</label>
-                                    </a>
-                                }
+                            if (Model.CompleteUploadFile3 == "")
+                            {
+                                <a>@Model.CompleteUploadFile3</a>
+                            }
+                            else
+                            {
+                                <a class="uploadFile" target="_blank" href="./Demand/Download?orderSn=@Model.OrderSn&fileNo=2">@Model.CompleteUploadFile3</a>
+                            }
                             }
                         </div>
                     </div>

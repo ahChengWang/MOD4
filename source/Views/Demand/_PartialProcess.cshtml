@@ -31,7 +31,7 @@
                 @{
                     foreach (var category in ViewBag.CategoryOptions)
                     {
-                        <option value="@category.Id">@category.Value</option>
+                    <option value="@category.Id">@category.Value</option>
                     }
                 }
             </select>
@@ -75,13 +75,13 @@
             @{
                 if (Model.UploadFile1 == "")
                 {
-                    <a href="#"><label class="custom-file-label">@Model.UploadFile1</label></a>
+                <a href="#"><label class="custom-file-label">@Model.UploadFile1</label></a>
                 }
                 else
                 {
-                    <a target="_blank" href="/Demand/Download?orderSn=@Model.OrderSn&fileNo=0">
-                        <label class="custom-file-label">@Model.UploadFile1</label>
-                    </a>
+                <a target="_blank" href="./Download?orderSn=@Model.OrderSn&fileNo=0">
+                    <label class="custom-file-label">@Model.UploadFile1</label>
+                </a>
                 }
             }
         </div>
@@ -89,13 +89,13 @@
             @{
                 if (Model.UploadFile2 == "")
                 {
-                    <a href="#"><label class="custom-file-label">@Model.UploadFile2</label></a>
+                <a href="#"><label class="custom-file-label">@Model.UploadFile2</label></a>
                 }
                 else
                 {
-                    <a target="_blank" href="/Demand/Download?orderSn=@Model.OrderSn&fileNo=1">
-                        <label class="custom-file-label">@Model.UploadFile2</label>
-                    </a>
+                <a target="_blank" href="./Download?orderSn=@Model.OrderSn&fileNo=1">
+                    <label class="custom-file-label">@Model.UploadFile2</label>
+                </a>
                 }
             }
         </div>
@@ -103,13 +103,13 @@
             @{
                 if (Model.UploadFile3 == "")
                 {
-                    <a><label class="custom-file-label">@Model.UploadFile3</label></a>
+                <a><label class="custom-file-label">@Model.UploadFile3</label></a>
                 }
                 else
                 {
-                    <a target="_blank" href="/Demand/Download?orderSn=@Model.OrderSn&fileNo=2">
-                        <label class="custom-file-label">@Model.UploadFile3</label>
-                    </a>
+                <a target="_blank" href="./Download?orderSn=@Model.OrderSn&fileNo=2">
+                    <label class="custom-file-label">@Model.UploadFile3</label>
+                </a>
                 }
             }
         </div>
@@ -161,28 +161,27 @@
 @{
     if (Model.DemandStatusId == 4)
     {
-        <div class="card-footer" style="display:flex">
-            <div>
-                <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#modal-sm-completed">
-                    更新
-                </button>
-            </div>
+    <div class="card-footer" style="display:flex">
+        <div>
+            <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#modal-sm-completed">
+                更新
+            </button>
         </div>
+    </div>
     }
     else
     {
-        <div class="card-footer" style="display:flex">
-            <div>
-                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-sm-completed">
-                    完成
-                </button>
-            </div>
+    <div class="card-footer" style="display:flex">
+        <div>
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-sm-completed">
+                完成
+            </button>
         </div>
+    </div>
     }
 }
 
-@section scripts {
-    <script type="text/javascript">
+<script type="text/javascript">
         function completedClick() {
                 $.blockUI({
                     message: '請稍等...',
@@ -217,5 +216,4 @@
             });
         }
 
-    </script>
-}
+</script>
