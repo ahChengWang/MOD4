@@ -300,7 +300,7 @@ namespace MOD4.Web.DomainService
                     Diff = targetQty * -1
                 };
 
-            eqpEntities = eqpEntities.OrderByDescending(od => Convert.ToInt16(od.RepairTime)).ToList();
+            eqpEntities = eqpEntities.OrderByDescending(od => Convert.ToDouble(od.RepairTime)).ToList();
 
             var _top1 = eqpEntities.Take(1).FirstOrDefault();
             var _top2 = eqpEntities.Skip(1).Take(1).FirstOrDefault();

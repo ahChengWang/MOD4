@@ -94,7 +94,11 @@ namespace MOD4.Web.Controllers
 
                 var _updateResult = _targetSettingDomainService.Update(_res);
 
-                return Json("更新失敗");
+                if (_updateResult != "")
+                    return Json(_updateResult);
+
+                return Json("");
+
             }
             catch (Exception ex)
             {
