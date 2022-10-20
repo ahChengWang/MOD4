@@ -39,7 +39,7 @@ namespace MOD4.Web.Controllers
         {
             var _userInfo = GetUserInfo();
 
-            var _demands = _demandDomainService.GetDemands(_userInfo);
+            var _demands = _demandDomainService.GetDemands(_userInfo, statusId: "1,2,3");
 
             List<DemanMainViewModel> _response = _demands.Select(s => new DemanMainViewModel
             {
@@ -180,7 +180,7 @@ namespace MOD4.Web.Controllers
                 UploadFile3 = _res.UploadFile3,
                 RejectReason = _res.RejectReason,
                 Remark = _res.Remark,
-                CompleteUploadFile1 = _res.CompleteUploadFile1, 
+                CompleteUploadFile1 = _res.CompleteUploadFile1,
                 CompleteUploadFile2 = _res.CompleteUploadFile2,
                 CompleteUploadFile3 = _res.CompleteUploadFile3
             };
@@ -189,17 +189,22 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Download([FromQuery] int orderSn, int fileNo)
+        public IActionResult Download([FromQuery] int orderSn, int typeId, int fileNo)
         {
             try
             {
-                var _res = _demandDomainService.GetDownFileStr(orderSn, fileNo);
+                var _res = _demandDomainService.GetDownFileStr(orderSn, typeId, fileNo);
+
+                if (_res.Item1 == null)
+                {
+                    return RedirectToAction("Error", "Home", new ErrorViewModel { Message = _res.Item2 });
+                }
 
                 return File(_res.Item1, "application/octet-stream", _res.Item2);
             }
             catch (Exception ex)
             {
-                throw;
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
             }
         }
 

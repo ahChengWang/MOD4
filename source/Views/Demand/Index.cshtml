@@ -129,37 +129,54 @@
 
         let myFuc = {
             SearchOrder() {
-                $.ajax({
-                    url: "./Demand/Search?startDate=" + $("#startDTE").val() + "&endDate=" + $("#endDTE").val() + "&category=" + $("#dropCat").val() + "&status=" + $("#dropStatus").val(),
-                    type: "GET",
-                    dataType: 'html',
-                    success: function (result) {
-                        if (isJsonString(result)) {
-                            var _res = JSON.parse(result);
-                            if (result == '""') {
-                                alert('查無資料');
-                            }
-                            if ('isException' in _res) {
-                                alert(_res.msg);
-                                return false;
-                            }
-                        }
-                        else {
-                            $("#table1_wrapper").remove();
-                            $("#divMark").after(result);
-                            $('#table1').DataTable({
-                                "paging": true,
-                                "responsive": false,
-                                "lengthChange": true,
-                                "autoWidth": true,
-                            }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
 
-                            $(".status:contains('待評估')").css('color', '#088c01');
-                            $(".status:contains('進行中')").css('color', '#145cba');
-                            $(".status:contains('已退件')").css('color', '#b00c0f');
-                        }
-                    }
+                var Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
                 });
+
+                if ($("#startDTE").val() != '' && $("#endDTE").val() != '' &&
+                    new Date($("#startDTE").val()) > new Date($("#endDTE").val())) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: '訖日不能早於起日'
+                    })
+                }
+                else {
+                    $.ajax({
+                        url: "./Demand/Search?startDate=" + $("#startDTE").val() + "&endDate=" + $("#endDTE").val() + "&category=" + $("#dropCat").val() + "&status=" + $("#dropStatus").val(),
+                        type: "GET",
+                        dataType: 'html',
+                        success: function (result) {
+                            if (isJsonString(result)) {
+                                var _res = JSON.parse(result);
+                                if (result == '""') {
+                                    alert('查無資料');
+                                }
+                                if ('isException' in _res) {
+                                    alert(_res.msg);
+                                    return false;
+                                }
+                            }
+                            else {
+                                $("#table1_wrapper").remove();
+                                $("#divMark").after(result);
+                                $('#table1').DataTable({
+                                    "paging": true,
+                                    "responsive": false,
+                                    "lengthChange": true,
+                                    "autoWidth": true,
+                                }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
+
+                                $(".status:contains('待評估')").css('color', '#088c01');
+                                $(".status:contains('進行中')").css('color', '#145cba');
+                                $(".status:contains('已退件')").css('color', '#b00c0f');
+                            }
+                        }
+                    });
+                }
             },
             CreateOrder() {
                 location.href = "./Demand/Create";
@@ -185,6 +202,8 @@
             $(".status:contains('進行中')").css('color', '#145cba');
             $(".status:contains('已退件')").css('color', '#b00c0f');
 
+            $('#startDTE').attr("max", new Date().toISOString().slice(0, 10));
+            $('#endDTE').attr("max", new Date().toISOString().slice(0, 10));
         });
 
         $("#btnSearch").click(myFuc.SearchOrder);

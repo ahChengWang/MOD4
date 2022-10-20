@@ -31,7 +31,7 @@
                 @{
                     foreach (var category in ViewBag.CategoryOptions)
                     {
-                    <option value="@category.Id">@category.Value</option>
+                        <option value="@category.Id">@category.Value</option>
                     }
                 }
             </select>
@@ -75,13 +75,13 @@
             @{
                 if (Model.UploadFile1 == "")
                 {
-                <a href="#"><label class="custom-file-label">@Model.UploadFile1</label></a>
+                    <a href="#"><label class="custom-file-label">@Model.UploadFile1</label></a>
                 }
                 else
                 {
-                <a target="_blank" href="./Download?orderSn=@Model.OrderSn&fileNo=0">
-                    <label class="custom-file-label">@Model.UploadFile1</label>
-                </a>
+                    <a target="_blank" href="./Download?orderSn=@Model.OrderSn&typeId=1&fileNo=0">
+                        <label class="custom-file-label">@Model.UploadFile1</label>
+                    </a>
                 }
             }
         </div>
@@ -89,13 +89,13 @@
             @{
                 if (Model.UploadFile2 == "")
                 {
-                <a href="#"><label class="custom-file-label">@Model.UploadFile2</label></a>
+                    <a href="#"><label class="custom-file-label">@Model.UploadFile2</label></a>
                 }
                 else
                 {
-                <a target="_blank" href="./Download?orderSn=@Model.OrderSn&fileNo=1">
-                    <label class="custom-file-label">@Model.UploadFile2</label>
-                </a>
+                    <a target="_blank" href="./Download?orderSn=@Model.OrderSn&typeId=1&fileNo=1">
+                        <label class="custom-file-label">@Model.UploadFile2</label>
+                    </a>
                 }
             }
         </div>
@@ -103,13 +103,13 @@
             @{
                 if (Model.UploadFile3 == "")
                 {
-                <a><label class="custom-file-label">@Model.UploadFile3</label></a>
+                    <a><label class="custom-file-label">@Model.UploadFile3</label></a>
                 }
                 else
                 {
-                <a target="_blank" href="./Download?orderSn=@Model.OrderSn&fileNo=2">
-                    <label class="custom-file-label">@Model.UploadFile3</label>
-                </a>
+                    <a target="_blank" href="./Download?orderSn=@Model.OrderSn&typeId=1&fileNo=2">
+                        <label class="custom-file-label">@Model.UploadFile3</label>
+                    </a>
                 }
             }
         </div>
@@ -129,7 +129,7 @@
             <label class="col-form-label" asp-for="UploadFile"></label>
             <span asp-validation-for="UploadFile" style="font-size:10px;font-weight:700" class="text-danger"></span>
             <div>
-                <span class="unit">(允許 xls,xlsx,docx,jpg,png,jpeg)</span>
+                <span class="unit">(允許 xls,xlsx,doc,docx,txt,jpg,png,jpeg)</span>
                 <br />
                 <span class="unit">單檔最大2MB</span>
             </div>
@@ -161,59 +161,61 @@
 @{
     if (Model.DemandStatusId == 4)
     {
-    <div class="card-footer" style="display:flex">
-        <div>
-            <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#modal-sm-completed">
-                更新
-            </button>
+        <div class="card-footer" style="display:flex">
+            <div>
+                <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#modal-sm-completed">
+                    更新
+                </button>
+            </div>
         </div>
-    </div>
     }
     else
     {
-    <div class="card-footer" style="display:flex">
-        <div>
-            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-sm-completed">
-                完成
-            </button>
+        <div class="card-footer" style="display:flex">
+            <div>
+                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-sm-completed">
+                    完成
+                </button>
+            </div>
         </div>
-    </div>
     }
 }
 
 <script type="text/javascript">
-        function completedClick() {
-                $.blockUI({
-                    message: '請稍等...',
-                css: {
-                    border: 'none',
-                    padding: '5px',
-                    backgroundColor: '#000',
-                    '-webkit-border-radius': '10px',
-                    '-moz-border-radius': '10px',
-                    opacity: '.5',
-                    color: '#fff',
-                    fontSize: '25px',
-                    fontFamily: '微軟正黑體',
-                    fontWeight: 300,
+    function completedClick() {
+        $.blockUI({
+            message: '請稍等...',
+            css: {
+                border: 'none',
+                padding: '5px',
+                backgroundColor: '#000',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: '.5',
+                color: '#fff',
+                fontSize: '25px',
+                fontFamily: '微軟正黑體',
+                fontWeight: 300,
+            }
+        });
+        var formData = new FormData(document.getElementById("demandForm"));
+        $.ajax({
+            type: "POST",
+            url: "./EditToCompleted",
+            dataType: 'json',
+            processData: false,
+            contentType: false,
+            data: formData,
+            success: function (result) {
+                $.unblockUI();
+                if (result.isSuccess) {
+                    alert(result.msg);
+                    location.href = "@Url.ActionLink("Index", "Demand")";
                 }
-            });
-            $.ajax({
-                type: "POST",
-                url: "./EditToCompleted",
-                dataType: 'json',
-                data: $("#demandForm").serialize(),
-                success: function (result) {
-                    $.unblockUI();
-                    if (result.isSuccess) {
-                        alert(result.msg);
-                        location.href = "@Url.ActionLink("Index", "Demand")";
-                    }
-                    else {
-                        alert(result.msg);
-                    }
+                else {
+                    alert(result.msg);
                 }
-            });
-        }
-
+            }
+        });
+    }
 </script>

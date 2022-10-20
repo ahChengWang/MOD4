@@ -107,14 +107,31 @@ namespace MOD4.Web.DomainService
             return _result;
         }
 
-        public (FileStream, string) GetDownFileStr(int sn, int fileNo)
+        public (FileStream, string) GetDownFileStr(int sn, int typeId, int fileNo)
         {
             DemandsDao _demandDao = _demandsRepository.SelectDetail(sn);
-            string[] fileArray = _demandDao.uploadFiles.Split(",");
 
-            return (new FileStream($@"{_uploadDomainService.GetFileServerUrl()}\upload\{_demandDao.createUser}\{_demandDao.createTime.ToString("yyMMdd")}\{fileArray[fileNo]}",
-                FileMode.Open, FileAccess.Read, FileShare.Read)
-                , fileArray[fileNo]);
+            if (typeId != 1 && typeId != 2)
+                return (null, "參數錯誤");
+            else if ((typeId == 1 && string.IsNullOrEmpty(_demandDao.uploadFiles)) ||
+                     (typeId == 2 && string.IsNullOrEmpty(_demandDao.completeFiles)))
+                return (null, "查無上傳檔");
+
+            switch (typeId)
+            {
+                case 1:
+                    string[] fileArray = _demandDao.uploadFiles.Split(",");
+                    return (new FileStream($@"{_uploadDomainService.GetFileServerUrl()}\upload\{_demandDao.createUser}\{_demandDao.createTime.ToString("yyMMdd")}\{fileArray[fileNo]}",
+                        FileMode.Open, FileAccess.Read, FileShare.Read)
+                        , fileArray[fileNo]);
+                case 2:
+                    string[] completeFilesArray = _demandDao.completeFiles.Split(",");
+                    return (new FileStream($@"{_uploadDomainService.GetFileServerUrl()}\upload\{_demandDao.updateUser}\{_demandDao.updateTime.ToString("yyMMdd")}\{completeFilesArray[fileNo]}",
+                        FileMode.Open, FileAccess.Read, FileShare.Read)
+                        , completeFilesArray[fileNo]);
+                default:
+                    return (null, "查無上傳檔");
+            }
         }
 
         public (bool, string) InsertDemand(DemandEntity insertEntity, UserEntity userEntity)
@@ -188,7 +205,7 @@ namespace MOD4.Web.DomainService
                     orderSn = updEntity.OrderSn,
                     orderNo = updEntity.OrderNo,
                     statusId = newStatusId,
-                    updateUser = userEntity.Name,
+                    updateUser = userEntity.Account,
                     updateTime = _nowTime
                 };
 
@@ -199,7 +216,8 @@ namespace MOD4.Web.DomainService
                 }
                 else if (_oldDemand.statusId == DemandStatusEnum.Pending && newStatusId == DemandStatusEnum.Processing)
                     return UpdateToProcess(_updDemandsDao);
-                else if (_oldDemand.statusId == DemandStatusEnum.Processing && newStatusId == DemandStatusEnum.Completed)
+                else if (_oldDemand.statusId == DemandStatusEnum.Processing && newStatusId == DemandStatusEnum.Completed ||
+                         _oldDemand.statusId == DemandStatusEnum.Completed && newStatusId == DemandStatusEnum.Completed)
                 {
                     _fileNameStr = DoUploadFiles(updEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime);
                     _updDemandsDao.completeFiles = _fileNameStr;

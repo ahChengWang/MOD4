@@ -11,7 +11,7 @@ namespace MOD4.Web.DomainService
 
         DemandEntity GetDemandDetail(int sn, string orderId = "");
 
-        (FileStream, string) GetDownFileStr(int sn, int fileNo);
+        (FileStream, string) GetDownFileStr(int sn, int typeId, int fileNo);
 
         (bool, string) InsertDemand(DemandEntity insertEntity, UserEntity userEntity);
 

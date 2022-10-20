@@ -375,6 +375,7 @@
             collapseOptGroupsByDefault: true
         });
 
+        $('#srcHisDate').attr("max", new Date().toISOString().slice(0, 10));
     });
 
     $("#btnSearch").click(myFuc.SearchUnrepairedEq);
