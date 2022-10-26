@@ -60,6 +60,7 @@ namespace MOD4.Web
             services.AddSingleton<IOptionDomainService, OptionDomainService>();
             services.AddSingleton<IDemandDomainService, DemandDomainService>();
             services.AddSingleton<IUploadDomainService, UploadDomainService>();
+            services.AddSingleton<IMAppDomainService, MAppDomainService>();
             services.AddSingleton(new ServiceDescriptor(typeof(IUploadDomainService), new UploadDomainService(Configuration)));
 
             services.AddSingleton<IAlarmXmlRepository, AlarmXmlRepository>();

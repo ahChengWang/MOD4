@@ -20,15 +20,12 @@ namespace MOD4.Web.Controllers
     public class AccountController : Controller
     {
         private readonly IAccountDomainService _accountDomainService;
-        private readonly IMenuDomainService _menuDomainService;
         private readonly string _shaKey = string.Empty;
 
         public AccountController(IAccountDomainService accountDomainService,
-            IMenuDomainService menuDomainService,
             IConfiguration connectionString)
         {
             _accountDomainService = accountDomainService;
-            _menuDomainService = menuDomainService;
             _shaKey = connectionString.GetSection("SHAKey").Value;
         }
 
@@ -45,14 +42,14 @@ namespace MOD4.Web.Controllers
                 // fab 無法 call InxSSO
                 var _domainName = Environment.UserDomainName;
 
-                if (_domainName == "CMINL")
-                {
-                    // call InxSSO 確認帳密
-                    bool _verifyResult = _accountDomainService.VerifyInxSSO(loginViewMode.Account, loginViewMode.Password);
+                //if (_domainName == "CMINL")
+                //{
+                // call InxSSO 確認帳密
+                bool _verifyResult = _accountDomainService.VerifyInxSSO(loginViewMode.Account, loginViewMode.Password);
 
-                    if (!_verifyResult)
-                        return Json("帳號密碼錯誤");
-                }
+                if (!_verifyResult)
+                    return Json("帳號密碼錯誤");
+                //}
 
                 var _encryptPw = Encrypt(loginViewMode.Password, _shaKey);
 
@@ -78,13 +75,14 @@ namespace MOD4.Web.Controllers
                 if (_currentUser != null)
                 {
                     var claims = new List<Claim>()
-                {
-                    new Claim(ClaimTypes.NameIdentifier, Convert.ToString(_currentUser.Account)),
-                    new Claim("sn", Convert.ToString(_currentUser.sn)),
-                    new Claim("Account", _currentUser.Account),
-                    new Claim("Name", _currentUser.Name),
-                    new Claim("Role", Convert.ToString((int)_currentUser.RoleId))
-                };
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, Convert.ToString(_currentUser.Account)),
+                        new Claim("sn", Convert.ToString(_currentUser.sn)),
+                        new Claim("Account", _currentUser.Account),
+                        new Claim("Name", _currentUser.Name),
+                        new Claim("Role", Convert.ToString((int)_currentUser.RoleId))
+                    };
+
                     //Initialize a new instance of the ClaimsIdentity with the claims and authentication scheme    
                     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     //Initialize a new instance of the ClaimsPrincipal with ClaimsIdentity    

@@ -17,12 +17,15 @@ namespace MOD4.Web.DomainService
     {
         private readonly IDemandsRepository _demandsRepository;
         private readonly IUploadDomainService _uploadDomainService;
+        private readonly IMAppDomainService _mappDomainService;
 
         public DemandDomainService(IDemandsRepository demandsRepository,
-            IUploadDomainService uploadDomainService)
+            IUploadDomainService uploadDomainService,
+            IMAppDomainService mappDomainService)
         {
             _demandsRepository = demandsRepository;
             _uploadDomainService = uploadDomainService;
+            _mappDomainService = mappDomainService;
         }
 
         public List<DemandEntity> GetDemands(UserEntity userEntity,
@@ -146,22 +149,20 @@ namespace MOD4.Web.DomainService
 
                 DemandsDao _insDemandsDao = new DemandsDao
                 {
+                    orderNo = $"DE{_nowTime.ToString("yyMMddHHmmss")}",
+                    categoryId = insertEntity.CategoryId,
+                    statusId = DemandStatusEnum.Pending,
+                    subject = insertEntity.Subject,
+                    content = insertEntity.Content,
+                    applicant = insertEntity.Applicant,
+                    jobNo = insertEntity.JobNo,
+                    uploadFiles = _fileNameStr,
                     createUser = userEntity.Account,
                     createTime = _nowTime,
                     updateUser = "",
                     updateTime = _nowTime,
                     isCancel = false
                 };
-
-
-                _insDemandsDao.orderNo = $"DE{_nowTime.ToString("yyMMddHHmmss")}";
-                _insDemandsDao.categoryId = insertEntity.CategoryId;
-                _insDemandsDao.statusId = DemandStatusEnum.Pending;
-                _insDemandsDao.subject = insertEntity.Subject;
-                _insDemandsDao.content = insertEntity.Content;
-                _insDemandsDao.applicant = insertEntity.Applicant;
-                _insDemandsDao.jobNo = insertEntity.JobNo;
-                _insDemandsDao.uploadFiles = _fileNameStr;
 
                 using (var scope = new TransactionScope())
                 {
@@ -212,6 +213,7 @@ namespace MOD4.Web.DomainService
                 if (_oldDemand.statusId == DemandStatusEnum.Pending && newStatusId == DemandStatusEnum.Rejected)
                 {
                     _updDemandsDao.rejectReason = updEntity.RejectReason ?? "";
+                    //_mappDomainService.SendMsgToOneAsync(_oldDemand.createUser);
                     return UpdateToReject(_updDemandsDao);
                 }
                 else if (_oldDemand.statusId == DemandStatusEnum.Pending && newStatusId == DemandStatusEnum.Processing)
