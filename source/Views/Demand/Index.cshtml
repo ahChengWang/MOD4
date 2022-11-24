@@ -163,6 +163,11 @@
                             else {
                                 $("#table1_wrapper").remove();
                                 $("#divMark").after(result);
+
+                                $(".status:contains('待評估')").css('color', '#088c01');
+                                $(".status:contains('進行中')").css('color', '#145cba');
+                                $(".status:contains('已退件')").css('color', '#b00c0f');
+
                                 $('#table1').DataTable({
                                     "paging": true,
                                     "responsive": false,
@@ -170,9 +175,6 @@
                                     "autoWidth": true,
                                 }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
 
-                                $(".status:contains('待評估')").css('color', '#088c01');
-                                $(".status:contains('進行中')").css('color', '#145cba');
-                                $(".status:contains('已退件')").css('color', '#b00c0f');
                             }
                         }
                     });
@@ -184,6 +186,10 @@
         }
 
         $(function () {
+            $(".status:contains('待評估')").css('color', '#088c01');
+            $(".status:contains('進行中')").css('color', '#145cba');
+            $(".status:contains('已退件')").css('color', '#b00c0f');
+
             $('#table1').DataTable({
                 "paging": true,
                 //"searching": false,
@@ -198,9 +204,6 @@
 
             $("#dropCat,#dropStatus").multiselect({});
 
-            $(".status:contains('待評估')").css('color', '#088c01');
-            $(".status:contains('進行中')").css('color', '#145cba');
-            $(".status:contains('已退件')").css('color', '#b00c0f');
 
             $('#startDTE').attr("max", new Date().toISOString().slice(0, 10));
             $('#endDTE').attr("max", new Date().toISOString().slice(0, 10));

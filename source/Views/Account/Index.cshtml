@@ -21,18 +21,20 @@
         #logoSpan {
             color: black;
             text-shadow: 0 0 3px black;
-            font-family: Consolas;
-            font-weight: bolder;
-            font-size: 50px;
+            font-family: Franklin 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            font-weight: 700;
+            font-size: 55px;
+            vertical-align: middle;
             font-style: italic;
-            text-align: end;
             display: inline-block;
+            line-height: normal;
         }
 
         .mylauoutimg {
-            width: 90px;
-            height: 80px;
-            margin-bottom: 8px;
+            width: 150px;
+            height: 140px;
+            margin: auto;
+            display: block;
         }
     </style>
 </head>
@@ -58,15 +60,16 @@
         });
     </script>
     <div class="login-box">
-        <div class="login-logo">
-            <a href="">
-                <img class="mylauoutimg" src="~/img/CarUX.png">
-                <span id="logoSpan" class="brand-text font-weight-light">MOD4</span>
-            </a>
-        </div>
         <!-- /.login-logo -->
         <div class="login-box-body">
-            <p class="login-box-msg"></p>
+            <div style="display:flex;text-align:center;">
+                <div class="col-5">
+                    <img class="mylauoutimg" src="~/img/CarUX.png">
+                </div>
+                <div class="col-5" style="text-align: left; height: 125px; line-height: 125px;">
+                    <span id="logoSpan">CarUX</span>
+                </div>
+            </div>
             <form id="form">
                 <div class="form-group has-feedback">
                     <span asp-validation-for="Account" style="font-size:10px;font-weight:700" class="text-danger"></span>
