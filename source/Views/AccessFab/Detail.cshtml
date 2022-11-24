@@ -1,0 +1,55 @@
+﻿@model MOD4.Web.ViewModel.AccessFabDetailPageViewModel
+
+@{
+    ViewBag.Title = "進出申請單明細";
+}
+
+
+<style>
+    .card {
+        box-shadow: 1px 2px 2px 2px #999;
+        margin-top: 5px;
+    }
+
+    .card-header, .card-body, .card-footer {
+        background-color: #c3cadb;
+    }
+
+    .card-title {
+        font-family: "Microsoft JhengHei";
+        font-weight: 900;
+        font-style: italic;
+        font-size: 30px;
+    }
+
+    label[name="underline"] {
+        text-decoration: underline;
+    }
+
+    div[name="historyLine"] {
+        display: flex;
+    }
+</style>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">申 請 單 明 細</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <!-- form start -->
+                        <form>
+                            <div class="card-body">
+                                <partial name="_PartialDetailForm" model="Model" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

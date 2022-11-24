@@ -6,14 +6,10 @@ using MOD4.Web.DomainService;
 using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
 using MOD4.Web.Models;
-using MOD4.Web.Repostory.Dao;
 using MOD4.Web.ViewModel;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace MOD4.Web.Controllers
 {
@@ -27,8 +23,9 @@ namespace MOD4.Web.Controllers
         public DemandController(IDemandDomainService demandDomainService,
             IHttpContextAccessor httpContextAccessor,
             IOptionDomainService optionDomainService,
+            IAccountDomainService accountDomainService,
             ILogger<HomeController> logger)
-            : base(httpContextAccessor)
+            : base(httpContextAccessor, accountDomainService)
         {
             _demandDomainService = demandDomainService;
             _optionDomainService = optionDomainService;
@@ -37,81 +34,117 @@ namespace MOD4.Web.Controllers
 
         public IActionResult Index()
         {
-            var _userInfo = GetUserInfo();
-
-            var _demands = _demandDomainService.GetDemands(_userInfo, statusId: "1,2,3");
-
-            List<DemanMainViewModel> _response = _demands.Select(s => new DemanMainViewModel
+            try
             {
-                OrderSn = s.OrderSn,
-                OrderId = s.OrderNo,
-                DemandCategory = s.CategoryId.GetDescription(),
-                DemandCategoryId = s.CategoryId,
-                DemandStatus = s.StatusId.GetDescription(),
-                DemandStatusId = s.StatusId,
-                Subject = s.Subject,
-                Applicant = s.Applicant,
-                JobNo = s.JobNo,
-                CreateDate = s.CreateTime.ToString("yyyy-MM-dd"),
-                UserEditable = s.UserEditable,
-                RoleId = _userInfo.RoleId
-            }).ToList();
+                UserEntity _userInfo = GetUserInfo();
+                var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.Demand);
+                ViewBag.UserPermission = new UserPermissionViewModel
+                {
+                    AccountSn = _userCurrentPagePermission.AccountSn,
+                    MenuSn = _userCurrentPagePermission.MenuSn,
+                    AccountPermission = _userCurrentPagePermission.AccountPermission
+                };
 
-            return View(_response);
+                var _demands = _demandDomainService.GetDemands(_userInfo, statusId: "1,2,3");
+
+                List<DemanMainViewModel> _response = _demands.Select(s => new DemanMainViewModel
+                {
+                    OrderSn = s.OrderSn,
+                    OrderId = s.OrderNo,
+                    DemandCategory = s.CategoryId.GetDescription(),
+                    DemandCategoryId = s.CategoryId,
+                    DemandStatus = s.StatusId.GetDescription(),
+                    DemandStatusId = s.StatusId,
+                    Subject = s.Subject,
+                    Applicant = s.Applicant,
+                    JobNo = s.JobNo,
+                    CreateDate = s.CreateTime.ToString("yyyy-MM-dd"),
+                    UserEditable = s.UserEditable,
+                    RoleId = _userInfo.RoleId
+                }).ToList();
+
+                return View(_response);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
         }
 
         [HttpGet]
         public IActionResult Search([FromQuery] string startDate, string endDate, string category, string status)
         {
-            var _userInfo = GetUserInfo();
-
-            var _demands = _demandDomainService.GetDemands(_userInfo, dateStart: startDate, dateEnd: endDate, categoryId: category, statusId: status);
-
-            List<DemanMainViewModel> _response = _demands.Select(s => new DemanMainViewModel
+            try
             {
-                OrderSn = s.OrderSn,
-                OrderId = s.OrderNo,
-                DemandCategory = s.CategoryId.GetDescription(),
-                DemandCategoryId = s.CategoryId,
-                DemandStatus = s.StatusId.GetDescription(),
-                DemandStatusId = s.StatusId,
-                Subject = s.Subject,
-                Applicant = s.Applicant,
-                JobNo = s.JobNo,
-                CreateDate = s.CreateTime.ToString("yyyy-MM-dd"),
-                UserEditable = s.UserEditable,
-                RoleId = _userInfo.RoleId
-            }).ToList();
+                UserEntity _userInfo = GetUserInfo();
+                var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.Demand);
+                ViewBag.UserPermission = new UserPermissionViewModel
+                {
+                    AccountSn = _userCurrentPagePermission.AccountSn,
+                    MenuSn = _userCurrentPagePermission.MenuSn,
+                    AccountPermission = _userCurrentPagePermission.AccountPermission
+                };
 
-            return PartialView("_PartialTable", _response);
+                var _demands = _demandDomainService.GetDemands(_userInfo, dateStart: startDate, dateEnd: endDate, categoryId: category, statusId: status);
+
+                List<DemanMainViewModel> _response = _demands.Select(s => new DemanMainViewModel
+                {
+                    OrderSn = s.OrderSn,
+                    OrderId = s.OrderNo,
+                    DemandCategory = s.CategoryId.GetDescription(),
+                    DemandCategoryId = s.CategoryId,
+                    DemandStatus = s.StatusId.GetDescription(),
+                    DemandStatusId = s.StatusId,
+                    Subject = s.Subject,
+                    Applicant = s.Applicant,
+                    JobNo = s.JobNo,
+                    CreateDate = s.CreateTime.ToString("yyyy-MM-dd"),
+                    UserEditable = s.UserEditable,
+                    RoleId = _userInfo.RoleId
+                }).ToList();
+
+                return PartialView("_PartialTable", _response);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Msg = ex.Message });
+            }
         }
 
         [HttpGet]
         public IActionResult Edit([FromQuery] int sn, string orderId)
         {
-            ViewBag.CategoryOptions = _optionDomainService.GetDemandCategoryOptionList();
-
-            var _res = _demandDomainService.GetDemandDetail(sn, orderId);
-
-            DemanEditViewModel _response = new DemanEditViewModel
+            try
             {
-                OrderSn = sn,
-                OrderId = _res.OrderNo,
-                CreateDate = _res.CreateTimeStr,
-                DemandCategoryId = _res.CategoryId,
-                DemandStatus = _res.Status,
-                DemandStatusId = (int)_res.StatusId,
-                Subject = _res.Subject,
-                Content = _res.Content,
-                Applicant = _res.Applicant,
-                JobNo = _res.JobNo,
-                UploadFile1 = _res.UploadFile1,
-                UploadFile2 = _res.UploadFile2,
-                UploadFile3 = _res.UploadFile3,
-                RejectReason = _res.RejectReason
-            };
+                ViewBag.CategoryOptions = _optionDomainService.GetDemandCategoryOptionList();
 
-            return View(_response);
+                var _res = _demandDomainService.GetDemandDetail(sn, orderId);
+
+                DemanEditViewModel _response = new DemanEditViewModel
+                {
+                    OrderSn = sn,
+                    OrderId = _res.OrderNo,
+                    CreateDate = _res.CreateTimeStr,
+                    DemandCategoryId = _res.CategoryId,
+                    DemandStatus = _res.Status,
+                    DemandStatusId = (int)_res.StatusId,
+                    Subject = _res.Subject,
+                    Content = _res.Content,
+                    Applicant = _res.Applicant,
+                    JobNo = _res.JobNo,
+                    UploadFile1 = _res.UploadFile1,
+                    UploadFile2 = _res.UploadFile2,
+                    UploadFile3 = _res.UploadFile3,
+                    RejectReason = _res.RejectReason
+                };
+
+                return View(_response);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+
         }
 
         [HttpPost]

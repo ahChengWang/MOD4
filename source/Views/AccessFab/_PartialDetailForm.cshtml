@@ -1,0 +1,215 @@
+﻿@model MOD4.Web.ViewModel.AccessFabDetailPageViewModel
+
+
+
+<div class="form-group" style="display:flex">
+    <div class="col-2">
+        <label class="col-form-label" asp-for="AccessFabOrderNo"></label>
+    </div>
+    <div class="col-3">
+        <label class="col-form-label" name="underline">@Model.AccessFabOrderNo</label>
+    </div>
+    <div class="col-2">
+        <label class="col-form-label" asp-for="OrderStatus"></label>
+    </div>
+    <div class="col-3">
+        <label class="col-form-label" name="underline">@Model.OrderStatus</label>
+    </div>
+</div>
+<div class="form-group" style="display:flex">
+    <div class="col-2">
+        <label class="col-form-label" asp-for="FabInTypeId"></label>
+    </div>
+    <div class="col-3">
+        <select class="form-control" asp-for="FabInTypeId" asp-items="@(SelectList)ViewBag.FabInTypeList" disabled></select>
+    </div>
+    <div class="col-2">
+        <label class="col-form-label" asp-for="FabInOtherType"></label>
+    </div>
+    <div class="col-3">
+        <input class="form-control" type="text" asp-for="FabInOtherType" disabled />
+    </div>
+</div>
+<div class="form-group" style="display:flex">
+    <div class="col-2">
+        <label class="col-form-label" asp-for="FabInCategoryId"></label>
+    </div>
+    <div class="col-3">
+        <select class="form-control" asp-for="FabInCategoryId" asp-items="@(SelectList)ViewBag.FabInCategoryList" disabled></select>
+    </div>
+</div>
+<div class="form-group" style="display:flex">
+    <div class="col-2">
+        <label class="col-form-label" asp-for="Applicant"></label>
+    </div>
+    <div class="col-3">
+        <input type="text" class="form-control" asp-for="Applicant" disabled />
+    </div>
+    <div class="col-2">
+        <label class="col-form-label" asp-for="ApplicantMVPN"></label>
+    </div>
+    <div class="col-3">
+        <input type="text" class="form-control" asp-for="ApplicantMVPN" disabled />
+    </div>
+</div>
+<div class="form-group" style="display:flex">
+    <div class="col-2">
+        <label class="col-form-label" asp-for="JobId"></label>
+    </div>
+    <div class="col-3">
+        <input class="form-control" type="text" asp-for="JobId" disabled />
+    </div>
+    <div class="col-2">
+        <label class="col-form-label" asp-for="AccompanyingPerson"></label>
+    </div>
+    <div class="col-3">
+        <input class="form-control" type="text" asp-for="AccompanyingPerson" disabled />
+    </div>
+</div>
+<div class="form-group" style="display: flex;">
+    <div class="col-2">
+        <label class="col-form-label" asp-for="Content"></label>
+    </div>
+    <div class="col-8">
+        <textarea class="form-control" rows="3" asp-for="Content" disabled></textarea>
+    </div>
+</div>
+<div class="form-group" style="display: flex;">
+    <div class="col-2">
+        <label class="col-form-label" asp-for="Route"></label>
+    </div>
+    <div class="col-8">
+        <textarea class="form-control" rows="3" asp-for="Route" disabled></textarea>
+    </div>
+</div>
+<div class="form-group" style="display:flex">
+    <div class="col-2">
+        <label class="col-form-label" asp-for="FabInDate"></label>
+    </div>
+    <div class="col-3">
+        <input type="datetime-local" class="form-control" asp-for="FabInDate" disabled>
+    </div>
+    <div class="col-2">
+        <label class="col-form-label" asp-for="FabOutDate"></label>
+    </div>
+    <div class="col-3">
+        <input type="datetime-local" class="form-control" asp-for="FabOutDate" disabled>
+    </div>
+</div>
+
+<input type="hidden" class="form-control" asp-for="OrderSn" value="@Model.OrderSn">
+
+<hr style="border-width: 1px; border-color: gray" />
+<h4 style="font-style:italic; font-weight: 600">入廠人員</h4>
+<div id="guestInfoDiv">
+    @{
+        foreach (var person in Model.AccessPersonList)
+        {
+            <div id="guestInfo" class="form-group" style="display:flex">
+                <div class="col-2">
+                    <label class="col-form-label-sm" asp-for="@person.CompanyName"></label>：
+                    <label class="col-form-label-sm">@person.CompanyName</label>
+                </div>
+                <!--<div class="col-2">
+                    <label class="col-form-label-sm">@person.CompanyName</label>-->
+                @*<input type="text" class="form-control-sm" asp-for="@person.CompanyName" disabled />*@
+                <!--</div>-->
+                <div class="col-2">
+                    <label class="col-form-label-sm" asp-for="@person.Name"></label>：
+                    <label class="col-form-label-sm">@person.Name</label>
+                </div>
+                <!--<div class="col-2">
+                    <label class="col-form-label-sm">@person.Name</label>-->
+                @*<input type="text" class="form-control-sm" asp-for="@person.Name" disabled />*@
+                <!--</div>-->
+                <div class="col-2">
+                    <label class="col-form-label-sm" asp-for="@person.GuestPhone"></label>：
+                    <label class="col-form-label-sm">@person.GuestPhone</label>
+                </div>
+                <!--<div class="col-2">
+                    <label class="col-form-label-sm">@person.GuestPhone</label>-->
+                @*<input type="text" class="form-control-sm" asp-for="@person.GuestPhone" disabled />*@
+                <!--</div>-->
+            </div>
+        }
+    }
+</div>
+<hr style="border-width: 3px; border-color: gray" />
+<div class="tab-pane" id="timeline">
+    <!-- The timeline -->
+    <div class="timeline timeline-inverse">
+        <div style="display:flex">
+            <i class="fa fa-hourglass-start bg-info"></i>
+            <div class="timeline-item" style="background-color: transparent; border-color: transparent;">
+                <span style="font-weight:800">簽核歷程</span>
+            </div>
+        </div>
+
+        @{
+            foreach (var history in Model.AuditHistory)
+            {
+                <div>
+                    @{
+                        if (history.StatusId == MOD4.Web.Enum.FabInOutStatusEnum.Processing)
+                        {
+                            <i class="fas fa-user bg-gray"></i>
+                        }
+                        else if (history.StatusId == MOD4.Web.Enum.FabInOutStatusEnum.Rejected)
+                        {
+                            <i class="fas fa-user bg-danger"></i>
+                        }
+                        else
+                        {
+                            <i class="fas fa-user bg-info"></i>
+                        }
+                    }
+                    <div class="timeline-item" style="background-color: transparent; border-color: transparent; border-bottom-color: lightgray; border-radius: 0px; ">
+                        <div name="historyLine">
+                            <div class="col-3">
+                                <label asp-for="@history.AuditAccountName"></label>：
+                                <label>@history.AuditAccountName</label>
+                            </div>
+                            <div class="col-2">
+                                <label asp-for="@history.Status"></label>：
+                                <label>@history.Status</label>
+                            </div>
+                            <div class="col-3">
+                                <label asp-for="@history.ReceivedTimeStr"></label>：
+                                <label>@history.ReceivedTimeStr</label>
+                            </div>
+                            <div class="col-3">
+                                <label asp-for="@history.AuditTimeStr"></label>：
+                                <label>@history.AuditTimeStr</label>
+                            </div>
+                            <span class="time"><i class="far fa-clock"></i>@history.Duration hr.</span>
+                        </div>
+                        <div name="historyLine">
+                            <div class="col-10">
+                                <label asp-for="@history.AuditRemark"></label>：
+                                <label>@history.AuditRemark</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+
+            <div style="display:flex">
+                <i class="fa fa-check bg-gray"></i>
+                @{
+                    if (Model.OrderStatusId == MOD4.Web.Enum.FabInOutStatusEnum.Completed)
+                    {
+                        <i class="fas fa-user bg-info"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-user bg-gray"></i>
+                    }
+                }
+                <div class="timeline-item" style="background-color: transparent; border-color: transparent;">
+                    <span style="font-weight:800">簽核完成</span>
+                </div>
+            </div>
+        }
+    </div>
+</div>

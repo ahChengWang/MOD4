@@ -33,7 +33,8 @@ namespace MOD4.Web.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error(ErrorViewModel errorModel)
         {
-            return View(new ErrorViewModel { 
+            return View(new ErrorViewModel
+            {
                 RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
                 Message = errorModel.Message
             });

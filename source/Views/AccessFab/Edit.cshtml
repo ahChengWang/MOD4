@@ -1,0 +1,524 @@
+﻿@model MOD4.Web.ViewModel.AccessFabDetailPageViewModel
+
+@{
+    ViewBag.Title = "修改申請單";
+}
+
+<style>
+
+    .card {
+        box-shadow: 1px 2px 2px 2px #999;
+        margin-top: 5px;
+    }
+
+    .card-header, .card-body, .card-footer {
+        background-color: #c3cadb;
+    }
+
+    .card-title {
+        font-family: "Microsoft JhengHei";
+        font-weight: 900;
+        font-style: italic;
+        font-size: 30px;
+    }
+
+    div[name="historyLine"] {
+        display: flex;
+    }
+</style>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">修 改 申 請 單</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <!-- form start -->
+                        <form id="editForm">
+                            <div class="card-body">
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="FabInTypeId"></label>
+                                        <span asp-validation-for="FabInTypeId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-3">
+                                        <select class="form-control" asp-for="FabInTypeId" asp-items="@(SelectList)ViewBag.FabInTypeList"></select>
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="FabInOtherType"></label>
+                                        <span id="spanOtherInput" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-3">
+                                        <input class="form-control" type="text" asp-for="FabInOtherType" />
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="FabInCategoryId"></label>
+                                        <span asp-validation-for="FabInCategoryId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-3">
+                                        <select class="form-control" asp-for="FabInCategoryId" asp-items="@(SelectList)ViewBag.FabInCategoryList"></select>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="Applicant"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="Applicant" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-3">
+                                        <input type="text" class="form-control" readonly asp-for="Applicant" value="@ViewBag.AccountName" />
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="ApplicantMVPN"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="ApplicantMVPN" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-3">
+                                        <input type="text" class="form-control" asp-for="ApplicantMVPN" />
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="JobId"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="JobId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-3">
+                                        <input class="form-control" type="text" asp-for="JobId" />
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="AccompanyingPerson"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="AccompanyingPerson" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-3">
+                                        <input class="form-control" type="text" asp-for="AccompanyingPerson" />
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display: flex;">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="Content"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="Content" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-8">
+                                        <textarea class="form-control" rows="3" asp-for="Content"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display: flex;">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="Route"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="Route" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-8">
+                                        <textarea class="form-control" rows="3" asp-for="Route"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="FabInDate"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="FabInDate" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-3">
+                                        <input type="datetime-local" class="form-control" asp-for="FabInDate">
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="FabOutDate"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="FabOutDate" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-3">
+                                        <input type="datetime-local" class="form-control" asp-for="FabOutDate">
+                                    </div>
+                                </div>
+
+                                <input type="hidden" asp-for="OrderSn" value="@Model.OrderSn" />
+
+                                <hr style="border-width: 3px; border-color: gray" />
+                                <h4 style="font-style:italic; font-weight: 600">入廠人員</h4>
+                                <div id="guestInfoDiv">
+                                    @{
+                                        var cnt = 0;
+
+                                        foreach (var person in Model.AccessPersonList)
+                                        {
+                                            string _id = "guestInfo_" + cnt;
+
+                                            <div id="@_id" class="form-group" style="display:flex">
+                                                <div class="col-1">
+                                                    <label class="col-form-label" asp-for="AccessPersonList[cnt].CompanyName"></label>
+                                                    <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                                    <span asp-validation-for="AccessPersonList[cnt].CompanyName" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                                </div>
+                                                <div class="col-2">
+                                                    <input type="text" class="form-control" asp-for="AccessPersonList[cnt].CompanyName">
+                                                </div>
+                                                <div class="col-1">
+                                                    <label class="col-form-label" asp-for="AccessPersonList[cnt].Name"></label>
+                                                    <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                                    <span asp-validation-for="AccessPersonList[cnt].Name" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                                </div>
+                                                <div class="col-2">
+                                                    <input type="text" class="form-control" asp-for="AccessPersonList[cnt].Name">
+                                                </div>
+                                                <div class="col-2">
+                                                    <label class="col-form-label" asp-for="AccessPersonList[cnt].GuestPhone"></label>
+                                                    <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                                    <span asp-validation-for="AccessPersonList[cnt].GuestPhone" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                                </div>
+                                                <div class="col-2">
+                                                    <input type="text" class="form-control" asp-for="AccessPersonList[cnt].GuestPhone">
+                                                </div>
+
+                                                @if (cnt != 0)
+                                                {
+                                                    <div class="col-2">
+                                                        <input type="button" class="btn btn-sm btn-outline-secondary" value="刪除" onclick="btnDelGuestInfo(this)" />
+                                                    </div>
+                                                }
+
+                                                <input type="hidden" asp-for="@Model.AccessPersonList[cnt].DetailSn" value="@Model.AccessPersonList[cnt].DetailSn" />
+                                            </div>
+                                            cnt++;
+                                        }
+                                    }
+                                </div>
+                                <div id="addDiv">
+                                    <input id="btnAddGuest" class="btn-light" style="background-color: transparent;font-weight:900;color:black" name="name" type="button" value="+新增人員" />
+                                </div>
+
+                                <hr style="border-width: 3px; border-color: gray" />
+
+                                <div class="col-12" id="accordion">
+                                    <a class="d-block" data-toggle="collapse" href="#collapseOne">
+                                        <span style="font-weight:800;font-size:20px">簽核歷程</span>
+                                    </a>
+                                    <div id="collapseOne" class="collapse" data-parent="#accordion">
+                                        <div class="card-body">
+                                            <div class="tab-pane" id="timeline">
+                                                <!-- The timeline -->
+                                                <div class="timeline timeline-inverse">
+                                                    <div style="display:flex">
+                                                        <i class="fa fa-hourglass-start bg-info"></i>
+                                                        <div class="timeline-item" style="background-color: transparent; border-color: transparent;">
+                                                            <span style="font-weight:800">Start</span>
+                                                        </div>
+                                                    </div>
+
+                                                    @{
+                                                        foreach (var history in Model.AuditHistory)
+                                                        {
+                                                            <div>
+                                                                @{
+                                                                    if (history.StatusId == MOD4.Web.Enum.FabInOutStatusEnum.Processing)
+                                                                    {
+                                                                        <i class="fas fa-user bg-gray"></i>
+                                                                    }
+                                                                    else if (history.StatusId == MOD4.Web.Enum.FabInOutStatusEnum.Rejected)
+                                                                    {
+                                                                        <i class="fas fa-user bg-danger"></i>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <i class="fas fa-user bg-info"></i>
+                                                                    }
+                                                                }
+                                                                <div class="timeline-item" style="background-color: transparent; border-color: transparent; border-bottom-color: lightgray; border-radius: 0px; ">
+                                                                    <div name="historyLine">
+                                                                        <div class="col-3">
+                                                                            <label asp-for="@history.AuditAccountName"></label>：
+                                                                            <label>@history.AuditAccountName</label>
+                                                                        </div>
+                                                                        <div class="col-2">
+                                                                            <label asp-for="@history.Status"></label>：
+                                                                            <label>@history.Status</label>
+                                                                        </div>
+                                                                        <div class="col-3">
+                                                                            <label asp-for="@history.ReceivedTimeStr"></label>：
+                                                                            <label>@history.ReceivedTimeStr</label>
+                                                                        </div>
+                                                                        <div class="col-3">
+                                                                            <label asp-for="@history.AuditTimeStr"></label>：
+                                                                            <label>@history.AuditTimeStr</label>
+                                                                        </div>
+                                                                        <span class="time"><i class="far fa-clock"></i>@history.Duration hr.</span>
+                                                                    </div>
+                                                                    <div name="historyLine">
+                                                                        <div class="col-10">
+                                                                            <label asp-for="@history.AuditRemark"></label>：
+                                                                            <label>@history.AuditRemark</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+
+                                                        <div style="display:flex">
+                                                            <i class="fa fa-check bg-gray"></i>
+                                                            @{
+                                                                if (Model.AuditHistory.Any(a => a.StatusId == MOD4.Web.Enum.FabInOutStatusEnum.Completed))
+                                                                {
+                                                                    <i class="fas fa-user bg-info"></i>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <i class="fas fa-user bg-gray"></i>
+                                                                }
+                                                            }
+                                                            <div class="timeline-item" style="background-color: transparent; border-color: transparent;">
+                                                                <span style="font-weight:800">End</span>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.card-body -->
+                            <div class="card-footer" style="display:flex">
+                                <div class="col-1">
+                                    <input id="btnEdit" type="button" class="btn btn-warning" data-toggle="modal" data-target="#modal-sm-update" value="修改" />
+                                </div>
+                                <div class="col-1">
+                                    <input id="btnCancel" type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#modal-sm-cancel" value="作廢" />
+                                </div>
+                            </div>
+                        </form>
+                        <div class="modal fade" id="modal-sm-update">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <p>確認修改?</p>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-footer justify-content-between">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
+                                        <input type="button" class="btn btn-primary" value="確認" onclick="updateClick()" />
+                                    </div>
+                                </div>
+                                <!-- /.modal-content -->
+                            </div>
+                            <!-- /.modal-dialog -->
+                        </div>
+                        <div class="modal fade" id="modal-sm-cancel">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <p>確認作廢?</p>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-footer justify-content-between">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
+                                        <input type="button" class="btn btn-primary" value="確認" onclick="cancelClick()" />
+                                    </div>
+                                </div>
+                                <!-- /.modal-content -->
+                            </div>
+                            <!-- /.modal-dialog -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if ($("#FabInTypeId").find(":selected").val() != 4)
+                $("#FabInOtherType").attr('disabled', true);
+        });
+
+        $("#btnAddGuest").click(function (e) {
+            let guestLength = $("#guestInfoDiv").children().length;
+            let _latestSn = parseInt(($("#guestInfoDiv").children()[guestLength - 1]).id.split('_')[1]) + 1;
+
+            $('<div id="guestInfo_' + _latestSn + '" class="form-group" style="display:flex">' +
+                '<div class="col-1"><label class="col-form-label-sm">單位</label><span style="font-size:10px;font-weight:700" class="text-danger">*</span>' +
+                '<span data-valmsg-for="AccessPersonList[' + _latestSn + '].CompanyName" data-valmsg-replace="true" style="font-size:10px;font-weight:700" class="text-danger field-validation-valid"></span></div>' +
+                '<div class="col-2"><input type="text" class="form-control-sm" name="AccessPersonList[' + _latestSn + '].CompanyName" data-val="true" required /></div>' +
+                '<div class="col-1"><label class="col-form-label-sm">姓名</label><span style="font-size:10px;font-weight:700" class="text-danger">*</span>' +
+                '<span data-valmsg-for="AccessPersonList[' + _latestSn + '].Name" data-valmsg-replace="true" style="font-size:10px;font-weight:700" class="text-danger field-validation-valid"></span></div>' +
+                '<div class="col-2"><input type="text" class="form-control-sm" name="AccessPersonList[' + _latestSn + '].Name" data-val="true" required /></div>' +
+                '<div class="col-2"><label class="col-form-label-sm">聯絡電話</label><span style="font-size:10px;font-weight:700" class="text-danger">*</span>' +
+                '<span data-valmsg-for="AccessPersonList[' + _latestSn + '].GuestPhone" data-valmsg-replace="true" style="font-size:10px;font-weight:700" class="text-danger field-validation-valid"></span></div>' +
+                '<div class="col-2"><input type="text" class="form-control-sm" name="AccessPersonList[' + _latestSn + '].GuestPhone" data-val="true" required /></div>' +
+                '<div class="col-2"><input type="button" class="btn btn-sm btn-outline-secondary" value="刪除" onclick="btnDelGuestInfo(this)"/></div></div>').insertAfter($("#guestInfoDiv").children().last());
+        });
+
+        function btnDelGuestInfo(e) {
+            e.parentElement.parentElement.remove();
+        }
+
+        function resetInputName() {
+            let _guestList = $('#guestInfoDiv').children();
+            _guestList.each(function (e, info) {
+                $("#" + info.id).find("input").each(function (de, input) {
+                    let _nameArray = input.name.split(".");
+                    input.name = "AccessPersonList[" + e + "]." + _nameArray[1];
+                });
+            });
+        }
+
+        @*$("#btnEdit").click(function (e) {
+            if ($("#editForm").valid() && checkOtherInput()) {
+
+                resetInputName();
+
+                let _formModel = $("#editForm").serialize();
+
+                e.preventDefault();
+                $.blockUI({
+                    message: '請稍等...',
+                    css: {
+                        border: 'none',
+                        padding: '5px',
+                        backgroundColor: '#000',
+                        '-webkit-border-radius': '10px',
+                        '-moz-border-radius': '10px',
+                        opacity: '.5',
+                        color: '#fff',
+                        fontSize: '25px',
+                        fontFamily: '微軟正黑體',
+                        fontWeight: 300,
+                    }
+                });
+                $.ajax({
+                    url: "./Edit",
+                    type: "POST",
+                    dataType: "json",
+                    data: _formModel,
+                    success: function (res) {
+                        $.unblockUI();
+                        if (res.isSuccess) {
+                            alert('申請成功');
+                            location.href = "@Url.ActionLink("Index", "AccessFab")";
+                        }
+                        else {
+                            alert(res.msg);
+                            return false;
+                        }
+                    }
+                });
+            }
+            checkOtherInput();
+        });*@
+
+        function checkOtherInput(e) {
+            if ($("#FabInTypeId").find(":selected").val() == 4 && $("#FabInOtherType").val() == "") {
+                $("#spanOtherInput").text("*必填");
+                return false;
+            }
+            else
+                return true;
+        }
+
+        $("#FabInTypeId").change(function (e) {
+            let _selVal = $("#FabInTypeId").find(":selected").val();
+            if (_selVal == 4) {
+                $("#FabInOtherType").removeAttr('disabled');
+                $("#FabInOtherType").attr('required', true);
+            }
+            else {
+                $("#FabInOtherType").attr('disabled', true);
+                $("#FabInOtherType").removeAttr('required');
+                $("#spanOtherInput").text("");
+            }
+        });
+
+        function updateClick() {
+            if ($("#editForm").valid() && checkOtherInput()) {
+
+                resetInputName();
+
+                let _formModel = $("#editForm").serialize();
+
+                //e.preventDefault();
+                $.blockUI({
+                    message: '請稍等...',
+                    css: {
+                        border: 'none',
+                        padding: '5px',
+                        backgroundColor: '#000',
+                        '-webkit-border-radius': '10px',
+                        '-moz-border-radius': '10px',
+                        opacity: '.5',
+                        color: '#fff',
+                        fontSize: '25px',
+                        fontFamily: '微軟正黑體',
+                        fontWeight: 300,
+                    }
+                });
+                $.ajax({
+                    url: "./Edit",
+                    type: "POST",
+                    dataType: "json",
+                    data: _formModel,
+                    success: function (res) {
+                        $.unblockUI();
+                        if (res.isSuccess) {
+                            alert('修改成功');
+                            location.href = "@Url.ActionLink("Index", "AccessFab")";
+                        }
+                        else {
+                            alert(res.msg);
+                            return false;
+                        }
+                    }
+                });
+            }
+            checkOtherInput();
+        }
+
+        function cancelClick() {
+                $.blockUI({
+                    message: '請稍等...',
+                    css: {
+                        border: 'none',
+                        padding: '5px',
+                        backgroundColor: '#000',
+                        '-webkit-border-radius': '10px',
+                        '-moz-border-radius': '10px',
+                        opacity: '.5',
+                        color: '#fff',
+                        fontSize: '25px',
+                        fontFamily: '微軟正黑體',
+                        fontWeight: 300,
+                    }
+                });
+            let _orderSn = $('#OrderSn').val();
+                $.ajax({
+                    url: "./Delete?OrderSn=" + _orderSn,
+                    type: "DELETE",
+                    dataType: "json",
+                    success: function (res) {
+                        $.unblockUI();
+                        if (res.isSuccess) {
+                            alert('已作廢');
+                            location.href = "@Url.ActionLink("Index", "AccessFab")";
+                        }
+                        else {
+                            alert(res.msg);
+                            return false;
+                        }
+                    }
+                });
+            }
+
+    </script>
+}

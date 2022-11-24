@@ -1,4 +1,5 @@
 ﻿@model List<MOD4.Web.ViewModel.DemanMainViewModel>
+@using MOD4.Web.ViewModel
 
 <table id="table1" class="table table-bordered table-hover">
     <thead>
@@ -25,7 +26,11 @@
                     <td style="width:10%">@demand.CreateDate</td>
                     <td style="width:8%">
                         @{
-                            if (demand.DemandStatusId == MOD4.Web.Enum.DemandStatusEnum.Completed && demand.RoleId == MOD4.Web.Enum.RoleEnum.Manager)
+
+                            UserPermissionViewModel _test = (UserPermissionViewModel)ViewBag.UserPermission;
+
+                            if (demand.DemandStatusId == MOD4.Web.Enum.DemandStatusEnum.Completed &&
+                                Convert.ToBoolean(_test.AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management))
                             {
                                 <a class="btn btn-sm" data-toggle="modal" style="font-size:15px" data-target="#detailModal" onclick="detailClick(@demand.OrderSn)">
                                     <i class="fa fa-search"></i>
@@ -34,13 +39,9 @@
                                     <span style="font-size:5px">編輯</span>
                                 </button>
                             }
-                            else if (demand.RoleId == MOD4.Web.Enum.RoleEnum.Manager)
-                            {
-                                <button class="btn btn-sm btn-primary" style="position:relative" onclick="editClick(@demand.OrderSn,'@(demand.OrderId)')">
-                                    <span style="font-size:5px">編輯</span>
-                                </button>
-                            }
-                            else if (demand.UserEditable)
+                            else if (((demand.DemandStatusId == MOD4.Web.Enum.DemandStatusEnum.Processing || demand.DemandStatusId == MOD4.Web.Enum.DemandStatusEnum.Pending) &&
+                                Convert.ToBoolean(_test.AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management)) ||
+                                demand.UserEditable)
                             {
                                 <button class="btn btn-sm btn-primary" style="position:relative" onclick="editClick(@demand.OrderSn,'@(demand.OrderId)')">
                                     <span style="font-size:5px">編輯</span>
@@ -52,6 +53,35 @@
                                     <i class="fa fa-search">明細</i>
                                 </a>
                             }
+
+                            // Old
+                            @*if (demand.DemandStatusId == MOD4.Web.Enum.DemandStatusEnum.Completed && demand.RoleId == MOD4.Web.Enum.RoleEnum.DemandSysMgr)
+                                {
+                                    <a class="btn btn-sm" data-toggle="modal" style="font-size:15px" data-target="#detailModal" onclick="detailClick(@demand.OrderSn)">
+                                        <i class="fa fa-search"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-primary" style="position:relative" onclick="editClick(@demand.OrderSn,'@(demand.OrderId)')">
+                                        <span style="font-size:5px">編輯</span>
+                                    </button>
+                                }
+                                else if (demand.RoleId == MOD4.Web.Enum.RoleEnum.DemandSysMgr)
+                                {
+                                    <button class="btn btn-sm btn-primary" style="position:relative" onclick="editClick(@demand.OrderSn,'@(demand.OrderId)')">
+                                        <span style="font-size:5px">編輯</span>
+                                    </button>
+                                }
+                                else if (demand.UserEditable)
+                                {
+                                    <button class="btn btn-sm btn-primary" style="position:relative" onclick="editClick(@demand.OrderSn,'@(demand.OrderId)')">
+                                        <span style="font-size:5px">編輯</span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <a class="btn btn-sm" data-toggle="modal" style="font-size:15px" data-target="#detailModal" onclick="detailClick(@demand.OrderSn)">
+                                        <i class="fa fa-search">明細</i>
+                                    </a>
+                                }*@
                         }
                     </td>
                 </tr>

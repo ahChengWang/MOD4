@@ -191,6 +191,35 @@ namespace MOD4.Web.DomainService
         public List<(string, List<string>)> GetAreaEqGroupOptions()
             => _equipMappingRepository.SelectAll().GroupBy(gb => gb.AREA).Select(s => (s.Key, s.Select(ss => ss.EQUIP_NBR).ToList())).ToList();
 
+        public List<(string, List<OptionEntity>)> GetAccessFabOptions()
+        {
+            return new List<(string, List<OptionEntity>)>
+            {
+                ("statusList",
+                new List<OptionEntity>
+                {
+                    new OptionEntity { Id = (int)FabInOutStatusEnum.Processing, Value = FabInOutStatusEnum.Processing.GetDescription() },
+                    new OptionEntity { Id = (int)FabInOutStatusEnum.Rejected, Value = FabInOutStatusEnum.Rejected.GetDescription() },
+                    new OptionEntity { Id = (int)FabInOutStatusEnum.Completed, Value = FabInOutStatusEnum.Completed.GetDescription() },
+                    new OptionEntity { Id = (int)FabInOutStatusEnum.Cancel, Value = FabInOutStatusEnum.Cancel.GetDescription() }
+                } ),
+                ("fabInTypeList",
+                new List<OptionEntity>
+                {
+                    new OptionEntity { Id = (int)FabInTypeEnum.Visit, Value = FabInTypeEnum.Visit.GetDescription() },
+                    new OptionEntity { Id = (int)FabInTypeEnum.Audit, Value = FabInTypeEnum.Audit.GetDescription() },
+                    new OptionEntity { Id = (int)FabInTypeEnum.MoveIn, Value = FabInTypeEnum.MoveIn.GetDescription() },
+                    new OptionEntity { Id = (int)FabInTypeEnum.Other, Value = FabInTypeEnum.Other.GetDescription() },
+                } ),
+                ("fabInCategoryList",
+                new List<OptionEntity>
+                {
+                    new OptionEntity { Id = (int)FabInCategoryEnum.Guest, Value = FabInCategoryEnum.Guest.GetDescription() },
+                    new OptionEntity { Id = (int)FabInCategoryEnum.OtherFab, Value = FabInCategoryEnum.OtherFab.GetDescription() }
+                } )
+            };
+        }
+
         private List<OptionEntity> GetEqProdOptionList(int id)
         {
             switch (id)

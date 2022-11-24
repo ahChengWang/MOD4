@@ -18,6 +18,8 @@ namespace MOD4.Web.DomainService
 
         List<EqEvanCodeMappingEntity> GetEqEvenCode(int typeId = 0, int yId = 0, int subyId = 0, int xId = 0, int subxId = 0, int rId = 0);
 
+        List<(string, List<OptionEntity>)> GetAccessFabOptions();
+
         List<(string, List<string>)> GetAreaEqGroupOptions();
     }
 }

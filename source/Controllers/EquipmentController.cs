@@ -22,8 +22,9 @@ namespace MOD4.Web.Controllers
 
         public EquipmentController(IEquipmentDomainService equipmentDomainService,
             IHttpContextAccessor httpContextAccessor,
-            IOptionDomainService optionDomainService)
-            : base(httpContextAccessor)
+            IOptionDomainService optionDomainService,
+            IAccountDomainService accountDomainService)
+            : base(httpContextAccessor, accountDomainService)
         {
             _equipmentDomainService = equipmentDomainService;
             _optionDomainService = optionDomainService;

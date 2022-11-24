@@ -61,6 +61,7 @@ namespace MOD4.Web
             services.AddSingleton<IDemandDomainService, DemandDomainService>();
             services.AddSingleton<IUploadDomainService, UploadDomainService>();
             services.AddSingleton<IMAppDomainService, MAppDomainService>();
+            services.AddSingleton<IAccessFabDomainService, AccessFabDomainService>();
             services.AddSingleton(new ServiceDescriptor(typeof(IUploadDomainService), new UploadDomainService(Configuration)));
 
             services.AddSingleton<IAlarmXmlRepository, AlarmXmlRepository>();
@@ -72,12 +73,16 @@ namespace MOD4.Web
             services.AddSingleton<ILineTTRepository, LineTTRepository>();
             services.AddSingleton<IEqSituationMappingRepository, EqSituationMappingRepository>();
             services.AddSingleton<IEqEvanCodeMappingRepository, EqEvanCodeMappingRepository>();
-            services.AddSingleton<IEquipMappingRepository, EquipMappingRepository>(); 
+            services.AddSingleton<IEquipMappingRepository, EquipMappingRepository>();
             services.AddSingleton<IDemandsRepository, DemandsRepository>();
+            services.AddSingleton<IAccessFabOrderRepository, AccessFabOrderRepository>();
+            services.AddSingleton<IAccessFabOrderDetailRepository, AccessFabOrderDetailRepository>();
+            services.AddSingleton<IAccessFabOrderAuditHistoryRepository, AccessFabOrderAuditHistoryRepository>();
 
             services.AddScoped<MenuService>();
-            services.Add(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));
-            services.Add(new ServiceDescriptor(typeof(CatchHelper), new CatchHelper(Configuration)));
+            services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));
+            services.AddSingleton(new ServiceDescriptor(typeof(CatchHelper), new CatchHelper(Configuration)));
+            services.AddSingleton(new ServiceDescriptor(typeof(MailService), new MailService(Configuration)));
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             services.AddHttpContextAccessor();
 

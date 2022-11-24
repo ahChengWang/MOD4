@@ -1,36 +1,12 @@
-﻿using MOD4.Web.DomainService.Entity;
-using MOD4.Web.Repostory;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace MOD4.Web.DomainService
+﻿namespace MOD4.Web.DomainService
 {
     public class BaseDomainService
     {
-        private readonly IMenuRepository _menuRepository;
+        protected MailService _mailServer;
 
-        public BaseDomainService(IMenuRepository menuRepository)
+        public BaseDomainService()
         {
-            _menuRepository = menuRepository;
-        }
-
-
-        public List<MenuEntity> GetAccountMenuInfo(int sn)
-        {
-            var _menuList = _menuRepository.SelectByConditions(sn).Select(s =>
-            {
-                return new MenuEntity
-                {
-                    sn = s.sn,
-                    MenuSn = s.menu_sn,
-                    ParentMenuSn = s.parent_menu_sn,
-                    PageName = s.page_name,
-                    ClassName = s.class_name,
-                    Href = s.href,
-                };
-            }).ToList();
-
-            return _menuList;
+            _mailServer = new MailService();
         }
     }
 }

@@ -21,12 +21,14 @@ namespace MOD4.Web.Controllers
     {
         private readonly IAccountDomainService _accountDomainService;
         private readonly string _shaKey = string.Empty;
+        private readonly bool _innxVerify = false;
 
         public AccountController(IAccountDomainService accountDomainService,
             IConfiguration connectionString)
         {
             _accountDomainService = accountDomainService;
             _shaKey = connectionString.GetSection("SHAKey").Value;
+            _innxVerify = bool.Parse(connectionString.GetSection("VerifyInxSSO").Value);
         }
 
         public IActionResult Index()
@@ -39,17 +41,17 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                // fab 無法 call InxSSO
-                var _domainName = Environment.UserDomainName;
+                // hTrmiPySURWvdNvKfCxpkA==
+                //var _Pw = Decrypt("hTrmiPySURWvdNvKfCxpkA==", _shaKey);
 
-                //if (_domainName == "CMINL")
-                //{
-                // call InxSSO 確認帳密
-                bool _verifyResult = _accountDomainService.VerifyInxSSO(loginViewMode.Account, loginViewMode.Password);
+                if (_innxVerify)
+                {
+                    // call InxSSO 確認帳密
+                    bool _verifyResult = _accountDomainService.VerifyInxSSO(loginViewMode.Account, loginViewMode.Password);
 
-                if (!_verifyResult)
-                    return Json("帳號密碼錯誤");
-                //}
+                    if (!_verifyResult)
+                        return Json("帳號密碼錯誤");
+                }
 
                 var _encryptPw = Encrypt(loginViewMode.Password, _shaKey);
 
@@ -70,8 +72,6 @@ namespace MOD4.Web.Controllers
                         .FirstOrDefault(f => f.Account == loginViewMode.Account && f.Password == _encryptPw);
                 }
 
-                //var _result = _accountDomainService.GetAccountInfo(loginViewMode.Account, _encryptPw);
-
                 if (_currentUser != null)
                 {
                     var claims = new List<Claim>()
@@ -80,7 +80,10 @@ namespace MOD4.Web.Controllers
                         new Claim("sn", Convert.ToString(_currentUser.sn)),
                         new Claim("Account", _currentUser.Account),
                         new Claim("Name", _currentUser.Name),
-                        new Claim("Role", Convert.ToString((int)_currentUser.RoleId))
+                        new Claim("Role", Convert.ToString((int)_currentUser.RoleId)),
+                        new Claim("LevelId", Convert.ToString((int)_currentUser.Level_id)),
+                        new Claim("DeptSn", Convert.ToString((int)_currentUser.DeptSn)),
+                        new Claim("Mail", _currentUser.Mail)
                     };
 
                     //Initialize a new instance of the ClaimsIdentity with the claims and authentication scheme    

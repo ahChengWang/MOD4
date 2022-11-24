@@ -26,23 +26,52 @@ namespace MOD4.Web.DomainService
                 Account = s.account,
                 Name = s.name,
                 Password = s.password,
-                RoleId = s.role
+                RoleId = s.role,
+                JobId = s.jobId,
+                Level_id = s.level_id,
+                ApiKey = s.apiKey,
+                DeptSn = s.deptSn,
+                Mail = s.mail
             }).ToList();
 
-        public AccountInfoEntity GetAccountInfo(string account, string password)
+        public List<AccountInfoEntity> GetAccountInfo(List<int> accountSnList)
         {
-            var dao = _accountInfoRepository.SelectByConditions(account, password).Where(w => w.password == password).FirstOrDefault();
-
-            if (dao == null)
-                return null;
-
-            return new AccountInfoEntity
+            return _accountInfoRepository.SelectByConditions(accountSnList: accountSnList).Select(s => new AccountInfoEntity
             {
-                sn = dao.sn,
-                Name = dao.name,
-                Account = dao.account,
-                Password = dao.password,
-                RoleId = dao.role
+                sn = s.sn,
+                Account = s.account,
+                Name = s.name,
+                Password = s.password,
+                RoleId = s.role,
+                JobId = s.jobId,
+                Level_id = s.level_id,
+                ApiKey = s.apiKey,
+                DeptSn = s.deptSn,
+                Mail = s.mail
+            }).ToList();
+        }
+
+        public AccessFabOrderFlowEntity GetAuditFlowInfo(UserEntity userEntity)
+        {
+            var _defDepartment = _accountInfoRepository.SelectDefinitionDepartment(userEntity.DeptSn);
+            var _auditFlow = _accountInfoRepository.SelectAccessAuditFlow(userEntity.sn, userEntity.Level_id, _defDepartment.LevelId);
+            return _auditFlow;
+        }
+
+        public AccountInfoEntity GetAccInfoByDepartment(UserEntity userEntity)
+        {
+            var _dao = _accountInfoRepository.SelectByConditions(deptSn: userEntity.DeptSn).FirstOrDefault();
+
+            return new AccountInfoEntity { 
+                sn = _dao.sn,
+                Account = _dao.account,
+                Name = _dao.name,
+                Password = _dao.password,
+                RoleId = _dao.role,
+                JobId = _dao.jobId,
+                Level_id = _dao.level_id,
+                ApiKey = _dao.apiKey,
+                DeptSn = _dao.deptSn
             };
         }
 
@@ -98,6 +127,17 @@ namespace MOD4.Web.DomainService
             }
         }
 
+        public List<AccountMenuInfoEntity> GetUserAllMenuPermission(int userAccountSn)
+        {
+            return _accountInfoRepository.SelectUserMenuPermission(userAccountSn).Select(s => new AccountMenuInfoEntity
+            {
+                AccountSn = s.account_sn,
+                MenuSn = s.menu_sn,
+                MenuGroupSn = s.menu_group_sn,
+                AccountPermission = s.account_permission
+            }).ToList();
+        }
+
         private string InsertUserAndPermission(string acc, string pw)
         {
             using (var scope = new TransactionScope())
@@ -108,7 +148,7 @@ namespace MOD4.Web.DomainService
                     password = pw,
                     name = acc,
                     role = RoleEnum.User,
-                    level_id = 1
+                    level_id = JobLevelEnum.Employee
                 });
 
                 var _data = _accountInfoRepository.SelectByConditions(acc).FirstOrDefault();
@@ -121,7 +161,7 @@ namespace MOD4.Web.DomainService
                     new AccountMenuInfoDao
                     {
                         account_sn = _data.sn,
-                        menu_sn = 11,
+                        menu_sn = MenuEnum.Demand,
                         menu_group_sn = 0
                     }
                 });

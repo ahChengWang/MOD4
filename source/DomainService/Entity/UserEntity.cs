@@ -1,4 +1,5 @@
 ﻿using MOD4.Web.Enum;
+using System.Collections.Generic;
 
 namespace MOD4.Web.DomainService.Entity
 {
@@ -8,5 +9,9 @@ namespace MOD4.Web.DomainService.Entity
         public string Account { get; set; }
         public string Name { get; set; }
         public RoleEnum RoleId { get; set; }
+        public JobLevelEnum Level_id { get; set; }
+        public int DeptSn { get; set; }
+        public string Mail { get; set; }
+        public List<AccountMenuInfoEntity> UserMenuPermissionList { get; set; }
     }
 }

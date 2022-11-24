@@ -9,8 +9,10 @@ namespace MOD4.Web.Repostory.Dao
         public string password { get; set; }
         public string name { get; set; }
         public RoleEnum role { get; set; }
-        public int level_id { get; set; }
-        public string emp_no { get; set; }
-        public string api_key { get; set; }
+        public JobLevelEnum level_id { get; set; }
+        public string jobId { get; set; }
+        public string apiKey { get; set; }
+        public int deptSn { get; set; }
+        public string mail { get; set; }
     }
 }

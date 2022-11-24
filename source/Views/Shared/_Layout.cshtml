@@ -165,7 +165,6 @@
     <script src="~/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
     <script src="~/plugins/datatables-buttons/js/buttons.print.min.js"></script>
     <script src="~/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
-    <script src="~/lib/bootstrap-multiselect/js/bootstrap-multiselect.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
@@ -175,6 +174,7 @@
     <script src="~/lib/jquery-blockUI/dist/jquery.blockUI.js"></script>
     <script src="~/plugins/toastr/toastr.min.js"></script>
     <script src="~/plugins/sweetalert2/sweetalert2.min.js"></script>
+    <script src="~/lib/bootstrap-multiselect/js/bootstrap-multiselect.min.js"></script>
 
     <script type="text/javascript">
         //寫在_Layout.cshtml 供其他頁面使用
@@ -363,14 +363,18 @@
         </footer>*@
 
 
-    @RenderSection("scripts", required: false)
     <script type="text/javascript">
         $(document).ready(function () {
+            let _pathArray = location.pathname.split('/');
+            let _locationPathname = "/" + _pathArray[1] + "/" + _pathArray[2];
+            if (_pathArray.length > 3 && (_pathArray[3] == "Audit" || _pathArray[3] == "Setting")) {
+                _locationPathname = _locationPathname + "/" + _pathArray[3];
+            }
             //$("a[class='nav-link active']").removeClass('active').removeAttr('aria-current');
             $("a[name='nava']").removeClass('active').removeAttr('aria-current');
-            $('a[href="' + location.pathname + '"]').addClass('active').attr('aria-current', 'page');
-            $('a[href="' + location.pathname + '"]').parent().parent().parent().addClass('menu-is-opening menu-open');
-            $('a[href="' + location.pathname + '"]').parent().parent().parent().children('a:first').addClass('active').attr('aria-current', 'page');
+            $('a[href="' + _locationPathname + '"]').addClass('active').attr('aria-current', 'page');
+            $('a[href="' + _locationPathname + '"]').parent().parent().parent().addClass('menu-is-opening menu-open');
+            $('a[href="' + _locationPathname + '"]').parent().parent().parent().children('a:first').addClass('active').attr('aria-current', 'page');
         });
 
         function isJsonString(str) {
@@ -381,7 +385,9 @@
                 return false;
             }
         }
-
     </script>
+
+    @RenderSection("scripts", required: false)
+
 </body>
 </html>

@@ -7,7 +7,13 @@ namespace MOD4.Web.DomainService
     {
         List<AccountInfoEntity> GetAllAccountInfo();
 
-        AccountInfoEntity GetAccountInfo(string account, string password);
+        List<AccountInfoEntity> GetAccountInfo(List<int> accountSnList);
+
+        AccessFabOrderFlowEntity GetAuditFlowInfo(UserEntity userEntity);
+
+        AccountInfoEntity GetAccInfoByDepartment(UserEntity userEntity);
+
+        List<AccountMenuInfoEntity> GetUserAllMenuPermission(int userAccountSn);
 
         void InsertUpdateAccountInfo(string account, string password);
 

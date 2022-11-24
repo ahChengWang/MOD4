@@ -1,0 +1,200 @@
+﻿@model MOD4.Web.ViewModel.AccessFabDetailPageViewModel
+
+@{
+    ViewBag.Title = "申請單簽核";
+}
+
+
+<style>
+    .card {
+        box-shadow: 1px 2px 2px 2px #999;
+        margin-top: 5px;
+    }
+
+    .card-header, .card-body, .card-footer {
+        background-color: #c3cadb;
+    }
+
+    .card-title {
+        font-family: "Microsoft JhengHei";
+        font-weight: 900;
+        font-style: italic;
+        font-size: 30px;
+    }
+
+    label[name="underline"] {
+        text-decoration: underline;
+    }
+
+    div[name="historyLine"] {
+        display: flex;
+    }
+</style>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">申 請 單 簽 核</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <!-- form start -->
+
+                        <form id="detailForm">
+                            <div class="card-body">
+                                <partial name="_PartialDetailForm" model="Model" />
+
+                                <div>
+                                    <input class="btn btn-success" type="button" data-toggle="modal" data-target="#modal-approve" value="核准" />
+
+                                    <input class="btn btn-danger" type="button" data-toggle="modal" data-target="#modal-reject" value="剔退" />
+                                </div>
+                            </div>
+                        </form>
+                        <div class="modal fade" id="modal-approve">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header" style="padding: 5px">
+                                        <p>確認核准?</p>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div>
+                                            <label class="col-form-label" asp-for="Remark"></label>
+                                        </div>
+                                        <div>
+                                            <textarea id="approveRemark" cols="30" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer justify-content-between">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
+                                        <input type="button" class="btn btn-success" value="確認" onclick="updateApprove()" />
+                                    </div>
+                                </div>
+                                <!-- /.modal-content -->
+                            </div>
+                        </div>
+                        <div class="modal fade" id="modal-reject">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header" style="padding: 5px">
+                                        <p>確認剔退?</p>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div>
+                                            <label class="col-form-label" asp-for="Remark"></label>
+                                        </div>
+                                        <div>
+                                            <textarea id="rejectRemark" cols="30" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer justify-content-between">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
+                                        <input type="button" class="btn btn-danger" value="確認" onclick="updateReject()" />
+                                    </div>
+                                </div>
+                                <!-- /.modal-content -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+
+        function updateApprove() {
+
+            let _requestModel = {};
+            _requestModel['OrderSn'] = $("#OrderSn").val();
+            _requestModel['OrderStatusId'] = 5;
+            _requestModel['Remark'] = $("#approveRemark").val();
+
+            //e.preventDefault();
+            $.blockUI({
+                message: '請稍等...',
+                css: {
+                    border: 'none',
+                    padding: '5px',
+                    backgroundColor: '#000',
+                    '-webkit-border-radius': '10px',
+                    '-moz-border-radius': '10px',
+                    opacity: '.5',
+                    color: '#fff',
+                    fontSize: '25px',
+                    fontFamily: '微軟正黑體',
+                    fontWeight: 300,
+                }
+            });
+            $.ajax({
+                url: "../Update",
+                type: "POST",
+                data: { 'approveViewModel': _requestModel },
+                success: function (res) {
+                    $.unblockUI();
+                    if (res.isSuccess) {
+                        alert('已核准');
+                        location.href = "@Url.ActionLink("Audit", "AccessFab")";
+                    }
+                    else {
+                        alert(res.msg);
+                        return false;
+                    }
+                }
+            });
+        }
+
+        function updateReject() {
+
+            let _requestModel = {};
+            _requestModel['OrderSn'] = $("#OrderSn").val();
+            _requestModel['OrderStatusId'] = 2;
+            _requestModel['Remark'] = $("#rejectRemark").val();
+
+            //e.preventDefault();
+            $.blockUI({
+                message: '請稍等...',
+                css: {
+                    border: 'none',
+                    padding: '5px',
+                    backgroundColor: '#000',
+                    '-webkit-border-radius': '10px',
+                    '-moz-border-radius': '10px',
+                    opacity: '.5',
+                    color: '#fff',
+                    fontSize: '25px',
+                    fontFamily: '微軟正黑體',
+                    fontWeight: 300,
+                }
+            });
+            $.ajax({
+                url: "../Update",
+                type: "POST",
+                data: { 'approveViewModel': _requestModel },
+                success: function (res) {
+                    $.unblockUI();
+                    if (res.isSuccess) {
+                        alert('剔退成功');
+                        location.href = "@Url.ActionLink("Audit", "AccessFab")";
+                    }
+                    else {
+                        alert(res.msg);
+                        return false;
+                    }
+                }
+            });
+        }
+
+    </script>
+}
