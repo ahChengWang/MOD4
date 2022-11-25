@@ -17,5 +17,14 @@ namespace MOD4.Web.Repostory
 
             return dao;
         }
+
+        public List<MenuInfoDao> SelectAllMenu()
+        {
+            string sql = "select * from menu_info where sn not in (3,7,8,15) and href != '#';";
+
+            var dao = _dbHelper.ExecuteQuery<MenuInfoDao>(sql);
+
+            return dao;
+        }
     }
 }

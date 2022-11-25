@@ -4,6 +4,8 @@
     {
         public int Id { get; set; }
 
+        public int RelatedId { get; set; }
+
         public string Value { get; set; }
     }
 }

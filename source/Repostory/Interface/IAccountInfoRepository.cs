@@ -17,7 +17,7 @@ namespace MOD4.Web.Repostory
 
         int InsertUserPermission(List<AccountMenuInfoDao> insAccountMenuInfo);
 
-        DefinitionDepartmentDao SelectDefinitionDepartment(int deptSn);
+        List<DefinitionDepartmentDao> SelectDefinitionDepartment(int deptSn = 0, int parentDeptId = 0);
 
         List<AccountMenuInfoDao> SelectUserMenuPermission(int accountSn);
     }

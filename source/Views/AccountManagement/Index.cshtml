@@ -1,0 +1,159 @@
+﻿@model List<MOD4.Web.ViewModel.AccountViewModel>
+
+@{
+    ViewData["Title"] = "帳號管理";
+}
+
+<style>
+    .card-title {
+        font-size: 30px;
+        font-weight: 900;
+    }
+
+    table {
+        box-shadow: 2px 2px 2px #999;
+    }
+
+    .card {
+        box-shadow: 2px 2px 2px #999;
+        background-color: #c3cadb;
+    }
+
+    tbody tr:nth-child(even) {
+        background: #c3cadb;
+    }
+
+    tbody tr:nth-child(odd) {
+        background: #cfd5e2;
+    }
+</style>
+
+<head>
+    <link rel="stylesheet" href="~/css/buttonStyle29.css">
+</head>
+
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">帳號管理</h3>
+                            <a id="btnCreate" class="btn btn-sm" href="./AccountManagement/Create" style="float:right" name="btn29">
+                                <i class="fa fa-plus">建立</i>
+                            </a>
+                        </div>
+
+                        <div id="barDiv1" class="card-body">
+                            <table id="table1" class="table table-bordered table-hover">
+                                <thead style="background-color: #95b9c2">
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.First().Name)</th>
+                                        <th>@Html.DisplayNameFor(model => model.First().Account)</th>
+                                        <th>@Html.DisplayNameFor(model => model.First().LevelId)</th>
+                                        <th>@Html.DisplayNameFor(model => model.First().JobId)</th>
+                                        <th>@Html.DisplayNameFor(model => model.First().Department)</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        foreach (var account in Model)
+                                        {
+                                            <tr>
+                                                <td style="width:8%">@account.Name</td>
+                                                <td style="width:8%">@account.Account</td>
+                                                <td style="width:9%">@account.LevelId</td>
+                                                <td style="width:12%">@account.JobId</td>
+                                                <td style="width:8%">@account.Department</td>
+                                                <td style="width:6%">
+                                                    <div style="display:flex">
+                                                        <div>
+                                                            <a href="#" class="btn btn-sm btn-outline-info"><i class="fas fa-eye"> 明細</i></a>
+                                                        </div>
+                                                        <div>
+                                                            <a href="#" class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"> 編輯</i></a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- Modal -->
+                    <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
+                    </div>
+                </div>
+                <!-- /.col -->
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+</div>
+
+
+<script type="text/javascript">
+
+    let myFun = {
+        mainSearch() {
+            $.ajax({
+                url: "./AccessFab/Search?startDate=" + $("#startDTE").val() + "&endDate=" + $("#endDTE").val() + "&statusId=" + $("#selStatus").val() + "&fabInTypeId=" + $("#selFabInType").val() + "&orderNo=" + $("#orderNo").val() + "&applicant=" + $("#applicant").val(),
+                type: "GET",
+                dataType: "html",
+                success: function (res) {
+                    if (isJsonString(res)) {
+                        var _res = JSON.parse(res);
+                        alert(_res.msg);
+                        return false;
+                    }
+                    else {
+                        $("#table1_wrapper").remove();
+                        $("#splitbr").after(res);
+                        $('#table1').DataTable({
+                            "responsive": false
+                            , "lengthChange": true
+                            , "autoWidth": true
+                            , "paging": true
+                            , "order": [[0, "desc"]]
+                        }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
+                    }
+                }
+            });
+        }
+    }
+
+    $(function () {
+        $('#table1').DataTable({
+            "paging": true,
+            //"searching": false,
+            //"ordering": true,
+            //"info": true,
+            "responsive": false,
+            "lengthChange": true,
+            "autoWidth": true,
+            "order": [[0, "desc"]],
+            /*"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]*/
+        }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
+
+        $("#dropCat,#dropStatus").multiselect({});
+
+        $('#startDTE').attr("max", new Date().toISOString().slice(0, 10));
+        $('#endDTE').attr("max", new Date().toISOString().slice(0, 10));
+    });
+
+    $("#btnSearch").click(myFun.mainSearch);
+
+    function orderNoClick(url, sn) {
+        location.href = url;
+    }
+
+</script>

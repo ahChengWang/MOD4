@@ -15,14 +15,20 @@ namespace MOD4.Web.DomainService
         private readonly IEqSituationMappingRepository _eqSituationMappingRepository;
         private readonly IEqEvanCodeMappingRepository _eqEvanCodeMappingRepository;
         private readonly IEquipMappingRepository _equipMappingRepository;
+        private readonly IAccountInfoRepository _accountInfoRepository;
+        private readonly IMenuRepository _menuRepository;
 
         public OptionDomainService(IEqSituationMappingRepository eqSituationMappingRepository,
             IEqEvanCodeMappingRepository eqEvanCodeMappingRepository,
-            IEquipMappingRepository equipMappingRepository)
+            IEquipMappingRepository equipMappingRepository,
+            IAccountInfoRepository accountInfoRepository,
+            IMenuRepository menuRepository)
         {
             _eqSituationMappingRepository = eqSituationMappingRepository;
             _eqEvanCodeMappingRepository = eqEvanCodeMappingRepository;
             _equipMappingRepository = equipMappingRepository;
+            _accountInfoRepository = accountInfoRepository;
+            _menuRepository = menuRepository;
         }
 
 
@@ -218,6 +224,82 @@ namespace MOD4.Web.DomainService
                     new OptionEntity { Id = (int)FabInCategoryEnum.OtherFab, Value = FabInCategoryEnum.OtherFab.GetDescription() }
                 } )
             };
+        }
+
+        public List<OptionEntity> GetLevelOptionList()
+            => new List<OptionEntity> {
+                new OptionEntity { Id = (int)JobLevelEnum.FactoryManager, Value = JobLevelEnum.FactoryManager.GetDescription() },
+                new OptionEntity { Id = (int)JobLevelEnum.DepartmentManager, Value = JobLevelEnum.DepartmentManager.GetDescription() },
+                new OptionEntity { Id = (int)JobLevelEnum.SectionManager, Value = JobLevelEnum.SectionManager.GetDescription() },
+                new OptionEntity { Id = (int)JobLevelEnum.Employee, Value = JobLevelEnum.Employee.GetDescription() },
+            };
+
+        public List<OptionEntity> GetDepartmentOptionList(int parentDeptId, int levelId)
+        {
+            var _catchDeptInfo = CatchHelper.Get($"deptList");
+
+            List<OptionEntity> _deptOptionList = new List<OptionEntity>();
+            List<DefinitionDepartmentDao> _allDepartmentList = new List<DefinitionDepartmentDao>();
+
+            if (_catchDeptInfo == null)
+            {
+                _allDepartmentList = _accountInfoRepository.SelectDefinitionDepartment();
+                CatchHelper.Set("deptList", JsonConvert.SerializeObject(_allDepartmentList), 604800);
+            }
+            else
+                _allDepartmentList = JsonConvert.DeserializeObject<List<DefinitionDepartmentDao>>(_catchDeptInfo);
+
+            if (levelId == 1)
+                _deptOptionList = _allDepartmentList.Where(w => w.ParentDeptId == parentDeptId)
+                    .Select(s => new OptionEntity
+                    {
+                        Id = s.DeptSn,
+                        SubId = s.ParentDeptId,
+                        Value = s.DepartmentName
+                    }).ToList();
+            else
+                _deptOptionList = _allDepartmentList//.Where(w => w.LevelId == levelId && w.ParentDeptId == parentDeptId)
+                    .Select(s => new OptionEntity
+                    {
+                        Id = s.DeptSn,
+                        SubId = s.ParentDeptId,
+                        Value = s.DepartmentName
+                    }).ToList();
+
+            return _deptOptionList;
+        }
+
+        public List<OptionEntity> GetMenuOptionList()
+        {
+            var _catchDeptInfo = CatchHelper.Get($"menuList");
+
+            List<OptionEntity> _menuOptionList = new List<OptionEntity>();
+
+            if (_catchDeptInfo == null)
+            {
+                var _allMenuList = _menuRepository.SelectAllMenu();
+
+                CatchHelper.Set("menuList", JsonConvert.SerializeObject(_allMenuList), 604800);
+
+                _menuOptionList = _allMenuList.Where(w => w.href != "#")
+                    .Select(s => new OptionEntity
+                    {
+                        Id = s.sn,
+                        Value = s.page_name
+                    }).ToList();
+            }
+            else
+            {
+                _menuOptionList = JsonConvert.DeserializeObject<List<MenuInfoDao>>(_catchDeptInfo)
+                    .Where(w => w.href != "#")
+                    .Select(s => new OptionEntity
+                    {
+                        Id = s.sn,
+                        Value = s.page_name
+                    }).ToList();
+            }
+
+            return _menuOptionList;
         }
 
         private List<OptionEntity> GetEqProdOptionList(int id)

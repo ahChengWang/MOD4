@@ -1,0 +1,291 @@
+﻿@model MOD4.Web.ViewModel.AccountEditViewModel
+
+@{
+    ViewData["Title"] = "建立帳號";
+}
+
+<style>
+
+    .card {
+        box-shadow: 1px 2px 2px 2px #999;
+        margin-top: 5px;
+    }
+
+    .card-header, .card-body, .card-footer {
+        background-color: #c3cadb;
+    }
+
+    .card-title {
+        font-family: "Microsoft JhengHei";
+        font-weight: 900;
+        font-style: italic;
+        font-size: 30px;
+    }
+
+    .custom-switch.custom-switch .custom-control-label {
+        padding-left: 2rem;
+        padding-bottom: 1.5rem;
+    }
+
+        .custom-switch.custom-switch .custom-control-label::before {
+            height: 1.5rem;
+            width: calc(2rem + 0.75rem);
+            border-radius: 3rem;
+        }
+
+        .custom-switch.custom-switch .custom-control-label::after {
+            width: calc(1.5rem - 4px);
+            height: calc(1.5rem - 4px);
+            border-radius: calc(2rem - (1.5rem / 2));
+        }
+
+    .custom-switch.custom-switch .custom-control-input:checked ~ .custom-control-label::after {
+        transform: translateX(calc(1.5rem - 0.25rem));
+    }
+</style>
+
+<head>
+    <link rel="stylesheet" href="~/css/buttonStyle29.css">
+</head>
+
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">帳號建立</h3>
+                        </div>
+
+                        <form id="createForm">
+                            <div class="card-body">
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="Account"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="Account" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-3">
+                                        <input class="form-control" type="text" asp-for="Account" />
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="JobId"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="JobId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-3">
+                                        <input type="text" class="form-control" asp-for="JobId" />
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="LevelId"></label>
+                                        <span asp-validation-for="LevelId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-3">
+                                        <select class="form-control" asp-for="LevelId" asp-items="@ViewBag.LevelOption"></select>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="Name"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="Name" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-3">
+                                        <input class="form-control" type="text" asp-for="Name" />
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="ApiKey"></label>
+                                    </div>
+                                    <div class="col-3">
+                                        <input type="text" class="form-control" asp-for="ApiKey" />
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="MODId"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="MODId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-1">
+                                        <select class="form-control" id="modOption" asp-items="@(SelectList)ViewBag.DepartmentOption"></select>
+                                    </div>
+                                    <div class="col-1">
+                                        <label class="col-form-label" asp-for="SectionId"></label>
+                                    </div>
+                                    <div class="col-2">
+                                        <select class="form-control" id="sectionOption">
+                                            <option value="0"></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="DepartmentId"></label>
+                                    </div>
+                                    <div class="col-2">
+                                        <select class="form-control" id="deptOption">
+                                            <option value="0"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="Mail"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="Mail" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-3">
+                                        <input class="form-control" type="email" asp-for="Mail" />
+                                    </div>
+                                </div>
+
+                                <hr style="border-width: 3px; border-color: gray" />
+                                <h4 style="font-style:italic; font-weight: 600">權限設定</h4>
+
+                                @{
+                                    int _cnt = 1;
+
+                                    foreach (var menu in ViewBag.MenuOption)
+                                    {
+                                        int _detailCnt = 1;
+                                        string _id = "switch" + _cnt.ToString();
+                                        string _cboxId = "cbox" + _cnt.ToString() + _detailCnt.ToString();
+
+                                        <div style="display:flex">
+                                            <div class="col-2 custom-control custom-switch custom-switch">
+                                                <input class="custom-control-input" type="checkbox" id="@_id" name="switch" value="@menu.Value" />
+                                                <label class="custom-control-label" for="@_id" style="font-size:20px">@menu.Text</label>
+                                            </div>
+                                            <div class="col-1 custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="@_cboxId" name="checkbox" />
+                                                <label for="@_cboxId" class="custom-control-label">新增</label>
+                                            </div>
+                                            @{
+                                                _detailCnt++;
+                                                _cboxId = "cbox" + _cnt.ToString() + _detailCnt.ToString();
+                                            }
+                                            <div class="col-1 custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="@_cboxId" name="checkbox" />
+                                                <label for="@_cboxId" class="custom-control-label">編輯</label>
+                                            </div>
+                                            @{
+                                                _detailCnt++;
+                                                _cboxId = "cbox" + _cnt.ToString() + _detailCnt.ToString();
+                                            }
+                                            <div class="col-1 custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="@_cboxId" name="checkbox" />
+                                                <label for="@_cboxId" class="custom-control-label">審核</label>
+                                            </div>
+                                            @{
+                                                _detailCnt++;
+                                                _cboxId = "cbox" + _cnt.ToString() + _detailCnt.ToString();
+                                            }
+                                            <div class="col-1 custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="@_cboxId" name="checkbox" />
+                                                <label for="@_cboxId" class="custom-control-label">刪除</label>
+                                            </div>
+                                            @{
+                                                _detailCnt++;
+                                                _cboxId = "cbox" + _cnt.ToString() + _detailCnt.ToString();
+                                            }
+                                            <div class="col-1 custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="@_cboxId" name="checkbox" />
+                                                <label for="@_cboxId" class="custom-control-label">系統管理</label>
+                                            </div>
+                                        </div>
+
+                                        _cnt++;
+                                    }
+                                }
+
+                            </div>
+                            <!-- /.card-body -->
+                            <div class="card-footer">
+                                <input id="btnCreate" type="submit" class="btn btn-primary" name="btn29" value="建立" />
+                            </div>
+                        </form>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- Modal -->
+                    <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
+                    </div>
+                </div>
+                <!-- /.col -->
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+</div>
+
+
+<!-- Bootstrap Switch -->
+<script src="~/plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
+@section scripts
+{
+    <script type="text/javascript">
+        var _deptList = [];
+
+        $(document).ready(function () {
+            $("input[name='switch']").attr("checked", false);
+            $("input[name='checkbox']").attr("checked", false);
+            $("input[name='checkbox']").attr("disabled", true);
+
+            $.ajax({
+                url: "./GetDeptOption?parentDeptId=0&levelId=0",
+                type: "GET",
+                dataType: "json",
+                success: function (res) {
+                    _deptList = res;
+                }
+            });
+
+        });
+
+        $("input[name='switch']").click(function (e) {
+            if (e.currentTarget.checked) {
+                var _rowPermissions = e.currentTarget.parentElement.parentElement.children;
+                for (var i = 1; i < _rowPermissions.length; i++) {
+                    _rowPermissions[i].children[0].disabled = false;
+                }
+            }
+            else {
+                var _rowPermissions = e.currentTarget.parentElement.parentElement.children;
+                for (var i = 1; i < _rowPermissions.length; i++) {
+                    _rowPermissions[i].children[0].disabled = true;
+                }
+            }
+        });
+
+        $("#modOption").change(function (e) {
+            let modSelected = $("#modOption").find(":selected").val();
+            $("#sectionOption, #deptOption").empty();
+
+            $("<option></option>").attr("value", 0).text("").appendTo($("#sectionOption"));
+
+            _deptList.forEach(function (dept) {
+                if (dept.relatedId == modSelected) {
+                    $("<option></option>").attr("value", dept.id).text(dept.value).appendTo($("#sectionOption"));
+                }
+            });
+        });
+
+        $("#sectionOption").change(function (e) {
+            let sectionSelected = $("#sectionOption").find(":selected").val();
+            $("#deptOption").empty();
+
+            $("<option></option>").attr("value", 0).text("").appendTo($("#deptOption"));
+
+            _deptList.forEach(function (dept) {
+                if (dept.relatedId == sectionSelected) {
+                    $("<option></option>").attr("value", dept.id).text(dept.value).appendTo($("#deptOption"));
+                }
+            });
+        });
+
+    </script>
+}

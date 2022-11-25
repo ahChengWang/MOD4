@@ -162,14 +162,24 @@ VALUES
             return dao;
         }
 
-        public DefinitionDepartmentDao SelectDefinitionDepartment(int deptSn)
+        public List<DefinitionDepartmentDao> SelectDefinitionDepartment(int deptSn = 0, int parentDeptId = 0)
         {
-            string sql = "select * from definition_department where deptSn=@DeptSn ";
+            string sql = "select * from definition_department where 1=1 ";
+
+            if (deptSn != 0)
+            {
+                sql += " and deptSn=@DeptSn ";
+            }
+            if (parentDeptId != 0)
+            {
+                sql += " and parentDeptId=@ParentDeptId ";
+            }
 
             var dao = _dbHelper.ExecuteQuery<DefinitionDepartmentDao>(sql, new
             {
-                DeptSn = deptSn
-            }).FirstOrDefault();
+                DeptSn = deptSn,
+                ParentDeptId = parentDeptId
+            });
 
             return dao;
         }

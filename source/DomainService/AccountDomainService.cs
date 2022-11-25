@@ -53,7 +53,7 @@ namespace MOD4.Web.DomainService
 
         public AccessFabOrderFlowEntity GetAuditFlowInfo(UserEntity userEntity)
         {
-            var _defDepartment = _accountInfoRepository.SelectDefinitionDepartment(userEntity.DeptSn);
+            var _defDepartment = _accountInfoRepository.SelectDefinitionDepartment(deptSn: userEntity.DeptSn).FirstOrDefault();
             var _auditFlow = _accountInfoRepository.SelectAccessAuditFlow(userEntity.sn, userEntity.Level_id, _defDepartment.LevelId);
             return _auditFlow;
         }
@@ -62,7 +62,8 @@ namespace MOD4.Web.DomainService
         {
             var _dao = _accountInfoRepository.SelectByConditions(deptSn: userEntity.DeptSn).FirstOrDefault();
 
-            return new AccountInfoEntity { 
+            return new AccountInfoEntity
+            {
                 sn = _dao.sn,
                 Account = _dao.account,
                 Name = _dao.name,

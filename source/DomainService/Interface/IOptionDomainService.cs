@@ -21,5 +21,11 @@ namespace MOD4.Web.DomainService
         List<(string, List<OptionEntity>)> GetAccessFabOptions();
 
         List<(string, List<string>)> GetAreaEqGroupOptions();
+
+        List<OptionEntity> GetLevelOptionList();
+
+        List<OptionEntity> GetMenuOptionList();
+
+        List<OptionEntity> GetDepartmentOptionList(int parentDeptId, int levelId);
     }
 }

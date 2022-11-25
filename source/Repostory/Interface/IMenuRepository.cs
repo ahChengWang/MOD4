@@ -6,5 +6,7 @@ namespace MOD4.Web.Repostory
     public interface IMenuRepository
     {
         List<MenuDao> SelectByConditions(int sn);
+
+        List<MenuInfoDao> SelectAllMenu();
     }
 }

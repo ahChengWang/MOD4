@@ -24,9 +24,9 @@ namespace MOD4.Web.Controllers
 
         public AccessFabController(IHttpContextAccessor httpContextAccessor,
             IAccessFabDomainService accessFabDomainService,
-            ILogger<HomeController> logger,
             IOptionDomainService optionDomainService,
-            IAccountDomainService accountDomainService)
+            IAccountDomainService accountDomainService,
+            ILogger<HomeController> logger)
             : base(httpContextAccessor, accountDomainService)
         {
             _accessFabDomainService = accessFabDomainService;

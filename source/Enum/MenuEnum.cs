@@ -24,5 +24,7 @@ namespace MOD4.Web.Enum
         AccessFab = 13,
         [Description("個人簽核單")]
         AccessFabAudit = 14,
+        [Description("帳號管理")]
+        AccountManagement = 15,
     }
 }
