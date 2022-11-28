@@ -12,9 +12,17 @@ namespace MOD4.Web.ViewModel
         [Required(ErrorMessage = "必填")]
         public string Account { get; set; }
 
+        [Display(Name = "密碼")]
+        [Required(ErrorMessage = "必填")]
+        public string Password { get; set; }
+
         [Display(Name = "姓名")]
         [Required(ErrorMessage = "必填")]
         public string Name { get; set; }
+
+        [Display(Name = "工號")]
+        [Required(ErrorMessage = "必填")]
+        public string JobId { get; set; }
 
         [Display(Name = "職稱")]
         [Required(ErrorMessage = "必填")]
@@ -22,9 +30,6 @@ namespace MOD4.Web.ViewModel
 
         public string Level { get; set; }
 
-        [Display(Name = "工號")]
-        [Required(ErrorMessage = "必填")]
-        public string JobId { get; set; }
 
         [Display(Name = "API key")]
         public string ApiKey { get; set; }
@@ -43,6 +48,6 @@ namespace MOD4.Web.ViewModel
         [Required(ErrorMessage = "必填")]
         public string Mail { get; set; }
 
-        public List<PermissionViewModel> MenuPermissionList { get; set; }
+        public List<MenuPermissionViewModel> MenuPermissionList { get; set; }
     }
 }

@@ -44,22 +44,11 @@ namespace MOD4.Web.Controllers
                 // hTrmiPySURWvdNvKfCxpkA==
                 //var _Pw = Decrypt("hTrmiPySURWvdNvKfCxpkA==", _shaKey);
 
-                if (_innxVerify)
-                {
-                    // call InxSSO 確認帳密
-                    bool _verifyResult = _accountDomainService.VerifyInxSSO(loginViewMode.Account, loginViewMode.Password);
-
-                    if (!_verifyResult)
-                        return Json("帳號密碼錯誤");
-                }
-
-                var _encryptPw = Encrypt(loginViewMode.Password, _shaKey);
-
-                _accountDomainService.InsertUpdateAccountInfo(loginViewMode.Account, _encryptPw);
-
                 var _catchAccInfo = CatchHelper.Get($"accInfo");
                 AccountInfoEntity _currentUser = new AccountInfoEntity();
-
+                var _encryptPw = Encrypt(loginViewMode.Password, _shaKey);
+                
+                // catch 查詢
                 if (_catchAccInfo == null)
                 {
                     var _allAccInfo = _accountDomainService.GetAllAccountInfo();
@@ -72,44 +61,55 @@ namespace MOD4.Web.Controllers
                         .FirstOrDefault(f => f.Account == loginViewMode.Account && f.Password == _encryptPw);
                 }
 
-                if (_currentUser != null)
+                // 驗證
+                if (_innxVerify)
                 {
-                    var claims = new List<Claim>()
-                    {
-                        new Claim(ClaimTypes.NameIdentifier, Convert.ToString(_currentUser.Account)),
-                        new Claim("sn", Convert.ToString(_currentUser.sn)),
-                        new Claim("Account", _currentUser.Account),
-                        new Claim("Name", _currentUser.Name),
-                        new Claim("Role", Convert.ToString((int)_currentUser.RoleId)),
-                        new Claim("LevelId", Convert.ToString((int)_currentUser.Level_id)),
-                        new Claim("DeptSn", Convert.ToString((int)_currentUser.DeptSn)),
-                        new Claim("Mail", _currentUser.Mail)
-                    };
+                    // call InxSSO 確認帳密
+                    bool _verifyResult = _accountDomainService.VerifyInxSSO(loginViewMode.Account, loginViewMode.Password);
 
-                    //Initialize a new instance of the ClaimsIdentity with the claims and authentication scheme    
-                    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    //Initialize a new instance of the ClaimsPrincipal with ClaimsIdentity    
-                    var principal = new ClaimsPrincipal(identity);
-                    //SignInAsync is a Extension method for Sign in a principal for the specified scheme.    
-                    HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties()
-                    {
-                        ExpiresUtc = DateTime.UtcNow.AddDays(7),
-                        IsPersistent = loginViewMode.RememberMe //IsPersistent = false：瀏覽器關閉立馬登出；IsPersistent = true 就變成常見的Remember Me功能
-                    }).Wait();
-
-                    //紀錄Session
-                    //HttpContext.Session.Set("CurrentAccount", ByteConvertHelper.Object2Bytes(_result.sn));
-
-                    return Json("");
+                    if (!_verifyResult)
+                        return Json("帳號密碼錯誤");
+                }
+                // 資料庫驗證
+                else if (_currentUser == null)
+                {
+                    return Json("帳號密碼錯誤");
                 }
 
-                return Json("帳號密碼錯誤");
+                _accountDomainService.InsertUpdateAccountInfo(loginViewMode.Account, _encryptPw);
+
+                var claims = new List<Claim>()
+                {
+                    new Claim(ClaimTypes.NameIdentifier, Convert.ToString(_currentUser.Account)),
+                    new Claim("sn", Convert.ToString(_currentUser.sn)),
+                    new Claim("Account", _currentUser.Account),
+                    new Claim("Name", _currentUser.Name),
+                    new Claim("Role", Convert.ToString((int)_currentUser.RoleId)),
+                    new Claim("LevelId", Convert.ToString((int)_currentUser.Level_id)),
+                    new Claim("DeptSn", Convert.ToString((int)_currentUser.DeptSn)),
+                    new Claim("Mail", _currentUser.Mail)
+                };
+
+                //Initialize a new instance of the ClaimsIdentity with the claims and authentication scheme    
+                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                //Initialize a new instance of the ClaimsPrincipal with ClaimsIdentity    
+                var principal = new ClaimsPrincipal(identity);
+                //SignInAsync is a Extension method for Sign in a principal for the specified scheme.    
+                HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties()
+                {
+                    ExpiresUtc = DateTime.UtcNow.AddDays(7),
+                    IsPersistent = loginViewMode.RememberMe //IsPersistent = false：瀏覽器關閉立馬登出；IsPersistent = true 就變成常見的Remember Me功能
+                }).Wait();
+
+                //紀錄Session
+                //HttpContext.Session.Set("CurrentAccount", ByteConvertHelper.Object2Bytes(_result.sn));
+
+                return Json("");
             }
             catch (Exception ex)
             {
                 return Json(ex.Message);
             }
-
         }
 
 

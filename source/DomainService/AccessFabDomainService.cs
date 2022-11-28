@@ -111,6 +111,8 @@ namespace MOD4.Web.DomainService
 
                 if (!_verifyResult.status)
                     return _verifyResult.msg;
+                if (userEntity.DeptSn == 0)
+                    return "尚未設定部門, 請聯絡系統管理員";
 
                 var _auditFlow = _accountDomainService.GetAuditFlowInfo(userEntity);
 
@@ -558,18 +560,18 @@ namespace MOD4.Web.DomainService
                         new AccessFabOrderAuditHistoryDao
                         {
                             AuditSn = 1,
-                            AuditAccountSn = auditFlow.SectionAccSn,
+                            AuditAccountSn = auditFlow.DeptAccSn,
                             //AuditAccountName = auditFlow.SectionName,
-                            AuditAccountName = $"部門主管-{auditFlow.SectionName}",
+                            AuditAccountName = $"部門主管-{auditFlow.DeptName}",
                             StatusId = FabInOutStatusEnum.Processing,
                             ReceivedTime = nowTime,
                             IsDel = false,
-                            Mail = auditFlow.SectionMail
+                            Mail = auditFlow.DeptMail
                         },
                         new AccessFabOrderAuditHistoryDao
                         {
                             AuditSn = 2,
-                            AuditAccountSn = auditFlow.DeptAccSn,
+                            AuditAccountSn = _gateManager.sn,
                             //AuditAccountName = auditFlow.DeptName,
                             AuditAccountName = $"管制口主管-{_gateManager.Name}",
                             StatusId = FabInOutStatusEnum.Processing,

@@ -1,5 +1,6 @@
 ﻿using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
+using MOD4.Web.ViewModel;
 using System.Collections.Generic;
 
 namespace MOD4.Web.DomainService
@@ -25,6 +26,8 @@ namespace MOD4.Web.DomainService
         List<OptionEntity> GetLevelOptionList();
 
         List<OptionEntity> GetMenuOptionList();
+
+        List<MenuPermissionViewModel> GetCreatePermissionList();
 
         List<OptionEntity> GetDepartmentOptionList(int parentDeptId, int levelId);
     }

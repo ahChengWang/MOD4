@@ -8,5 +8,7 @@ namespace MOD4.Web.Repostory
         List<MenuDao> SelectByConditions(int sn);
 
         List<MenuInfoDao> SelectAllMenu();
+
+        List<int> SelectParentMenu(List<int> snList);
     }
 }

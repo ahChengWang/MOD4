@@ -1,6 +1,7 @@
 ﻿using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
 using MOD4.Web.Repostory.Dao;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -130,7 +131,8 @@ where ai4.sn = @accSn ";
 [level_id],
 [jobId],
 [apiKey],
-[deptSn])
+[deptSn],
+[mail])
 VALUES
 (@account,
 @password,
@@ -139,7 +141,8 @@ VALUES
 @level_id,
 @jobId,
 @apiKey,
-@deptSn); ";
+@deptSn,
+@mail); ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, insAccountInfo);
 
@@ -148,18 +151,27 @@ VALUES
 
         public int InsertUserPermission(List<AccountMenuInfoDao> insAccountMenuInfo)
         {
-            string sql = @"INSERT INTO [dbo].[account_menu_info]
-           ([account_sn],
-            [menu_sn],
-            [menu_group_sn])
-           VALUES
-           (@account_sn,
-            @menu_sn,
-            @menu_group_sn);";
+            try
+            {
+                string sql = @"INSERT INTO [dbo].[account_menu_info] 
+([account_sn],
+[menu_sn],
+[menu_group_sn],
+[account_permission])
+VALUES
+(@account_sn,
+@menu_sn,
+@menu_group_sn,
+@account_permission);";
 
-            var dao = _dbHelper.ExecuteNonQuery(sql, insAccountMenuInfo);
+                var dao = _dbHelper.ExecuteNonQuery(sql, insAccountMenuInfo);
 
-            return dao;
+                return dao;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public List<DefinitionDepartmentDao> SelectDefinitionDepartment(int deptSn = 0, int parentDeptId = 0)

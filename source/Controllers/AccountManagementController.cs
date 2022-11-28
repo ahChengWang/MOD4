@@ -11,7 +11,10 @@ using MOD4.Web.Models;
 using MOD4.Web.ViewModel;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace MOD4.Web.Controllers
 {
@@ -20,6 +23,7 @@ namespace MOD4.Web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IOptionDomainService _optionDomainService;
+        private readonly IAccountDomainService _accountDomainService;
 
         public AccountManagementController(IHttpContextAccessor httpContextAccessor,
             IAccountDomainService accountDomainService,
@@ -28,6 +32,7 @@ namespace MOD4.Web.Controllers
             : base(httpContextAccessor, accountDomainService)
         {
             _optionDomainService = optionDomainService;
+            _accountDomainService = accountDomainService;
             _logger = logger;
         }
 
@@ -35,45 +40,16 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                List<AccountViewModel> _response = new List<AccountViewModel>
+                List<AccountViewModel> _response = _accountDomainService.GetAccountDepartmentList().Select(account =>
+                new AccountViewModel
                 {
-                    new AccountViewModel
-                    {
-                        Sn = 1,
-                        Account = "flower.lin",
-                        Name = "林意翔",
-                        LevelId = "工程師",
-                        JobId = "22000626",
-                        Department = "支援二課"
-                    },
-                    new AccountViewModel
-                    {
-                        Sn = 2,
-                        Account = "weiting.guo",
-                        Name = "郭偉庭",
-                        LevelId = "工程師",
-                        JobId = "16013232",
-                        Department = "支援一課"
-                    },
-                    new AccountViewModel
-                    {
-                        Sn = 3,
-                        Account = "karen01.wang",
-                        Name = "王麗雅",
-                        LevelId = "工程師",
-                        JobId = "10098491",
-                        Department = "支援二課"
-                    },
-                    new AccountViewModel
-                    {
-                        Sn = 4,
-                        Account = "morrise.chen",
-                        Name = "陳驛印",
-                        LevelId = "課長",
-                        JobId = "10016031",
-                        Department = "支援二課"
-                    }
-                };
+                    Sn = account.sn,
+                    Account = account.Account,
+                    Name = account.Name,
+                    LevelId = account.Level_id.GetDescription(),
+                    JobId = account.JobId,
+                    Department = account.DepartmentName
+                }).ToList();
 
                 return View(_response);
             }
@@ -106,10 +82,12 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Edit([FromQuery] int sn, string orderId)
+        public IActionResult Edit([FromQuery] int accountSn)
         {
             try
             {
+                _accountDomainService.GetAccountAndMenuInfo(accountSn);
+
                 return View();
             }
             catch (Exception ex)
@@ -131,15 +109,45 @@ namespace MOD4.Web.Controllers
             ViewBag.DepartmentOption = new SelectList(_optionDomainService.GetDepartmentOptionList(0, 1).CopyAToB<OptionViewModel>(), "Id", "Value");
             ViewBag.MenuOption = new SelectList(_optionDomainService.GetMenuOptionList().CopyAToB<OptionViewModel>(), "Id", "Value");
 
-            return View();
+            List<MenuPermissionViewModel> _menuList = _optionDomainService.GetCreatePermissionList();
+
+            var _response = new AccountEditViewModel
+            {
+                MenuPermissionList = _menuList
+            };
+
+            return View(_response);
         }
 
         [HttpPost]
-        public IActionResult Create(DemanCreateViewModel createModel)
+        public IActionResult Create(AccountEditViewModel createModel)
         {
             try
             {
-                return Json(new { IsSuccess = true, msg = "" });
+                string _response = _accountDomainService.Create(new AccountCreateEntity
+                {
+                    Account = createModel.Account,
+                    Password = createModel.Password,
+                    Name = createModel.Name,
+                    JobId = createModel.JobId,
+                    MODId = createModel.MODId,
+                    SectionId = createModel.SectionId,
+                    DepartmentId = createModel.DepartmentId,
+                    Level_id = createModel.LevelId,
+                    Mail = createModel.Mail,
+                    ApiKey = createModel.ApiKey,
+                    MenuPermissionList = createModel.MenuPermissionList.Where(w => w.IsMenuActive)
+                        .Select(s => new AccountMenuInfoEntity
+                        {
+                            MenuSn = s.MenuId,
+                            AccountPermission = s.MenuActionList.Where(action => action.IsActionActive).Sum(sum => (int)sum.ActionId)
+                        }).ToList()
+                });
+
+                if (_response == "")
+                    return Json(new { IsSuccess = true, msg = "" });
+                else
+                    return Json(new { IsSuccess = false, msg = _response });
             }
             catch (Exception ex)
             {

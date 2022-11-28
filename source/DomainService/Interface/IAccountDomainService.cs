@@ -15,6 +15,12 @@ namespace MOD4.Web.DomainService
 
         List<AccountMenuInfoEntity> GetUserAllMenuPermission(int userAccountSn);
 
+        List<AccountDeptEntity> GetAccountDepartmentList();
+
+        AccountEditEntity GetAccountAndMenuInfo(int accountSn);
+
+        string Create(AccountCreateEntity createEntity);
+
         void InsertUpdateAccountInfo(string account, string password);
 
         bool VerifyInxSSO(string account, string password);

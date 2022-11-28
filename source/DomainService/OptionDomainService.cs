@@ -3,6 +3,7 @@ using MOD4.Web.Enum;
 using MOD4.Web.Helper;
 using MOD4.Web.Repostory;
 using MOD4.Web.Repostory.Dao;
+using MOD4.Web.ViewModel;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -300,6 +301,57 @@ namespace MOD4.Web.DomainService
             }
 
             return _menuOptionList;
+        }
+
+
+        public List<MenuPermissionViewModel> GetCreatePermissionList()
+        {
+            var _catchDeptInfo = CatchHelper.Get($"menuList");
+
+            List<OptionEntity> _menuOptionList = new List<OptionEntity>();
+
+            List<MenuPermissionViewModel> _response = new List<MenuPermissionViewModel>();
+
+            if (_catchDeptInfo == null)
+            {
+                var _allMenuList = _menuRepository.SelectAllMenu();
+
+                CatchHelper.Set("menuList", JsonConvert.SerializeObject(_allMenuList), 604800);
+
+                _response = _allMenuList.Select(menu => new MenuPermissionViewModel
+                {
+                    IsMenuActive = false,
+                    MenuId = (MenuEnum)menu.sn,
+                    Menu = menu.page_name,
+                    MenuActionList = EnumHelper.GetEnumValue<PermissionEnum>().Select(action =>
+                    new MenuActionViewModel
+                    {
+                        IsActionActive = false,
+                        ActionId = action,
+                        Action = action.GetDescription()
+                    }).ToList()
+                }).ToList();
+            }
+            else
+            {
+                List<MenuInfoDao> _menuInfoList = JsonConvert.DeserializeObject<List<MenuInfoDao>>(_catchDeptInfo).Where(w => w.href != "#").ToList();
+                _response = _menuInfoList.Select(menu => new MenuPermissionViewModel
+                {
+                    IsMenuActive = false,
+                    MenuId = (MenuEnum)menu.sn,
+                    Menu = menu.page_name,
+                    MenuActionList = EnumHelper.GetEnumValue<PermissionEnum>().Select(action =>
+                    new MenuActionViewModel
+                    {
+                        IsActionActive = false,
+                        ActionId = action,
+                        Action = action.GetDescription()
+                    }).ToList()
+                }).ToList();
+
+            }
+
+            return _response;
         }
 
         private List<OptionEntity> GetEqProdOptionList(int id)

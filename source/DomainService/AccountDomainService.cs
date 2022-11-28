@@ -3,9 +3,15 @@ using MOD4.Web.Enum;
 using MOD4.Web.Helper;
 using MOD4.Web.Repostory;
 using MOD4.Web.Repostory.Dao;
+using MOD4.Web.ViewModel;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
 using System.Transactions;
 
 namespace MOD4.Web.DomainService
@@ -13,10 +19,13 @@ namespace MOD4.Web.DomainService
     public class AccountDomainService : IAccountDomainService
     {
         private readonly IAccountInfoRepository _accountInfoRepository;
+        private readonly IMenuRepository _menuRepository;
 
-        public AccountDomainService(IAccountInfoRepository accountInfoRepository)
+        public AccountDomainService(IAccountInfoRepository accountInfoRepository,
+            IMenuRepository menuRepository)
         {
             _accountInfoRepository = accountInfoRepository;
+            _menuRepository = menuRepository;
         }
 
         public List<AccountInfoEntity> GetAllAccountInfo()
@@ -76,6 +85,55 @@ namespace MOD4.Web.DomainService
             };
         }
 
+        public List<AccountDeptEntity> GetAccountDepartmentList()
+        {
+            var _allAccountInfo = GetAccountInfo(null);
+            var _allDepartmentInfo = _accountInfoRepository.SelectDefinitionDepartment();
+
+            return _allAccountInfo.Select(acc => new AccountDeptEntity
+            {
+                sn = acc.sn,
+                Account = acc.Account,
+                Name = acc.Name,
+                Password = acc.Password,
+                RoleId = acc.RoleId,
+                JobId = acc.JobId,
+                Level_id = acc.Level_id,
+                ApiKey = acc.ApiKey,
+                DeptSn = acc.DeptSn,
+                Mail = acc.Mail,
+                DepartmentName = _allDepartmentInfo.FirstOrDefault(f => f.DeptSn == acc.DeptSn)?.DepartmentName ?? ""
+            }).ToList();
+        }
+
+        public AccountEditEntity GetAccountAndMenuInfo(int accountSn)
+        {
+            var _accountInfo = GetAccountInfo(new List<int> { accountSn }).FirstOrDefault();
+            var _accountMenuPermission = GetUserAllMenuPermission(accountSn);
+
+            return new AccountEditEntity
+            {
+                sn = _accountInfo.sn,
+                Account = _accountInfo.Account,
+                Password = Decrypt(_accountInfo.Password, "MOD4_Saikou"),
+                Name = _accountInfo.Name,
+                RoleId = _accountInfo.RoleId,
+                ApiKey = _accountInfo.ApiKey,
+                JobId = _accountInfo.JobId,
+                Level_id = _accountInfo.Level_id,
+                Mail = _accountInfo.Mail,
+                MenuPermissionList = _accountMenuPermission.Select(s =>
+                new MenuPermissionEntity
+                {
+                    IsMenuActive = true,
+                    MenuId = s.MenuSn,
+                    Menu = s.MenuSn.GetDescription(),
+                    ActionList = ConvertMenuActionPermission(s.AccountPermission)
+                }).ToList()
+            };
+        }
+
+
         public bool VerifyInxSSO(string account, string password)
         {
             string _ssoCookies = "";
@@ -120,11 +178,13 @@ namespace MOD4.Web.DomainService
             {
                 InsertUserAndPermission(account, password);
                 CatchHelper.Delete(new string[] { $"accInfo" });
+                CatchHelper.Set("accInfo", JsonConvert.SerializeObject(GetAllAccountInfo()), 604800);
             }
             else if (!_alreadyAcc && _updPwAcc)
             {
                 UpdateUserPw(account, password);
                 CatchHelper.Delete(new string[] { $"accInfo" });
+                CatchHelper.Set("accInfo", JsonConvert.SerializeObject(GetAllAccountInfo()), 604800);
             }
         }
 
@@ -139,6 +199,71 @@ namespace MOD4.Web.DomainService
             }).ToList();
         }
 
+        public string Create(AccountCreateEntity createEntity)
+        {
+            string _createRes = "";
+
+            AccountInfoDao _insAccountInfoDao = new AccountInfoDao
+            {
+                account = createEntity.Account,
+                password = Encrypt(createEntity.Password, "MOD4_Saikou"),
+                name = createEntity.Name,
+                jobId = createEntity.JobId,
+                mail = createEntity.Mail,
+                role = RoleEnum.User,
+                apiKey = createEntity.ApiKey,
+                deptSn = createEntity.DepartmentId != 0
+                    ? createEntity.DepartmentId
+                    : createEntity.SectionId != 0
+                        ? createEntity.SectionId
+                        : createEntity.MODId,
+                level_id = createEntity.Level_id,
+            };
+
+            List<AccountMenuInfoDao> _insAccMenuInfo = createEntity.MenuPermissionList
+                .Select(s =>
+                new AccountMenuInfoDao
+                {
+                    menu_sn = s.MenuSn,
+                    account_permission = s.AccountPermission,
+                    menu_group_sn = 0
+                }).ToList();
+
+            var _parentPage = _menuRepository.SelectParentMenu(_insAccMenuInfo.Select(s => (int)s.menu_sn).ToList());
+
+            _insAccMenuInfo.AddRange(_parentPage.Select(parentMenu => new AccountMenuInfoDao
+            {
+                menu_sn = (MenuEnum)parentMenu,
+                account_permission = 1,
+                menu_group_sn = 0
+            }));
+
+            using (var scope = new TransactionScope())
+            {
+                bool _insAccInfoRes = false;
+                bool _insAccMenuInfoRes = false;
+
+                _insAccInfoRes = _accountInfoRepository.InsertUserAccount(_insAccountInfoDao) == 1;
+                var _newAccountSn =
+                    _accountInfoRepository.SelectByConditions(account: _insAccountInfoDao.account, password: _insAccountInfoDao.password).FirstOrDefault().sn;
+
+                _insAccMenuInfo.ForEach(fe => fe.account_sn = _newAccountSn);
+
+                _insAccMenuInfoRes = _accountInfoRepository.InsertUserPermission(_insAccMenuInfo) == _insAccMenuInfo.Count;
+
+                if (_insAccInfoRes && _insAccMenuInfoRes)
+                    scope.Complete();
+                else
+                    _createRes = "";
+
+            }
+
+            return _createRes;
+        }
+
+
+        #region Private
+
         private string InsertUserAndPermission(string acc, string pw)
         {
             using (var scope = new TransactionScope())
@@ -149,7 +274,9 @@ namespace MOD4.Web.DomainService
                     password = pw,
                     name = acc,
                     role = RoleEnum.User,
-                    level_id = JobLevelEnum.Employee
+                    level_id = JobLevelEnum.Employee,
+                    mail = "test@INNOLUX.COM",
+                    jobId = "",
                 });
 
                 var _data = _accountInfoRepository.SelectByConditions(acc).FirstOrDefault();
@@ -163,6 +290,12 @@ namespace MOD4.Web.DomainService
                     {
                         account_sn = _data.sn,
                         menu_sn = MenuEnum.Demand,
+                        menu_group_sn = 0
+                    },
+                    new AccountMenuInfoDao
+                    {
+                        account_sn = _data.sn,
+                        menu_sn = MenuEnum.AccessFab,
                         menu_group_sn = 0
                     }
                 });
@@ -188,5 +321,133 @@ namespace MOD4.Web.DomainService
 
             return _updRes;
         }
+
+        private string Encrypt(string password, string key)
+        {
+            // ComputeHash - returns byte array  
+            byte[] bytesPW = Encoding.UTF8.GetBytes(password);
+            byte[] bytesKey = Encoding.UTF8.GetBytes(key);
+            // Hash the password with SHA256
+            byte[] keyBytes = SHA256.Create().ComputeHash(bytesKey);
+            return Convert.ToBase64String(AES_Encrypt(bytesPW, keyBytes));
+        }
+
+        private string Decrypt(string password, string key)
+        {
+            byte[] bytesToBeDecrypted = Convert.FromBase64String(password);
+            byte[] passwordBytesdecrypt = Encoding.UTF8.GetBytes(key);
+            passwordBytesdecrypt = SHA256.Create().ComputeHash(passwordBytesdecrypt);
+            return Encoding.UTF8.GetString(AES_Decrypt(bytesToBeDecrypted, passwordBytesdecrypt));
+        }
+
+        private byte[] AES_Encrypt(byte[] bytesToBeEncrypted, byte[] passwordBytes)
+        {
+            byte[] encryptedBytes = null;
+
+            // Set your salt here, change it to meet your flavor:
+            // The salt bytes must be at least 8 bytes.
+            byte[] saltBytes = new byte[] { 2, 1, 7, 3, 6, 4, 8, 5 };
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (RijndaelManaged AES = new RijndaelManaged())
+                {
+                    AES.KeySize = 256;
+                    AES.BlockSize = 128;
+
+                    var key = new Rfc2898DeriveBytes(passwordBytes, saltBytes, 1000);
+                    AES.Key = key.GetBytes(AES.KeySize / 8);
+                    AES.IV = key.GetBytes(AES.BlockSize / 8);
+
+                    AES.Mode = CipherMode.CBC;
+
+                    using (var cs = new CryptoStream(ms, AES.CreateEncryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(bytesToBeEncrypted, 0, bytesToBeEncrypted.Length);
+                        cs.Close();
+                    }
+                    encryptedBytes = ms.ToArray();
+                }
+            }
+
+            return encryptedBytes;
+        }
+
+        private byte[] AES_Decrypt(byte[] bytesToBeDecrypted, byte[] passwordBytes)
+        {
+            byte[] decryptedBytes = null;
+
+            // Set your salt here, change it to meet your flavor:
+            // The salt bytes must be at least 8 bytes.
+            byte[] saltBytes = new byte[] { 2, 1, 7, 3, 6, 4, 8, 5 };
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (RijndaelManaged AES = new RijndaelManaged())
+                {
+                    AES.KeySize = 256;
+                    AES.BlockSize = 128;
+
+                    var key = new Rfc2898DeriveBytes(passwordBytes, saltBytes, 1000);
+                    AES.Key = key.GetBytes(AES.KeySize / 8);
+                    AES.IV = key.GetBytes(AES.BlockSize / 8);
+
+                    AES.Mode = CipherMode.CBC;
+
+                    using (var cs = new CryptoStream(ms, AES.CreateDecryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(bytesToBeDecrypted, 0, bytesToBeDecrypted.Length);
+                        cs.Close();
+                    }
+                    decryptedBytes = ms.ToArray();
+                }
+            }
+
+            return decryptedBytes;
+        }
+
+        private List<MenuActionEntity> ConvertMenuActionPermission(int permissionFlags)
+        {
+            List<MenuActionEntity> menuActionEntities = new List<MenuActionEntity>();
+            menuActionEntities.Add(new MenuActionEntity
+            {
+                IsActionActive = Convert.ToBoolean(permissionFlags & (int)PermissionEnum.Create),
+                Action = PermissionEnum.Create.GetDescription(),
+                ActionId = PermissionEnum.Create
+            });
+            menuActionEntities.Add(new MenuActionEntity
+            {
+                IsActionActive = Convert.ToBoolean(permissionFlags & (int)PermissionEnum.Update),
+                Action = PermissionEnum.Update.GetDescription(),
+                ActionId = PermissionEnum.Update
+            });
+            menuActionEntities.Add(new MenuActionEntity
+            {
+                IsActionActive = Convert.ToBoolean(permissionFlags & (int)PermissionEnum.Audit),
+                Action = PermissionEnum.Audit.GetDescription(),
+                ActionId = PermissionEnum.Audit
+            });
+            menuActionEntities.Add(new MenuActionEntity
+            {
+                IsActionActive = Convert.ToBoolean(permissionFlags & (int)PermissionEnum.Reject),
+                Action = PermissionEnum.Reject.GetDescription(),
+                ActionId = PermissionEnum.Reject
+            });
+            menuActionEntities.Add(new MenuActionEntity
+            {
+                IsActionActive = Convert.ToBoolean(permissionFlags & (int)PermissionEnum.Cancel),
+                Action = PermissionEnum.Cancel.GetDescription(),
+                ActionId = PermissionEnum.Cancel
+            });
+            menuActionEntities.Add(new MenuActionEntity
+            {
+                IsActionActive = Convert.ToBoolean(permissionFlags & (int)PermissionEnum.Management),
+                Action = PermissionEnum.Management.GetDescription(),
+                ActionId = PermissionEnum.Management
+            });
+
+            return menuActionEntities;
+        }
+        #endregion
     }
 }

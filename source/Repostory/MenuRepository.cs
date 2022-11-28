@@ -26,5 +26,17 @@ namespace MOD4.Web.Repostory
 
             return dao;
         }
+
+        public List<int> SelectParentMenu(List<int> snList)
+        {
+            string sql = "select parent_menu_sn from menu_info where sn in @sn group by parent_menu_sn;";
+
+            var dao = _dbHelper.ExecuteQuery<int>(sql, new
+            {
+                sn = snList
+            });
+
+            return dao;
+        }
     }
 }
