@@ -86,9 +86,40 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                _accountDomainService.GetAccountAndMenuInfo(accountSn);
+                ViewBag.LevelOption = new SelectList(_optionDomainService.GetLevelOptionList().CopyAToB<OptionViewModel>(), "Id", "Value");
+                ViewBag.DepartmentOption = new SelectList(_optionDomainService.GetDepartmentOptionList(0, 1).CopyAToB<OptionViewModel>(), "Id", "Value");
 
-                return View();
+                var _result = _accountDomainService.GetAccountAndMenuInfo(accountSn);
+
+                AccountEditViewModel _response = new AccountEditViewModel
+                {
+                    Sn = _result.sn,
+                    Account = _result.Account,
+                    Password = _result.Password,
+                    Name = _result.Name,
+                    JobId = _result.JobId,
+                    ApiKey = _result.ApiKey,
+                    MODId = _result.MODId,
+                    DepartmentId = _result.DepartmentId,
+                    SectionId = _result.SectionId,
+                    LevelId = _result.Level_id,
+                    Mail = _result.Mail,
+                    MenuPermissionList = _result.MenuPermissionList.Select(menu =>
+                    new MenuPermissionViewModel 
+                    {
+                        IsMenuActive = menu.IsMenuActive,
+                        MenuId = menu.MenuId,
+                        Menu = menu.Menu,
+                        MenuActionList = menu.ActionList.Select(s => new MenuActionViewModel
+                        {
+                            IsActionActive = s.IsActionActive,
+                            ActionId = s.ActionId,
+                            Action = s.Action
+                        }).ToList()
+                    }).ToList()
+                };
+
+                return View(_response);
             }
             catch (Exception ex)
             {
@@ -131,8 +162,8 @@ namespace MOD4.Web.Controllers
                     Name = createModel.Name,
                     JobId = createModel.JobId,
                     MODId = createModel.MODId,
-                    SectionId = createModel.SectionId,
                     DepartmentId = createModel.DepartmentId,
+                    SectionId = createModel.SectionId,
                     Level_id = createModel.LevelId,
                     Mail = createModel.Mail,
                     ApiKey = createModel.ApiKey,

@@ -12,7 +12,7 @@ namespace MOD4.Web.Repostory.Dao
         public string GuestPhone { get; set; }
         public string JobId { get; set; }
         public string Name { get; set; }
-        public ClotheSizeEnum ClotheSizeId { get; set; }
-        public ShoesSizeEnum ShoesSizeId { get; set; }
+        public string ClotheSize { get; set; }
+        public string ShoesSize { get; set; }
     }
 }

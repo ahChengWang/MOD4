@@ -29,12 +29,16 @@ namespace MOD4.Web.Repostory
 ([accessFabOrderSn]
 ,[companyName]
 ,[guestPhone]
-,[name])
+,[name]
+,[clotheSize]
+,[shoesSize])
 VALUES
 (@accessFabOrderSn
 ,@companyName
 ,@guestPhone
-,@name); ";
+,@name
+,@clotheSize
+,@shoesSize); ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, insAccessFabOrder);
 
@@ -58,6 +62,8 @@ VALUES
  companyName = @companyName
 ,guestPhone = @guestPhone 
 ,name = @name 
+,clotheSize = @clotheSize 
+,shoesSize = @shoesSize  
 where sn = @sn ;";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, updAccessFabOrder);

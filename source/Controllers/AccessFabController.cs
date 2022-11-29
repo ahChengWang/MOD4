@@ -155,7 +155,9 @@ namespace MOD4.Web.Controllers
                         DetailSn = detail.Sn,
                         CompanyName = detail.CompanyName,
                         Name = detail.Name,
-                        GuestPhone = detail.GuestPhone
+                        GuestPhone = detail.GuestPhone,
+                        ClotheSize = detail.ClotheSize,
+                        ShoesSize = detail.ShoesSize
                     }).ToList(),
                     AuditHistory = _accessFabOrderData.AuditFlow.Select(his => new AccessFabAuditHistoryViewModel
                     {
@@ -202,7 +204,9 @@ namespace MOD4.Web.Controllers
                         Sn = detail.DetailSn,
                         CompanyName = detail.CompanyName,
                         Name = detail.Name,
-                        GuestPhone = detail.GuestPhone
+                        GuestPhone = detail.GuestPhone,
+                        ClotheSize = detail.ClotheSize,
+                        ShoesSize = detail.ShoesSize
                     }).ToList()
                 }, GetUserInfo());
 
@@ -252,7 +256,9 @@ namespace MOD4.Web.Controllers
                     {
                         CompanyName = detail.CompanyName,
                         Name = detail.Name,
-                        GuestPhone = detail.GuestPhone
+                        GuestPhone = detail.GuestPhone,
+                        ClotheSize = detail.ClotheSize,
+                        ShoesSize = detail.ShoesSize
                     }).ToList(),
                     AuditHistory = _accessFabOrderData.AuditFlow.Select(his => new AccessFabAuditHistoryViewModel
                     {
@@ -431,7 +437,9 @@ namespace MOD4.Web.Controllers
                     {
                         CompanyName = detail.CompanyName,
                         Name = detail.Name,
-                        GuestPhone = detail.GuestPhone
+                        GuestPhone = detail.GuestPhone,
+                        ClotheSize = detail.ClotheSize,
+                        ShoesSize = detail.ShoesSize
                     }).ToList(),
                     AuditHistory = _accessFabOrderData.AuditFlow.Select(his => new AccessFabAuditHistoryViewModel
                     {

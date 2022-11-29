@@ -77,7 +77,9 @@ namespace MOD4.Web.DomainService
                         Sn = detail.Sn,
                         CompanyName = detail.CompanyName,
                         Name = detail.Name,
-                        GuestPhone = detail.GuestPhone
+                        GuestPhone = detail.GuestPhone ?? "",
+                        ClotheSize = detail.ClotheSize ?? "",
+                        ShoesSize = detail.ShoesSize ?? "",
                     }).ToList(),
                     AuditFlow = _accessOrderAuditHisList.Select(his => new AccessFabOrderAuditHistoryEntity
                     {
@@ -145,7 +147,9 @@ namespace MOD4.Web.DomainService
                     {
                         CompanyName = detail.CompanyName,
                         Name = detail.Name,
-                        GuestPhone = detail.GuestPhone
+                        GuestPhone = detail.GuestPhone,
+                        ClotheSize = detail.ClotheSize,
+                        ShoesSize = detail.ShoesSize
                     });
                 }
 
@@ -239,10 +243,12 @@ namespace MOD4.Web.DomainService
                     _updAccessFabOrderDetailListDao.Add(new AccessFabOrderDetailDao()
                     {
                         Sn = detail.Sn,
-                        AccessFabOrderSn = detail.AccessFabOrderSn,
+                        AccessFabOrderSn = orderEntity.OrderSn,
                         CompanyName = detail.CompanyName,
                         Name = detail.Name,
-                        GuestPhone = detail.GuestPhone
+                        GuestPhone = detail.GuestPhone,
+                        ClotheSize = detail.ClotheSize,
+                        ShoesSize = detail.ShoesSize
                     });
                 }
 
@@ -417,24 +423,31 @@ namespace MOD4.Web.DomainService
                     _mailServer.Send(new MailEntity
                     {
                         To = userEntity.Mail,
-                        Subject = "管制口進出申請單 - 剔退待通知",
+                        Subject = "管制口進出申請單 - 剔退通知",
                         Content = "<br /> Dear Sir <br /><br />" +
-                        "您有<a style='text-decoration:underline'>待重送</a><a style='font-weight:900'>管制口進出請單</a>， <br /><br />" +
+                        "您有<a style='text-decoration:underline'>待重送</a><a style='font-weight:900'>管制口進出申請單</a>， <br /><br />" +
                         "單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
                     });
                 }
                 // 發送待簽核 mail
                 else if (_auditRes == "" && _nextAuditFlow != null)
-                {
                     _mailServer.Send(new MailEntity
                     {
                         To = _nextAuditAccountInfo.Mail,
                         Subject = "管制口進出申請單 - 待簽核通知",
                         Content = "<br /> Dear Sir <br /><br />" +
-                        "您有<a style='text-decoration:underline'>待簽核</a><a style='font-weight:900'>管制口進出請單</a>， <br /><br />" +
+                        "您有<a style='text-decoration:underline'>待簽核</a><a style='font-weight:900'>管制口進出申請單</a>， <br /><br />" +
                         "單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
                     });
-                }
+                else if (_updAccessFabOrderDao.StatusId == FabInOutStatusEnum.Completed && _auditRes == "")
+                    _mailServer.Send(new MailEntity
+                    {
+                        To = _nextAuditAccountInfo.Mail,
+                        Subject = "管制口進出申請單 - 確認通知",
+                        Content = "<br /> Dear Sir <br /><br />" +
+                        "您有<a style='text-decoration:underline'>已完成</a><a style='font-weight:900'>管制口進出申請單</a>， <br /><br />" +
+                        "單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
+                    });
 
                 return _auditRes;
             }

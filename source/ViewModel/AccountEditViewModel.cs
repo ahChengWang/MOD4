@@ -39,10 +39,10 @@ namespace MOD4.Web.ViewModel
         public int MODId { get; set; }
 
         [Display(Name = "部級")]
-        public int SectionId { get; set; }
+        public int DepartmentId { get; set; }
 
         [Display(Name = "課級")]
-        public int DepartmentId { get; set; }
+        public int SectionId { get; set; }
 
         [Display(Name = "mail")]
         [Required(ErrorMessage = "必填")]

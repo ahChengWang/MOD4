@@ -110,8 +110,46 @@ namespace MOD4.Web.DomainService
         {
             var _accountInfo = GetAccountInfo(new List<int> { accountSn }).FirstOrDefault();
             var _accountMenuPermission = GetUserAllMenuPermission(accountSn);
+            var _allMenu = _menuRepository.SelectAllMenu();
 
-            return new AccountEditEntity
+            // get department list
+            var _catchDeptInfo = CatchHelper.Get($"deptList");
+
+            List<OptionEntity> _deptOptionList = new List<OptionEntity>();
+            List<DefinitionDepartmentDao> _allDepartmentList = new List<DefinitionDepartmentDao>();
+
+            if (_catchDeptInfo == null)
+            {
+                _allDepartmentList = _accountInfoRepository.SelectDefinitionDepartment();
+                CatchHelper.Set("deptList", JsonConvert.SerializeObject(_allDepartmentList), 604800);
+            }
+            else
+                _allDepartmentList = JsonConvert.DeserializeObject<List<DefinitionDepartmentDao>>(_catchDeptInfo);
+
+            DefinitionDepartmentDao _currentDept = _allDepartmentList.FirstOrDefault(f => f.DeptSn == _accountInfo.DeptSn);
+
+            int _sectionId = 0;
+            int _deptId = 0;
+            int _modId = 0;
+
+            switch (_currentDept.LevelId)
+            {
+                case 1:
+                    _modId = _currentDept.DeptSn;
+                    break;
+                case 2:
+                    _deptId = _currentDept.DeptSn;
+                    _modId = _currentDept.ParentDeptId;
+                    break;
+                case 3:
+                    _sectionId = _currentDept.DeptSn;
+                    var _upper = _allDepartmentList.FirstOrDefault(f => f.DeptSn == _currentDept.ParentDeptId);
+                    _deptId = _upper.DeptSn;
+                    _modId = _upper.ParentDeptId;
+                    break;
+            }
+
+            AccountEditEntity _response = new AccountEditEntity
             {
                 sn = _accountInfo.sn,
                 Account = _accountInfo.Account,
@@ -122,15 +160,45 @@ namespace MOD4.Web.DomainService
                 JobId = _accountInfo.JobId,
                 Level_id = _accountInfo.Level_id,
                 Mail = _accountInfo.Mail,
-                MenuPermissionList = _accountMenuPermission.Select(s =>
-                new MenuPermissionEntity
-                {
-                    IsMenuActive = true,
-                    MenuId = s.MenuSn,
-                    Menu = s.MenuSn.GetDescription(),
-                    ActionList = ConvertMenuActionPermission(s.AccountPermission)
-                }).ToList()
+                MODId = _modId,
+                DepartmentId = _deptId,
+                SectionId = _sectionId,
+                MenuPermissionList = new List<MenuPermissionEntity>()
             };
+
+            _allMenu.ForEach(menu =>
+            {
+                var _currentMenuPermission = _accountMenuPermission.FirstOrDefault(accMenu => (int)accMenu.MenuSn == menu.sn);
+
+                if (_currentMenuPermission != null)
+                {
+                    _response.MenuPermissionList.Add(new MenuPermissionEntity
+                    {
+                        IsMenuActive = true,
+                        MenuId = (MenuEnum)menu.sn,
+                        Menu = ((MenuEnum)menu.sn).GetDescription(),
+                        ActionList = ConvertMenuActionPermission(_currentMenuPermission.AccountPermission)
+                    });
+                }
+                else
+                {
+                    _response.MenuPermissionList.Add(new MenuPermissionEntity
+                    {
+                        IsMenuActive = false,
+                        MenuId = (MenuEnum)menu.sn,
+                        Menu = ((MenuEnum)menu.sn).GetDescription(),
+                        ActionList = EnumHelper.GetEnumValue<PermissionEnum>().Select(action =>
+                        new MenuActionEntity
+                        {
+                            IsActionActive = false,
+                            ActionId = action,
+                            Action = action.GetDescription()
+                        }).ToList()
+                    });
+                }
+            });
+
+            return _response;
         }
 
 
@@ -212,10 +280,10 @@ namespace MOD4.Web.DomainService
                 mail = createEntity.Mail,
                 role = RoleEnum.User,
                 apiKey = createEntity.ApiKey,
-                deptSn = createEntity.DepartmentId != 0
-                    ? createEntity.DepartmentId
-                    : createEntity.SectionId != 0
-                        ? createEntity.SectionId
+                deptSn = createEntity.SectionId != 0
+                    ? createEntity.SectionId
+                    : createEntity.DepartmentId != 0
+                        ? createEntity.DepartmentId
                         : createEntity.MODId,
                 level_id = createEntity.Level_id,
             };
@@ -255,8 +323,9 @@ namespace MOD4.Web.DomainService
                     scope.Complete();
                 else
                     _createRes = "";
-
             }
+
+            CatchHelper.Delete(new string[] { $"accInfo" });
 
             return _createRes;
         }

@@ -111,7 +111,7 @@
                     <label class="col-form-label-sm">@person.CompanyName</label>
                 </div>
                 <!--<div class="col-2">
-                    <label class="col-form-label-sm">@person.CompanyName</label>-->
+                <label class="col-form-label-sm">@person.CompanyName</label>-->
                 @*<input type="text" class="form-control-sm" asp-for="@person.CompanyName" disabled />*@
                 <!--</div>-->
                 <div class="col-2">
@@ -119,17 +119,21 @@
                     <label class="col-form-label-sm">@person.Name</label>
                 </div>
                 <!--<div class="col-2">
-                    <label class="col-form-label-sm">@person.Name</label>-->
+                <label class="col-form-label-sm">@person.Name</label>-->
                 @*<input type="text" class="form-control-sm" asp-for="@person.Name" disabled />*@
                 <!--</div>-->
                 <div class="col-2">
                     <label class="col-form-label-sm" asp-for="@person.GuestPhone"></label>：
                     <label class="col-form-label-sm">@person.GuestPhone</label>
                 </div>
-                <!--<div class="col-2">
-                    <label class="col-form-label-sm">@person.GuestPhone</label>-->
-                @*<input type="text" class="form-control-sm" asp-for="@person.GuestPhone" disabled />*@
-                <!--</div>-->
+                <div class="col-2">
+                    <label class="col-form-label-sm" asp-for="@person.ClotheSize"></label>：
+                    <label class="col-form-label-sm">@person.ClotheSize</label>
+                </div>
+                <div class="col-2">
+                    <label class="col-form-label-sm" asp-for="@person.ShoesSize"></label>：
+                    <label class="col-form-label-sm">@person.ShoesSize</label>
+                </div>
             </div>
         }
     }

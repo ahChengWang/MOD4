@@ -137,56 +137,72 @@
                                 </div>
 
                                 @*<div class="col-md-3 mb-3">
-                    <label for="validationCustom">Zip</label>
-                    <input type="text" class="form-control" id="validationCustom" required>
-                    <div class="invalid-feedback">
-                            Please provide a valid zip.
-                        </div>
-                </div>*@
+                                        <label for="validationCustom">Zip</label>
+                                        <input type="text" class="form-control" id="validationCustom" required>
+                                        <div class="invalid-feedback">
+                                                Please provide a valid zip.
+                                            </div>
+                                    </div>*@
 
                                 <!--<div class="form-group" style="display:flex">
-                <div class="col-2">
-                    <label class="col-form-label" asp-for="UploadFile"></label>
-                    <span asp-validation-for="UploadFile" style="font-size:10px;font-weight:700" class="text-danger"></span>
-                    <div>-->
+                                <div class="col-2">
+                                    <label class="col-form-label" asp-for="UploadFile"></label>
+                                    <span asp-validation-for="UploadFile" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    <div>-->
                                 @*<span class="unit">(允許 xls,xlsx,doc,docx,txt,jpg,png,jpeg)</span>*@
                                 @*<br />*@
                                 <!--<span class="unit">單檔最大2MB</span>
-                    </div>
-                </div>
-                <div class="col-3 custom-file">
-                    <input type="file" class="custom-file-input" asp-for="UploadFile" onchange="verifyFile(this)">
-                    <label class="custom-file-label">Choose file</label>
-                </div>
-            </div>-->
+                                        </div>
+                                    </div>
+                                    <div class="col-3 custom-file">
+                                        <input type="file" class="custom-file-input" asp-for="UploadFile" onchange="verifyFile(this)">
+                                        <label class="custom-file-label">Choose file</label>
+                                    </div>
+                                </div>-->
 
                                 <hr style="border-width: 3px; border-color: gray" />
                                 <h4 style="font-style:italic; font-weight: 600">入廠人員</h4>
                                 <div id="guestInfoDiv">
                                     <div id="guestInfo_0" class="form-group" style="display:flex">
+                                        <div class="col-2" style="display:flex">
+                                            <div>
+                                                <label class="col-form-label" asp-for="Details[0].CompanyName"></label>
+                                                <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                                <span asp-validation-for="Details[0].CompanyName" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                            </div>
+                                            <div style="width:77%;margin-left:3px">
+                                                <input type="text" class="form-control" asp-for="Details[0].CompanyName">
+                                            </div>
+                                        </div>
+                                        <div class="col-2" style="display:flex">
+                                            <div>
+                                                <label class="col-form-label" asp-for="Details[0].Name"></label>
+                                                <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                                <span asp-validation-for="Details[0].Name" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                            </div>
+                                            <div style="width:77%;margin-left:3px">
+                                                <input type="text" class="form-control" asp-for="Details[0].Name">
+                                            </div>
+                                        </div>
+                                        <div class="col-2" style="display:flex">
+                                            <div>
+                                                <label class="col-form-label" asp-for="Details[0].GuestPhone"></label>
+                                            </div>
+                                            <div style="width:60%;margin-left:5px">
+                                                <input type="text" class="form-control" asp-for="Details[0].GuestPhone">
+                                            </div>
+                                        </div>
                                         <div class="col-1">
-                                            <label class="col-form-label" asp-for="Details[0].CompanyName"></label>
-                                            <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                            <span asp-validation-for="Details[0].CompanyName" style="font-size:10px;font-weight:700" class="text-danger"></span>
-                                        </div>
-                                        <div class="col-2">
-                                            <input type="text" class="form-control" asp-for="Details[0].CompanyName">
+                                            <label class="col-form-label" asp-for="Details[0].ClotheSize"></label>
                                         </div>
                                         <div class="col-1">
-                                            <label class="col-form-label" asp-for="Details[0].Name"></label>
-                                            <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                            <span asp-validation-for="Details[0].Name" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                            <input type="text" class="form-control" asp-for="Details[0].ClotheSize">
                                         </div>
-                                        <div class="col-2">
-                                            <input type="text" class="form-control" asp-for="Details[0].Name">
+                                        <div class="col-1">
+                                            <label class="col-form-label" asp-for="Details[0].ShoesSize"></label>
                                         </div>
-                                        <div class="col-2">
-                                            <label class="col-form-label" asp-for="Details[0].GuestPhone"></label>
-                                            <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                            <span asp-validation-for="Details[0].GuestPhone" style="font-size:10px;font-weight:700" class="text-danger"></span>
-                                        </div>
-                                        <div class="col-2">
-                                            <input type="text" class="form-control" asp-for="Details[0].GuestPhone">
+                                        <div class="col-1">
+                                            <input type="text" class="form-control" asp-for="Details[0].ShoesSize">
                                         </div>
                                     </div>
                                 </div>
@@ -217,15 +233,46 @@
             let _latestSn = parseInt(($("#guestInfoDiv").children()[guestLength - 1]).id.split('_')[1]) + 1;
 
             $('<div id="guestInfo_' + _latestSn + '" class="form-group" style="display:flex">' +
-                '<div class="col-1"><label class="col-form-label">單位</label><span style="font-size:10px;font-weight:700" class="text-danger">*</span>' +
-                '<span data-valmsg-for="Details[' + _latestSn + '].CompanyName" data-valmsg-replace="true" style="font-size:10px;font-weight:700" class="text-danger field-validation-valid"></span></div>' +
-                '<div class="col-2"><input type="text" class="form-control" name="Details[' + _latestSn + '].CompanyName" data-val="true" required /></div>' +
-                '<div class="col-1"><label class="col-form-label">姓名</label><span style="font-size:10px;font-weight:700" class="text-danger">*</span>' +
-                '<span data-valmsg-for="Details[' + _latestSn + '].Name" data-valmsg-replace="true" style="font-size:10px;font-weight:700" class="text-danger field-validation-valid"></span></div>' +
-                '<div class="col-2"><input type="text" class="form-control" name="Details[' + _latestSn + '].Name" data-val="true" required /></div>' +
-                '<div class="col-2"><label class="col-form-label">聯絡電話</label><span style="font-size:10px;font-weight:700" class="text-danger">*</span>' +
-                '<span data-valmsg-for="Details[' + _latestSn + '].GuestPhone" data-valmsg-replace="true" style="font-size:10px;font-weight:700" class="text-danger field-validation-valid"></span></div>' +
-                '<div class="col-2"><input type="text" class="form-control" name="Details[' + _latestSn + '].GuestPhone" data-val="true" required /></div>' +
+                '<div class="col-2" style="display:flex">' +
+                '<div>' +
+                '<label class="col-form-label">單位</label>' +
+                '<span style="font-size:10px;font-weight:700" class="text-danger">*</span>' +
+                '<span data-valmsg-for="Details[' + _latestSn + '].CompanyName" data-valmsg-replace="true" style="font-size:10px;font-weight:700" class="text-danger"></span>' +
+                '</div>' +
+                '<div style="width:77%;margin-left:3px">' +
+                '<input type="text" class="form-control" name="Details[' + _latestSn + '].CompanyName" data-val="true" required>' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-2" style="display:flex">' +
+                '<div>' +
+                '<label class="col-form-label">姓名</label>' +
+                '<span style="font-size:10px;font-weight:700" class="text-danger">*</span>' +
+                '<span data-valmsg-for="Details[' + _latestSn + '].Name" data-valmsg-replace="true" style="font-size:10px;font-weight:700" class="text-danger"></span>' +
+                '</div>' +
+                '<div style="width:77%;margin-left:3px">' +
+                '<input type="text" class="form-control" name="Details[' + _latestSn + '].Name" data-val="true" required>' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-2" style="display:flex">' +
+                '<div>' +
+                '<label class="col-form-label">聯絡電話</label>' +
+                '</div>' +
+                '<div style="width:60%;margin-left:5px">' +
+                '<input type="text" class="form-control" name="Details[' + _latestSn + '].GuestPhone">' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-1">' +
+                '<label class="col-form-label">衣服尺寸</label>' +
+                '</div>' +
+                '<div class="col-1">' +
+                '<input type="text" class="form-control" name="Details[' + _latestSn + '].ClotheSize">' +
+                '</div>' +
+                '<div class="col-1">' +
+                '<label class="col-form-label">鞋子尺寸</label>' +
+                '</div>' +
+                '<div class="col-1">' +
+                '<input type="text" class="form-control" name="Details[' + _latestSn + '].ShoesSize">' +
+                '</div>' +
                 '<div class="col-2"><input type="button" class="btn btn-sm btn-outline-secondary" value="刪除" onclick="btnDelGuestInfo(this)"/></div></div>').insertAfter($("#guestInfoDiv").children().last());
         });
 

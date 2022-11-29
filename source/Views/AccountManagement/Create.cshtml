@@ -127,19 +127,19 @@
                                             <option value="0"></option>
                                         </select>
                                     </div>
-                                    <div class="col-1">
-                                        <label class="col-form-label" asp-for="SectionId"></label>
-                                    </div>
-                                    <div class="col-2">
-                                        <select class="form-control" asp-for="SectionId">
-                                            <option value="0"></option>
-                                        </select>
-                                    </div>
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="DepartmentId"></label>
                                     </div>
                                     <div class="col-2">
                                         <select class="form-control" asp-for="DepartmentId">
+                                            <option value="0"></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-1">
+                                        <label class="col-form-label" asp-for="SectionId"></label>
+                                    </div>
+                                    <div class="col-2">
+                                        <select class="form-control" asp-for="SectionId">
                                             <option value="0"></option>
                                         </select>
                                     </div>
@@ -312,30 +312,30 @@
 
         $("#MODId").change(function (e) {
             let modSelected = $("#MODId").find(":selected").val();
-            $("#SectionId, #DepartmentId").empty();
+            $("#DepartmentId, #SectionId").empty();
 
-            $("<option></option>").attr("value", 0).text("").appendTo($("#SectionId"));
             $("<option></option>").attr("value", 0).text("").appendTo($("#DepartmentId"));
+            $("<option></option>").attr("value", 0).text("").appendTo($("#SectionId"));
 
             if (modSelected != '0') {
                 _deptList.forEach(function (dept) {
                     if (dept.relatedId == modSelected) {
-                        $("<option></option>").attr("value", dept.id).text(dept.value).appendTo($("#SectionId"));
+                        $("<option></option>").attr("value", dept.id).text(dept.value).appendTo($("#DepartmentId"));
                     }
                 });
             }
         });
 
-        $("#SectionId").change(function (e) {
-            let sectionSelected = $("#SectionId").find(":selected").val();
-            $("#DepartmentId").empty();
+        $("#DepartmentId").change(function (e) {
+            let sectionSelected = $("#DepartmentId").find(":selected").val();
+            $("#SectionId").empty();
 
-            $("<option></option>").attr("value", 0).text("").appendTo($("#DepartmentId"));
+            $("<option></option>").attr("value", 0).text("").appendTo($("#SectionId"));
 
             if (sectionSelected != '0') {
                 _deptList.forEach(function (dept) {
                     if (dept.relatedId == sectionSelected) {
-                        $("<option></option>").attr("value", dept.id).text(dept.value).appendTo($("#DepartmentId"));
+                        $("<option></option>").attr("value", dept.id).text(dept.value).appendTo($("#SectionId"));
                     }
                 });
             }

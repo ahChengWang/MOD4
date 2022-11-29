@@ -153,29 +153,45 @@
                                             string _id = "guestInfo_" + cnt;
 
                                             <div id="@_id" class="form-group" style="display:flex">
+                                                <div class="col-2" style="display:flex">
+                                                    <div>
+                                                        <label class="col-form-label" asp-for="AccessPersonList[cnt].CompanyName"></label>
+                                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                                        <span asp-validation-for="AccessPersonList[cnt].CompanyName" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                                    </div>
+                                                    <div style="width:77%;margin-left:3px">
+                                                        <input type="text" class="form-control" asp-for="AccessPersonList[cnt].CompanyName">
+                                                    </div>
+                                                </div>
+                                                <div class="col-2" style="display:flex">
+                                                    <div>
+                                                        <label class="col-form-label" asp-for="AccessPersonList[cnt].Name"></label>
+                                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                                        <span asp-validation-for="AccessPersonList[cnt].Name" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                                    </div>
+                                                    <div style="width:77%;margin-left:3px">
+                                                        <input type="text" class="form-control" asp-for="AccessPersonList[cnt].Name">
+                                                    </div>
+                                                </div>
+                                                <div class="col-2" style="display:flex">
+                                                    <div>
+                                                        <label class="col-form-label" asp-for="AccessPersonList[cnt].GuestPhone"></label>
+                                                    </div>
+                                                    <div style="width:60%;margin-left:5px">
+                                                        <input type="text" class="form-control" asp-for="AccessPersonList[cnt].GuestPhone">
+                                                    </div>
+                                                </div>
                                                 <div class="col-1">
-                                                    <label class="col-form-label" asp-for="AccessPersonList[cnt].CompanyName"></label>
-                                                    <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                                    <span asp-validation-for="AccessPersonList[cnt].CompanyName" style="font-size:10px;font-weight:700" class="text-danger"></span>
-                                                </div>
-                                                <div class="col-2">
-                                                    <input type="text" class="form-control" asp-for="AccessPersonList[cnt].CompanyName">
+                                                    <label class="col-form-label" asp-for="AccessPersonList[cnt].ClotheSize"></label>
                                                 </div>
                                                 <div class="col-1">
-                                                    <label class="col-form-label" asp-for="AccessPersonList[cnt].Name"></label>
-                                                    <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                                    <span asp-validation-for="AccessPersonList[cnt].Name" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                                    <input type="text" class="form-control" asp-for="AccessPersonList[cnt].ClotheSize">
                                                 </div>
-                                                <div class="col-2">
-                                                    <input type="text" class="form-control" asp-for="AccessPersonList[cnt].Name">
+                                                <div class="col-1">
+                                                    <label class="col-form-label" asp-for="AccessPersonList[cnt].ShoesSize"></label>
                                                 </div>
-                                                <div class="col-2">
-                                                    <label class="col-form-label" asp-for="AccessPersonList[cnt].GuestPhone"></label>
-                                                    <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                                    <span asp-validation-for="AccessPersonList[cnt].GuestPhone" style="font-size:10px;font-weight:700" class="text-danger"></span>
-                                                </div>
-                                                <div class="col-2">
-                                                    <input type="text" class="form-control" asp-for="AccessPersonList[cnt].GuestPhone">
+                                                <div class="col-1">
+                                                    <input type="text" class="form-control" asp-for="AccessPersonList[cnt].ShoesSize">
                                                 </div>
 
                                                 @if (cnt != 0)
@@ -349,15 +365,46 @@
             let _latestSn = parseInt(($("#guestInfoDiv").children()[guestLength - 1]).id.split('_')[1]) + 1;
 
             $('<div id="guestInfo_' + _latestSn + '" class="form-group" style="display:flex">' +
-                '<div class="col-1"><label class="col-form-label-sm">單位</label><span style="font-size:10px;font-weight:700" class="text-danger">*</span>' +
-                '<span data-valmsg-for="AccessPersonList[' + _latestSn + '].CompanyName" data-valmsg-replace="true" style="font-size:10px;font-weight:700" class="text-danger field-validation-valid"></span></div>' +
-                '<div class="col-2"><input type="text" class="form-control-sm" name="AccessPersonList[' + _latestSn + '].CompanyName" data-val="true" required /></div>' +
-                '<div class="col-1"><label class="col-form-label-sm">姓名</label><span style="font-size:10px;font-weight:700" class="text-danger">*</span>' +
-                '<span data-valmsg-for="AccessPersonList[' + _latestSn + '].Name" data-valmsg-replace="true" style="font-size:10px;font-weight:700" class="text-danger field-validation-valid"></span></div>' +
-                '<div class="col-2"><input type="text" class="form-control-sm" name="AccessPersonList[' + _latestSn + '].Name" data-val="true" required /></div>' +
-                '<div class="col-2"><label class="col-form-label-sm">聯絡電話</label><span style="font-size:10px;font-weight:700" class="text-danger">*</span>' +
-                '<span data-valmsg-for="AccessPersonList[' + _latestSn + '].GuestPhone" data-valmsg-replace="true" style="font-size:10px;font-weight:700" class="text-danger field-validation-valid"></span></div>' +
-                '<div class="col-2"><input type="text" class="form-control-sm" name="AccessPersonList[' + _latestSn + '].GuestPhone" data-val="true" required /></div>' +
+                '<div class="col-2" style="display:flex">' +
+                '<div>' +
+                '<label class="col-form-label">單位</label>' +
+                '<span style="font-size:10px;font-weight:700" class="text-danger">*</span>' +
+                '<span data-valmsg-for="Details[' + _latestSn + '].CompanyName" data-valmsg-replace="true" style="font-size:10px;font-weight:700" class="text-danger"></span>' +
+                '</div>' +
+                '<div style="width:77%;margin-left:3px">' +
+                '<input type="text" class="form-control" name="Details[' + _latestSn + '].CompanyName" data-val="true" required>' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-2" style="display:flex">' +
+                '<div>' +
+                '<label class="col-form-label">姓名</label>' +
+                '<span style="font-size:10px;font-weight:700" class="text-danger">*</span>' +
+                '<span data-valmsg-for="Details[' + _latestSn + '].Name" data-valmsg-replace="true" style="font-size:10px;font-weight:700" class="text-danger"></span>' +
+                '</div>' +
+                '<div style="width:77%;margin-left:3px">' +
+                '<input type="text" class="form-control" name="Details[' + _latestSn + '].Name" data-val="true" required>' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-2" style="display:flex">' +
+                '<div>' +
+                '<label class="col-form-label">聯絡電話</label>' +
+                '</div>' +
+                '<div style="width:60%;margin-left:5px">' +
+                '<input type="text" class="form-control" name="Details[' + _latestSn + '].GuestPhone">' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-1">' +
+                '<label class="col-form-label">衣服尺寸</label>' +
+                '</div>' +
+                '<div class="col-1">' +
+                '<input type="text" class="form-control" name="Details[' + _latestSn + '].ClotheSize">' +
+                '</div>' +
+                '<div class="col-1">' +
+                '<label class="col-form-label">鞋子尺寸</label>' +
+                '</div>' +
+                '<div class="col-1">' +
+                '<input type="text" class="form-control" name="Details[' + _latestSn + '].ShoesSize">' +
+                '</div>' +
                 '<div class="col-2"><input type="button" class="btn btn-sm btn-outline-secondary" value="刪除" onclick="btnDelGuestInfo(this)"/></div></div>').insertAfter($("#guestInfoDiv").children().last());
         });
 
