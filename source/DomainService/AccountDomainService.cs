@@ -256,20 +256,27 @@ namespace MOD4.Web.DomainService
 
         public void InsertUpdateAccountInfo(string account, string password)
         {
-            bool _alreadyAcc = _accountInfoRepository.SelectByConditions(account, password).Count == 1;
-            bool _updPwAcc = _accountInfoRepository.SelectByConditions(account).Count == 1;
+            try
+            {
+                bool _alreadyAcc = _accountInfoRepository.SelectByConditions(account, password).Count == 1;
+                bool _updPwAcc = _accountInfoRepository.SelectByConditions(account).Count == 1;
 
-            if (!_alreadyAcc && !_updPwAcc)
-            {
-                InsertUserAndPermission(account, password);
-                CatchHelper.Delete(new string[] { $"accInfo" });
-                CatchHelper.Set("accInfo", JsonConvert.SerializeObject(GetAllAccountInfo()), 604800);
+                if (!_alreadyAcc && !_updPwAcc)
+                {
+                    InsertUserAndPermission(account, password);
+                    CatchHelper.Delete(new string[] { $"accInfo" });
+                    CatchHelper.Set("accInfo", JsonConvert.SerializeObject(GetAllAccountInfo()), 604800);
+                }
+                else if (!_alreadyAcc && _updPwAcc)
+                {
+                    UpdateUserPw(account, password);
+                    CatchHelper.Delete(new string[] { $"accInfo" });
+                    CatchHelper.Set("accInfo", JsonConvert.SerializeObject(GetAllAccountInfo()), 604800);
+                }
             }
-            else if (!_alreadyAcc && _updPwAcc)
+            catch (Exception ex)
             {
-                UpdateUserPw(account, password);
-                CatchHelper.Delete(new string[] { $"accInfo" });
-                CatchHelper.Set("accInfo", JsonConvert.SerializeObject(GetAllAccountInfo()), 604800);
+                throw ex;
             }
         }
 
@@ -278,7 +285,7 @@ namespace MOD4.Web.DomainService
             return _accountInfoRepository.SelectUserMenuPermission(userAccountSn).Select(s => new AccountMenuInfoEntity
             {
                 AccountSn = s.account_sn,
-                MenuSn = s.menu_sn,
+                MenuSn = (MenuEnum)s.menu_sn,
                 MenuGroupSn = s.menu_group_sn,
                 AccountPermission = s.account_permission
             }).ToList();
@@ -309,7 +316,7 @@ namespace MOD4.Web.DomainService
                 .Select(s =>
                 new AccountMenuInfoDao
                 {
-                    menu_sn = s.MenuSn,
+                    menu_sn = (int)s.MenuSn,
                     account_permission = s.AccountPermission,
                     menu_group_sn = 0
                 }).ToList();
@@ -318,7 +325,7 @@ namespace MOD4.Web.DomainService
 
             _insAccMenuInfo.AddRange(_parentPage.Select(parentMenu => new AccountMenuInfoDao
             {
-                menu_sn = (MenuEnum)parentMenu,
+                menu_sn = parentMenu,
                 account_permission = 1,
                 menu_group_sn = 0
             }));
@@ -352,43 +359,56 @@ namespace MOD4.Web.DomainService
 
         private string InsertUserAndPermission(string acc, string pw)
         {
-            using (var scope = new TransactionScope())
+            try
             {
-                _accountInfoRepository.InsertUserAccount(new AccountInfoDao
+                using (var scope = new TransactionScope())
                 {
-                    account = acc,
-                    password = pw,
-                    name = acc,
-                    role = RoleEnum.User,
-                    level_id = JobLevelEnum.Employee,
-                    mail = "test@INNOLUX.COM",
-                    jobId = "",
-                });
+                    _accountInfoRepository.InsertUserAccount(new AccountInfoDao
+                    {
+                        account = acc,
+                        password = pw,
+                        name = acc,
+                        role = RoleEnum.User,
+                        level_id = JobLevelEnum.Employee,
+                        mail = "test@INNOLUX.COM",
+                        jobId = "",
+                    });
 
-                var _data = _accountInfoRepository.SelectByConditions(acc).FirstOrDefault();
+                    var _data = _accountInfoRepository.SelectByConditions(acc).FirstOrDefault();
 
-                if (_data == null)
-                    return "使用者新增失敗";
+                    if (_data == null)
+                        return "使用者新增失敗";
 
-                _accountInfoRepository.InsertUserPermission(new List<AccountMenuInfoDao>
+                    _accountInfoRepository.InsertUserPermission(new List<AccountMenuInfoDao>
                 {
                     new AccountMenuInfoDao
                     {
                         account_sn = _data.sn,
-                        menu_sn = MenuEnum.Demand,
+                        menu_sn = (int)MenuEnum.Demand,
+                        menu_group_sn = 3
+                    },
+                    new AccountMenuInfoDao
+                    {
+                        account_sn = _data.sn,
+                        menu_sn = 12,
                         menu_group_sn = 0
                     },
                     new AccountMenuInfoDao
                     {
                         account_sn = _data.sn,
-                        menu_sn = MenuEnum.AccessFab,
-                        menu_group_sn = 0
+                        menu_sn = (int)MenuEnum.AccessFab,
+                        menu_group_sn = 3
                     }
                 });
-                scope.Complete();
-            }
+                    scope.Complete();
+                }
 
-            return "";
+                return "";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         private string UpdateUserPw(string acc, string pw)

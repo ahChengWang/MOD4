@@ -108,6 +108,7 @@ namespace MOD4.Web.DomainService
             {
                 DateTime _nowTime = DateTime.Now;
                 string _createRes = "";
+                var _latestOrderSn = 0;
 
                 var _verifyResult = Verify(orderEntity);
 
@@ -164,7 +165,7 @@ namespace MOD4.Web.DomainService
                     bool _insFabOrderHisRes = false;
 
                     _insFabOrderRes = _accessFabOrderRepository.Insert(_insAccessFabOrderDao) == 1;
-                    var _latestOrderSn = _accessFabOrderRepository.SelectList(orderNo: _insAccessFabOrderDao.OrderNo).FirstOrDefault().OrderSn;
+                    _latestOrderSn = _accessFabOrderRepository.SelectList(orderNo: _insAccessFabOrderDao.OrderNo).FirstOrDefault().OrderSn;
 
                     // 新增入廠人員明細
                     _insAccessFabOrderDetailListDao.ForEach(fe => fe.AccessFabOrderSn = _latestOrderSn);
@@ -186,10 +187,10 @@ namespace MOD4.Web.DomainService
                     _mailServer.Send(new MailEntity
                     {
                         To = _insAccessFabOrderAuditHisDao.FirstOrDefault(f => f.AuditSn == 1).Mail,
-                        Subject = "管制口進出申請單 - 待簽核通知",
+                        Subject = $"管制口進出申請單 - 待簽核通知 (申請人:{_insAccessFabOrderDao.Applicant})",
                         Content = "<br /> Dear Sir <br /><br />" +
                         "您有<a style='text-decoration:underline'>待簽核</a><a style='font-weight:900'>管制口進出請單</a>， <br /><br />" +
-                        "簽核單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit' target='_blank'>" + _insAccessFabOrderDao.OrderNo + "</a>"
+                        $"簽核單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit/Detail/{_latestOrderSn}' target='_blank'>" + _insAccessFabOrderDao.OrderNo + "</a>"
                     });
                 }
 
@@ -215,6 +216,7 @@ namespace MOD4.Web.DomainService
 
                 var _auditFlow = _accountDomainService.GetAuditFlowInfo(userEntity);
 
+                var _oldAccessFabOrder = _accessFabOrderRepository.SelectList(orderEntity.OrderSn).FirstOrDefault();
                 var _oldAccessFabOrderDetail = _accessFabOrderDetailRepository.SelectList(orderEntity.OrderSn);
 
                 AccessFabOrderDao _updAccessFabOrderDao = new AccessFabOrderDao()
@@ -287,6 +289,19 @@ namespace MOD4.Web.DomainService
                         scope.Complete();
                     else
                         _createRes = "新增申請單異常";
+                }
+
+                // 發送待簽核 mail
+                if (_createRes == "")
+                {
+                    _mailServer.Send(new MailEntity
+                    {
+                        To = _updAccessFabOrderAuditHisDao.FirstOrDefault(f => f.AuditSn == 1).Mail,
+                        Subject = $"管制口進出申請單 - 待簽核通知 (申請人:{_oldAccessFabOrder.Applicant})",
+                        Content = "<br /> Dear Sir <br /><br />" +
+                        "您有<a style='text-decoration:underline'>待簽核</a><a style='font-weight:900'>管制口進出請單</a>， <br /><br />" +
+                        $"簽核單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit/Detail/{_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
+                    });
                 }
 
                 return _createRes;
@@ -413,7 +428,7 @@ namespace MOD4.Web.DomainService
                     _updAccessFabOrderDao.AuditAccountSn = _nextAuditFlow.AuditAccountSn;
                     _nextAuditFlow.ReceivedTime = _nowTime;
                     _updAccessFabOrderAuditHisDao.Add(_nextAuditFlow);
-                    _nextAuditAccountInfo.Mail = _accountDomainService.GetAccountInfo(new List<int> { _nextAuditFlow.AuditSn }).FirstOrDefault().Mail;
+                    _nextAuditAccountInfo.Mail = _accountDomainService.GetAccountInfo(new List<int> { _nextAuditFlow.AuditAccountSn }).FirstOrDefault().Mail;
                 }
 
                 using (var scope = new TransactionScope())
@@ -437,11 +452,11 @@ namespace MOD4.Web.DomainService
                 {
                     _mailServer.Send(new MailEntity
                     {
-                        To = userEntity.Mail,
-                        Subject = "管制口進出申請單 - 剔退通知",
+                        To = _accountDomainService.GetAccountInfo(new List<int> { _oldAccessFabOrder.ApplicantAccountSn }).FirstOrDefault().Mail,
+                        Subject = "管制口進出申請單 - 退件通知",
                         Content = "<br /> Dear Sir <br /><br />" +
                         "您有<a style='text-decoration:underline'>待重送</a><a style='font-weight:900'>管制口進出申請單</a>， <br /><br />" +
-                        $"單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit/Edit?orderSn={_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
+                        $"單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Edit?orderSn={_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
                     });
                 }
                 // 發送待簽核 mail
@@ -455,6 +470,8 @@ namespace MOD4.Web.DomainService
                         $"單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit/Detail/{_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
                     });
                 else if (_updAccessFabOrderDao.StatusId == FabInOutStatusEnum.Completed && _auditRes == "")
+                {
+                    // 通知管制口人員
                     _mailServer.Send(new MailEntity
                     {
                         To = _nextAuditAccountInfo.Mail,
@@ -463,6 +480,16 @@ namespace MOD4.Web.DomainService
                         "您有<a style='text-decoration:underline'>已完成</a><a style='font-weight:900'>管制口進出申請單</a>， <br /><br />" +
                         $"單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit/Detail/{_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
                     });
+                    // 通知申請人
+                    _mailServer.Send(new MailEntity
+                    {
+                        To = _accountDomainService.GetAccountInfo(new List<int> { _oldAccessFabOrder.ApplicantAccountSn }).FirstOrDefault().Mail,
+                        Subject = $"管制口進出申請單 - 簽核完成",
+                        Content = "<br /> Dear Sir <br /><br />" +
+                        "您有<a style='text-decoration:underline'>已完成</a><a style='font-weight:900'>管制口進出申請單</a>， <br /><br />" +
+                        $"單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Detail?orderSn={_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
+                    });
+                }
 
                 return _auditRes;
             }

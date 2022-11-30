@@ -44,14 +44,34 @@ namespace MOD4.Web.Controllers
                 // hTrmiPySURWvdNvKfCxpkA==
                 //var _Pw = Decrypt("hTrmiPySURWvdNvKfCxpkA==", _shaKey);
 
-                var _catchAccInfo = CatchHelper.Get($"accInfo");
                 AccountInfoEntity _currentUser = new AccountInfoEntity();
+                List<AccountInfoEntity> _accountList = new List<AccountInfoEntity>();
+                // 密碼加密
                 var _encryptPw = Encrypt(loginViewMode.Password, _shaKey);
-                
+
+                // 驗證
+                if (_innxVerify)
+                {
+                    // call InxSSO 確認帳密
+                    if (!_accountDomainService.VerifyInxSSO(loginViewMode.Account, loginViewMode.Password))
+                        return Json("帳號密碼錯誤");
+
+                    _accountDomainService.InsertUpdateAccountInfo(loginViewMode.Account, _encryptPw);
+                }
+                // 資料庫驗證
+                else
+                {
+                    _accountList = _accountDomainService.GetAllAccountInfo();
+                    if (!_accountList.Any(a => a.Account == loginViewMode.Account.ToLower() && a.Password == _encryptPw))
+                        return Json("帳號密碼錯誤");
+                }
+
+                var _catchAccInfo = CatchHelper.Get($"accInfo");
+
                 // catch 查詢
                 if (_catchAccInfo == null)
                 {
-                    var _allAccInfo = _accountDomainService.GetAllAccountInfo();
+                    var _allAccInfo = _innxVerify ? _accountDomainService.GetAllAccountInfo() : _accountList;
                     CatchHelper.Set("accInfo", JsonConvert.SerializeObject(_allAccInfo), 604800);
                     _currentUser = _allAccInfo.FirstOrDefault(f => f.Account == loginViewMode.Account && f.Password == _encryptPw);
                 }
@@ -60,23 +80,6 @@ namespace MOD4.Web.Controllers
                     _currentUser = JsonConvert.DeserializeObject<List<AccountInfoEntity>>(_catchAccInfo)
                         .FirstOrDefault(f => f.Account == loginViewMode.Account && f.Password == _encryptPw);
                 }
-
-                // 驗證
-                if (_innxVerify)
-                {
-                    // call InxSSO 確認帳密
-                    bool _verifyResult = _accountDomainService.VerifyInxSSO(loginViewMode.Account, loginViewMode.Password);
-
-                    if (!_verifyResult)
-                        return Json("帳號密碼錯誤");
-                }
-                // 資料庫驗證
-                else if (_currentUser == null)
-                {
-                    return Json("帳號密碼錯誤");
-                }
-
-                _accountDomainService.InsertUpdateAccountInfo(loginViewMode.Account, _encryptPw);
 
                 var claims = new List<Claim>()
                 {

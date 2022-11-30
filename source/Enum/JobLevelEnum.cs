@@ -13,7 +13,7 @@ namespace MOD4.Web.Enum
         [Description("課長")]
         SectionManager = 3,
 
-        [Description("員工")]
+        [Description("工程師")]
         Employee = 4,
     }
 }

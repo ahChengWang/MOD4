@@ -207,6 +207,8 @@ namespace MOD4.Web.DomainService
                     orderSn = updEntity.OrderSn,
                     orderNo = updEntity.OrderNo,
                     statusId = newStatusId,
+                    subject = updEntity.Subject,
+                    content = updEntity.Content,
                     updateUser = userEntity.Account,
                     updateTime = _nowTime
                 };

@@ -104,6 +104,8 @@ VALUES
         {
             string sql = @" UPDATE [dbo].[demands]
    SET [statusId] = @statusId
+      ,[subject] = @subject
+      ,[content] = @content
       ,[updateUser] = @updateUser
       ,[updateTime] = @updateTime
  WHERE orderSn=@orderSn and orderNo=@orderNo 
