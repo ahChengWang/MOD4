@@ -3,6 +3,7 @@ using MOD4.Web.Enum;
 using MOD4.Web.Repostory.Dao;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 
 namespace MOD4.Web.Repostory
@@ -10,7 +11,11 @@ namespace MOD4.Web.Repostory
     public class AccountInfoRepository : BaseRepository, IAccountInfoRepository
     {
 
-        public List<AccountInfoDao> SelectByConditions(string account = "", string password = "", List<int> accountSnList = null, int deptSn = 0)
+        public List<AccountInfoDao> SelectByConditions(string account = "", 
+            string password = "", 
+            List<int> accountSnList = null, 
+            int deptSn = 0,
+            List<RoleEnum> roleIdList = null)
         {
             string sql = "select * from account_info where 1=1 ";
 
@@ -30,13 +35,18 @@ namespace MOD4.Web.Repostory
             {
                 sql += " and deptSn = @deptSn ";
             }
+            if (roleIdList != null)
+            {
+                sql += " and role in @role ";
+            }
 
             var dao = _dbHelper.ExecuteQuery<AccountInfoDao>(sql, new
             {
                 account = account,
                 password = password,
                 SnList = accountSnList,
-                deptSn = deptSn
+                deptSn = deptSn,
+                role = roleIdList
             });
 
             return dao;

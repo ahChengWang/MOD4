@@ -1,4 +1,5 @@
 ﻿using MOD4.Web.DomainService.Entity;
+using MOD4.Web.Enum;
 using System.Collections.Generic;
 
 namespace MOD4.Web.DomainService
@@ -10,6 +11,8 @@ namespace MOD4.Web.DomainService
         List<AccountInfoEntity> GetAccountInfo(List<int> accountSnList);
 
         AccessFabOrderFlowEntity GetAuditFlowInfo(UserEntity userEntity);
+
+        List<AccountInfoEntity> GetAccountInfoByConditions(List<RoleEnum> roleIdList);
 
         AccountInfoEntity GetAccInfoByDepartment(UserEntity userEntity);
 

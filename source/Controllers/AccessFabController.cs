@@ -414,6 +414,15 @@ namespace MOD4.Web.Controllers
                 ViewBag.FabInTypeList = new SelectList(_optionList.FirstOrDefault(f => f.Item1 == "fabInTypeList").Item2, "Id", "Value");
                 ViewBag.FabInCategoryList = new SelectList(_optionList.FirstOrDefault(f => f.Item1 == "fabInCategoryList").Item2, "Id", "Value");
 
+                UserEntity _userInfo = GetUserInfo();
+                var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.AccessFabAudit);
+                ViewBag.UserPermission = new UserPermissionViewModel
+                {
+                    AccountSn = _userCurrentPagePermission.AccountSn,
+                    MenuSn = _userCurrentPagePermission.MenuSn,
+                    AccountPermission = _userCurrentPagePermission.AccountPermission
+                };
+
                 AccessFabOrderEntity _accessFabOrderData = _accessFabDomainService.GetDetail(orderSn);
 
                 var _res = new AccessFabDetailPageViewModel
@@ -429,6 +438,7 @@ namespace MOD4.Web.Controllers
                     Route = _accessFabOrderData.Route,
                     JobId = _accessFabOrderData.JobId,
                     AccessFabOrderNo = _accessFabOrderData.OrderNo,
+                    OrderStatusId = _accessFabOrderData.StatusId,
                     OrderStatus = _accessFabOrderData.StatusId.GetDescription(),
                     FabInDate = _accessFabOrderData.FabInDate,
                     FabOutDate = _accessFabOrderData.FabOutDate,

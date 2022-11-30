@@ -16,7 +16,7 @@ namespace MOD4.Web.ViewModel
         public string FabInOtherType { get; set; }
 
         [Display(Name = "申請人姓名")]
-        [RegularExpression(@"^[\u4e00-\u9fa5a-zA-Z]+$", ErrorMessage = "輸入中英文")]
+        [RegularExpression(@"^[\u4e00-\u9fa5a-zA-Z.\s]+$", ErrorMessage = "輸入中英文")]
         [Required(ErrorMessage = "必填")]
         public string Applicant { get; set; }
 

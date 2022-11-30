@@ -60,6 +60,23 @@ namespace MOD4.Web.DomainService
             }).ToList();
         }
 
+        public List<AccountInfoEntity> GetAccountInfoByConditions(List<RoleEnum> roleIdList)
+        {
+            return _accountInfoRepository.SelectByConditions(roleIdList: roleIdList).Select(s => new AccountInfoEntity
+            {
+                sn = s.sn,
+                Account = s.account,
+                Name = s.name,
+                Password = s.password,
+                RoleId = s.role,
+                JobId = s.jobId,
+                Level_id = s.level_id,
+                ApiKey = s.apiKey,
+                DeptSn = s.deptSn,
+                Mail = s.mail
+            }).ToList();
+        }
+
         public AccessFabOrderFlowEntity GetAuditFlowInfo(UserEntity userEntity)
         {
             var _defDepartment = _accountInfoRepository.SelectDefinitionDepartment(deptSn: userEntity.DeptSn).FirstOrDefault();

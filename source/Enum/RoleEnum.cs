@@ -25,7 +25,7 @@ namespace MOD4.Web.Enum
         [Description("需求系統管理者")]
         DemandSysMgr = 7,
 
-        [Description("管制口管理者")]
-        ControlSysMgr = 8,
+        [Description("管制口人員")]
+        GateEmployee = 8,
     }
 }

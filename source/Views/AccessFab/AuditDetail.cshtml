@@ -1,4 +1,5 @@
 ﻿@model MOD4.Web.ViewModel.AccessFabDetailPageViewModel
+@using MOD4.Web.ViewModel
 
 @{
     ViewBag.Title = "申請單簽核";
@@ -46,12 +47,18 @@
                         <form id="detailForm">
                             <div class="card-body">
                                 <partial name="_PartialDetailForm" model="Model" />
+                                @{
+                                    UserPermissionViewModel _test = (UserPermissionViewModel)ViewBag.UserPermission;
 
-                                <div>
-                                    <input class="btn btn-success" type="button" data-toggle="modal" data-target="#modal-approve" value="核准" />
+                                    if (Convert.ToBoolean(_test.AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Audit))
+                                    {
+                                        <div>
+                                            <input class="btn btn-success" type="button" data-toggle="modal" data-target="#modal-approve" value="核准" />
 
-                                    <input class="btn btn-danger" type="button" data-toggle="modal" data-target="#modal-reject" value="剔退" />
-                                </div>
+                                            <input class="btn btn-danger" type="button" data-toggle="modal" data-target="#modal-reject" value="剔退" />
+                                        </div>
+                                    }
+                                }
                             </div>
                         </form>
                         <div class="modal fade" id="modal-approve">

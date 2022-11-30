@@ -340,8 +340,18 @@ namespace MOD4.Web.DomainService
         public List<AccessFabOrderEntity> GetAuditList(UserEntity userEntity, AccessFabSelectOptionEntity selectOption)
         {
             // 取得該使用者待簽核申請單
-            selectOption.AuditAccountSn = userEntity.sn;
-            selectOption.StatusId = (int)FabInOutStatusEnum.Processing;
+
+            // 管制口人員
+            if (userEntity.RoleId == RoleEnum.GateEmployee)
+            {
+                selectOption.AuditAccountSn = userEntity.sn;
+                selectOption.StatusId = (int)FabInOutStatusEnum.Completed;
+            }
+            else
+            {
+                selectOption.AuditAccountSn = userEntity.sn;
+                selectOption.StatusId = (int)FabInOutStatusEnum.Processing;
+            }
             var _accessFabOrderAuditList = GetAccessFabOrderList(selectOption);
 
             _accessFabOrderAuditList.ForEach(fe => fe.Url = $"./Audit/Detail/{fe.OrderSn}");
@@ -390,7 +400,12 @@ namespace MOD4.Web.DomainService
                     _updAccessFabOrderDao.StatusId = orderEntity.StatusId;
                 // 簽核已完成, 無下個簽核人員
                 else if (orderEntity.StatusId != FabInOutStatusEnum.Rejected && _nextAuditFlow == null)
+                {
+                    var _gateEmployee = _accountDomainService.GetAccountInfoByConditions(new List<RoleEnum> { RoleEnum.GateEmployee }).FirstOrDefault();
                     _updAccessFabOrderDao.StatusId = FabInOutStatusEnum.Completed;
+                    _updAccessFabOrderDao.AuditAccountSn = _gateEmployee.sn;
+                    _nextAuditAccountInfo.Mail = _gateEmployee.Mail;
+                }
                 // 簽核未完成, 更新下個簽核人員資訊
                 else if (orderEntity.StatusId != FabInOutStatusEnum.Rejected && _nextAuditFlow != null)
                 {
@@ -426,7 +441,7 @@ namespace MOD4.Web.DomainService
                         Subject = "管制口進出申請單 - 剔退通知",
                         Content = "<br /> Dear Sir <br /><br />" +
                         "您有<a style='text-decoration:underline'>待重送</a><a style='font-weight:900'>管制口進出申請單</a>， <br /><br />" +
-                        "單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
+                        $"單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit/Edit?orderSn={_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
                     });
                 }
                 // 發送待簽核 mail
@@ -434,19 +449,19 @@ namespace MOD4.Web.DomainService
                     _mailServer.Send(new MailEntity
                     {
                         To = _nextAuditAccountInfo.Mail,
-                        Subject = "管制口進出申請單 - 待簽核通知",
+                        Subject = $"管制口進出申請單 - 待簽核通知 (申請人:{_oldAccessFabOrder.Applicant})",
                         Content = "<br /> Dear Sir <br /><br />" +
                         "您有<a style='text-decoration:underline'>待簽核</a><a style='font-weight:900'>管制口進出申請單</a>， <br /><br />" +
-                        "單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
+                        $"單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit/Detail/{_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
                     });
                 else if (_updAccessFabOrderDao.StatusId == FabInOutStatusEnum.Completed && _auditRes == "")
                     _mailServer.Send(new MailEntity
                     {
                         To = _nextAuditAccountInfo.Mail,
-                        Subject = "管制口進出申請單 - 確認通知",
+                        Subject = $"管制口進出申請單 - 確認通知 (申請人:{_oldAccessFabOrder.Applicant})",
                         Content = "<br /> Dear Sir <br /><br />" +
                         "您有<a style='text-decoration:underline'>已完成</a><a style='font-weight:900'>管制口進出申請單</a>， <br /><br />" +
-                        "單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
+                        $"單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit/Detail/{_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
                     });
 
                 return _auditRes;
@@ -461,11 +476,11 @@ namespace MOD4.Web.DomainService
         {
             var _orderAccessFabOrder = _accessFabOrderRepository.SelectList(orderSn: orderSn).FirstOrDefault();
 
-            if (_orderAccessFabOrder.StatusId != FabInOutStatusEnum.Processing ||
-                (_orderAccessFabOrder.StatusId == FabInOutStatusEnum.Processing && _orderAccessFabOrder.AuditAccountSn != userEntity.sn))
+            if ((_orderAccessFabOrder.StatusId == FabInOutStatusEnum.Completed && _orderAccessFabOrder.AuditAccountSn == userEntity.sn && userEntity.RoleId == RoleEnum.GateEmployee) ||
+                (_orderAccessFabOrder.StatusId == FabInOutStatusEnum.Processing && _orderAccessFabOrder.AuditAccountSn == userEntity.sn))
+                return "";
+            else
                 return "申請單已變更, 將重新整理頁面";
-
-            return "";
         }
 
         private List<AccessFabOrderEntity> GetAccessFabOrderList(AccessFabSelectOptionEntity selectOption = null)
@@ -549,17 +564,27 @@ namespace MOD4.Web.DomainService
                         new AccessFabOrderAuditHistoryDao
                         {
                             AuditSn = 1,
+                            AuditAccountSn = auditFlow.DeptAccSn,
+                            //AuditAccountName = auditFlow.SectionName,
+                            AuditAccountName = $"部門主管-{auditFlow.DeptName}",
+                            StatusId = FabInOutStatusEnum.Processing,
+                            ReceivedTime = nowTime,
+                            IsDel = false,
+                            Mail = auditFlow.DeptMail
+                        },
+                        new AccessFabOrderAuditHistoryDao
+                        {
+                            AuditSn = 2,
                             AuditAccountSn = _gateManager.sn,
                             //AuditAccountName = auditFlow.DeptName,
                             AuditAccountName = $"管制口主管-{_gateManager.Name}",
                             StatusId = FabInOutStatusEnum.Processing,
-                            ReceivedTime = nowTime,
                             IsDel = false,
                             Mail = _gateManager.Mail
                         },
                         new AccessFabOrderAuditHistoryDao
                         {
-                            AuditSn = 2,
+                            AuditSn = 3,
                             AuditAccountSn = auditFlow.TopAccSn,
                             //AuditAccountName = auditFlow.TopName,
                             AuditAccountName = $"廠長-{auditFlow.TopName}",
