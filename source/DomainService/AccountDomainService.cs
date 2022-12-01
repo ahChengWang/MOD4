@@ -385,19 +385,22 @@ namespace MOD4.Web.DomainService
                     {
                         account_sn = _data.sn,
                         menu_sn = (int)MenuEnum.Demand,
-                        menu_group_sn = 3
+                        menu_group_sn = 0,
+                        account_permission = 3
                     },
                     new AccountMenuInfoDao
                     {
                         account_sn = _data.sn,
                         menu_sn = 12,
-                        menu_group_sn = 0
+                        menu_group_sn = 0,
+                        account_permission = 0
                     },
                     new AccountMenuInfoDao
                     {
                         account_sn = _data.sn,
                         menu_sn = (int)MenuEnum.AccessFab,
-                        menu_group_sn = 3
+                        menu_group_sn = 0,
+                        account_permission = 0
                     }
                 });
                     scope.Complete();

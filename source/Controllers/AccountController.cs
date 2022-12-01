@@ -62,7 +62,7 @@ namespace MOD4.Web.Controllers
                 else
                 {
                     _accountList = _accountDomainService.GetAllAccountInfo();
-                    if (!_accountList.Any(a => a.Account == loginViewMode.Account.ToLower() && a.Password == _encryptPw))
+                    if (!_accountList.Any(a => a.Account.ToLower() == loginViewMode.Account.ToLower() && a.Password == _encryptPw))
                         return Json("帳號密碼錯誤");
                 }
 
@@ -73,12 +73,12 @@ namespace MOD4.Web.Controllers
                 {
                     var _allAccInfo = _innxVerify ? _accountDomainService.GetAllAccountInfo() : _accountList;
                     CatchHelper.Set("accInfo", JsonConvert.SerializeObject(_allAccInfo), 604800);
-                    _currentUser = _allAccInfo.FirstOrDefault(f => f.Account == loginViewMode.Account && f.Password == _encryptPw);
+                    _currentUser = _allAccInfo.FirstOrDefault(f => f.Account.ToLower() == loginViewMode.Account.ToLower() && f.Password == _encryptPw);
                 }
                 else
                 {
                     _currentUser = JsonConvert.DeserializeObject<List<AccountInfoEntity>>(_catchAccInfo)
-                        .FirstOrDefault(f => f.Account == loginViewMode.Account && f.Password == _encryptPw);
+                        .FirstOrDefault(f => f.Account.ToLower() == loginViewMode.Account.ToLower() && f.Password == _encryptPw);
                 }
 
                 var claims = new List<Claim>()
