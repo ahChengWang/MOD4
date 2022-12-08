@@ -102,7 +102,7 @@ namespace MOD4.Web.DomainService
 
             //var _lineTTList = _lineTTRepository.SelectByConditions(mfgDTE, _allNodeList, shift);
 
-            var _settingList = _targetSettingDomainService.GetList(_nodeDic.Select(s => s.Key).ToList());
+            var _settingList = _targetSettingDomainService.GetList(nodeList: _nodeDic.Select(s => s.Key).ToList());
 
             var _eqpHistoryList =
                 _equipmentDomainService.GetEntityHistoryDetail(mfgDTE, _settingList.Where(we => we.DownEquipment != "").Select(s => s.DownEquipment).ToList(), _prodOptionList);

@@ -19,11 +19,11 @@ namespace MOD4.Web.DomainService
         }
 
 
-        public List<TargetSettingEntity> GetList(List<string> nodeList = null)
+        public List<TargetSettingEntity> GetList(int prodSn = 1206,List<string> nodeList = null)
         {
             try
             {
-                return _targetSettingRepository.SelectByConditions(nodeList).CopyAToB<TargetSettingEntity>();
+                return _targetSettingRepository.SelectByConditions(prodSn, nodeList).CopyAToB<TargetSettingEntity>();
             }
             catch (Exception ex)
             {

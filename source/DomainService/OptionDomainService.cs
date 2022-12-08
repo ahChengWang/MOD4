@@ -360,7 +360,7 @@ namespace MOD4.Web.DomainService
         public List<(string, List<(int, string)>)> GetLcmProdOptions()
         {
             return _lcmProductRepository.SelectByConditions().GroupBy(g => g.ProdSize)
-                .Select(prod => (prod.Key, prod.Select(p => (p.sn, $"{p.ProdNo}({p.Descr})")).ToList()))
+                .Select(prod => (prod.Key, prod.Select(p => (p.sn, $"{p.ProdNo} - {p.Descr}")).ToList()))
                 .OrderBy(ob => ob.Key)
                 .ToList();
         }

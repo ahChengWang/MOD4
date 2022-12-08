@@ -79,6 +79,7 @@ namespace MOD4.Web.Controllers
 
                 var _targetSettingList = _targetSettingDomainService.GetList();
 
+                ViewData["ProdName"] = "GDD340IA0090S - 34VCS";
                 ViewData["NodeTab"] = _targetSettingList.GroupBy(gb => gb.Node).Select(s => s.Key).ToList();
 
                 var _res = _targetSettingList.CopyAToB<TargetSettingDetailModel>();
@@ -96,13 +97,11 @@ namespace MOD4.Web.Controllers
 
 
         [HttpGet("[controller]/Setting/Search")]
-        public IActionResult TargetSearch([FromQuery] int prodSn)
+        public IActionResult TargetSearch([FromQuery] int prodSn,string product)
         {
             try
             {
-                ViewBag.ProdOptions = _optionDomainService.GetLcmProdOptions();
-
-                var _targetSettingList = _targetSettingDomainService.GetList();
+                var _targetSettingList = _targetSettingDomainService.GetList(prodSn: prodSn);
 
                 ViewData["NodeTab"] = _targetSettingList.GroupBy(gb => gb.Node).Select(s => s.Key).ToList();
 

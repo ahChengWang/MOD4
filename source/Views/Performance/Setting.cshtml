@@ -53,7 +53,9 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <h3>TT 分時設定</h3>
+                    <h2>分時 Target 設定</h2>
+                    <hr />
+                    <h3 id="prodName" style="">@ViewData["ProdName"]</h3>
                 </div>
             </div>
             <div class="row" style="display:flex">
@@ -324,6 +326,10 @@
         );
 
         $("#btnSearch").click(function searchClick() {
+
+            let sel = $("#dropLine option:selected").text();
+            $('#prodName').html(sel);
+
             $.ajax({
                 url: "./Setting/Search?prodSn=" + $("#dropLine").val(),
                 type: "GET",
