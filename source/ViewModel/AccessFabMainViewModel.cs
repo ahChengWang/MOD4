@@ -14,8 +14,11 @@ namespace MOD4.Web.ViewModel
         [Display(Name = "申請人")]
         public string Applicant { get; set; }
 
-        [Display(Name = "開單日")]
+        [Display(Name = "申請日")]
         public string Date { get; set; }
+
+        [Display(Name = "入廠日")]
+        public string FabInDate { get; set; }
 
         public FabInTypeEnum FabInTypeId { get; set; }
 
@@ -23,18 +26,22 @@ namespace MOD4.Web.ViewModel
         public string FabInType { get; set; }
 
         public FabInCategoryEnum FabInCategoryId { get; set; }
+
         [Display(Name = "入廠對象")]
         public string FabInCategory { get; set; }
 
         [Display(Name = "入廠目的")]
         public string Content { get; set; }
 
+        [Display(Name = "人員姓名")]
+        public string GustNames { get; set; }
+
         [Display(Name = "待簽核人員")]
         public string AuditAccount { get; set; }
 
         public FabInOutStatusEnum StatusId { get; set; }
 
-        [Display(Name = "簽核狀態")]
+        [Display(Name = "狀態")]
         public string Status { get; set; }
 
 

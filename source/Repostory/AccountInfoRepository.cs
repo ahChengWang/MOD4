@@ -15,7 +15,9 @@ namespace MOD4.Web.Repostory
             string password = "", 
             List<int> accountSnList = null, 
             int deptSn = 0,
-            List<RoleEnum> roleIdList = null)
+            List<RoleEnum> roleIdList = null,
+            string name = "",
+            string jobId = "")
         {
             string sql = "select * from account_info where 1=1 ";
 
@@ -39,6 +41,14 @@ namespace MOD4.Web.Repostory
             {
                 sql += " and role in @role ";
             }
+            if (!string.IsNullOrEmpty(name))
+            {
+                sql += " and name = @name ";
+            }
+            if (!string.IsNullOrEmpty(jobId))
+            {
+                sql += " and jobId = @jobId ";
+            }
 
             var dao = _dbHelper.ExecuteQuery<AccountInfoDao>(sql, new
             {
@@ -46,7 +56,9 @@ namespace MOD4.Web.Repostory
                 password = password,
                 SnList = accountSnList,
                 deptSn = deptSn,
-                role = roleIdList
+                role = roleIdList,
+                name = name,
+                jobId = jobId
             });
 
             return dao;

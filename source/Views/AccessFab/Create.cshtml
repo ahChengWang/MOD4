@@ -60,6 +60,14 @@
                                     <div class="col-3">
                                         <select class="form-control" asp-for="FabInCategoryId" asp-items="@(SelectList)ViewBag.FabInCategoryList"></select>
                                     </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="FillOutPerson"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="FillOutPerson" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-3">
+                                        <input type="text" class="form-control" readonly asp-for="FillOutPerson" value="@ViewBag.AccountName" />
+                                    </div>
                                 </div>
                                 <div class="form-group" style="display:flex">
                                     <div class="col-2">
@@ -68,7 +76,7 @@
                                         <span asp-validation-for="Applicant" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-3">
-                                        <input type="text" class="form-control" readonly asp-for="Applicant" value="@ViewBag.AccountName" />
+                                        <input type="text" class="form-control" asp-for="Applicant" value="@ViewBag.AccountName" />
                                     </div>
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="ApplicantMVPN"></label>
@@ -86,15 +94,7 @@
                                         <span asp-validation-for="JobId" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-3">
-                                        <input class="form-control" type="text" asp-for="JobId" />
-                                    </div>
-                                    <div class="col-2">
-                                        <label class="col-form-label" asp-for="AccompanyingPerson"></label>
-                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                        <span asp-validation-for="AccompanyingPerson" style="font-size:10px;font-weight:700" class="text-danger"></span>
-                                    </div>
-                                    <div class="col-3">
-                                        <input class="form-control" type="text" asp-for="AccompanyingPerson" />
+                                        <input class="form-control" type="text" asp-for="JobId" value="@ViewBag.JobId" />
                                     </div>
                                 </div>
                                 <div class="form-group" style="display: flex;">
@@ -135,7 +135,24 @@
                                         <input type="datetime-local" class="form-control" asp-for="FabOutDate">
                                     </div>
                                 </div>
-
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="AccompanyingPerson"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="AccompanyingPerson" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-3">
+                                        <input type="text" class="form-control" asp-for="AccompanyingPerson" value="@ViewBag.AccountName" />
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="AccompanyingPersonMVPN"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="AccompanyingPersonMVPN" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-3">
+                                        <input type="text" class="form-control" asp-for="AccompanyingPersonMVPN" />
+                                    </div>
+                                </div>
                                 @*<div class="col-md-3 mb-3">
                                         <label for="validationCustom">Zip</label>
                                         <input type="text" class="form-control" id="validationCustom" required>
@@ -212,9 +229,27 @@
                             </div>
                             <!-- /.card-body -->
                             <div class="card-footer">
-                                <input id="btnCreate" type="submit" class="btn btn-primary" value="建立" />
+                                <input id="" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-sm-create" value="送出" />
                             </div>
                         </form>
+                        <div class="modal fade" id="modal-sm-create">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <p>確認送出?</p>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-footer justify-content-between">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
+                                        <input type="button" class="btn btn-primary" value="確認" onclick="submitClick()" />
+                                    </div>
+                                </div>
+                                <!-- /.modal-content -->
+                            </div>
+                            <!-- /.modal-dialog -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -295,9 +330,80 @@
         //    });
         //}, false);
 
+
+        function submitClick() {
+
+            if ($("#applyForm").valid() && checkOtherInput()) {
+
+                var Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+
+                let _guestList = $('#guestInfoDiv').children();
+                _guestList.each(function (e, info) {
+                    $("#" + info.id).find("input").each(function (de, input) {
+                        let _nameArray = input.name.split(".");
+                        input.name = "Details[" + e + "]." + _nameArray[1];
+                    });
+                });
+
+                let _formModel = $("#applyForm").serialize();
+
+                //e.preventDefault();
+                $.blockUI({
+                    message: '請稍等...',
+                    css: {
+                        border: 'none',
+                        padding: '5px',
+                        backgroundColor: '#000',
+                        '-webkit-border-radius': '10px',
+                        '-moz-border-radius': '10px',
+                        opacity: '.5',
+                        color: '#fff',
+                        fontSize: '25px',
+                        fontFamily: '微軟正黑體',
+                        fontWeight: 300,
+                    }
+                });
+                $.ajax({
+                    url: "./Create",
+                    type: "POST",
+                    dataType: "json",
+                    data: _formModel,
+                    success: function (res) {
+                        $.unblockUI();
+                        if (res.isSuccess) {
+                            alert('申請成功');
+                            location.href = "@Url.ActionLink("Index", "AccessFab")";
+                        }
+                        else {
+                            Toast.fire({
+                                icon: 'error',
+                                title: res.msg
+                            })
+                            //alert(res.msg);
+                            return false;
+                        }
+                    }
+                });
+            }
+            checkOtherInput();
+        }
+
+
         $("#btnCreate").click(function (e) {
 
             if ($("#applyForm").valid() && checkOtherInput()) {
+
+                var Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
 
                 let _guestList = $('#guestInfoDiv').children();
                 _guestList.each(function (e, info) {
@@ -337,7 +443,11 @@
                             location.href = "@Url.ActionLink("Index", "AccessFab")";
                         }
                         else {
-                            alert(res.msg);
+                            Toast.fire({
+                                icon: 'error',
+                                title: res.msg
+                            })
+                            //alert(res.msg);
                             return false;
                         }
                     }

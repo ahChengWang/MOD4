@@ -42,7 +42,9 @@ namespace MOD4.Web.Controllers
                 _userInfo.Level_id = (JobLevelEnum)Convert.ToInt32(_userClaims.FirstOrDefault(m => m.Type == "LevelId").Value);
                 _userInfo.DeptSn = Convert.ToInt32(_userClaims.FirstOrDefault(m => m.Type == "DeptSn").Value);
                 _userInfo.Mail = _userClaims.FirstOrDefault(m => m.Type == "Mail").Value;
+                _userInfo.JobId = _userClaims.FirstOrDefault(m => m.Type == "JobId").Value;
                 _userInfo.UserMenuPermissionList = _userPermission;
+
 
                 CatchHelper.Set($"userInfo_{_userInfo.sn}", JsonConvert.SerializeObject(_userInfo), 604800);
 

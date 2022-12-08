@@ -56,8 +56,9 @@ namespace MOD4.Web.DomainService
                         CreateTime = s.createTime,
                         UpdateUser = s.updateUser,
                         UpdateTime = s.updateTime,
-                        UserEditable = s.createUser == userEntity.Account && s.statusId == DemandStatusEnum.Rejected &&
-                            (Convert.ToBoolean(userEntity.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.Demand).AccountPermission & (int)PermissionEnum.Update))
+                        UserEditable = s.createUser == userEntity.Account && 
+                            s.statusId == DemandStatusEnum.Rejected &&
+                            userEntity.UserMenuPermissionList.CheckPermission(MenuEnum.Demand, PermissionEnum.Update)
                     }).OrderByDescending(ob => ob.CreateTime).ToList();
             }
             catch (Exception ex)

@@ -29,6 +29,8 @@ namespace MOD4.Web.DomainService
 
         List<MenuPermissionViewModel> GetCreatePermissionList();
 
+        List<(string, List<(int, string)>)> GetLcmProdOptions();
+
         List<OptionEntity> GetDepartmentOptionList(int parentDeptId, int levelId);
     }
 }

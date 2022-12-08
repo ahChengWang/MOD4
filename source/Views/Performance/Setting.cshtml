@@ -35,7 +35,18 @@
         box-shadow: inset 0 0 0 transparent;
         transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
     }
+
+    .dropdown-menu {
+        max-height: 200px;
+        overflow: scroll;
+        overflow-x: hidden;
+    }
 </style>
+
+<head>
+    <link rel="stylesheet" href="~/plugins/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="~/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" />
+</head>
 
 <div class="content-wrapper">
     <div class="content-header">
@@ -45,10 +56,36 @@
                     <h3>TT 分時設定</h3>
                 </div>
             </div>
+            <div class="row" style="display:flex">
+                <div style="margin-left: 10px;">
+                    <label>線體：</label>
+                </div>
+                <div style="margin-bottom: 10px; margin-left: 10px;">
+                    <select class="form-control select2bs4" id="dropLine" style="width:300px">
+                        @{
+                            foreach (var lcmProd in ViewBag.ProdOptions)
+                            {
+                                <optgroup label="@lcmProd.Item1">
+                                    @foreach (var item in lcmProd.Item2)
+                                    {
+                                        if (item.Item1 == 1206)
+                                        {
+                                            <option value="@item.Item1" selected>@item.Item2</option>
+                                        }
+                                        <option value="@item.Item1">@item.Item2</option>
+                                    }
+                                </optgroup>
+                            }
+                        }
+                    </select>
+                </div>
+                <div style="margin-bottom: 10px; margin-left: 10px;">
+                    <input id="btnSearch" type="button" class="btn btn-info" style="float: right" name="btn29" value="查詢" />
+                </div>
+            </div>
             <div class="card card-info card-tabs">
                 <div class="card-header p-0 pt-0">
                     <ul class="nav nav-tabs" id="custom-tabs-one-tab" style="background-color: #3c7da6 ">
-
                         @{
                             foreach (var node in (ViewData["NodeTab"] as List<string>))
                             {
@@ -58,24 +95,6 @@
                                 </li>
                             }
                         }
-                        @*<li class="nav-item">
-                                <a class="nav-link active" data-toggle="tab" href="#node1415">1415</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#node1420">1420</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#node1460">1460</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#node1600">1600</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#node1700">1700</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#node1720">1720</a>
-                            </li>*@
                     </ul>
                 </div>
                 <div class="card-body">
@@ -273,40 +292,61 @@
 </div>
 
 @section scripts {
+    <script src="~/plugins/select2/js/select2.full.min.js"></script>
     <script type="text/javascript">
-    $(document).ready(
-        function setDefault() {
-            $("input[type='number']").attr('disabled', true).css('background-color', '#e9ecef');
-            $("input[name='submit']").attr('disabled', true).addClass("btn-outline-primary");
+        $(document).ready(
+            function setDefault() {
+                $("input[type='number']").attr('disabled', true).css('background-color', '#e9ecef');
+                $("input[name='submit']").attr('disabled', true).addClass("btn-outline-primary");
 
-            var _formIdList = "@string.Join(",", Model.SettingDetailList.Select(s => s.Node))";
-            _formIdList.split(',').forEach(function (node)
-            {
-                var sumTT = 0;
-                $("input[class='A" + node + "']").each(function (idx, td) {
+                var _formIdList = "@string.Join(",", Model.SettingDetailList.Select(s => s.Node))";
+                _formIdList.split(',').forEach(function (node)
+                {
+                    var sumTT = 0;
+                    $("input[class='A" + node + "']").each(function (idx, td) {
                     sumTT += parseInt(td.value);
-                });
-                $("#AsumTT" + node).html("合計 " + sumTT.toString());
-                sumTT = 0;
-                $("input[class='B" + node + "']").each(function (idx, td) {
+                    });
+                    $("#AsumTT" + node).html("合計 " + sumTT.toString());
+                    sumTT = 0;
+                    $("input[class='B" + node + "']").each(function (idx, td) {
                     sumTT += parseInt(td.value);
+                    });
+                    $("#BsumTT" + node).html("合計 " + sumTT.toString());
                 });
-                $("#BsumTT" + node).html("合計 " + sumTT.toString());
+
+                $(".card-header a").first().addClass("active");
+                $(".tab-pane").first().addClass("active");
+
+                $('.select2bs4').select2({
+                    theme: 'bootstrap4'
+                })
+            }
+        );
+
+        $("#btnSearch").click(function searchClick() {
+            $.ajax({
+                url: "./Setting/Search?prodSn=" + $("#dropLine").val(),
+                type: "GET",
+                dataType: 'json',
+                success: function (result) {
+                    if (result == '') {
+                        alert('success.');
+                    }
+                    else {
+                        alert(result);
+                    }
+                }
             });
+        });
 
-            $(".card-header a").first().addClass("active");
-            $(".tab-pane").first().addClass("active");
 
+        function editClick(e) {
+            $("input[type='number']").removeAttr('disabled').css('background-color', 'white');
+            $("input[name='edit']").attr('disabled', true).removeClass("btn-danger").addClass("btn-outline-danger");
+            $("input[name='submit']").removeAttr('disabled').removeClass("btn-outline-primary").addClass("btn-primary");
         }
-    );
 
-    function editClick(e) {
-        $("input[type='number']").removeAttr('disabled').css('background-color', 'white');
-        $("input[name='edit']").attr('disabled', true).removeClass("btn-danger").addClass("btn-outline-danger");
-        $("input[name='submit']").removeAttr('disabled').removeClass("btn-outline-primary").addClass("btn-primary");
-    }
-
-    function saveClick(e) {
+        function saveClick(e) {
 
         var _formIdList = "@string.Join(",", Model.SettingDetailList.Select(s => s.Node))";
 
@@ -370,26 +410,21 @@
         $.unblockUI();
     }
 
-    //$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-    //    $(".form-control").attr('disabled', true);
-    //    $("input[name='edit']").removeAttr('disabled').removeClass("btn-outline-danger").addClass("btn-danger");
-    //    $("input[name='submit']").attr('disabled', true).removeClass("btn-primary").addClass("btn-outline-danger");
-    //});
 
-    function objectifyForm(formArray) {
-        //serialize data function
-        var returnArray = {};
-        for (var i = 0; i < formArray.length; i++) {
+        function objectifyForm(formArray) {
+            //serialize data function
+            var returnArray = {};
+            for (var i = 0; i < formArray.length; i++) {
             returnArray[formArray[i]['name'].substring(0,8)] = formArray[i]['value'];
+            }
+            returnArray['Node'] = formArray[0]['value'];
+            return returnArray;
         }
-        returnArray['Node'] = formArray[0]['value'];
-        return returnArray;
-    }
 
-    $("input").change(function (e) {
-        var sumTT = 0;
-        var _subClassName = e.currentTarget.className.substring(0, 5);
-        $("input[class*=" + _subClassName + "]").each(function (idx, td) {
+        $("input").change(function (e) {
+            var sumTT = 0;
+            var _subClassName = e.currentTarget.className.substring(0, 5);
+            $("input[class*=" + _subClassName + "]").each(function (idx, td) {
             if (td.value == '') {
                 td.value = "0";
                 sumTT += 0;
@@ -397,8 +432,8 @@
             else {
                 sumTT += parseInt(td.value);
             }
-        });
-        //$("input[class='" + _subClassName + " valid']").each(function (idx, td) {
+            });
+            //$("input[class='" + _subClassName + " valid']").each(function (idx, td) {
         //    if (td.value == '') {
         //        td.value = "0";
         //        sumTT += 0;
@@ -417,7 +452,7 @@
         //    }
         //});
 
-        $("#" + e.currentTarget.className.substring(0, 1) + "sumTT" + e.currentTarget.className.substring(1 ,5)).html("合計 " + sumTT.toString());
-    });
+            $("#" + e.currentTarget.className.substring(0, 1) + "sumTT" + e.currentTarget.className.substring(1, 5)).html("合計 " + sumTT.toString());
+        });
     </script>
 }

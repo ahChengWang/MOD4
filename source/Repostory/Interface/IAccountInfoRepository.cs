@@ -7,7 +7,13 @@ namespace MOD4.Web.Repostory
 {
     public interface IAccountInfoRepository
     {
-        List<AccountInfoDao> SelectByConditions(string account = "", string password = "", List<int> accountSnList = null, int deptSn = 0, List<RoleEnum> roleIdList = null);
+        List<AccountInfoDao> SelectByConditions(string account = "", 
+            string password = "", 
+            List<int> accountSnList = null, 
+            int deptSn = 0, 
+            List<RoleEnum> roleIdList = null,
+            string name = "",
+            string jobId = "");
 
         AccessFabOrderFlowEntity SelectAccessAuditFlow(int accSn, JobLevelEnum accLevelId, int levelId);
 

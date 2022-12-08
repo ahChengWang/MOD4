@@ -12,6 +12,7 @@ namespace MOD4.Web.DomainService.Entity
         public JobLevelEnum Level_id { get; set; }
         public int DeptSn { get; set; }
         public string Mail { get; set; }
+        public string JobId { get; set; }
         public List<AccountMenuInfoEntity> UserMenuPermissionList { get; set; }
     }
 }

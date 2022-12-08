@@ -28,9 +28,9 @@ namespace MOD4.Web.Repostory
         }
 
 
-        public List<EqpInfoDao> SelectByConditions(string date, List<string> equipmentList, bool isDefault, bool showAuto)
+        public List<EqpInfoDao> SelectByConditions(string date, List<string> equipmentList, bool isDefault, bool showAuto, List<int> prodSnList = null)
         {
-            string sql = "select * from vw_eqpinfo_repaired where 1=1";
+            string sql = "select * from vw_eqpinfo_repaired_all where 1=1";
 
             if (!string.IsNullOrEmpty(date) && isDefault)
             {
@@ -48,12 +48,17 @@ namespace MOD4.Web.Repostory
             {
                 sql += " and Operator != 'AUTO' ";
             }
+            if (prodSnList != null && prodSnList.Any())
+            {
+                sql += " and prod_sn in @ProdSn ";
+            }
 
 
             var dao = _dbHelper.ExecuteQuery<EqpInfoDao>(sql, new
             {
                 MFG_Day = date,
-                Equipment = equipmentList
+                Equipment = equipmentList,
+                ProdSn = prodSnList
             });
 
             return dao;

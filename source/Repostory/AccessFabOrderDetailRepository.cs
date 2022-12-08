@@ -3,20 +3,30 @@ using MOD4.Web.Repostory.Dao;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace MOD4.Web.Repostory
 {
     public class AccessFabOrderDetailRepository : BaseRepository, IAccessFabOrderDetailRepository
     {
 
-
-        public List<AccessFabOrderDetailDao> SelectList(int accessFabOrderSn)
+        public List<AccessFabOrderDetailDao> SelectList(int accessFabOrderSn = 0, List<int> accessFabSnList = null, string guestName = "")
         {
-            string sql = "select * from access_fab_order_detail where accessFabOrderSn=@AccessFabOrderSn ";
+            string sql = "select * from access_fab_order_detail where 1=1 ";
+
+            if (accessFabOrderSn != 0)
+                sql += " and accessFabOrderSn=@AccessFabOrderSn ";
+            else if (accessFabSnList != null && accessFabSnList.Any())
+                sql += " and accessFabOrderSn in @AccessFabOrderSnList ";
+
+            if (!string.IsNullOrEmpty(guestName))
+                sql += $" and Name like '%{guestName}%' ";
 
             var dao = _dbHelper.ExecuteQuery<AccessFabOrderDetailDao>(sql, new
             {
-                AccessFabOrderSn = accessFabOrderSn
+                AccessFabOrderSn = accessFabOrderSn,
+                AccessFabOrderSnList = accessFabSnList,
+                Name = guestName
             });
 
             return dao;
@@ -49,7 +59,8 @@ VALUES
         {
             string sql = @"Delete [dbo].[access_fab_order_detail] where sn in @sn ";
 
-            var dao = _dbHelper.ExecuteNonQuery(sql, new {
+            var dao = _dbHelper.ExecuteNonQuery(sql, new
+            {
                 sn = delSnList
             });
 

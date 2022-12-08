@@ -31,8 +31,17 @@ namespace MOD4.Web.DomainService
         {
             try
             {
-                selectOption.ApplicantAccountSn = userEntity.sn;
+                selectOption.CreateAccountSn = userEntity.sn;
                 List<AccessFabOrderEntity> _accessFabOrderList = GetAccessFabOrderList(selectOption);
+
+                // 非管理權限, 只查詢個人的申請單
+                if (!userEntity.UserMenuPermissionList.CheckPermission(MenuEnum.AccessFab, PermissionEnum.Management))
+                {
+                    var _tempAccessFabByCreateUser = _accessFabOrderList.Where(w => w.ApplicantAccountSn != userEntity.sn && w.CreateUser == userEntity.Name);
+                    _accessFabOrderList = 
+                        _accessFabOrderList.Where(acc => userEntity.sn == acc.ApplicantAccountSn).Union(_tempAccessFabByCreateUser).ToList();
+                }
+
                 List<AccountInfoEntity> _accInfoList = _accountDomainService.GetAccountInfo(_accessFabOrderList.Select(s => s.AuditAccountSn).ToList());
                 _accessFabOrderList.ForEach(fe => fe.AuditAccountName = _accInfoList.FirstOrDefault(f => f.sn == fe.AuditAccountSn).Name);
 
@@ -49,7 +58,7 @@ namespace MOD4.Web.DomainService
             try
             {
                 AccessFabOrderDao _accessOrder = _accessFabOrderRepository.SelectList(orderSn: accessFabOrderSn).FirstOrDefault();
-                List<AccessFabOrderDetailDao> _accessOrderDetail = _accessFabOrderDetailRepository.SelectList(_accessOrder.OrderSn);
+                List<AccessFabOrderDetailDao> _accessOrderDetail = _accessFabOrderDetailRepository.SelectList(accessFabOrderSn: _accessOrder.OrderSn);
                 List<AccessFabOrderAuditHistoryDao> _accessOrderAuditHisList = _accessFabOrderAuditHistoryRepository.SelectList(_accessOrder.OrderSn);
 
                 return new AccessFabOrderEntity
@@ -58,11 +67,13 @@ namespace MOD4.Web.DomainService
                     FabInTypeId = _accessOrder.FabInTypeId,
                     FabInType = _accessOrder.FabInTypeId.GetDescription(),
                     FabInOtherType = _accessOrder.FabInOtherType,
+                    FillOutPerson = _accessOrder.CreateUser,
                     Applicant = _accessOrder.Applicant,
                     ApplicantMVPN = _accessOrder.ApplicantMVPN,
                     CategoryId = _accessOrder.CategoryId,
                     Category = _accessOrder.CategoryId.GetDescription(),
                     AccompanyingPerson = _accessOrder.AccompanyingPerson,
+                    AccompanyingPersonMVPN = _accessOrder.AccompanyingPersonMVPN,
                     Content = _accessOrder.Content,
                     Route = _accessOrder.Route,
                     JobId = _accessOrder.JobId,
@@ -109,13 +120,33 @@ namespace MOD4.Web.DomainService
                 DateTime _nowTime = DateTime.Now;
                 string _createRes = "";
                 var _latestOrderSn = 0;
+                var _createAccountSn = 0;
+
+                // 判斷填單人是否為申請人
+                if (orderEntity.FillOutPerson.Trim() != orderEntity.Applicant.Trim())
+                {
+                    var _tempApplicant = _accountDomainService.GetAccountInfoByConditions(null, orderEntity.Applicant, orderEntity.JobId).FirstOrDefault();
+                    if (_tempApplicant == null)
+                        return "查無申請人資訊, 確認姓名及工號";
+
+                    // 填單人 sn
+                    _createAccountSn = userEntity.sn;
+
+                    // 申請人資訊
+                    userEntity.sn = _tempApplicant.sn;
+                    userEntity.Name = _tempApplicant.Name;
+                    userEntity.DeptSn = _tempApplicant.DeptSn;
+                    userEntity.Level_id = _tempApplicant.Level_id;
+                }
+                else
+                    _createAccountSn = userEntity.sn;
 
                 var _verifyResult = Verify(orderEntity);
 
                 if (!_verifyResult.status)
                     return _verifyResult.msg;
                 if (userEntity.DeptSn == 0)
-                    return "尚未設定部門, 請聯絡系統管理員";
+                    return "尚未設定部門, 請聯絡系統管理員(5014-62721)";
 
                 var _auditFlow = _accountDomainService.GetAuditFlowInfo(userEntity);
 
@@ -127,6 +158,7 @@ namespace MOD4.Web.DomainService
                     CategoryId = orderEntity.CategoryId,
                     StatusId = FabInOutStatusEnum.Processing,
                     Applicant = orderEntity.Applicant,
+                    ApplicantAccountSn = userEntity.sn,
                     JobId = orderEntity.JobId,
                     ApplicantMVPN = orderEntity.ApplicantMVPN,
                     FabInDate = orderEntity.FabInDate,
@@ -134,11 +166,12 @@ namespace MOD4.Web.DomainService
                     Content = orderEntity.Content,
                     Route = orderEntity.Route,
                     AccompanyingPerson = orderEntity.AccompanyingPerson,
-                    ApplicantAccountSn = userEntity.sn,
-                    CreateUser = userEntity.Name,
+                    AccompanyingPersonMVPN = orderEntity.AccompanyingPersonMVPN,
+                    CreateUser = orderEntity.FillOutPerson,
                     CreateTime = _nowTime,
                     UpdateUser = "",
-                    UpdateTime = _nowTime
+                    UpdateTime = _nowTime,
+                    CreateAccountSn = _createAccountSn
                 };
 
                 List<AccessFabOrderDetailDao> _insAccessFabOrderDetailListDao = new List<AccessFabOrderDetailDao>();
@@ -186,7 +219,7 @@ namespace MOD4.Web.DomainService
                 {
                     _mailServer.Send(new MailEntity
                     {
-                        To = _insAccessFabOrderAuditHisDao.FirstOrDefault(f => f.AuditSn == 1).Mail,
+                        To = _auditFlow.DeptMail,
                         Subject = $"管制口進出申請單 - 待簽核通知 (申請人:{_insAccessFabOrderDao.Applicant})",
                         Content = "<br /> Dear Sir <br /><br />" +
                         "您有<a style='text-decoration:underline'>待簽核</a><a style='font-weight:900'>管制口進出請單</a>， <br /><br />" +
@@ -209,6 +242,18 @@ namespace MOD4.Web.DomainService
                 DateTime _nowTime = DateTime.Now;
                 string _createRes = "";
 
+                if (orderEntity.FillOutPerson.Trim() != orderEntity.Applicant.Trim())
+                {
+                    var _tempApplicant = _accountDomainService.GetAccountInfoByConditions(null, orderEntity.Applicant, orderEntity.JobId).FirstOrDefault();
+                    if (_tempApplicant == null)
+                        return "查無申請人資訊, 確認姓名及工號";
+
+                    userEntity.sn = _tempApplicant.sn;
+                    userEntity.Name = _tempApplicant.Name;
+                    userEntity.DeptSn = _tempApplicant.DeptSn;
+                    userEntity.Level_id = _tempApplicant.Level_id;
+                }
+
                 var _verifyResult = Verify(orderEntity);
 
                 if (!_verifyResult.status)
@@ -217,7 +262,7 @@ namespace MOD4.Web.DomainService
                 var _auditFlow = _accountDomainService.GetAuditFlowInfo(userEntity);
 
                 var _oldAccessFabOrder = _accessFabOrderRepository.SelectList(orderEntity.OrderSn).FirstOrDefault();
-                var _oldAccessFabOrderDetail = _accessFabOrderDetailRepository.SelectList(orderEntity.OrderSn);
+                var _oldAccessFabOrderDetail = _accessFabOrderDetailRepository.SelectList(accessFabOrderSn: orderEntity.OrderSn);
 
                 AccessFabOrderDao _updAccessFabOrderDao = new AccessFabOrderDao()
                 {
@@ -227,6 +272,7 @@ namespace MOD4.Web.DomainService
                     CategoryId = orderEntity.CategoryId,
                     StatusId = FabInOutStatusEnum.Processing,
                     Applicant = orderEntity.Applicant,
+                    ApplicantAccountSn = userEntity.sn,
                     JobId = orderEntity.JobId,
                     ApplicantMVPN = orderEntity.ApplicantMVPN,
                     FabInDate = orderEntity.FabInDate,
@@ -234,7 +280,7 @@ namespace MOD4.Web.DomainService
                     Content = orderEntity.Content,
                     Route = orderEntity.Route,
                     AccompanyingPerson = orderEntity.AccompanyingPerson,
-                    ApplicantAccountSn = userEntity.sn,
+                    AccompanyingPersonMVPN = orderEntity.AccompanyingPersonMVPN,
                     UpdateUser = userEntity.Name,
                     UpdateTime = _nowTime
                 };
@@ -296,8 +342,8 @@ namespace MOD4.Web.DomainService
                 {
                     _mailServer.Send(new MailEntity
                     {
-                        To = _updAccessFabOrderAuditHisDao.FirstOrDefault(f => f.AuditSn == 1).Mail,
-                        Subject = $"管制口進出申請單 - 待簽核通知 (申請人:{_oldAccessFabOrder.Applicant})",
+                        To = _auditFlow.DeptMail,
+                        Subject = $"管制口進出申請單 - 待簽核通知 (申請人:{_updAccessFabOrderDao.Applicant})",
                         Content = "<br /> Dear Sir <br /><br />" +
                         "您有<a style='text-decoration:underline'>待簽核</a><a style='font-weight:900'>管制口進出請單</a>， <br /><br />" +
                         $"簽核單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit/Detail/{_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
@@ -354,22 +400,51 @@ namespace MOD4.Web.DomainService
 
         public List<AccessFabOrderEntity> GetAuditList(UserEntity userEntity, AccessFabSelectOptionEntity selectOption)
         {
+            List<AccessFabOrderEntity> _accessFabOrderAuditList = new List<AccessFabOrderEntity>();
+            List<AccessFabOrderDetailDao> _accseeFabDetail = new List<AccessFabOrderDetailDao>();
+
             // 取得該使用者待簽核申請單
 
             // 管制口人員
             if (userEntity.RoleId == RoleEnum.GateEmployee)
             {
-                selectOption.AuditAccountSn = userEntity.sn;
                 selectOption.StatusId = (int)FabInOutStatusEnum.Completed;
+                if (string.IsNullOrEmpty(selectOption.StartFabInDate) && string.IsNullOrEmpty(selectOption.EndFabInDate))
+                {
+                    selectOption.StartFabInDate = DateTime.Now.ToString("yyyy-MM-dd");
+                    selectOption.EndFabInDate = DateTime.Now.ToString("yyyy-MM-dd");
+                }
             }
             else
-            {
-                selectOption.AuditAccountSn = userEntity.sn;
                 selectOption.StatusId = (int)FabInOutStatusEnum.Processing;
-            }
-            var _accessFabOrderAuditList = GetAccessFabOrderList(selectOption);
 
-            _accessFabOrderAuditList.ForEach(fe => fe.Url = $"./Audit/Detail/{fe.OrderSn}");
+            selectOption.AuditAccountSn = userEntity.sn;
+
+            //if (!string.IsNullOrEmpty(selectOption.GuestName?.Trim() ?? ""))
+            //{
+            //    _accseeFabDetail = _accessFabOrderDetailRepository.SelectList(guestName: selectOption.GuestName);
+            //    selectOption.OrderSnList = _accseeFabDetail.Select(detail => detail.AccessFabOrderSn).ToList();
+            //    _accessFabOrderAuditList = GetAccessFabOrderList(selectOption);
+            //}
+            //else
+            //{
+            _accessFabOrderAuditList = GetAccessFabOrderList(selectOption);
+            _accseeFabDetail = _accessFabOrderDetailRepository.SelectList(accessFabSnList: _accessFabOrderAuditList.Select(s => s.OrderSn).ToList());
+            //}
+
+
+            _accessFabOrderAuditList.ForEach(fe =>
+            {
+                fe.Url = $"./Audit/Detail/{fe.OrderSn}";
+                fe.FabInDateStr = fe.FabInDate.ToString("yyyy-MM-dd");
+                fe.GustNames = String.Join(", ", _accseeFabDetail.Where(detail => detail.AccessFabOrderSn == fe.OrderSn).Select(s => s.Name));
+            });
+
+            if (!string.IsNullOrEmpty(selectOption.GuestName?.Trim() ?? ""))
+            {
+                _accessFabOrderAuditList =
+                    _accessFabOrderAuditList.Where(auditList => auditList.GustNames.Contains(selectOption.GuestName.Trim())).ToList();
+            }
 
             return _accessFabOrderAuditList;
         }
@@ -416,7 +491,7 @@ namespace MOD4.Web.DomainService
                 // 簽核已完成, 無下個簽核人員
                 else if (orderEntity.StatusId != FabInOutStatusEnum.Rejected && _nextAuditFlow == null)
                 {
-                    var _gateEmployee = _accountDomainService.GetAccountInfoByConditions(new List<RoleEnum> { RoleEnum.GateEmployee }).FirstOrDefault();
+                    var _gateEmployee = _accountDomainService.GetAccountInfoByConditions(new List<RoleEnum> { RoleEnum.GateEmployee }, "", "").FirstOrDefault();
                     _updAccessFabOrderDao.StatusId = FabInOutStatusEnum.Completed;
                     _updAccessFabOrderDao.AuditAccountSn = _gateEmployee.sn;
                     _nextAuditAccountInfo.Mail = _gateEmployee.Mail;
@@ -522,12 +597,16 @@ namespace MOD4.Web.DomainService
                     applicantAccountSn: selectOption?.ApplicantAccountSn ?? 0,
                     auditAccountSn: selectOption?.AuditAccountSn ?? 0,
                     startTime: DateTime.TryParse(selectOption?.StartDate ?? "", out _) ? (DateTime?)DateTime.Parse(selectOption.StartDate) : null,
-                    endTime: DateTime.TryParse(selectOption?.EndDate ?? "", out _) ? (DateTime?)(DateTime.Parse(selectOption.EndDate)).AddDays(1) : null);
+                    endTime: DateTime.TryParse(selectOption?.EndDate ?? "", out _) ? (DateTime?)(DateTime.Parse(selectOption.EndDate)).AddDays(1).AddSeconds(-1) : null,
+                    startFabInTime: DateTime.TryParse(selectOption?.StartFabInDate ?? "", out _) ? (DateTime?)DateTime.Parse(selectOption.StartFabInDate) : null,
+                    endFabInTime: DateTime.TryParse(selectOption?.EndFabInDate ?? "", out _) ? (DateTime?)(DateTime.Parse(selectOption.EndFabInDate)).AddDays(1).AddSeconds(-1) : null,
+                    orderSnList: selectOption.OrderSnList);
 
                 return accessOrderList.Select(s => new AccessFabOrderEntity()
                 {
                     OrderSn = s.OrderSn,
                     OrderNo = s.OrderNo,
+                    FabInDate = s.FabInDate,
                     Applicant = s.Applicant,
                     CategoryId = s.CategoryId,
                     Category = s.CategoryId.GetDescription(),
@@ -537,9 +616,13 @@ namespace MOD4.Web.DomainService
                     Status = s.StatusId.GetDescription(),
                     Content = s.Content,
                     AuditAccountSn = s.AuditAccountSn,
+                    CreateAccountSn = s.CreateAccountSn,
                     CreateTime = s.CreateTime,
                     CreateTimeStr = s.CreateTime.ToString("yyyy-MM-dd"),
-                    Url = s.StatusId == FabInOutStatusEnum.Rejected ? $"./AccessFab/Edit?orderSn={s.OrderSn}" : $"./AccessFab/Detail?orderSn={s.OrderSn}",
+                    CreateUser = s.CreateUser,
+                    Url = s.StatusId == FabInOutStatusEnum.Rejected && s.CreateAccountSn == selectOption.CreateAccountSn 
+                        ? $"./AccessFab/Edit?orderSn={s.OrderSn}"
+                        : $"./AccessFab/Detail?orderSn={s.OrderSn}",
                 }).ToList();
             }
             catch (Exception ex)
@@ -596,8 +679,7 @@ namespace MOD4.Web.DomainService
                             AuditAccountName = $"部門主管-{auditFlow.DeptName}",
                             StatusId = FabInOutStatusEnum.Processing,
                             ReceivedTime = nowTime,
-                            IsDel = false,
-                            Mail = auditFlow.DeptMail
+                            IsDel = false
                         },
                         new AccessFabOrderAuditHistoryDao
                         {
@@ -606,8 +688,7 @@ namespace MOD4.Web.DomainService
                             //AuditAccountName = auditFlow.DeptName,
                             AuditAccountName = $"管制口主管-{_gateManager.Name}",
                             StatusId = FabInOutStatusEnum.Processing,
-                            IsDel = false,
-                            Mail = _gateManager.Mail
+                            IsDel = false
                         },
                         new AccessFabOrderAuditHistoryDao
                         {
@@ -616,8 +697,7 @@ namespace MOD4.Web.DomainService
                             //AuditAccountName = auditFlow.TopName,
                             AuditAccountName = $"廠長-{auditFlow.TopName}",
                             StatusId = FabInOutStatusEnum.Processing,
-                            IsDel = false,
-                            Mail = auditFlow.TopMail
+                            IsDel = false
                         }
                     };
                 case JobLevelEnum.Employee:
@@ -630,8 +710,7 @@ namespace MOD4.Web.DomainService
                             AuditAccountName = $"部門主管-{auditFlow.DeptName}",
                             StatusId = FabInOutStatusEnum.Processing,
                             ReceivedTime = nowTime,
-                            IsDel = false,
-                            Mail = auditFlow.DeptMail
+                            IsDel = false
                         },
                         new AccessFabOrderAuditHistoryDao
                         {
@@ -640,8 +719,7 @@ namespace MOD4.Web.DomainService
                             //AuditAccountName = auditFlow.DeptName,
                             AuditAccountName = $"管制口主管-{_gateManager.Name}",
                             StatusId = FabInOutStatusEnum.Processing,
-                            IsDel = false,
-                            Mail = _gateManager.Mail
+                            IsDel = false
                         },
                         new AccessFabOrderAuditHistoryDao
                         {
@@ -650,8 +728,7 @@ namespace MOD4.Web.DomainService
                             //AuditAccountName = auditFlow.TopName,
                             AuditAccountName = $"廠長-{auditFlow.TopName}",
                             StatusId = FabInOutStatusEnum.Processing,
-                            IsDel = false,
-                            Mail = auditFlow.TopMail
+                            IsDel = false
                         }};
                 default:
                     return new List<AccessFabOrderAuditHistoryDao>();

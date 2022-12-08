@@ -22,7 +22,7 @@ namespace MOD4.Web.DomainService
 
         string VerifyEqpStatus(int sn, EqIssueStatusEnum statusId, UserEntity userEntity);
 
-        List<EquipmentEntity> GetEntityHistoryDetail(string mfgDay, List<string> eqpListStr);
+        List<EquipmentEntity> GetEntityHistoryDetail(string mfgDay, List<string> eqpListStr, List<int> prodSnList);
 
         string UpdateEqpinfo(EquipmentEditEntity editEntity, UserEntity userEntity);
     }

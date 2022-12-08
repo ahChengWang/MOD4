@@ -12,7 +12,7 @@ namespace MOD4.Web.DomainService
 
         AccessFabOrderFlowEntity GetAuditFlowInfo(UserEntity userEntity);
 
-        List<AccountInfoEntity> GetAccountInfoByConditions(List<RoleEnum> roleIdList);
+        List<AccountInfoEntity> GetAccountInfoByConditions(List<RoleEnum> roleIdList, string name, string jobId);
 
         AccountInfoEntity GetAccInfoByDepartment(UserEntity userEntity);
 

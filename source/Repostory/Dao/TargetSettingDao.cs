@@ -6,6 +6,8 @@ namespace MOD4.Web.Repostory.Dao
     {
         public string Node { get; set; }
         public string Node_Name { get; set; }
+        public int LcmProdSn { get; set; }
+        public string DownEquipment { get; set; }
         public int Time0730 { get; set; }
         public int Time0830 { get; set; }
         public int Time0930 { get; set; }
@@ -30,7 +32,6 @@ namespace MOD4.Web.Repostory.Dao
         public int Time0430 { get; set; }
         public int Time0530 { get; set; }
         public int Time0630 { get; set; }
-        public string DownEquipment { get; set; }
         public string UpdateUser { get; set; }
         public DateTime UpdateTime { get; set; }
     }

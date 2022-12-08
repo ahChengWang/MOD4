@@ -90,6 +90,7 @@ namespace MOD4.Web.Controllers
                     new Claim("Role", Convert.ToString((int)_currentUser.RoleId)),
                     new Claim("LevelId", Convert.ToString((int)_currentUser.Level_id)),
                     new Claim("DeptSn", Convert.ToString((int)_currentUser.DeptSn)),
+                    new Claim("JobId", _currentUser.JobId),
                     new Claim("Mail", _currentUser.Mail)
                 };
 

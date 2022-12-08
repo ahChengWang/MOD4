@@ -7,7 +7,7 @@ namespace MOD4.Web.Repostory
 {
     public interface IAccessFabOrderDetailRepository
     {
-        List<AccessFabOrderDetailDao> SelectList(int accessFabOrderSn);
+        List<AccessFabOrderDetailDao> SelectList(int accessFabOrderSn = 0, List<int> accessFabSnList = null, string guestName = "");
 
         int Insert(List<AccessFabOrderDetailDao> insAccessFabOrder);
 

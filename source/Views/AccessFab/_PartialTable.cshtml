@@ -4,12 +4,14 @@
     <thead>
         <tr>
             <th>@Html.DisplayNameFor(model => model.First().OrderNo)</th>
+            <th>@Html.DisplayNameFor(model => model.First().FabInDate)</th>
+            <th>@Html.DisplayNameFor(model => model.First().FabInCategory)</th>
+            @*<th>@Html.DisplayNameFor(model => model.First().FabInType)</th>*@
+            <th>@Html.DisplayNameFor(model => model.First().Content)</th>
+            <th>@Html.DisplayNameFor(model => model.First().GustNames)</th>
+            <th>@Html.DisplayNameFor(model => model.First().AuditAccount)</th>
             <th>@Html.DisplayNameFor(model => model.First().Date)</th>
             <th>@Html.DisplayNameFor(model => model.First().Applicant)</th>
-            <th>@Html.DisplayNameFor(model => model.First().FabInCategory)</th>
-            <th>@Html.DisplayNameFor(model => model.First().FabInType)</th>
-            <th>@Html.DisplayNameFor(model => model.First().Content)</th>
-            <th>@Html.DisplayNameFor(model => model.First().AuditAccount)</th>
             <th>@Html.DisplayNameFor(model => model.First().Status)</th>
         </tr>
     </thead>
@@ -22,14 +24,16 @@
                     _color = "#e69a9a";
 
                 <tr style="background-color: @_color ">
-                    <td style="width:8%"><a href="#" onclick="orderNoClick('@order.Url',@order.OrderSn)">@order.OrderNo</a></td>
-                    <td style="width:8%;font-weight:600">@order.Date</td>
-                    <td style="width:8%">@order.Applicant</td>
-                    <td style="width:8%">@order.FabInCategory</td>
-                    <td style="width:9%">@order.FabInType</td>
+                    <td style="width:7%"><a href="#" onclick="orderNoClick('@order.Url',@order.OrderSn)">@order.OrderNo</a></td>
+                    <td style="width:7%;font-weight:600">@order.FabInDate</td>
+                    <td style="width:7%">@order.FabInCategory</td>
+                    @*<td style="width:9%">@order.FabInType</td>*@
                     <td style="width:12%">@order.Content</td>
+                    <td style="width:15%">@order.GustNames</td>
                     <td style="width:8%">@order.AuditAccount</td>
-                    <td style="width:7%">@order.Status</td>
+                    <td style="width:7%;font-weight:600">@order.Date</td>
+                    <td style="width:7%">@order.Applicant</td>
+                    <td style="width:6%">@order.Status</td>
                 </tr>
             }
         }

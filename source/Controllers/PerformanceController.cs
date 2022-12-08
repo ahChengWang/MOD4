@@ -7,6 +7,7 @@ using MOD4.Web.Helper;
 using MOD4.Web.Models;
 using MOD4.Web.ViewModel;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MOD4.Web.Controllers
@@ -17,20 +18,25 @@ namespace MOD4.Web.Controllers
         private readonly ILogger<PerformanceController> _logger;
         private readonly IPerformanceDomainService _performanceDomainService;
         private readonly ITargetSettingDomainService _targetSettingDomainService;
+        private readonly IOptionDomainService _optionDomainService;
 
         public PerformanceController(ILogger<PerformanceController> logger,
             IPerformanceDomainService performanceDomainService,
-            ITargetSettingDomainService targetSettingDomainService)
+            ITargetSettingDomainService targetSettingDomainService,
+            IOptionDomainService optionDomainService)
         {
             _logger = logger;
             _performanceDomainService = performanceDomainService;
             _targetSettingDomainService = targetSettingDomainService;
+            _optionDomainService = optionDomainService;
         }
 
         public IActionResult Index()
         {
             try
             {
+                ViewBag.ProdOptions = _optionDomainService.GetLcmProdOptions();
+
                 var resule = _performanceDomainService.GetList();
 
                 return View(resule);
@@ -41,11 +47,11 @@ namespace MOD4.Web.Controllers
             }
         }
 
-        public IActionResult Search(string mfgDay, string shift, string node)
+        public IActionResult Search(string mfgDay, string shift, string node, string prodList)
         {
             try
             {
-                var resule = _performanceDomainService.GetList(mfgDay, shift, node);
+                var resule = _performanceDomainService.GetList(mfgDay, prodList, shift, node);
 
                 if (!resule.Any())
                 {
@@ -61,11 +67,16 @@ namespace MOD4.Web.Controllers
 
         }
 
-        [HttpGet]
+
+        #region ===== target setting =====
+
+        [HttpGet("[controller]/Setting")]
         public IActionResult Setting()
         {
             try
             {
+                ViewBag.ProdOptions = _optionDomainService.GetLcmProdOptions();
+
                 var _targetSettingList = _targetSettingDomainService.GetList();
 
                 ViewData["NodeTab"] = _targetSettingList.GroupBy(gb => gb.Node).Select(s => s.Key).ToList();
@@ -83,6 +94,30 @@ namespace MOD4.Web.Controllers
             }
         }
 
+
+        [HttpGet("[controller]/Setting/Search")]
+        public IActionResult TargetSearch([FromQuery] int prodSn)
+        {
+            try
+            {
+                ViewBag.ProdOptions = _optionDomainService.GetLcmProdOptions();
+
+                var _targetSettingList = _targetSettingDomainService.GetList();
+
+                ViewData["NodeTab"] = _targetSettingList.GroupBy(gb => gb.Node).Select(s => s.Key).ToList();
+
+                var _res = _targetSettingList.CopyAToB<TargetSettingDetailModel>();
+
+                return View(new TargetSettingViewModel
+                {
+                    SettingDetailList = _res
+                });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
 
 
         [HttpPost]
@@ -105,5 +140,6 @@ namespace MOD4.Web.Controllers
                 return Json($"錯誤：{ex.Message}");
             }
         }
+        #endregion
     }
 }

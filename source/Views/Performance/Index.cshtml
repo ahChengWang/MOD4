@@ -46,6 +46,17 @@
         font-weight: 500;
         background-color: #93abba;
     }
+
+    .dropdown-menu {
+        max-height: 300px;
+        overflow: scroll;
+        overflow-x: hidden;
+    }
+
+    .multiselect-container {
+        width: 300px;
+    }
+
 </style>
 
 <div class="content-wrapper">
@@ -55,7 +66,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h2>後段每日分時產出</h2>
+                            <h2>每日分時產出</h2>
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body">
@@ -67,12 +78,31 @@
                                 <div style="margin-right: 5px;">
                                     <label>線體：</label>
                                     <select id="dropLine" multiple="multiple">
+                                        @{
+                                            foreach (var lcmProd in ViewBag.ProdOptions)
+                                            {
+                                                <optgroup label="@lcmProd.Item1">
+                                                    @foreach (var item in lcmProd.Item2)
+                                                    {
+                                                        <option value="@item.Item1">@item.Item2</option>
+                                                    }
+                                                </optgroup>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <div style="margin-right: 5px;">
+                                    <label>Node：</label>
+                                    <select id="dropNode" multiple="multiple">
                                         @*@{
                                                 foreach (var item in ViewBag.ToolId)
                                                 {
                                                     <option value="@item">@item</option>
                                                 }
                                             }*@
+                                        <option value="1300">1300</option>
+                                        <option value="1330">1330</option>
+                                        <option value="1355">1355</option>
                                         <option value="1415">1415</option>
                                         <option value="1420">1420</option>
                                         <option value="1460">1460</option>
@@ -140,8 +170,13 @@
         });
 
         $("#dropLine").multiselect({
-            enableClickableOptGroups: true
+            enableClickableOptGroups: true,
+            enableFiltering: true,
+            enableCollapsibleOptGroups: true,
+            collapseOptGroupsByDefault: true
         });
+
+        $("#dropNode").multiselect();
 
         $("#btnSearch").click(function () {
             $.blockUI({
@@ -160,10 +195,12 @@
                 }
             });
             $.ajax({
-                url: "./Performance/Search?mfgDay=" + $("#srcDate").val() + "&shift=" + $("#dropShift").val() + "&node=" + $("#dropLine").val(),
+                url: "./Performance/Search?mfgDay=" + $("#srcDate").val() + "&shift=" + $("#dropShift").val() + "&node=" + $("#dropNode").val() + "&prodList=" + $("#dropLine").val(),
                 type: "GET",
                 dataType: 'html',
+                async: true,
                 success: function (result) {
+                    //alert("success");
                     if (isJsonString(result)) {
                         var _res = JSON.parse(result);
                         $("#performance").remove();

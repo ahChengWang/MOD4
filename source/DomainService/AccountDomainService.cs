@@ -60,9 +60,9 @@ namespace MOD4.Web.DomainService
             }).ToList();
         }
 
-        public List<AccountInfoEntity> GetAccountInfoByConditions(List<RoleEnum> roleIdList)
+        public List<AccountInfoEntity> GetAccountInfoByConditions(List<RoleEnum> roleIdList, string name, string jobId)
         {
-            return _accountInfoRepository.SelectByConditions(roleIdList: roleIdList).Select(s => new AccountInfoEntity
+            return _accountInfoRepository.SelectByConditions(roleIdList: roleIdList, name: name, jobId: jobId).Select(s => new AccountInfoEntity
             {
                 sn = s.sn,
                 Account = s.account,
@@ -98,7 +98,8 @@ namespace MOD4.Web.DomainService
                 JobId = _dao.jobId,
                 Level_id = _dao.level_id,
                 ApiKey = _dao.apiKey,
-                DeptSn = _dao.deptSn
+                DeptSn = _dao.deptSn,
+                Mail = _dao.mail
             };
         }
 
@@ -217,7 +218,6 @@ namespace MOD4.Web.DomainService
 
             return _response;
         }
-
 
         public bool VerifyInxSSO(string account, string password)
         {
@@ -557,6 +557,7 @@ namespace MOD4.Web.DomainService
 
             return menuActionEntities;
         }
+
         #endregion
     }
 }

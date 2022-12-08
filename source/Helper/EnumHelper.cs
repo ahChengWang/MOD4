@@ -1,6 +1,9 @@
-﻿using System;
+﻿using MOD4.Web.DomainService.Entity;
+using MOD4.Web.Enum;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 
 namespace MOD4.Web
@@ -38,6 +41,11 @@ namespace MOD4.Web
                     tValues.Add(tValue);
             }
             return tValues;
+        }
+
+        public static bool CheckPermission<T>(this List<T> value, MenuEnum menuId, PermissionEnum permissionId) where T : AccountMenuInfoEntity
+        {
+            return Convert.ToBoolean(value.FirstOrDefault(menu => menu.MenuSn == menuId).AccountPermission & (int)permissionId);
         }
     }
 }

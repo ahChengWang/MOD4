@@ -25,6 +25,9 @@ namespace MOD4.Web.ViewModel
         [Display(Name = "其他")]
         public string FabInOtherType { get; set; }
 
+        [Display(Name = "開單人")]
+        public string FillOutPerson { get; set; }
+
         [Display(Name = "申請人姓名")]
         public string Applicant { get; set; }
 
@@ -51,6 +54,9 @@ namespace MOD4.Web.ViewModel
 
         [Display(Name = "陪同人員")]
         public string AccompanyingPerson { get; set; }
+
+        [Display(Name = "陪同人連絡電話")]
+        public string AccompanyingPersonMVPN { get; set; }
 
         [Display(Name = "附件上傳")]
         public List<IFormFile> UploadFile { get; set; }

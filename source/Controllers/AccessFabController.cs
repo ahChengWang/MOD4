@@ -85,7 +85,7 @@ namespace MOD4.Web.Controllers
             {
                 var _userInfo = GetUserInfo();
 
-                List<AccessFabOrderEntity> _result = _accessFabDomainService.GetList(GetUserInfo(),
+                List<AccessFabOrderEntity> _result = _accessFabDomainService.GetList(_userInfo,
                     new AccessFabSelectOptionEntity
                     {
                         StartDate = startDate,
@@ -141,7 +141,9 @@ namespace MOD4.Web.Controllers
                     Applicant = _accessFabOrderData.Applicant,
                     ApplicantMVPN = _accessFabOrderData.ApplicantMVPN,
                     FabInCategoryId = _accessFabOrderData.CategoryId,
+                    FillOutPerson = _accessFabOrderData.FillOutPerson,
                     AccompanyingPerson = _accessFabOrderData.AccompanyingPerson,
+                    AccompanyingPersonMVPN = _accessFabOrderData.AccompanyingPersonMVPN,
                     Content = _accessFabOrderData.Content,
                     Route = _accessFabOrderData.Route,
                     JobId = _accessFabOrderData.JobId,
@@ -190,10 +192,12 @@ namespace MOD4.Web.Controllers
                     OrderSn = accessFabOrderEditModel.OrderSn,
                     FabInTypeId = accessFabOrderEditModel.FabInTypeId,
                     FabInOtherType = accessFabOrderEditModel.FabInOtherType,
+                    FillOutPerson = accessFabOrderEditModel.FillOutPerson,
                     Applicant = accessFabOrderEditModel.Applicant,
                     ApplicantMVPN = accessFabOrderEditModel.ApplicantMVPN,
                     CategoryId = accessFabOrderEditModel.FabInCategoryId,
                     AccompanyingPerson = accessFabOrderEditModel.AccompanyingPerson,
+                    AccompanyingPersonMVPN = accessFabOrderEditModel.AccompanyingPersonMVPN,
                     Content = accessFabOrderEditModel.Content,
                     Route = accessFabOrderEditModel.Route,
                     JobId = accessFabOrderEditModel.JobId,
@@ -242,7 +246,9 @@ namespace MOD4.Web.Controllers
                     Applicant = _accessFabOrderData.Applicant,
                     ApplicantMVPN = _accessFabOrderData.ApplicantMVPN,
                     FabInCategoryId = _accessFabOrderData.CategoryId,
+                    FillOutPerson = _accessFabOrderData.FillOutPerson,
                     AccompanyingPerson = _accessFabOrderData.AccompanyingPerson,
+                    AccompanyingPersonMVPN = _accessFabOrderData.AccompanyingPersonMVPN,
                     Content = _accessFabOrderData.Content,
                     Route = _accessFabOrderData.Route,
                     JobId = _accessFabOrderData.JobId,
@@ -305,6 +311,7 @@ namespace MOD4.Web.Controllers
                 ViewBag.FabInTypeList = new SelectList(_optionList.FirstOrDefault(f => f.Item1 == "fabInTypeList").Item2, "Id", "Value");
                 ViewBag.FabInCategoryList = new SelectList(_optionList.FirstOrDefault(f => f.Item1 == "fabInCategoryList").Item2, "Id", "Value");
                 ViewBag.AccountName = GetUserInfo().Name;
+                ViewBag.JobId = GetUserInfo().JobId;
 
                 return View();
             }
@@ -324,10 +331,12 @@ namespace MOD4.Web.Controllers
                     FabInTypeId = createModel.FabInTypeId,
                     FabInOtherType = createModel.FabInOtherType,
                     CategoryId = createModel.FabInCategoryId,
+                    FillOutPerson = createModel.FillOutPerson,
                     Applicant = createModel.Applicant,
                     ApplicantMVPN = createModel.ApplicantMVPN,
                     JobId = createModel.JobId,
                     AccompanyingPerson = createModel.AccompanyingPerson,
+                    AccompanyingPersonMVPN = createModel.AccompanyingPersonMVPN,
                     Content = createModel.Content,
                     Route = createModel.Route,
                     FabInDate = createModel.FabInDate,
@@ -385,9 +394,11 @@ namespace MOD4.Web.Controllers
                     OrderSn = s.OrderSn,
                     OrderNo = s.OrderNo,
                     Applicant = s.Applicant,
+                    FabInDate = s.FabInDateStr,
                     Date = s.CreateTimeStr,
                     FabInCategory = s.Category,
-                    FabInType = s.FabInType,
+                    //FabInType = s.FabInType,
+                    GustNames = s.GustNames,
                     Status = s.Status,
                     StatusId = s.StatusId,
                     Content = s.Content,
@@ -401,6 +412,50 @@ namespace MOD4.Web.Controllers
                 return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
             }
 
+        }
+
+
+        [HttpGet("[controller]/Audit/Search")]
+        public IActionResult AuditSearch([FromQuery] string startFabInDate, string endFabInDate, int fabInTypeId, string guestName, string applicant)
+        {
+            try
+            {
+                var _userInfo = GetUserInfo();
+
+                List<AccessFabOrderEntity> _result = _accessFabDomainService.GetAuditList(_userInfo,
+                    new AccessFabSelectOptionEntity
+                    {
+                        StartFabInDate = startFabInDate,
+                        EndFabInDate = endFabInDate,
+                        FabInTypeId = fabInTypeId,
+                        Applicant = applicant,
+                        GuestName = guestName
+                    });
+
+                List<AccessFabMainViewModel> _resAccessList = _result.Select(s => new AccessFabMainViewModel
+                {
+                    OrderSn = s.OrderSn,
+                    OrderNo = s.OrderNo,
+                    Applicant = s.Applicant,
+                    FabInDate = s.FabInDateStr,
+                    Date = s.CreateTimeStr,
+                    FabInCategory = s.Category,
+                    //FabInType = s.FabInType,
+                    //Status = s.Status,
+                    //StatusId = s.StatusId,
+                    GustNames = s.GustNames,
+                    Status = s.Status,
+                    StatusId = s.StatusId,
+                    Content = s.Content,
+                    Url = s.Url
+                }).ToList();
+
+                return PartialView("_PartialTable", _resAccessList);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Msg = ex.Message });
+            }
         }
 
         [HttpGet("[controller]/Audit/Detail/{orderSn}")]
@@ -430,10 +485,12 @@ namespace MOD4.Web.Controllers
                     OrderSn = orderSn,
                     FabInTypeId = _accessFabOrderData.FabInTypeId,
                     FabInOtherType = _accessFabOrderData.FabInOtherType,
+                    FillOutPerson = _accessFabOrderData.FillOutPerson,
                     Applicant = _accessFabOrderData.Applicant,
                     ApplicantMVPN = _accessFabOrderData.ApplicantMVPN,
                     FabInCategoryId = _accessFabOrderData.CategoryId,
                     AccompanyingPerson = _accessFabOrderData.AccompanyingPerson,
+                    AccompanyingPersonMVPN = _accessFabOrderData.AccompanyingPersonMVPN,
                     Content = _accessFabOrderData.Content,
                     Route = _accessFabOrderData.Route,
                     JobId = _accessFabOrderData.JobId,

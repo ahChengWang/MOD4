@@ -16,17 +16,23 @@ namespace MOD4.Web.DomainService.Entity
         public FabInOutStatusEnum StatusId { get; set; }
         public string Status { get; set; }
         public string Applicant { get; set; }
+        public string FillOutPerson { get; set; }
         public string JobId { get; set; }
         public string ApplicantMVPN { get; set; }
         public DateTime FabInDate { get; set; }
+        public string FabInDateStr { get; set; }
         public DateTime FabOutDate { get; set; }
         public string AccompanyingPerson { get; set; }
+        public string AccompanyingPersonMVPN { get; set; }
         public string Content { get; set; }
         public string Route { get; set; }
         public int ApplicantAccountSn { get; set; }
         public string AuditAccountName { get; set; }
         public int AuditAccountSn { get; set; }
+
+        public string GustNames { get; set; }
         public string CreateUser { get; set; }
+        public int CreateAccountSn { get; set; }
         public DateTime CreateTime { get; set; }
         public string CreateTimeStr { get; set; }
         public string UpdateUser { get; set; }

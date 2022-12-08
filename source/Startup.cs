@@ -78,6 +78,7 @@ namespace MOD4.Web
             services.AddSingleton<IAccessFabOrderRepository, AccessFabOrderRepository>();
             services.AddSingleton<IAccessFabOrderDetailRepository, AccessFabOrderDetailRepository>();
             services.AddSingleton<IAccessFabOrderAuditHistoryRepository, AccessFabOrderAuditHistoryRepository>();
+            services.AddSingleton<ILcmProductRepository, LcmProductRepository>();
 
             services.AddScoped<MenuService>();
             services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));

@@ -7,9 +7,14 @@ namespace MOD4.Web.Repostory
     public class TargetSettingRepository : BaseRepository, ITargetSettingRepository
     {
 
-        public List<TargetSettingDao> SelectByConditions(List<string> nodeList)
+        public List<TargetSettingDao> SelectByConditions(int prodSn, List<string> nodeList)
         {
             string sql = "select * from Target_Setting where 1=1 ";
+
+            if (prodSn != 0)
+            {
+                sql += " and lcmProdSn = @lcmProdSn ";
+            }
 
             if (nodeList != null && nodeList.Any())
             {
@@ -18,6 +23,7 @@ namespace MOD4.Web.Repostory
 
             var dao = _dbHelper.ExecuteQuery<TargetSettingDao>(sql, new
             {
+                lcmProdSn = prodSn,
                 Node = nodeList
             });
 

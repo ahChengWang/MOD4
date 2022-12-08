@@ -49,43 +49,38 @@
                         <div class="card-header">
                             <h3 class="card-title">進出申請單 簽核作業</h3>
                         </div>
+                        <span style="color:red;font-size:8px">*預設顯示當日入場申請單</span>
                         <div id="barDiv1" class="card-body">
-                            @*<div class="row" style="margin-bottom:5px">
-                                    <div class="col-3">
-                                        <label>申請起日：</label>
-                                        <input id="startDTE" class="my-control" type="date" name="name" value="" />
-                                    </div>
-                                    <div class="col-3">
-                                        <label>申請訖日：</label>
-                                        <input id="endDTE" class="my-control" type="date" name="name" value="" />
-                                    </div>
-                                    <div class="col-3">
-                                        <label>狀態：</label>
-                                        <select id="selStatus" class="custom-select" style="width:50%" asp-items="@(SelectList)ViewBag.StatusList">
-                                            <option value="0"></option>
-                                        </select>
-                                    </div>
-                                    <div class="col-3">
-                                        <label>入廠性質：</label>
-                                        <select id="selFabInType" class="custom-select" style="width:50%" asp-items="@(SelectList)ViewBag.FabInTypeList">
-                                            <option value="0"></option>
-                                        </select>
-                                    </div>
+                            <div class="row" style="margin-bottom:5px">
+                                <div class="col-3">
+                                    <label>入廠起日：</label>
+                                    <input id="startDTE" class="my-control" type="date" name="name" value="" />
                                 </div>
-                                <div class="row">
-                                    <div class="col-3">
-                                        <label>單號：</label>
-                                        <input id="orderNo" type="text" class="form-control" style="width:70%;display:initial;" />
-                                    </div>
-                                    <div class="col-3">
-                                        <label>申請人：</label>
-                                        <input id="applicant" type="text" class="form-control" style="width:65%;display:initial;" />
-                                    </div>
-                                    <div>
-                                        <input id="btnSearch" type="button" class="btn btn-info" style="float: right" name="name" value="查詢" />
-                                    </div>
+                                <div class="col-3">
+                                    <label>入廠訖日：</label>
+                                    <input id="endDTE" class="my-control" type="date" name="name" value="" />
                                 </div>
-                                <br />*@
+                                <div class="col-3">
+                                    <label>入廠性質：</label>
+                                    <select id="selFabInType" class="custom-select" style="width:50%" asp-items="@(SelectList)ViewBag.FabInTypeList">
+                                        <option value="0"></option>
+                                    </select>
+                                </div>
+                                <div class="col-3">
+                                    <label>入廠人員：</label>
+                                    <input id="guestName" type="text" class="form-control" style="width:65%;display:initial;" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-3">
+                                    <label>申請人：</label>
+                                    <input id="applicant" type="text" class="form-control" style="width:65%;display:initial;" />
+                                </div>
+                                <div>
+                                    <input id="btnSearch" type="button" class="btn btn-info" style="float: right" name="name" value="查詢" />
+                                </div>
+                            </div>
+                            <br id="diviBr" />
 
                             <partial name="_PartialTable" model="Model" />
                         </div>
@@ -111,7 +106,7 @@
         let myFun = {
             mainSearch() {
                 $.ajax({
-                    url: "./AccessFab/Search?startDate=" + $("#startDTE").val() + "&endDate=" + $("#endDTE").val() + "&statusId=" + $("#selStatus").val() + "&fabInTypeId=" + $("#selFabInType").val() + "&orderNo=" + $("#orderNo").val() + "&applicant=" + $("#applicant").val(),
+                    url: "./Audit/Search?startFabInDate=" + $("#startDTE").val() + "&endFabInDate=" + $("#endDTE").val() + "&fabInTypeId=" + $("#selFabInType").val() + "&guestName=" + $("#guestName").val() + "&applicant=" + $("#applicant").val(),
                     type: "GET",
                     dataType: "html",
                     success: function (res) {
@@ -127,13 +122,16 @@
                         }
                         else {
                             $("#table1_wrapper").remove();
-                            $("#barDiv1").after(res);
+                            $("#diviBr").after(res);
                             $('#table1').DataTable({
-                                "responsive": false
-                                , "lengthChange": true
-                                , "autoWidth": true
-                                , "paging": true
+                                "responsive": false,
+                                "lengthChange": true,
+                                "autoWidth": true,
+                                "paging": true,
+                                "order": [[0, "desc"]]
                             }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
+                            $('th:nth-child(6)').hide();
+                            $('td:nth-child(6)').hide();
                         }
                     }
                 });
@@ -172,8 +170,8 @@
 
             $("#dropCat,#dropStatus").multiselect({});
 
-            $('th:nth-child(7)').hide();
-            $('td:nth-child(7)').hide();
+            $('th:nth-child(6)').hide();
+            $('td:nth-child(6)').hide();
             $('#startDTE').attr("max", new Date().toISOString().slice(0, 10));
             $('#endDTE').attr("max", new Date().toISOString().slice(0, 10));
         });

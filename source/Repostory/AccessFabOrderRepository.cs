@@ -19,7 +19,10 @@ namespace MOD4.Web.Repostory
             int applicantAccountSn = 0,
             int auditAccountSn = 0,
             DateTime? startTime = null,
-            DateTime? endTime = null
+            DateTime? endTime = null,
+            DateTime? startFabInTime = null,
+            DateTime? endFabInTime = null,
+            List<int> orderSnList = null
             )
         {
             string sql = "select * from access_fab_order where 1=1 ";
@@ -50,7 +53,7 @@ namespace MOD4.Web.Repostory
             }
             if (endTime != null)
             {
-                sql += " and createTime < @CreateEndTime ";
+                sql += " and createTime <= @CreateEndTime ";
             }
             if (applicantAccountSn != 0)
             {
@@ -60,6 +63,16 @@ namespace MOD4.Web.Repostory
             {
                 sql += " and auditAccountSn = @AuditAccountSn ";
             }
+            if (startFabInTime != null)
+            {
+                sql += " and fabInDate >= @StartFabInTime ";
+            }
+            if (endFabInTime != null)
+            {
+                sql += " and fabInDate <= @EndFabInTime ";
+            }
+            if (orderSnList != null && orderSnList.Any())
+                sql += " and orderSn in @OrderSnList ";
 
             var dao = _dbHelper.ExecuteQuery<AccessFabOrderDao>(sql, new
             {
@@ -71,7 +84,10 @@ namespace MOD4.Web.Repostory
                 CreateStartTime = startTime,
                 CreateEndTime = endTime,
                 ApplicantAccountSn = applicantAccountSn,
-                AuditAccountSn = auditAccountSn
+                AuditAccountSn = auditAccountSn,
+                StartFabInTime = startFabInTime,
+                EndFabInTime = endFabInTime,
+                OrderSnList = orderSnList
             });
 
             return dao;
@@ -101,7 +117,9 @@ namespace MOD4.Web.Repostory
 ,[createTime]
 ,[updateUser]
 ,[updateTime]
-,[remark])
+,[remark]
+,[createAccountSn]
+,[accompanyingPersonMVPN])
 VALUES
 (@orderNo
 ,@fabInTypeId
@@ -123,7 +141,9 @@ VALUES
 ,@createTime
 ,@updateUser
 ,@updateTime
-,@remark); ";
+,@remark
+,@createAccountSn
+,@accompanyingPersonMVPN); ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, insAccessFabOrder);
 
@@ -150,6 +170,7 @@ VALUES
 ,applicantAccountSn = @applicantAccountSn
 ,updateUser = @updateUser
 ,updateTime = @updateTime
+,accompanyingPersonMVPN = @accompanyingPersonMVPN 
 where OrderSn = @OrderSn ; ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, updAccessFabOrder);

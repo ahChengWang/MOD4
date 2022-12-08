@@ -98,8 +98,8 @@ namespace MOD4.Web.DomainService
                 List<EqpInfoDao> _resEquipmentList = new List<EqpInfoDao>();
 
                 var _eqpInfoList = _eqpInfoRepository.SelectByConditions(
-                        date ?? beginDTE, 
-                        string.IsNullOrEmpty(toolId) ? null : toolId.Split(",").ToList() ?? null, 
+                        date ?? beginDTE,
+                        string.IsNullOrEmpty(toolId) ? null : toolId.Split(",").ToList() ?? null,
                         date == null,
                         showAuto);
 
@@ -311,11 +311,11 @@ namespace MOD4.Web.DomainService
             }
         }
 
-        public List<EquipmentEntity> GetEntityHistoryDetail(string mfgDay, List<string> eqpListStr)
+        public List<EquipmentEntity> GetEntityHistoryDetail(string mfgDay, List<string> eqpListStr, List<int> prodSnList)
         {
             try
             {
-                var _eqpHisList = _eqpInfoRepository.SelectByConditions(mfgDay, eqpListStr, false, false);
+                var _eqpHisList = _eqpInfoRepository.SelectByConditions(mfgDay, eqpListStr, false, false, prodSnList: prodSnList);
 
                 return (_eqpHisList.Select(s =>
                 {

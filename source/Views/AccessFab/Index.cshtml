@@ -141,6 +141,11 @@
                             , "paging": true
                             , "order": [[0, "desc"]]
                         }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
+
+                        $('th:nth-child(2)').hide();
+                        $('th:nth-child(5)').hide();
+                        $('td:nth-child(2)').hide();
+                        $('td:nth-child(5)').hide();
                     }
                 }
             });
@@ -161,6 +166,11 @@
         }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
 
         $("#dropCat,#dropStatus").multiselect({});
+
+        $('th:nth-child(2)').hide();
+        $('th:nth-child(5)').hide();
+        $('td:nth-child(2)').hide();
+        $('td:nth-child(5)').hide();
 
         $('#startDTE').attr("max", new Date().toISOString().slice(0, 10));
         $('#endDTE').attr("max", new Date().toISOString().slice(0, 10));

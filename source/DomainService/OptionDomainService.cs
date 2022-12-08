@@ -1,4 +1,5 @@
-﻿using MOD4.Web.DomainService.Entity;
+﻿using Microsoft.Extensions.Options;
+using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
 using MOD4.Web.Helper;
 using MOD4.Web.Repostory;
@@ -18,18 +19,21 @@ namespace MOD4.Web.DomainService
         private readonly IEquipMappingRepository _equipMappingRepository;
         private readonly IAccountInfoRepository _accountInfoRepository;
         private readonly IMenuRepository _menuRepository;
+        private readonly ILcmProductRepository _lcmProductRepository;
 
         public OptionDomainService(IEqSituationMappingRepository eqSituationMappingRepository,
             IEqEvanCodeMappingRepository eqEvanCodeMappingRepository,
             IEquipMappingRepository equipMappingRepository,
             IAccountInfoRepository accountInfoRepository,
-            IMenuRepository menuRepository)
+            IMenuRepository menuRepository,
+            ILcmProductRepository lcmProductRepository)
         {
             _eqSituationMappingRepository = eqSituationMappingRepository;
             _eqEvanCodeMappingRepository = eqEvanCodeMappingRepository;
             _equipMappingRepository = equipMappingRepository;
             _accountInfoRepository = accountInfoRepository;
             _menuRepository = menuRepository;
+            _lcmProductRepository = lcmProductRepository;
         }
 
 
@@ -303,7 +307,6 @@ namespace MOD4.Web.DomainService
             return _menuOptionList;
         }
 
-
         public List<MenuPermissionViewModel> GetCreatePermissionList()
         {
             var _catchDeptInfo = CatchHelper.Get($"menuList");
@@ -352,6 +355,14 @@ namespace MOD4.Web.DomainService
             }
 
             return _response;
+        }
+
+        public List<(string, List<(int, string)>)> GetLcmProdOptions()
+        {
+            return _lcmProductRepository.SelectByConditions().GroupBy(g => g.ProdSize)
+                .Select(prod => (prod.Key, prod.Select(p => (p.sn, $"{p.ProdNo}({p.Descr})")).ToList()))
+                .OrderBy(ob => ob.Key)
+                .ToList();
         }
 
         private List<OptionEntity> GetEqProdOptionList(int id)

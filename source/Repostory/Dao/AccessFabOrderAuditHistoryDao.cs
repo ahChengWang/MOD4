@@ -14,6 +14,5 @@ namespace MOD4.Web.Repostory.Dao
         public DateTime? AuditTime { get; set; }
         public string AuditRemark { get; set; }
         public bool IsDel { get; set; }
-        public string Mail { get; set; }
     }
 }

@@ -28,5 +28,7 @@ namespace MOD4.Web.Repostory.Dao
         public string UpdateUser { get; set; }
         public DateTime UpdateTime { get; set; }
         public string Remark { get; set; }
+        public int CreateAccountSn { get; set; }
+        public string AccompanyingPersonMVPN { get; set; }
     }
 }
