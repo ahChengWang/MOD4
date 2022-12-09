@@ -6,7 +6,7 @@ namespace MOD4.Web.Repostory.Dao
     {
         public string Node { get; set; }
         public string Node_Name { get; set; }
-        public int LcmProdSn { get; set; }
+        public int lcmProdSn { get; set; }
         public string DownEquipment { get; set; }
         public int Time0730 { get; set; }
         public int Time0830 { get; set; }

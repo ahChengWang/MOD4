@@ -7,13 +7,13 @@ namespace MOD4.Web.Repostory
     public class TargetSettingRepository : BaseRepository, ITargetSettingRepository
     {
 
-        public List<TargetSettingDao> SelectByConditions(int prodSn, List<string> nodeList)
+        public List<TargetSettingDao> SelectByConditions(List<int> prodSn, List<string> nodeList)
         {
             string sql = "select * from Target_Setting where 1=1 ";
 
-            if (prodSn != 0)
+            if (prodSn != null && prodSn.Any())
             {
-                sql += " and lcmProdSn = @lcmProdSn ";
+                sql += " and lcmProdSn in @lcmProdSn ";
             }
 
             if (nodeList != null && nodeList.Any())
@@ -33,7 +33,8 @@ namespace MOD4.Web.Repostory
         public int Update(List<TargetSettingDao> updSettingList)
         {
             string sql = @"UPDATE [dbo].[Target_Setting]
-   SET [Time0730] = @Time0730
+   SET [DownEquipment] = @DownEquipment
+      ,[Time0730] = @Time0730
       ,[Time0830] = @Time0830
       ,[Time0930] = @Time0930
       ,[Time1030] = @Time1030
@@ -59,7 +60,7 @@ namespace MOD4.Web.Repostory
       ,[Time0630] = @Time0630
       ,[UpdateUser] = @UpdateUser
       ,[UpdateTime] = @UpdateTime
- WHERE [Node] = @Node ";
+ WHERE [Node] = @Node and [lcmProdSn] = @lcmProdSn; ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, updSettingList);
 

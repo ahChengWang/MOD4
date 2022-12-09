@@ -5,6 +5,7 @@ namespace MOD4.Web.ViewModel
 {
     public class TargetSettingViewModel
     {
+        public int ProdSn { get; set; }
         public List<TargetSettingDetailModel> SettingDetailList { get; set; }
     }
 
@@ -12,6 +13,11 @@ namespace MOD4.Web.ViewModel
     public class TargetSettingDetailModel
     {
         public string Node { get; set; }
+
+
+        [Display(Name = "敲當 EQ No.")]
+        [Required(ErrorMessage = "*必填")]
+        public string DownEquipment { get; set; }
 
         [Display(Name = "07:30~08:30")]
         [Required(ErrorMessage = "*必填")]

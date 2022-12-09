@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MOD4.Web.DomainService;
@@ -13,17 +14,20 @@ using System.Linq;
 namespace MOD4.Web.Controllers
 {
     [Authorize]
-    public class PerformanceController : Controller
+    public class PerformanceController : BaseController
     {
         private readonly ILogger<PerformanceController> _logger;
         private readonly IPerformanceDomainService _performanceDomainService;
         private readonly ITargetSettingDomainService _targetSettingDomainService;
         private readonly IOptionDomainService _optionDomainService;
 
-        public PerformanceController(ILogger<PerformanceController> logger,
+        public PerformanceController(IHttpContextAccessor httpContextAccessor,
             IPerformanceDomainService performanceDomainService,
             ITargetSettingDomainService targetSettingDomainService,
-            IOptionDomainService optionDomainService)
+            IOptionDomainService optionDomainService,
+            IAccountDomainService accountDomainService,
+            ILogger<PerformanceController> logger)
+            : base(httpContextAccessor, accountDomainService)
         {
             _logger = logger;
             _performanceDomainService = performanceDomainService;
@@ -35,6 +39,7 @@ namespace MOD4.Web.Controllers
         {
             try
             {
+                ViewData["ProdName"] = "GDD340IA0090S-34VCS";
                 ViewBag.ProdOptions = _optionDomainService.GetLcmProdOptions();
 
                 var resule = _performanceDomainService.GetList();
@@ -77,7 +82,7 @@ namespace MOD4.Web.Controllers
             {
                 ViewBag.ProdOptions = _optionDomainService.GetLcmProdOptions();
 
-                var _targetSettingList = _targetSettingDomainService.GetList();
+                var _targetSettingList = _targetSettingDomainService.GetList(new List<int> { 1206 });
 
                 ViewData["ProdName"] = "GDD340IA0090S - 34VCS";
                 ViewData["NodeTab"] = _targetSettingList.GroupBy(gb => gb.Node).Select(s => s.Key).ToList();
@@ -97,17 +102,17 @@ namespace MOD4.Web.Controllers
 
 
         [HttpGet("[controller]/Setting/Search")]
-        public IActionResult TargetSearch([FromQuery] int prodSn,string product)
+        public IActionResult TargetSearch([FromQuery] int prodSn)
         {
             try
             {
-                var _targetSettingList = _targetSettingDomainService.GetList(prodSn: prodSn);
+                var _targetSettingList = _targetSettingDomainService.GetList(prodSn: new List<int> { prodSn });
 
                 ViewData["NodeTab"] = _targetSettingList.GroupBy(gb => gb.Node).Select(s => s.Key).ToList();
 
                 var _res = _targetSettingList.CopyAToB<TargetSettingDetailModel>();
 
-                return View(new TargetSettingViewModel
+                return PartialView("_PartialSettingTable", new TargetSettingViewModel
                 {
                     SettingDetailList = _res
                 });
@@ -126,7 +131,7 @@ namespace MOD4.Web.Controllers
             {
                 var _res = updateMode.SettingDetailList.CopyAToB<TargetSettingEntity>();
 
-                var _updateResult = _targetSettingDomainService.Update(_res);
+                var _updateResult = _targetSettingDomainService.Update(updateMode.ProdSn, _res, GetUserInfo());
 
                 if (_updateResult != "")
                     return Json(_updateResult);

@@ -102,26 +102,29 @@ namespace MOD4.Web.DomainService
 
             //var _lineTTList = _lineTTRepository.SelectByConditions(mfgDTE, _allNodeList, shift);
 
-            var _settingList = _targetSettingDomainService.GetList(nodeList: _nodeDic.Select(s => s.Key).ToList());
+            var _targetSettingList = _targetSettingDomainService.GetList(prodSn: _prodOptionList, nodeList: _nodeDic.Select(s => s.Key).ToList());
 
             var _eqpHistoryList =
-                _equipmentDomainService.GetEntityHistoryDetail(mfgDTE, _settingList.Where(we => we.DownEquipment != "").Select(s => s.DownEquipment).ToList(), _prodOptionList);
+                _equipmentDomainService.GetEntityHistoryDetail(mfgDTE, _targetSettingList.Where(we => we.DownEquipment != "").Select(s => s.DownEquipment).ToList(), _prodOptionList);
 
             List<PassQtyEntity> _response = new List<PassQtyEntity>();
             var url = "http://zipsum/modreport/Report/SHOPMOD/OperPerfDetail8.asp?";
 
-            foreach (var node in _nodeDic)
+            //foreach (var node in _nodeDic)
+            //{
+            Parallel.ForEach(_nodeDic, (node) =>
             {
-                //Parallel.ForEach(_nodeDic, (node) =>
-                //{
                 List<PerformanceDetailEntity> _performanceDetail = new List<PerformanceDetailEntity>();
 
                 Dictionary<string, List<string>> _prodEqDic = new Dictionary<string, List<string>>();
 
-                foreach (var prod in _allLcmProdOptions.Select(s => s.Item2))
+                foreach (string prod in _allLcmProdOptions.Select(s => s.Item2.Split("-")[0]))
                 {
                     _prodEqDic.Add(prod, GetNodeAllEquiomentNo($"{node.Key}-{node.Value.Item1}", prod, shift, mfgDTE, _mfgDteEnd));
                 }
+
+                //foreach (var prodEq in _prodEqDic)
+                //{
 
                 Parallel.ForEach(_prodEqDic, (prodEq) =>
                 {
@@ -164,6 +167,7 @@ namespace MOD4.Web.DomainService
                         }
                     }
                 });
+                //}
 
                 //foreach (var prodEq in _prodEqDic)
                 //{
@@ -219,8 +223,40 @@ namespace MOD4.Web.DomainService
                 //            Line_TT = s.Line_TT
                 //        }).ToList();
 
-                var _lineSetting = _settingList.First(f => f.Node == node.Key);
-                var _eqpHistory = _eqpHistoryList.Where(w => w.ToolId.Contains(_lineSetting.DownEquipment)).ToList();
+                var _currentProdTarget = _targetSettingList.Where(w => w.Node == node.Key).ToList();
+
+                var _lineSetting = new TargetSettingEntity
+                {
+                    Node = node.Key,
+                    Node_Name = string.Join("/", _currentProdTarget.Select(s => s.Node_Name)),
+                    DownEquipment = string.Join(",", _currentProdTarget.Select(s => s.DownEquipment)),
+                    Time0730 = _currentProdTarget.Sum(s => s.Time0730),
+                    Time0830 = _currentProdTarget.Sum(s => s.Time0830),
+                    Time0930 = _currentProdTarget.Sum(s => s.Time0930),
+                    Time1030 = _currentProdTarget.Sum(s => s.Time1030),
+                    Time1130 = _currentProdTarget.Sum(s => s.Time1130),
+                    Time1230 = _currentProdTarget.Sum(s => s.Time1230),
+                    Time1330 = _currentProdTarget.Sum(s => s.Time1330),
+                    Time1430 = _currentProdTarget.Sum(s => s.Time1430),
+                    Time1530 = _currentProdTarget.Sum(s => s.Time1530),
+                    Time1630 = _currentProdTarget.Sum(s => s.Time1630),
+                    Time1730 = _currentProdTarget.Sum(s => s.Time1730),
+                    Time1830 = _currentProdTarget.Sum(s => s.Time1830),
+                    Time1930 = _currentProdTarget.Sum(s => s.Time1930),
+                    Time2030 = _currentProdTarget.Sum(s => s.Time2030),
+                    Time2130 = _currentProdTarget.Sum(s => s.Time2130),
+                    Time2230 = _currentProdTarget.Sum(s => s.Time2230),
+                    Time2330 = _currentProdTarget.Sum(s => s.Time2330),
+                    Time0030 = _currentProdTarget.Sum(s => s.Time0030),
+                    Time0130 = _currentProdTarget.Sum(s => s.Time0130),
+                    Time0230 = _currentProdTarget.Sum(s => s.Time0230),
+                    Time0330 = _currentProdTarget.Sum(s => s.Time0330),
+                    Time0430 = _currentProdTarget.Sum(s => s.Time0430),
+                    Time0530 = _currentProdTarget.Sum(s => s.Time0530),
+                    Time0630 = _currentProdTarget.Sum(s => s.Time0630)
+                };
+
+                var _eqpHistory = _eqpHistoryList.Where(w => _lineSetting.DownEquipment.Contains(w.ToolId)).ToList();
 
                 _tResponse.NodeNo = node.Value.Item2;
                 _tResponse.Node = node.Key;
@@ -283,8 +319,8 @@ namespace MOD4.Web.DomainService
                 }
 
                 _response.Add(_tResponse);
-            };
-            //};
+                //};
+            });
 
             return _response.OrderBy(ob => ob.NodeNo).ToList();
         }

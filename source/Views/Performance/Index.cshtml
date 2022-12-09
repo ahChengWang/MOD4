@@ -56,7 +56,6 @@
     .multiselect-container {
         width: 300px;
     }
-
 </style>
 
 <div class="content-wrapper">
@@ -68,6 +67,7 @@
                         <div class="card-header">
                             <h2>每日分時產出</h2>
                         </div>
+                        <h2 id="prodName" style="font-family:Impact">@ViewData["ProdName"]</h2>
                         <!-- /.card-header -->
                         <div class="card-body">
                             <div id="barDiv1" class="row" style="margin-bottom:5px">
@@ -179,6 +179,17 @@
         $("#dropNode").multiselect();
 
         $("#btnSearch").click(function () {
+
+            let _prodTitle = "";
+            let selected = $("#dropLine option:selected");
+            if (selected.length == 0) {
+                _prodTitle = "GDD340IA0090S-34VCS /";
+            }
+            for (var i = 0; i < selected.length; i++) {
+                _prodTitle += selected[i].innerHTML + ' /';
+            }
+            $('#prodName').html(_prodTitle.slice(0, -1));
+
             $.blockUI({
                 message: '取得過帳資料中',
                 css: {

@@ -5,8 +5,8 @@ namespace MOD4.Web.DomainService
 {
     public interface ITargetSettingDomainService
     {
-        List<TargetSettingEntity> GetList(int prodSn = 1206, List<string> nodeList = null);
+        List<TargetSettingEntity> GetList(List<int> prodSn = null, List<string> nodeList = null);
 
-        string Update(List<TargetSettingEntity> settingList);
+        string Update(int prodSn, List<TargetSettingEntity> settingList, UserEntity userEntity);
     }
 }

@@ -1,8 +1,6 @@
 ﻿@model MOD4.Web.ViewModel.TargetSettingViewModel
 @using System.Linq;
-@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+
 @{
     ViewBag.Title = "TT設定";
 }
@@ -16,9 +14,6 @@
         width: 60px;
         margin: 5px;
         text-align: right;
-    }
-
-    .myControlA {
     }
 
     input[type='number'] {
@@ -41,6 +36,13 @@
         overflow: scroll;
         overflow-x: hidden;
     }
+
+    input[name='downEqInput'] {
+        width: 100px;
+        border-style: none;
+        border-bottom: 2px solid black;
+        outline: none;
+    }
 </style>
 
 <head>
@@ -55,12 +57,14 @@
                 <div class="col-12">
                     <h2>分時 Target 設定</h2>
                     <hr />
-                    <h3 id="prodName" style="">@ViewData["ProdName"]</h3>
                 </div>
             </div>
             <div class="row" style="display:flex">
+                <div class="col-6">
+                    <h2 id="prodName" style="font-family:Impact">@ViewData["ProdName"]</h2>
+                </div>
                 <div style="margin-left: 10px;">
-                    <label>線體：</label>
+                    <label style="font-size:25px">查詢線體：</label>
                 </div>
                 <div style="margin-bottom: 10px; margin-left: 10px;">
                     <select class="form-control select2bs4" id="dropLine" style="width:300px">
@@ -93,7 +97,7 @@
                             {
                                 var _href = "#node" + node;
                                 <li class="nav-item">
-                                    <a class="nav-link" data-toggle="tab" href="@_href">@node</a>
+                                    <a class="nav-link" name="settingTab" data-toggle="tab" href="@_href">@node</a>
                                 </li>
                             }
                         }
@@ -102,22 +106,38 @@
                 <div class="card-body">
                     <div class="tab-content">
 
-                        @{
-                            foreach (var setting in Model.SettingDetailList)
-                            {
+                        <partial name="_PartialSettingTable" model="Model" />
 
-                                var _tabId = "node" + @setting.Node;
-                                var _formId = "form" + @setting.Node;
-                                var _sumId = "sumTT" + @setting.Node;
-                                var _inputNameId = "input" + @setting.Node;
-                                var _classA = "A" + @setting.Node;
-                                var _classB = "B" + @setting.Node;
+                        @*@{
+                                foreach (var setting in Model.SettingDetailList)
+                                {
+
+                                    var _tabId = "node" + @setting.Node;
+                                    var _formId = "form" + @setting.Node;
+                                    var _sumId = "sumTT" + @setting.Node;
+                                    var _inputNameId = "input" + @setting.Node;
+                                    var _classA = "A" + @setting.Node;
+                                    var _classB = "B" + @setting.Node;
 
                                 <div class="tab-pane" id="@_tabId">
                                     <form id="@_formId">
                                         <input type="hidden" asp-for="@setting.Node" />
-                                        <h4>日班：</h4>
-                                        <p id="A@_sumId"></p>
+                                        <div style="display:flex">
+                                            <div class="">
+                                                <label class="col-form-label" asp-for="@setting.DownEquipment"></label>
+                                            </div>
+                                            <div>
+                                                <input class="form-control" name="downEqInput" type="text" asp-for="@setting.DownEquipment" />
+                                            </div>
+                                        </div>
+                                        <div class="row" style="display:flex">
+                                            <div>
+                                                <p>日班合計：</p>
+                                            </div>
+                                            <div>
+                                                <p id="A@_sumId" style="font-weight:600"></p>
+                                            </div>
+                                        </div>
                                         <div style="display: flex; border-bottom: 2px solid lightgray;">
                                             <div>
                                                 <label class="col-form-label" asp-for="@setting.Time0730"></label>
@@ -195,8 +215,14 @@
                                             </div>
                                         </div>
                                         <hr />
-                                        <h4>夜班：</h4>
-                                        <p id="B@_sumId"></p>
+                                        <div class="row" style="display:flex">
+                                            <div>
+                                                <p>夜班合計：</p>
+                                            </div>
+                                            <div>
+                                                <p id="B@_sumId" style="font-weight:600"></p>
+                                            </div>
+                                        </div>
                                         <div style="display: flex; border-bottom: 2px solid lightgray;">
                                             <div>
                                                 <label class="col-form-label" asp-for="@setting.Time1930"></label>
@@ -275,8 +301,8 @@
                                         </div>
                                     </form>
                                 </div>
-                            }
-                        }
+                                }
+                            }*@
                     </div>
                 </div>
                 <!-- /.card -->
@@ -298,6 +324,7 @@
     <script type="text/javascript">
         $(document).ready(
             function setDefault() {
+                $("input[name='downEqInput']").attr('disabled', true);
                 $("input[type='number']").attr('disabled', true).css('background-color', '#e9ecef');
                 $("input[name='submit']").attr('disabled', true).addClass("btn-outline-primary");
 
@@ -308,12 +335,12 @@
                     $("input[class='A" + node + "']").each(function (idx, td) {
                     sumTT += parseInt(td.value);
                     });
-                    $("#AsumTT" + node).html("合計 " + sumTT.toString());
+                    $("#AsumTT" + node).html(sumTT.toString());
                     sumTT = 0;
                     $("input[class='B" + node + "']").each(function (idx, td) {
                     sumTT += parseInt(td.value);
                     });
-                    $("#BsumTT" + node).html("合計 " + sumTT.toString());
+                    $("#BsumTT" + node).html(sumTT.toString());
                 });
 
                 $(".card-header a").first().addClass("active");
@@ -333,20 +360,54 @@
             $.ajax({
                 url: "./Setting/Search?prodSn=" + $("#dropLine").val(),
                 type: "GET",
-                dataType: 'json',
+                dataType: 'html',
                 success: function (result) {
-                    if (result == '') {
-                        alert('success.');
+                    if (result != '') {
+                        $(".tab-content").empty();
+                        $(".tab-content").html(result);
+
+                        $("a[name='settingTab']").removeClass("active");
+                        $(".tab-pane").removeClass("active");
+
+                        $(".card-header a").first().addClass("active");
+                        $(".tab-pane").first().addClass("active");
+
+                        $("input[type='number']").attr('disabled', true).css('background-color', '#e9ecef');
+                        $("input[name='submit']").attr('disabled', true).addClass("btn-outline-primary");
+
+
+                        var _formIdList = "@string.Join(",", Model.SettingDetailList.Select(s => s.Node))";
+                        _formIdList.split(',').forEach(function (node)
+                        {
+                            var sumTT = 0;
+                            $("input[class='A" + node + "']").each(function (idx, td) {
+                                sumTT += parseInt(td.value);
+                            });
+                            $("#AsumTT" + node).html(sumTT.toString());
+                            sumTT = 0;
+                            $("input[class='B" + node + "']").each(function (idx, td) {
+                                sumTT += parseInt(td.value);
+                            });
+                            $("#BsumTT" + node).html(sumTT.toString());
+                        });
                     }
                     else {
                         alert(result);
                     }
+                },
+                complete: function () {
+                    $("input[name='downEqInput']").attr('disabled', true);
+                    $("input[type='number']").attr('disabled', true).css('background-color', '#e9ecef');
+                    $("input[name='edit']").removeAttr('disabled').removeClass("btn-outline-danger").addClass("btn-danger");
+                    $("input[name='submit']").attr('disabled', true).removeClass("btn-primary").addClass("btn-outline-primary");
                 }
             });
+
         });
 
 
         function editClick(e) {
+            $("input[name='downEqInput']").removeAttr('disabled');
             $("input[type='number']").removeAttr('disabled').css('background-color', 'white');
             $("input[name='edit']").attr('disabled', true).removeClass("btn-danger").addClass("btn-outline-danger");
             $("input[name='submit']").removeAttr('disabled').removeClass("btn-outline-primary").addClass("btn-primary");
@@ -354,38 +415,41 @@
 
         function saveClick(e) {
 
-        var _formIdList = "@string.Join(",", Model.SettingDetailList.Select(s => s.Node))";
+            var _formIdList = "@string.Join(",", Model.SettingDetailList.Select(s => s.Node))";
 
-        var inputArray = [];
+            var inputArray = [];
 
-        _formIdList.split(',').forEach(function (form) {
-            //if ($("#form" + form).valid()) {
-            //    inputArray.push(objectifyForm($("#form" + form).serializeArray()))
-            //}
-            inputArray.push(objectifyForm($("#form" + form).serializeArray()))
-        });
+            _formIdList.split(',').forEach(function (form) {
+                //if ($("#form" + form).valid()) {
+                //    inputArray.push(objectifyForm($("#form" + form).serializeArray()))
+                //}
+                inputArray.push(objectifyForm($("#form" + form).serializeArray()))
+            });
 
-        $.blockUI({
-            message: '請稍等',
-            css: {
-                border: 'none',
-                padding: '5px',
-                backgroundColor: '#000',
-                '-webkit-border-radius': '10px',
-                '-moz-border-radius': '10px',
-                opacity: '.5',
-                color: '#fff',
-                fontSize: '25px',
-                fontFamily: '微軟正黑體',
-                fontWeight: 300,
-            }
-        });
-        $.ajax({
-            url: "./Setting",
-            type: "POST",
-            dataType: 'json',
-            data: { settingDetailList: inputArray },
-            success: function (result) {
+            $.blockUI({
+                message: '請稍等',
+                css: {
+                    border: 'none',
+                    padding: '5px',
+                    backgroundColor: '#000',
+                    '-webkit-border-radius': '10px',
+                    '-moz-border-radius': '10px',
+                    opacity: '.5',
+                    color: '#fff',
+                    fontSize: '25px',
+                    fontFamily: '微軟正黑體',
+                    fontWeight: 300,
+                }
+            });
+            $.ajax({
+                url: "./Setting",
+                type: "POST",
+                dataType: 'json',
+                data: {
+                    prodSn: $("#dropLine").val(),
+                    settingDetailList: inputArray
+                },
+                success: function (result) {
                 if (result == '') {
                     alert('success.');
                 }
@@ -408,13 +472,14 @@
                 //    alert('success.');
                 //}
             }
-        });
+            });
 
-        $("input[type='number']").attr('disabled', true).css('background-color', '#e9ecef');
-        $("input[name='edit']").removeAttr('disabled').removeClass("btn-outline-danger").addClass("btn-danger");
-        $("input[name='submit']").attr('disabled', true).removeClass("btn-primary").addClass("btn-outline-primary");
-        $.unblockUI();
-    }
+            $("input[name='downEqInput']").attr('disabled', true);
+            $("input[type='number']").attr('disabled', true).css('background-color', '#e9ecef');
+            $("input[name='edit']").removeAttr('disabled').removeClass("btn-outline-danger").addClass("btn-danger");
+            $("input[name='submit']").attr('disabled', true).removeClass("btn-primary").addClass("btn-outline-primary");
+            $.unblockUI();
+        }
 
 
         function objectifyForm(formArray) {
@@ -424,6 +489,8 @@
             returnArray[formArray[i]['name'].substring(0,8)] = formArray[i]['value'];
             }
             returnArray['Node'] = formArray[0]['value'];
+            returnArray['DownEquipment'] = formArray[1]['value'];
+
             return returnArray;
         }
 
@@ -458,7 +525,7 @@
         //    }
         //});
 
-            $("#" + e.currentTarget.className.substring(0, 1) + "sumTT" + e.currentTarget.className.substring(1, 5)).html("合計 " + sumTT.toString());
+            $("#" + e.currentTarget.className.substring(0, 1) + "sumTT" + e.currentTarget.className.substring(1, 5)).html(sumTT.toString());
         });
     </script>
 }

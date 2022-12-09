@@ -19,7 +19,7 @@ namespace MOD4.Web.DomainService
         }
 
 
-        public List<TargetSettingEntity> GetList(int prodSn = 1206,List<string> nodeList = null)
+        public List<TargetSettingEntity> GetList(List<int> prodSn = null, List<string> nodeList = null)
         {
             try
             {
@@ -32,21 +32,22 @@ namespace MOD4.Web.DomainService
         }
 
 
-        public string Update(List<TargetSettingEntity> settingList)
+        public string Update(int prodSn, List<TargetSettingEntity> settingList, UserEntity userEntity)
         {
             try
             {
                 if (settingList.Any(a => a.Node == ""))
-                {
                     return "Node empty.";
-                }
+                if (prodSn == 0)
+                    return "no product sn.";
 
                 var _updDao = settingList.CopyAToB<TargetSettingDao>();
 
                 _updDao.ForEach(fe =>
                 {
+                    fe.lcmProdSn = prodSn;
                     fe.UpdateTime = DateTime.Now;
-                    fe.UpdateUser = "admin";
+                    fe.UpdateUser = userEntity.Name;
                 });
 
                 string _updRes = "";

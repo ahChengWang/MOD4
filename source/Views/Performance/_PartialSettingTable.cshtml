@@ -1,0 +1,201 @@
+﻿@model MOD4.Web.ViewModel.TargetSettingViewModel
+@using System.Linq;
+
+
+
+@{
+    foreach (var setting in Model.SettingDetailList)
+    {
+
+        var _tabId = "node" + @setting.Node;
+        var _formId = "form" + @setting.Node;
+        var _sumId = "sumTT" + @setting.Node;
+        var _inputNameId = "input" + @setting.Node;
+        var _classA = "A" + @setting.Node;
+        var _classB = "B" + @setting.Node;
+
+        <div class="tab-pane" id="@_tabId">
+            <form id="@_formId">
+                <input type="hidden" asp-for="@setting.Node" />
+                <div style="display:flex">
+                    <div class="">
+                        <label class="col-form-label" asp-for="@setting.DownEquipment"></label>
+                    </div>
+                    <div>
+                        <input name="downEqInput" type="text" asp-for="@setting.DownEquipment" />
+                    </div>
+                </div>
+                <div class="row" style="display:flex">
+                    <div>
+                        <p>日班合計：</p>
+                    </div>
+                    <div>
+                        <p id="A@_sumId" style="font-weight:600"></p>
+                    </div>
+                </div>
+
+                <div style="display: flex; border-bottom: 2px solid lightgray;">
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time0730"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classA" name="Time0730@_inputNameId" type="number" min="0" asp-for="@setting.Time0730" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time0830"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classA" name="Time0830@_inputNameId" type="number" min="0" asp-for="@setting.Time0830" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time0830"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classA" name="Time0930@_inputNameId" type="number" min="0" asp-for="@setting.Time0930" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time1030"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classA" name="Time1030@_inputNameId" type="number" min="0" asp-for="@setting.Time1030" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time1130"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classA" name="Time1130@_inputNameId" type="number" min="0" asp-for="@setting.Time1130" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time1230"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classA" name="Time1230@_inputNameId" type="number" min="0" asp-for="@setting.Time1230" />
+                    </div>
+                </div>
+                <div style="display: flex; border-bottom: 2px solid lightgray;">
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time1330"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classA" name="Time1330@_inputNameId" type="number" min="0" asp-for="@setting.Time1330" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time1430"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classA" name="Time1430@_inputNameId" type="number" min="0" asp-for="@setting.Time1430" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time1530"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classA" name="Time1530@_inputNameId" type="number" min="0" asp-for="@setting.Time1530" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time1630"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classA" name="Time1630@_inputNameId" type="number" min="0" asp-for="@setting.Time1630" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time1730"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classA" name="Time1730@_inputNameId" type="number" min="0" asp-for="@setting.Time1730" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time1830"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classA" name="Time1830@_inputNameId" type="number" min="0" asp-for="@setting.Time1830" />
+                    </div>
+                </div>
+                <hr />
+                <div class="row" style="display:flex">
+                    <div>
+                        <p>夜班合計：</p>
+                    </div>
+                    <div>
+                        <p id="B@_sumId" style="font-weight:600"></p>
+                    </div>
+                </div>
+                <div style="display: flex; border-bottom: 2px solid lightgray;">
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time1930"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classB" name="Time1930@_inputNameId" type="number" min="0" asp-for="@setting.Time1930" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time2030"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classB" name="Time2030@_inputNameId" type="number" min="0" asp-for="@setting.Time2030" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time2130"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classB" name="Time2130@_inputNameId" type="number" min="0" asp-for="@setting.Time2130" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time2230"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classB" name="Time2230@_inputNameId" type="number" min="0" asp-for="@setting.Time2230" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time2330"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classB" name="Time2330@_inputNameId" type="number" min="0" asp-for="@setting.Time2330" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time0030"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classB" name="Time0030@_inputNameId" type="number" min="0" asp-for="@setting.Time0030" />
+                    </div>
+                </div>
+                <div style="display: flex; border-bottom: 2px solid lightgray;">
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time0130"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classB" name="Time0130@_inputNameId" type="number" min="0" asp-for="@setting.Time0130" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time0230"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classB" name="Time0230@_inputNameId" type="number" min="0" asp-for="@setting.Time0230" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time0330"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classB" name="Time0330@_inputNameId" type="number" min="0" asp-for="@setting.Time0330" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time0430"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classB" name="Time0430@_inputNameId" type="number" min="0" asp-for="@setting.Time0430" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time0530"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classB" name="Time0530@_inputNameId" type="number" min="0" asp-for="@setting.Time0530" />
+                    </div>
+                    <div>
+                        <label class="col-form-label" asp-for="@setting.Time0630"></label>
+                    </div>
+                    <div style="border-right: 2px solid lightgray;">
+                        <input class="@_classB" name="Time0630@_inputNameId" type="number" min="0" asp-for="@setting.Time0630" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    }
+}
