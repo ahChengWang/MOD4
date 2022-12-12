@@ -6,7 +6,7 @@ namespace MOD4.Web.Repostory
 {
     public interface IDemandsRepository
     {
-        List<DemandsDao> SelectByConditions(DateTime dateStart, DateTime dateEnd, string orderSn = "", string orderNo = "", string[] categoryArray = null, string[] statusArray = null);
+        List<DemandsDao> SelectByConditions(DateTime? dateStart, DateTime? dateEnd, string orderSn = "", string orderNo = "", string[] categoryArray = null, string[] statusArray = null, string kw = "");
 
         DemandsDao SelectDetail(int orderSn, string orderNo = "");
 

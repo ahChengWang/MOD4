@@ -29,18 +29,21 @@ namespace MOD4.Web.DomainService
         }
 
         public List<DemandEntity> GetDemands(UserEntity userEntity,
-            string sn = null, string dateStart = null, string dateEnd = null, string categoryId = null, string statusId = null)
+            string sn = null, string dateStart = null, string dateEnd = null, string categoryId = null, string statusId = "1,2,3,4", string kw = "")
         {
             try
             {
                 var _nowTime = DateTime.Now;
-                DateTime _dateStart = string.IsNullOrEmpty(dateStart) ? _nowTime.AddMonths(-6) : DateTime.Parse(dateStart);
-                DateTime _dateEnd = string.IsNullOrEmpty(dateEnd) ? _nowTime : DateTime.Parse(dateEnd).AddDays(1).AddSeconds(-1);
+                DateTime? _dateStart = string.IsNullOrEmpty(dateStart) ? (DateTime?)null : DateTime.Parse(dateStart);
+                DateTime? _dateEnd = string.IsNullOrEmpty(dateEnd) ? (DateTime?)null : DateTime.Parse(dateEnd).AddDays(1).AddSeconds(-1);
 
                 return _demandsRepository.SelectByConditions(
-                    _dateStart, _dateEnd, orderSn: sn,
+                    dateStart: _dateStart,
+                    dateEnd: _dateEnd,
+                    orderSn: sn,
                     categoryArray: string.IsNullOrEmpty(categoryId) ? null : categoryId.Split(","),
-                    statusArray: string.IsNullOrEmpty(statusId) ? null : statusId.Split(","))
+                    statusArray: string.IsNullOrEmpty(statusId) ? null : statusId.Split(","),
+                    kw: kw)
                     .Select(s => new DemandEntity
                     {
                         OrderSn = s.orderSn,
@@ -56,7 +59,7 @@ namespace MOD4.Web.DomainService
                         CreateTime = s.createTime,
                         UpdateUser = s.updateUser,
                         UpdateTime = s.updateTime,
-                        UserEditable = s.createUser == userEntity.Account && 
+                        UserEditable = s.createUser == userEntity.Account &&
                             s.statusId == DemandStatusEnum.Rejected &&
                             userEntity.UserMenuPermissionList.CheckPermission(MenuEnum.Demand, PermissionEnum.Update)
                     }).OrderByDescending(ob => ob.CreateTime).ToList();
@@ -147,7 +150,7 @@ namespace MOD4.Web.DomainService
                 var _fileNameStr = "";
                 var _insResponse = "";
 
-                _fileNameStr = DoUploadFiles(insertEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime);
+                _fileNameStr = DoUploadFiles(insertEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime, _nowTime);
 
                 DemandsDao _insDemandsDao = new DemandsDao
                 {
@@ -180,6 +183,13 @@ namespace MOD4.Web.DomainService
                     else
                         _insResponse = "新增失敗";
                 }
+
+                // 發送MApp & mail 給作業人員
+                if (_insResponse == "")
+                {
+
+                }
+
 
                 return string.IsNullOrEmpty(_insResponse)
                     ? (true, $"需求單:{_insDemandsDao.orderNo} \n待評估")
@@ -214,22 +224,27 @@ namespace MOD4.Web.DomainService
                     updateTime = _nowTime
                 };
 
+                // 剔退
                 if (_oldDemand.statusId == DemandStatusEnum.Pending && newStatusId == DemandStatusEnum.Rejected)
                 {
                     _updDemandsDao.rejectReason = updEntity.RejectReason ?? "";
                     //_mappDomainService.SendMsgToOneAsync(_oldDemand.createUser);
                     return UpdateToReject(_updDemandsDao);
                 }
+                // 進行
                 else if (_oldDemand.statusId == DemandStatusEnum.Pending && newStatusId == DemandStatusEnum.Processing)
                     return UpdateToProcess(_updDemandsDao);
+                // 完成
                 else if (_oldDemand.statusId == DemandStatusEnum.Processing && newStatusId == DemandStatusEnum.Completed ||
                          _oldDemand.statusId == DemandStatusEnum.Completed && newStatusId == DemandStatusEnum.Completed)
                 {
-                    _fileNameStr = DoUploadFiles(updEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime);
+                    // mgmt 檔案上傳
+                    _fileNameStr = DoUploadFiles(updEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime, _nowTime);
                     _updDemandsDao.completeFiles = _fileNameStr;
                     _updDemandsDao.remark = updEntity.Remark;
                     return UpdateToCompleted(_updDemandsDao);
                 }
+                // user 剔退重送
                 else if (_oldDemand.statusId == DemandStatusEnum.Rejected && newStatusId == DemandStatusEnum.Pending)
                 {
                     _updDemandsDao.categoryId = updEntity.CategoryId;
@@ -237,10 +252,12 @@ namespace MOD4.Web.DomainService
                     _updDemandsDao.content = updEntity.Content;
                     _updDemandsDao.applicant = updEntity.Applicant;
                     _updDemandsDao.jobNo = updEntity.JobNo;
-                    _fileNameStr = DoUploadFiles(updEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime);
+                    // user 檔案上傳到訂單建立時的目錄
+                    _fileNameStr = DoUploadFiles(updEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime, _oldDemand.createTime);
                     _updDemandsDao.uploadFiles = _fileNameStr;
                     return UpdateToPending(_updDemandsDao);
                 }
+                // user 作廢需求單
                 else if (_oldDemand.statusId == DemandStatusEnum.Rejected && newStatusId == DemandStatusEnum.Cancel)
                 {
                     _updDemandsDao.isCancel = true;
@@ -256,10 +273,10 @@ namespace MOD4.Web.DomainService
 
         }
 
-        private string DoUploadFiles(List<IFormFile> uploadFiles, string userAcc, DateTime nowTime)
+        private string DoUploadFiles(List<IFormFile> uploadFiles, string userAcc, DateTime nowTime, DateTime folderTime)
         {
             var _url = _uploadDomainService.GetFileServerUrl();
-            var _folder = $@"upload\{userAcc}\{nowTime.ToString("yyMMdd")}";
+            var _folder = $@"upload\{userAcc}\{folderTime.ToString("yyMMdd")}";
             var _fileNameStr = "";
 
             if (!Directory.Exists($@"{_url}\{_folder}"))

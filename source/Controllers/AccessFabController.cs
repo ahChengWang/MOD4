@@ -34,17 +34,26 @@ namespace MOD4.Web.Controllers
             _optionDomainService = optionDomainService;
         }
 
+        /// <summary>
+        /// 管制口 - 首頁
+        /// </summary>
+        /// <returns></returns>
         public IActionResult Index()
         {
             try
             {
+                // 主頁搜尋下拉選項
                 var _optionList = _optionDomainService.GetAccessFabOptions();
-
+                
+                // 訂單狀態
                 ViewBag.StatusList = new SelectList(_optionList.FirstOrDefault(f => f.Item1 == "statusList").Item2, "Id", "Value");
+                // 入廠性質
                 ViewBag.FabInTypeList = new SelectList(_optionList.FirstOrDefault(f => f.Item1 == "fabInTypeList").Item2, "Id", "Value");
+                // 入廠對象
                 ViewBag.FabInCategoryList = new SelectList(_optionList.FirstOrDefault(f => f.Item1 == "fabInCategoryList").Item2, "Id", "Value");
 
                 UserEntity _userInfo = GetUserInfo();
+                // user 當前權限
                 var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.AccessFab);
                 ViewBag.UserPermission = new UserPermissionViewModel
                 {

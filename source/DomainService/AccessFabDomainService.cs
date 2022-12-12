@@ -31,17 +31,22 @@ namespace MOD4.Web.DomainService
         {
             try
             {
+                // 判斷 "剔退" 申請單是否能給編輯
                 selectOption.CreateAccountSn = userEntity.sn;
+
                 List<AccessFabOrderEntity> _accessFabOrderList = GetAccessFabOrderList(selectOption);
 
                 // 非管理權限, 只查詢個人的申請單
                 if (!userEntity.UserMenuPermissionList.CheckPermission(MenuEnum.AccessFab, PermissionEnum.Management))
                 {
+                    // user 為開單人非申請人
                     var _tempAccessFabByCreateUser = _accessFabOrderList.Where(w => w.ApplicantAccountSn != userEntity.sn && w.CreateUser == userEntity.Name);
+                    // user 為申請人 + 開單人
                     _accessFabOrderList = 
                         _accessFabOrderList.Where(acc => userEntity.sn == acc.ApplicantAccountSn).Union(_tempAccessFabByCreateUser).ToList();
                 }
 
+                // 查詢待簽核人員姓名
                 List<AccountInfoEntity> _accInfoList = _accountDomainService.GetAccountInfo(_accessFabOrderList.Select(s => s.AuditAccountSn).ToList());
                 _accessFabOrderList.ForEach(fe => fe.AuditAccountName = _accInfoList.FirstOrDefault(f => f.sn == fe.AuditAccountSn).Name);
 

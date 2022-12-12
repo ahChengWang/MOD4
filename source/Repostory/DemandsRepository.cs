@@ -9,14 +9,21 @@ namespace MOD4.Web.Repostory
     {
 
         public List<DemandsDao> SelectByConditions(
-            DateTime dateStart
-            , DateTime dateEnd
+            DateTime? dateStart
+            , DateTime? dateEnd
             , string orderSn = ""
             , string orderNo = ""
             , string[] categoryArray = null
-            , string[] statusArray = null)
+            , string[] statusArray = null
+            , string kw = "")
         {
-            string sql = "select * from demands where isCancel = 0 and createTime between @dateStart and @dateEnd ";
+            string sql = "select * from demands where isCancel = 0 ";
+
+            if (dateStart != null && dateEnd != null)
+                sql += " and createTime >= @dateStart ";
+
+            if (dateStart != null && dateEnd != null)
+                sql += " and createTime <= @dateEnd ";
 
             if (!string.IsNullOrEmpty(orderSn))
                 sql += " and orderSn=@orderSn ";
@@ -29,6 +36,9 @@ namespace MOD4.Web.Repostory
 
             if (statusArray != null)
                 sql += " and statusId in @statusId ";
+
+            if (!string.IsNullOrEmpty(kw))
+                sql += $" and (subject like '%{kw}%' or applicant like '%{kw}%') ";
 
             var dao = _dbHelper.ExecuteQuery<DemandsDao>(sql, new
             {

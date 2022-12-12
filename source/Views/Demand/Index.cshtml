@@ -78,15 +78,15 @@
                         </div>
                         <div class="card-body">
                             <div id="barDiv1" class="row" style="margin-bottom:5px">
-                                <div class="col-3" style="margin-right:0px;">
+                                <div class="col-3">
                                     <label>申請起日：</label>
                                     <input id="startDTE" class="my-control" type="date" name="name" value="" />
                                 </div>
-                                <div class="col-3" style="margin-right:0px;">
+                                <div class="col-3">
                                     <label>申請訖日：</label>
                                     <input id="endDTE" class="my-control" type="date" name="name" value="" />
                                 </div>
-                                <div style="margin-right:0px;">
+                                <div>
                                     <label>分類：</label>
                                     <select class="my-select" id="dropCat" multiple="multiple">
                                         <option value="1">設定</option>
@@ -103,10 +103,14 @@
                                         <option value="4">已完成</option>
                                     </select>
                                 </div>
-                                <div class="row">
-                                    <div>
-                                        <input id="btnSearch" type="button" class="btn" name="btn29" style="margin-left:7px" value="查詢" />
-                                    </div>
+                            </div>
+                            <div class="row" style="display:flex">
+                                <div class="col-4">
+                                    <label>關鍵字：</label>
+                                    <input class="my-control" id="keyWord" type="text" style="width:70%;text-align:left" />
+                                </div>
+                                <div>
+                                    <input id="btnSearch" type="button" class="btn" name="btn29" style="margin-left:7px" value="查詢" />
                                 </div>
                             </div>
                             <div class="row">
@@ -123,7 +127,7 @@
                                 </div>
                             </div>
                             <div id="divMark">
-                                <span style="color:red;font-size:8px">*預設顯示近半年需求申請單</span>
+                                <span style="color:red;font-size:8px">*預設顯示近1個月需求申請單</span>
                             </div>
                             <partial name="_PartialTable" model="Model" />
                         </div>
@@ -165,7 +169,7 @@
                 }
                 else {
                     $.ajax({
-                        url: "./Demand/Search?startDate=" + $("#startDTE").val() + "&endDate=" + $("#endDTE").val() + "&category=" + $("#dropCat").val() + "&status=" + $("#dropStatus").val(),
+                        url: "./Demand/Search?startDate=" + $("#startDTE").val() + "&endDate=" + $("#endDTE").val() + "&category=" + $("#dropCat").val() + "&status=" + $("#dropStatus").val() + "&kw=" + $("#keyWord").val(),
                         type: "GET",
                         dataType: 'html',
                         success: function (result) {

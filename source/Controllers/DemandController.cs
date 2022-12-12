@@ -45,7 +45,7 @@ namespace MOD4.Web.Controllers
                     AccountPermission = _userCurrentPagePermission.AccountPermission
                 };
 
-                var _demands = _demandDomainService.GetDemands(_userInfo, statusId: "1,2,3");
+                var _demands = _demandDomainService.GetDemands(_userInfo);
 
                 List<DemanMainViewModel> _response = _demands.Select(s => new DemanMainViewModel
                 {
@@ -72,7 +72,7 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Search([FromQuery] string startDate, string endDate, string category, string status)
+        public IActionResult Search([FromQuery] string startDate, string endDate, string category, string status, string kw)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace MOD4.Web.Controllers
                     AccountPermission = _userCurrentPagePermission.AccountPermission
                 };
 
-                var _demands = _demandDomainService.GetDemands(_userInfo, dateStart: startDate, dateEnd: endDate, categoryId: category, statusId: status);
+                var _demands = _demandDomainService.GetDemands(_userInfo, dateStart: startDate, dateEnd: endDate, categoryId: category, statusId: status, kw: kw);
 
                 List<DemanMainViewModel> _response = _demands.Select(s => new DemanMainViewModel
                 {
