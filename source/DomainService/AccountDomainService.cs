@@ -60,9 +60,9 @@ namespace MOD4.Web.DomainService
             }).ToList();
         }
 
-        public List<AccountInfoEntity> GetAccountInfoByConditions(List<RoleEnum> roleIdList, string name, string jobId)
+        public List<AccountInfoEntity> GetAccountInfoByConditions(List<RoleEnum> roleIdList, string name, string jobId, string account)
         {
-            return _accountInfoRepository.SelectByConditions(roleIdList: roleIdList, name: name, jobId: jobId).Select(s => new AccountInfoEntity
+            return _accountInfoRepository.SelectByConditions(account: account, roleIdList: roleIdList, name: name, jobId: jobId).Select(s => new AccountInfoEntity
             {
                 sn = s.sn,
                 Account = s.account,

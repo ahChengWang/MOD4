@@ -19,10 +19,10 @@ namespace MOD4.Web.Repostory
         {
             string sql = "select * from demands where isCancel = 0 ";
 
-            if (dateStart != null && dateEnd != null)
+            if (dateStart != null)
                 sql += " and createTime >= @dateStart ";
 
-            if (dateStart != null && dateEnd != null)
+            if (dateEnd != null)
                 sql += " and createTime <= @dateEnd ";
 
             if (!string.IsNullOrEmpty(orderSn))

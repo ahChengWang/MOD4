@@ -22,8 +22,8 @@ namespace MOD4.Web.DomainService
         {
             try
             {
-                string _account = "22008163";
-                string _apiKey = "F6AE8F72-A845-0659-C558-1726E4A3E9BB";
+                string _account = "API_CarUX_Info";
+                string _apiKey = "C6CFCF78-204C-096B-3EAC-127E9B3AE598";
                 string _chatSn = charSn;
 
                 var _form = new FormUrlEncodedContent(new[]
@@ -32,7 +32,7 @@ namespace MOD4.Web.DomainService
                     new KeyValuePair<string, string>("api_key",_apiKey),
                     new KeyValuePair<string, string>("chat_sn",_chatSn),
                     new KeyValuePair<string, string>("content_type","1"),
-                    new KeyValuePair<string, string>("content","123475967"),
+                    //new KeyValuePair<string, string>("content","123475967"),
                     new KeyValuePair<string, string>("msg_content",msg),
                 });
 

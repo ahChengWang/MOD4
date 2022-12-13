@@ -42,7 +42,7 @@ namespace MOD4.Web.DomainService
                     // user 為開單人非申請人
                     var _tempAccessFabByCreateUser = _accessFabOrderList.Where(w => w.ApplicantAccountSn != userEntity.sn && w.CreateUser == userEntity.Name);
                     // user 為申請人 + 開單人
-                    _accessFabOrderList = 
+                    _accessFabOrderList =
                         _accessFabOrderList.Where(acc => userEntity.sn == acc.ApplicantAccountSn).Union(_tempAccessFabByCreateUser).ToList();
                 }
 
@@ -130,7 +130,7 @@ namespace MOD4.Web.DomainService
                 // 判斷填單人是否為申請人
                 if (orderEntity.FillOutPerson.Trim() != orderEntity.Applicant.Trim())
                 {
-                    var _tempApplicant = _accountDomainService.GetAccountInfoByConditions(null, orderEntity.Applicant, orderEntity.JobId).FirstOrDefault();
+                    var _tempApplicant = _accountDomainService.GetAccountInfoByConditions(null, orderEntity.Applicant, orderEntity.JobId, null).FirstOrDefault();
                     if (_tempApplicant == null)
                         return "查無申請人資訊, 確認姓名及工號";
 
@@ -249,7 +249,7 @@ namespace MOD4.Web.DomainService
 
                 if (orderEntity.FillOutPerson.Trim() != orderEntity.Applicant.Trim())
                 {
-                    var _tempApplicant = _accountDomainService.GetAccountInfoByConditions(null, orderEntity.Applicant, orderEntity.JobId).FirstOrDefault();
+                    var _tempApplicant = _accountDomainService.GetAccountInfoByConditions(null, orderEntity.Applicant, orderEntity.JobId, null).FirstOrDefault();
                     if (_tempApplicant == null)
                         return "查無申請人資訊, 確認姓名及工號";
 
@@ -496,7 +496,7 @@ namespace MOD4.Web.DomainService
                 // 簽核已完成, 無下個簽核人員
                 else if (orderEntity.StatusId != FabInOutStatusEnum.Rejected && _nextAuditFlow == null)
                 {
-                    var _gateEmployee = _accountDomainService.GetAccountInfoByConditions(new List<RoleEnum> { RoleEnum.GateEmployee }, "", "").FirstOrDefault();
+                    var _gateEmployee = _accountDomainService.GetAccountInfoByConditions(new List<RoleEnum> { RoleEnum.GateEmployee }, "", "", null).FirstOrDefault();
                     _updAccessFabOrderDao.StatusId = FabInOutStatusEnum.Completed;
                     _updAccessFabOrderDao.AuditAccountSn = _gateEmployee.sn;
                     _nextAuditAccountInfo.Mail = _gateEmployee.Mail;
@@ -625,7 +625,7 @@ namespace MOD4.Web.DomainService
                     CreateTime = s.CreateTime,
                     CreateTimeStr = s.CreateTime.ToString("yyyy-MM-dd"),
                     CreateUser = s.CreateUser,
-                    Url = s.StatusId == FabInOutStatusEnum.Rejected && s.CreateAccountSn == selectOption.CreateAccountSn 
+                    Url = s.StatusId == FabInOutStatusEnum.Rejected && s.CreateAccountSn == selectOption.CreateAccountSn
                         ? $"./AccessFab/Edit?orderSn={s.OrderSn}"
                         : $"./AccessFab/Detail?orderSn={s.OrderSn}",
                 }).ToList();

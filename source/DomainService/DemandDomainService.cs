@@ -13,19 +13,22 @@ using System.Transactions;
 
 namespace MOD4.Web.DomainService
 {
-    public class DemandDomainService : IDemandDomainService
+    public class DemandDomainService : BaseDomainService, IDemandDomainService
     {
         private readonly IDemandsRepository _demandsRepository;
         private readonly IUploadDomainService _uploadDomainService;
         private readonly IMAppDomainService _mappDomainService;
+        private readonly IAccountDomainService _accountDomainService;
 
         public DemandDomainService(IDemandsRepository demandsRepository,
             IUploadDomainService uploadDomainService,
-            IMAppDomainService mappDomainService)
+            IMAppDomainService mappDomainService,
+            IAccountDomainService accountDomainService)
         {
             _demandsRepository = demandsRepository;
             _uploadDomainService = uploadDomainService;
             _mappDomainService = mappDomainService;
+            _accountDomainService = accountDomainService;
         }
 
         public List<DemandEntity> GetDemands(UserEntity userEntity,
@@ -149,6 +152,7 @@ namespace MOD4.Web.DomainService
                 var _nowTime = DateTime.Now;
                 var _fileNameStr = "";
                 var _insResponse = "";
+                var _demandOrderSn = 0;
 
                 _fileNameStr = DoUploadFiles(insertEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime, _nowTime);
 
@@ -174,6 +178,7 @@ namespace MOD4.Web.DomainService
                     var _insResult = false;
 
                     _insResult = _demandsRepository.Insert(_insDemandsDao) == 1;
+                    _demandOrderSn = _demandsRepository.SelectByConditions(null, null, orderNo: _insDemandsDao.orderNo).FirstOrDefault().orderSn;
 
                     if (_insResult)
                     {
@@ -187,7 +192,15 @@ namespace MOD4.Web.DomainService
                 // 發送MApp & mail 給作業人員
                 if (_insResponse == "")
                 {
-
+                    _mappDomainService.SendMsgToOneAsync($"新需求單  主旨: {_insDemandsDao.subject}, 申請人: {_insDemandsDao.applicant}", "253425");
+                    _mailServer.Send(new MailEntity
+                    {
+                        To = "TOWNS.WANG@INNOLUX.COM",
+                        Subject = $"新需求申請單 - 申請人: {_insDemandsDao.applicant}",
+                        Content = "<br /><br />" +
+                        "您有新需求申請單</a>， <br /><br />" +
+                        $"需求單連結：<a href='http://10.54.215.210/MOD4/Demand/Edit?sn={_demandOrderSn}&orderId={_insDemandsDao.orderNo}' target='_blank'>" + _insDemandsDao.orderNo + "</a>"
+                    });
                 }
 
 
@@ -229,7 +242,7 @@ namespace MOD4.Web.DomainService
                 {
                     _updDemandsDao.rejectReason = updEntity.RejectReason ?? "";
                     //_mappDomainService.SendMsgToOneAsync(_oldDemand.createUser);
-                    return UpdateToReject(_updDemandsDao);
+                    return UpdateToReject(_updDemandsDao, _oldDemand.createUser);
                 }
                 // 進行
                 else if (_oldDemand.statusId == DemandStatusEnum.Pending && newStatusId == DemandStatusEnum.Processing)
@@ -242,7 +255,7 @@ namespace MOD4.Web.DomainService
                     _fileNameStr = DoUploadFiles(updEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime, _nowTime);
                     _updDemandsDao.completeFiles = _fileNameStr;
                     _updDemandsDao.remark = updEntity.Remark;
-                    return UpdateToCompleted(_updDemandsDao);
+                    return UpdateToCompleted(_updDemandsDao, _oldDemand.createUser);
                 }
                 // user 剔退重送
                 else if (_oldDemand.statusId == DemandStatusEnum.Rejected && newStatusId == DemandStatusEnum.Pending)
@@ -351,8 +364,10 @@ namespace MOD4.Web.DomainService
             }
         }
 
-        private (bool, string) UpdateToReject(DemandsDao updDao)
+        private (bool, string) UpdateToReject(DemandsDao updDao, string createAccount)
         {
+            (bool, string) _updateRes = (false, "");
+
             using (var scope = new TransactionScope())
             {
                 var _insResult = false;
@@ -362,11 +377,26 @@ namespace MOD4.Web.DomainService
                 if (_insResult)
                 {
                     scope.Complete();
-                    return (true, $"需求單:{updDao.orderNo} \n{updDao.statusId.GetDescription()}");
+                    _updateRes = (true, $"需求單:{updDao.orderNo} \n{updDao.statusId.GetDescription()}");
                 }
                 else
-                    return (false, "更新失敗");
+                    _updateRes = (false, "更新失敗");
             }
+
+            // 發送MApp & mail 給作業人員
+            if (_updateRes.Item1)
+            {
+                var _createAccInfo = _accountDomainService.GetAccountInfoByConditions(null, null, null, createAccount).FirstOrDefault();
+                _mailServer.Send(new MailEntity
+                {
+                    To = "TOWNS.WANG@INNOLUX.COM",
+                    Subject = $"需求申請單 - 剔退通知",
+                    Content = "<br /> Dear Sir <br /><br />" +
+                    "您有 <a style='text-decoration:underline'>已剔退</a><a style='font-weight:900'> 需求申請單</a>， <br /><br />煩請上系統確認， <br /><br />謝謝"
+                });
+            }
+
+            return _updateRes;
         }
 
         private (bool, string) UpdateToCancel(DemandsDao updDao)
@@ -387,7 +417,7 @@ namespace MOD4.Web.DomainService
             }
         }
 
-        private (bool, string) UpdateToCompleted(DemandsDao updDao)
+        private (bool, string) UpdateToCompleted(DemandsDao updDao, string createAccount)
         {
             using (var scope = new TransactionScope())
             {

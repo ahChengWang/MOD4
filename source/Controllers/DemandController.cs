@@ -45,7 +45,7 @@ namespace MOD4.Web.Controllers
                     AccountPermission = _userCurrentPagePermission.AccountPermission
                 };
 
-                var _demands = _demandDomainService.GetDemands(_userInfo);
+                var _demands = _demandDomainService.GetDemands(_userInfo, dateStart: DateTime.Now.AddMonths(-1).ToString("yyyy-MM-dd"), dateEnd: DateTime.Now.ToString("yyyy-MM-dd"));
 
                 List<DemanMainViewModel> _response = _demands.Select(s => new DemanMainViewModel
                 {
