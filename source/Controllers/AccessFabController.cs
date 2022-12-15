@@ -44,7 +44,7 @@ namespace MOD4.Web.Controllers
             {
                 // 主頁搜尋下拉選項
                 var _optionList = _optionDomainService.GetAccessFabOptions();
-                
+
                 // 訂單狀態
                 ViewBag.StatusList = new SelectList(_optionList.FirstOrDefault(f => f.Item1 == "statusList").Item2, "Id", "Value");
                 // 入廠性質
@@ -477,6 +477,10 @@ namespace MOD4.Web.Controllers
                 ViewBag.StatusList = new SelectList(_optionList.FirstOrDefault(f => f.Item1 == "statusList").Item2, "Id", "Value");
                 ViewBag.FabInTypeList = new SelectList(_optionList.FirstOrDefault(f => f.Item1 == "fabInTypeList").Item2, "Id", "Value");
                 ViewBag.FabInCategoryList = new SelectList(_optionList.FirstOrDefault(f => f.Item1 == "fabInCategoryList").Item2, "Id", "Value");
+
+                string _verifyResult = _accessFabDomainService.VerifyAuditStatus(orderSn, GetUserInfo());
+                if (_verifyResult != "")
+                    return RedirectToAction("Error", "Home", new ErrorViewModel { Message = "訂單「已簽核」, 請回簽核主頁" });
 
                 UserEntity _userInfo = GetUserInfo();
                 var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.AccessFabAudit);

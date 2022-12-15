@@ -33,6 +33,8 @@ namespace MOD4.Web.Controllers
 
         public IActionResult Index()
         {
+            ViewBag.Version = $"v{GetType().Assembly.GetName().Version.ToString()}";
+
             return View();
         }
 

@@ -1,4 +1,5 @@
 ﻿@model MOD4.Web.ViewModel.DemanEditViewModel
+@using MOD4.Web.Enum;
 
 @{
     ViewBag.Title = "編輯需求單";
@@ -50,21 +51,21 @@
                         <!-- form start -->
                         <form id="demandForm" enctype="multipart/form-data">
                             @{
-                                if (@Model.DemandStatusId == 1)
+                                if (@Model.DemandStatusId == DemandStatusEnum.Pending)
                                 {
                                     <partial name="_PartialPending" model="Model" />
                                 }
-                                else if (@Model.DemandStatusId == 2)
+                                else if (@Model.DemandStatusId == DemandStatusEnum.Rejected)
                                 {
                                     <partial name="_PartialReject" model="Model" />
                                 }
-                                else if (@Model.DemandStatusId == 3)
+                                else if (@Model.DemandStatusId == DemandStatusEnum.Processing)
                                 {
                                     <partial name="_PartialProcess" model="Model" />
                                 }
-                                else if (@Model.DemandStatusId == 4)
+                                else if (@Model.DemandStatusId == DemandStatusEnum.Completed || @Model.DemandStatusId == DemandStatusEnum.Verify)
                                 {
-                                    <partial name="_PartialProcess" model="Model" />
+                                    <partial name="_PartialVerify" model="Model" />
                                 }
                             }
 
@@ -85,7 +86,7 @@
                                     </div>
                                     <div class="modal-footer justify-content-between">
                                         <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
-                                        <input id="btnSave" type="button" class="btn btn-primary" value="確認" onclick="saveClick()" />
+                                        <input id="btnSave" type="button" class="btn btn-success" value="確認" onclick="saveClick(@((int)DemandStatusEnum.Processing))" />
                                     </div>
                                 </div>
                                 <!-- /.modal-content -->
@@ -105,7 +106,7 @@
                                     </div>
                                     <div class="modal-footer justify-content-between">
                                         <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
-                                        <input type="button" class="btn btn-primary" value="確認" onclick="rejectClick()" />
+                                        <input type="button" class="btn btn-warning" value="確認" onclick="rejectClick(@((int)DemandStatusEnum.Rejected))" />
                                     </div>
                                 </div>
                                 <!-- /.modal-content -->
@@ -123,7 +124,7 @@
                                     </div>
                                     <div class="modal-footer justify-content-between">
                                         <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
-                                        <input id="btnCancel" type="button" class="btn btn-primary" value="確認" onclick="cancelClick()" />
+                                        <input id="btnCancel" type="button" class="btn btn-danger" value="確認" onclick="cancelClick(@((int)DemandStatusEnum.Cancel))" />
                                     </div>
                                 </div>
                                 <!-- /.modal-content -->
@@ -143,7 +144,47 @@
                                     </div>
                                     <div class="modal-footer justify-content-between">
                                         <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
-                                        <input type="button" class="btn btn-success" value="確認" onclick="completedClick()" />
+                                        <input type="button" class="btn btn-success" value="確認" onclick="completedClick(@((int)DemandStatusEnum.Completed))" />
+                                    </div>
+                                </div>
+                                <!-- /.modal-content -->
+                            </div>
+                            <!-- /.modal-dialog -->
+                        </div>
+                        <div class="modal fade" id="modal-sm-verify">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>確認提交申請人待確認?</p>
+                                    </div>
+                                    <div class="modal-footer justify-content-between">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
+                                        <input type="button" class="btn" style="background-color:orangered;color:white" value="確認" onclick="verifyClick(@((int)DemandStatusEnum.Verify))" />
+                                    </div>
+                                </div>
+                                <!-- /.modal-content -->
+                            </div>
+                            <!-- /.modal-dialog -->
+                        </div>
+                        <div class="modal fade" id="modal-sm-verifyUpd">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>確認更新?</p>
+                                    </div>
+                                    <div class="modal-footer justify-content-between">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
+                                        <input type="button" class="btn btn-outline-success" value="確認" onclick="completedClick(@((int)DemandStatusEnum.Verify))" />
                                     </div>
                                 </div>
                                 <!-- /.modal-content -->

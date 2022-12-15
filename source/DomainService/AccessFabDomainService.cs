@@ -61,7 +61,7 @@ namespace MOD4.Web.DomainService
         public AccessFabOrderEntity GetDetail(int accessFabOrderSn)
         {
             try
-            {
+            {                
                 AccessFabOrderDao _accessOrder = _accessFabOrderRepository.SelectList(orderSn: accessFabOrderSn).FirstOrDefault();
                 List<AccessFabOrderDetailDao> _accessOrderDetail = _accessFabOrderDetailRepository.SelectList(accessFabOrderSn: _accessOrder.OrderSn);
                 List<AccessFabOrderAuditHistoryDao> _accessOrderAuditHisList = _accessFabOrderAuditHistoryRepository.SelectList(_accessOrder.OrderSn);

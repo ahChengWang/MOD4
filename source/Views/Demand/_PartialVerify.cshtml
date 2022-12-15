@@ -1,6 +1,5 @@
 ﻿@model MOD4.Web.ViewModel.DemanEditViewModel
-@using MOD4.Web.Enum;
-
+@using MOD4.Web.ViewModel
 
 <div class="card-body">
     <div class="form-group" style="display:flex">
@@ -125,67 +124,120 @@
             <label class="col-form-label" name="underline">@Model.RejectReason</label>
         </div>
     </div>
-    <div class="form-group" style="display:flex">
-        <div class="col-2">
-            <label class="col-form-label" asp-for="UploadFile"></label>
-            <span asp-validation-for="UploadFile" style="font-size:10px;font-weight:700" class="text-danger"></span>
-            <div>
-                <span class="unit">(允許 xls,xlsx,doc,docx,txt,jpg,png,jpeg)</span>
-                <br />
-                <span class="unit">單檔最大2MB</span>
+    @{
+
+        UserPermissionViewModel _test = (UserPermissionViewModel)ViewBag.UserPermission;
+
+        if (Convert.ToBoolean(_test.AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management))
+        {
+            <div class="form-group" style="display:flex">
+                <div class="col-2">
+                    <label class="col-form-label" asp-for="UploadFile"></label>
+                    <span asp-validation-for="UploadFile" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                    <div>
+                        <span class="unit">(允許 xls,xlsx,doc,docx,txt,jpg,png,jpeg)</span>
+                        <br />
+                        <span class="unit">單檔最大2MB</span>
+                    </div>
+                </div>
+                <div class="col-3 custom-file">
+                    <input type="file" class="custom-file-input" asp-for="UploadFile" onchange="verifyFile(this)">
+                    <label class="custom-file-label">Choose file</label>
+                </div>
+                <div class="col-3 custom-file">
+                    <input type="file" class="custom-file-input" asp-for="UploadFile" onchange="verifyFile(this)">
+                    <label class="custom-file-label">Choose file</label>
+                </div>
+                <div class="col-3 custom-file">
+                    <input type="file" class="custom-file-input" asp-for="UploadFile" onchange="verifyFile(this)">
+                    <label class="custom-file-label">Choose file</label>
+                </div>
             </div>
-        </div>
-        <div class="col-3 custom-file">
-            <input type="file" class="custom-file-input" asp-for="UploadFile" onchange="verifyFile(this)">
-            <label class="custom-file-label">Choose file</label>
-        </div>
-        <div class="col-3 custom-file">
-            <input type="file" class="custom-file-input" asp-for="UploadFile" onchange="verifyFile(this)">
-            <label class="custom-file-label">Choose file</label>
-        </div>
-        <div class="col-3 custom-file">
-            <input type="file" class="custom-file-input" asp-for="UploadFile" onchange="verifyFile(this)">
-            <label class="custom-file-label">Choose file</label>
-        </div>
-    </div>
-    <div class="form-group" style="display: flex;">
-        <div class="col-2">
-            <label class="col-form-label" asp-for="Remark"></label>
-        </div>
-        <div class="col-9">
-            <textarea class="form-control" rows="3" asp-for="Remark">@Model.Remark</textarea>
-        </div>
-    </div>
 
-</div>
+            <div class="form-group" style="display: flex;">
+                <div class="col-2">
+                    <label class="col-form-label" asp-for="Remark"></label>
+                </div>
+                <div class="col-9">
+                    <textarea class="form-control" rows="3" asp-for="Remark">@Model.Remark</textarea>
+                </div>
+            </div>
 
-@{
-    if (Model.DemandStatusId == DemandStatusEnum.Completed)
-    {
-        <div class="card-footer" style="display:flex">
-            <div>
-                <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#modal-sm-completed">
+            <div class="form-group">
+                <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#modal-sm-verifyUpd">
                     更新
                 </button>
             </div>
-        </div>
-    }
-    else
-    {
-        <div class="card-footer" style="display:flex">
-            <div>
+        }
+        else
+        {
+            <div class="form-group" style="display:flex">
+                <div class="col-2">
+                    <label class="col-form-label" asp-for="CompleteUploadFile1"></label>
+                </div>
+
+                <div class="col-3 custom-file">
+                    @{
+                        if (Model.CompleteUploadFile1 == "")
+                        {
+                            <a href="#"><label class="custom-file-label">@Model.CompleteUploadFile1</label></a>
+                        }
+                        else
+                        {
+                            <a target="_blank" href="./Download?orderSn=@Model.OrderSn&typeId=2&fileNo=0">
+                                <label class="custom-file-label">@Model.CompleteUploadFile1</label>
+                            </a>
+                        }
+                    }
+                </div>
+                <div class="col-3 custom-file">
+                    @{
+                        if (Model.CompleteUploadFile2 == "")
+                        {
+                            <a href="#"><label class="custom-file-label">@Model.CompleteUploadFile2</label></a>
+                        }
+                        else
+                        {
+                            <a target="_blank" href="./Download?orderSn=@Model.OrderSn&typeId=2&fileNo=1">
+                                <label class="custom-file-label">@Model.CompleteUploadFile2</label>
+                            </a>
+                        }
+                    }
+                </div>
+                <div class="col-3 custom-file">
+                    @{
+                        if (Model.CompleteUploadFile3 == "")
+                        {
+                            <a><label class="custom-file-label">@Model.CompleteUploadFile3</label></a>
+                        }
+                        else
+                        {
+                            <a target="_blank" href="./Download?orderSn=@Model.OrderSn&typeId=2&fileNo=2">
+                                <label class="custom-file-label">@Model.CompleteUploadFile3</label>
+                            </a>
+                        }
+                    }
+                </div>
+            </div>
+
+            <div class="form-group" style="display: flex;">
+                <div class="col-2">
+                    <label class="col-form-label" asp-for="Remark"></label>
+                </div>
+                <div class="col-9">
+                    <textarea class="form-control" rows="3" readonly asp-for="Remark">@Model.Remark</textarea>
+                </div>
+            </div>
+            <div class="form-group">
                 <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-sm-completed">
                     完成
                 </button>
             </div>
-            <div>
-                <button type="button" class="btn" style="background-color:orangered;margin-left:10px;color:white" data-toggle="modal" data-target="#modal-sm-verify">
-                    待確認
-                </button>
-            </div>
-        </div>
+        }
     }
-}
+
+
+</div>
 
 <script type="text/javascript">
     function completedClick(statuId) {
@@ -204,44 +256,9 @@
                 fontWeight: 300,
             }
         });
+
         $("#DemandStatusId").val(statuId);
-        var formData = new FormData(document.getElementById("demandForm"));
-        $.ajax({
-            type: "POST",
-            url: "./Edit",
-            dataType: 'json',
-            processData: false,
-            contentType: false,
-            data: formData,
-            success: function (result) {
-                $.unblockUI();
-                if (result.isSuccess) {
-                    alert(result.msg);
-                    location.href = "@Url.ActionLink("Index", "Demand")";
-                }
-                else {
-                    alert(result.msg);
-                }
-            }
-        });
-    }
-    function verifyClick(statuId) {
-        $.blockUI({
-            message: '請稍等...',
-            css: {
-                border: 'none',
-                padding: '5px',
-                backgroundColor: '#000',
-                '-webkit-border-radius': '10px',
-                '-moz-border-radius': '10px',
-                opacity: '.5',
-                color: '#fff',
-                fontSize: '25px',
-                fontFamily: '微軟正黑體',
-                fontWeight: 300,
-            }
-        });
-        $("#DemandStatusId").val(statuId);
+
         var formData = new FormData(document.getElementById("demandForm"));
         $.ajax({
             type: "POST",

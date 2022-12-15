@@ -1,4 +1,5 @@
 ﻿@model MOD4.Web.ViewModel.DemanEditViewModel
+@using MOD4.Web.Enum;
 
 <div class="card-body">
     <div class="form-group" style="display:flex">
@@ -101,7 +102,7 @@
 
 <div class="card-footer" style="display:flex">
     <div>
-        <input id="btnResend" type="button" class="btn" style="background-color: #e5e83c" value="重送" onclick="resendClick()" />
+        <input id="btnResend" type="button" class="btn" style="background-color: #e5e83c" value="重送" onclick="resendClick(@((int)DemandStatusEnum.Pending))" />
     </div>
     <div style="margin-left:8px">
         <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-sm-cancel">
@@ -113,7 +114,7 @@
 
 <script type="text/javascript">
 
-    function resendClick() {
+    function resendClick(statuId) {
         if ($("#demandForm").valid()) {
             $.blockUI({
                 message: '請稍等...',
@@ -130,10 +131,11 @@
                     fontWeight: 300,
                 }
             });
+            $("#DemandStatusId").val(statuId);
             var formData = new FormData(document.getElementById("demandForm"));
             $.ajax({
                 type: "POST",
-                url: "./EditToPending",
+                url: "./Edit",
                 dataType: 'json',
                 processData: false,
                 contentType: false,
@@ -160,7 +162,7 @@
         }
     }
 
-    function cancelClick() {
+    function cancelClick(statuId) {
         $.blockUI({
             message: '請稍等...',
             css: {
@@ -176,9 +178,10 @@
                 fontWeight: 300,
             }
         });
+        $("#DemandStatusId").val(statuId);
         $.ajax({
             type: "POST",
-            url: "./EditToCancel",
+            url: "./Edit",
             dataType: 'json',
             data: $("#demandForm").serialize(),
             success: function (result) {

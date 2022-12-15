@@ -191,18 +191,10 @@
             $('#prodName').html(_prodTitle.slice(0, -1));
 
             $.blockUI({
-                message: '取得過帳資料中',
+                message: '<img src="./img/Pac_Man.gif" />',
                 css: {
-                    border: 'none',
-                    padding: '5px',
-                    backgroundColor: '#000',
-                    '-webkit-border-radius': '10px',
-                    '-moz-border-radius': '10px',
-                    opacity: '.5',
-                    color: '#fff',
-                    fontSize: '25px',
-                    fontFamily: '微軟正黑體',
-                    fontWeight: 300,
+                    borderWidth: '0px',
+                    backgroundColor: 'transparent'
                 }
             });
             $.ajax({

@@ -184,12 +184,12 @@
                 statusCode: {
                     401: function () {//未授權，Unauthorized
                         //JS前端導頁
-                       window.location.href = "@Url.Action("Index","Account");"
+                       window.location.href = "@Url.Action("Index", "Account");"
 
                     },
                     404: function () {
                         //JS前端導頁
-                       window.location.href = "@Url.Action("Index","Account");"
+                       window.location.href = "@Url.Action("Index", "Account");"
 
                     }
                 }
@@ -253,11 +253,12 @@
                 </li>-->
                 <li class="nav-item">
                     <a style="color:white">Hi, @Context.User.Claims.FirstOrDefault(m => m.Type == "Name").Value</a>
-                    <a href="@Url.Action("Logout","Account")" style="color:darkblue"><img class="myicon" src="~/img/icons/log-out-outline.svg" />登出</a>
+                    <a href="@Url.Action("Logout", "Account")" style="color:darkblue"><img class="myicon" src="~/img/icons/log-out-outline.svg" />登出</a>
                 </li>
             </ul>
         </nav>
         @RenderBody()
+
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
             <a href="" class="brand-link" style="height:57px">
@@ -316,9 +317,10 @@
         <!-- /.content-wrapper -->
         <footer class="main-footer">
             <div style="float:left">
-                <strong style="font-size: 8px; color: #a7aba9; font-family: sans-serif ">
-                    系統負責人:王士誠 5014-62721
+                <strong style="font-size: 7px; color: #a7aba9; font-family: sans-serif ">
+                    系統負責人:王士誠 5014-62721 |
                 </strong>
+                <a>v @GetType().Assembly.GetName().Version.ToString()</a>
             </div>
             <strong>
                 Copyright &copy; 2014-2021
@@ -391,6 +393,16 @@
                 return false;
             }
         }
+
+        $('a[href="/MOD4/Performance"]').click(function () {
+            $.blockUI({
+                message: '<img src="./img/Pac_Man.gif" />',
+                css: {
+                    borderWidth: '0px',
+                    backgroundColor: 'transparent'
+                }
+            });
+        });
     </script>
 
     @RenderSection("scripts", required: false)

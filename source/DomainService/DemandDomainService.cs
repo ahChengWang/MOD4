@@ -32,7 +32,7 @@ namespace MOD4.Web.DomainService
         }
 
         public List<DemandEntity> GetDemands(UserEntity userEntity,
-            string sn = null, string dateStart = null, string dateEnd = null, string categoryId = null, string statusId = "1,2,3,4", string kw = "")
+            string sn = null, string dateStart = null, string dateEnd = null, string categoryId = null, string statusId = "1,2,3,6", string kw = "")
         {
             try
             {
@@ -63,7 +63,7 @@ namespace MOD4.Web.DomainService
                         UpdateUser = s.updateUser,
                         UpdateTime = s.updateTime,
                         UserEditable = s.createUser == userEntity.Account &&
-                            s.statusId == DemandStatusEnum.Rejected &&
+                            (s.statusId == DemandStatusEnum.Rejected || s.statusId == DemandStatusEnum.Verify) &&
                             userEntity.UserMenuPermissionList.CheckPermission(MenuEnum.Demand, PermissionEnum.Update)
                     }).OrderByDescending(ob => ob.CreateTime).ToList();
             }
@@ -192,10 +192,10 @@ namespace MOD4.Web.DomainService
                 // 發送MApp & mail 給作業人員
                 if (_insResponse == "")
                 {
-                    _mappDomainService.SendMsgToOneAsync($"新需求單  主旨: {_insDemandsDao.subject}, 申請人: {_insDemandsDao.applicant}", "253425");
+                    _mappDomainService.SendMsgToOneAsync($"新需求申請單  主旨: {_insDemandsDao.subject}, 申請人: {_insDemandsDao.applicant}", "253425");
                     _mailServer.Send(new MailEntity
                     {
-                        To = "TOWNS.WANG@INNOLUX.COM",
+                        To = "WEITING.GUO@INNOLUX.COM",
                         Subject = $"新需求申請單 - 申請人: {_insDemandsDao.applicant}",
                         Content = "<br /><br />" +
                         "您有新需求申請單</a>， <br /><br />" +
@@ -215,7 +215,7 @@ namespace MOD4.Web.DomainService
 
         }
 
-        public (bool, string) UpdateDemand(DemandEntity updEntity, DemandStatusEnum newStatusId, UserEntity userEntity)
+        public (bool, string) UpdateDemand(DemandEntity updEntity, UserEntity userEntity)
         {
             try
             {
@@ -230,26 +230,34 @@ namespace MOD4.Web.DomainService
                 {
                     orderSn = updEntity.OrderSn,
                     orderNo = updEntity.OrderNo,
-                    statusId = newStatusId,
-                    subject = updEntity.Subject,
+                    statusId = updEntity.StatusId,
+                    subject = string.IsNullOrEmpty(updEntity.Subject) ? _oldDemand.subject : updEntity.Subject,
                     content = updEntity.Content,
                     updateUser = userEntity.Account,
                     updateTime = _nowTime
                 };
 
                 // 剔退
-                if (_oldDemand.statusId == DemandStatusEnum.Pending && newStatusId == DemandStatusEnum.Rejected)
+                if (_oldDemand.statusId == DemandStatusEnum.Pending && updEntity.StatusId == DemandStatusEnum.Rejected)
                 {
                     _updDemandsDao.rejectReason = updEntity.RejectReason ?? "";
                     //_mappDomainService.SendMsgToOneAsync(_oldDemand.createUser);
                     return UpdateToReject(_updDemandsDao, _oldDemand.createUser);
                 }
                 // 進行
-                else if (_oldDemand.statusId == DemandStatusEnum.Pending && newStatusId == DemandStatusEnum.Processing)
+                else if (_oldDemand.statusId == DemandStatusEnum.Pending && updEntity.StatusId == DemandStatusEnum.Processing)
                     return UpdateToProcess(_updDemandsDao);
-                // 完成
-                else if (_oldDemand.statusId == DemandStatusEnum.Processing && newStatusId == DemandStatusEnum.Completed ||
-                         _oldDemand.statusId == DemandStatusEnum.Completed && newStatusId == DemandStatusEnum.Completed)
+                // 進行 => 完成
+                else if (_oldDemand.statusId == DemandStatusEnum.Processing && updEntity.StatusId == DemandStatusEnum.Completed)
+                {
+                    // mgmt 檔案上傳
+                    _fileNameStr = DoUploadFiles(updEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime, _nowTime);
+                    _updDemandsDao.completeFiles = _fileNameStr;
+                    _updDemandsDao.remark = updEntity.Remark;
+                    return UpdateToCompleted(_updDemandsDao, "");
+                }
+                // 待確認
+                else if (_oldDemand.statusId == DemandStatusEnum.Processing && updEntity.StatusId == DemandStatusEnum.Verify)
                 {
                     // mgmt 檔案上傳
                     _fileNameStr = DoUploadFiles(updEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime, _nowTime);
@@ -257,8 +265,8 @@ namespace MOD4.Web.DomainService
                     _updDemandsDao.remark = updEntity.Remark;
                     return UpdateToCompleted(_updDemandsDao, _oldDemand.createUser);
                 }
-                // user 剔退重送
-                else if (_oldDemand.statusId == DemandStatusEnum.Rejected && newStatusId == DemandStatusEnum.Pending)
+                // user 重送 剔退單
+                else if (_oldDemand.statusId == DemandStatusEnum.Rejected && updEntity.StatusId == DemandStatusEnum.Pending)
                 {
                     _updDemandsDao.categoryId = updEntity.CategoryId;
                     _updDemandsDao.subject = updEntity.Subject;
@@ -271,10 +279,28 @@ namespace MOD4.Web.DomainService
                     return UpdateToPending(_updDemandsDao);
                 }
                 // user 作廢需求單
-                else if (_oldDemand.statusId == DemandStatusEnum.Rejected && newStatusId == DemandStatusEnum.Cancel)
+                else if (_oldDemand.statusId == DemandStatusEnum.Rejected && updEntity.StatusId == DemandStatusEnum.Cancel)
                 {
                     _updDemandsDao.isCancel = true;
                     return UpdateToCancel(_updDemandsDao);
+                }
+                // 待確認 => 完成
+                else if (_oldDemand.statusId == DemandStatusEnum.Verify && updEntity.StatusId == DemandStatusEnum.Completed)
+                {
+                    // mgmt 檔案上傳
+                    //_fileNameStr = DoUploadFiles(updEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime, _nowTime);
+                    _updDemandsDao.completeFiles = _oldDemand.completeFiles;
+                    _updDemandsDao.remark = _oldDemand.remark;
+                    return UpdateToCompleted(_updDemandsDao, _oldDemand.createUser);
+                }
+                // 待確認中編輯 or 完成後編輯
+                else if (_oldDemand.statusId == updEntity.StatusId)
+                {
+                    // mgmt 檔案上傳
+                    _fileNameStr = DoUploadFiles(updEntity.UploadFileList ?? new List<IFormFile>(), userEntity.Account, _nowTime, _nowTime);
+                    _updDemandsDao.completeFiles = _fileNameStr;
+                    _updDemandsDao.remark = updEntity.Remark;
+                    return UpdateToCompleted(_updDemandsDao, "");
                 }
                 else
                     return (false, "需求單狀態異常");
@@ -383,13 +409,13 @@ namespace MOD4.Web.DomainService
                     _updateRes = (false, "更新失敗");
             }
 
-            // 發送MApp & mail 給作業人員
+            // 發送MApp & mail 給申請人
             if (_updateRes.Item1)
             {
                 var _createAccInfo = _accountDomainService.GetAccountInfoByConditions(null, null, null, createAccount).FirstOrDefault();
                 _mailServer.Send(new MailEntity
                 {
-                    To = "TOWNS.WANG@INNOLUX.COM",
+                    To = _createAccInfo.Mail,
                     Subject = $"需求申請單 - 剔退通知",
                     Content = "<br /> Dear Sir <br /><br />" +
                     "您有 <a style='text-decoration:underline'>已剔退</a><a style='font-weight:900'> 需求申請單</a>， <br /><br />煩請上系統確認， <br /><br />謝謝"
@@ -419,6 +445,8 @@ namespace MOD4.Web.DomainService
 
         private (bool, string) UpdateToCompleted(DemandsDao updDao, string createAccount)
         {
+            (bool, string) _updateRes = (false, "");
+
             using (var scope = new TransactionScope())
             {
                 var _insResult = false;
@@ -428,11 +456,38 @@ namespace MOD4.Web.DomainService
                 if (_insResult)
                 {
                     scope.Complete();
-                    return (true, $"需求單:{updDao.orderNo} \n{updDao.statusId.GetDescription()}");
+                    _updateRes = (true, $"需求單:{updDao.orderNo} \n{updDao.statusId.GetDescription()}");
                 }
                 else
-                    return (false, "更新失敗");
+                    _updateRes = (false, "更新失敗");
             }
+
+            // 需求單 "驗證"&"完成" 發送 MApp & mail 給相關人員
+            if (_updateRes.Item1 && !string.IsNullOrEmpty(createAccount) && 
+                (updDao.statusId == DemandStatusEnum.Verify || updDao.statusId == DemandStatusEnum.Completed))
+            {
+                var _createAccInfo = _accountDomainService.GetAccountInfoByConditions(null, null, null, createAccount).FirstOrDefault();
+
+                if (_createAccInfo == null)
+                    return (true, "查無申請人, mail 無法發送");
+
+                // 已完成 MApp 通知
+                if (updDao.statusId == DemandStatusEnum.Completed)
+                    _mappDomainService.SendMsgToOneAsync($"需求單已完成, 主旨: {updDao.subject} 申請人: {_createAccInfo.Name}", "253425");
+
+                // mail 通知
+                _mailServer.Send(new MailEntity
+                {
+                    To = updDao.statusId == DemandStatusEnum.Verify ? _createAccInfo.Mail : "WEITING.GUO@INNOLUX.COM",
+                    Subject = updDao.statusId == DemandStatusEnum.Verify ? $"需求申請單 - 待確認通知" : $"需求申請單 - 已完成通知 申請人:({_createAccInfo.Name})",
+                    Content = "<br /> Dear Sir <br /><br />" +
+                    "您有 <a style='text-decoration:underline'>" + 
+                    (updDao.statusId == DemandStatusEnum.Verify ? "待確認" : "已完成") +
+                    "</a><a style='font-weight:900'> 需求申請單</a>， <br /><br />煩請上系統確認， <br /><br />謝謝"
+                });
+            }
+
+            return _updateRes;
         }
     }
 }

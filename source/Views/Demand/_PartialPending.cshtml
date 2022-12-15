@@ -140,7 +140,7 @@
 
 <script type="text/javascript">
 
-    function saveClick() {
+    function saveClick(statuId) {
         $.blockUI({
             message: '請稍等...',
             css: {
@@ -156,9 +156,10 @@
                 fontWeight: 300,
             }
         });
+        $("#DemandStatusId").val(statuId);
         $.ajax({
             type: "POST",
-            url: "./EditToProcess",
+            url: "./Edit",
             dataType: 'json',
             data: $("#demandForm").serialize(),
             success: function (result) {
@@ -174,7 +175,7 @@
         });
     }
 
-    function rejectClick() {
+    function rejectClick(statuId) {
         var _rr = $("#RejectReason").val();
         if (_rr == "") {
             alert("駁回原因必填");
@@ -196,9 +197,10 @@
                 fontWeight: 300,
             }
         });
+        $("#DemandStatusId").val(statuId);
         $.ajax({
             type: "POST",
-            url: "./EditToReject",
+            url: "./Edit",
             dataType: 'json',
             data: $("#demandForm").serialize(),
             success: function (result) {

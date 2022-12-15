@@ -29,6 +29,7 @@
 
                             UserPermissionViewModel _test = (UserPermissionViewModel)ViewBag.UserPermission;
 
+                            // 管理者訂單"完成"可編輯&查看
                             if (demand.DemandStatusId == MOD4.Web.Enum.DemandStatusEnum.Completed &&
                                 Convert.ToBoolean(_test.AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management))
                             {
@@ -39,7 +40,10 @@
                                     <span style="font-size:5px">編輯</span>
                                 </button>
                             }
-                            else if (((demand.DemandStatusId == MOD4.Web.Enum.DemandStatusEnum.Processing || demand.DemandStatusId == MOD4.Web.Enum.DemandStatusEnum.Pending) &&
+                            // 管理者訂單"待評估"&"進行中"可編輯、開單人判斷 userEditable 是否能編輯
+                            else if (((demand.DemandStatusId == MOD4.Web.Enum.DemandStatusEnum.Processing ||
+                                demand.DemandStatusId == MOD4.Web.Enum.DemandStatusEnum.Pending ||
+                                demand.DemandStatusId == MOD4.Web.Enum.DemandStatusEnum.Verify) &&
                                 Convert.ToBoolean(_test.AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management)) ||
                                 demand.UserEditable)
                             {

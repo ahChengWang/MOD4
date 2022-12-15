@@ -91,14 +91,14 @@
                                         <span asp-validation-for="Applicant" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-2">
-                                        <input type="text" class="form-control" asp-for="Applicant">
+                                        <input type="text" class="form-control" asp-for="Applicant" value="@ViewBag.AccountName">
                                     </div>
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="JobNo"></label>
                                         <span asp-validation-for="JobNo" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-2">
-                                        <input type="text" class="form-control" maxlength="8" asp-for="JobNo">
+                                        <input type="text" class="form-control" maxlength="8" asp-for="JobNo" value="@ViewBag.JobId">
                                     </div>
                                 </div>
                                 <div class="form-group" style="display:flex">

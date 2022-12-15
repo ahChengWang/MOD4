@@ -18,5 +18,8 @@ namespace MOD4.Web.Enum
 
         [Description("已取消")]
         Cancel = 5,
+
+        [Description("待確認")]
+        Verify = 6,
     }
 }

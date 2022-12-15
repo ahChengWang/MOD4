@@ -118,6 +118,15 @@ namespace MOD4.Web.Controllers
             {
                 ViewBag.CategoryOptions = _optionDomainService.GetDemandCategoryOptionList();
 
+                UserEntity _userInfo = GetUserInfo();
+                var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.Demand);
+                ViewBag.UserPermission = new UserPermissionViewModel
+                {
+                    AccountSn = _userCurrentPagePermission.AccountSn,
+                    MenuSn = _userCurrentPagePermission.MenuSn,
+                    AccountPermission = _userCurrentPagePermission.AccountPermission
+                };
+
                 var _res = _demandDomainService.GetDemandDetail(sn, orderId);
 
                 DemanEditViewModel _response = new DemanEditViewModel
@@ -127,7 +136,7 @@ namespace MOD4.Web.Controllers
                     CreateDate = _res.CreateTimeStr,
                     DemandCategoryId = _res.CategoryId,
                     DemandStatus = _res.Status,
-                    DemandStatusId = (int)_res.StatusId,
+                    DemandStatusId = _res.StatusId,
                     Subject = _res.Subject,
                     Content = _res.Content,
                     Applicant = _res.Applicant,
@@ -135,7 +144,11 @@ namespace MOD4.Web.Controllers
                     UploadFile1 = _res.UploadFile1,
                     UploadFile2 = _res.UploadFile2,
                     UploadFile3 = _res.UploadFile3,
-                    RejectReason = _res.RejectReason
+                    CompleteUploadFile1 = _res.CompleteUploadFile1,
+                    CompleteUploadFile2 = _res.CompleteUploadFile2,
+                    CompleteUploadFile3 = _res.CompleteUploadFile3,
+                    RejectReason = _res.RejectReason,
+                    Remark = _res.Remark
                 };
 
                 return View(_response);
@@ -148,46 +161,33 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult EditToPending(DemanEditViewModel updModel)
+        public IActionResult Edit([FromForm] DemanEditViewModel updModel)
         {
-            var _response = Edit(updModel, DemandStatusEnum.Pending);
+            try
+            {
+                var _res = _demandDomainService.UpdateDemand(new DemandEntity
+                {
+                    OrderSn = updModel.OrderSn,
+                    OrderNo = updModel.OrderId,
+                    StatusId = updModel.DemandStatusId,
+                    CategoryId = updModel.DemandCategoryId,
+                    Subject = updModel.Subject,
+                    Content = updModel.Content,
+                    Applicant = updModel.Applicant,
+                    JobNo = updModel.JobNo,
+                    UploadFileList = updModel.UploadFile,
+                    RejectReason = updModel.RejectReason,
+                    Remark = updModel.Remark
+                },
+                GetUserInfo());
 
-            return Json(new { IsSuccess = _response.Item1, msg = _response.Item2 });
+                return Json(new { IsSuccess = _res.Item1, msg = _res.Item2 });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { IsSuccess = false, msg = ex.Message });
+            }
         }
-
-        [HttpPost]
-        public IActionResult EditToProcess(DemanEditViewModel updModel)
-        {
-            var _response = Edit(updModel, DemandStatusEnum.Processing);
-
-            return Json(new { IsSuccess = _response.Item1, msg = _response.Item2 });
-        }
-
-        [HttpPost]
-        public IActionResult EditToReject(DemanEditViewModel updModel)
-        {
-            var _response = Edit(updModel, DemandStatusEnum.Rejected);
-
-            return Json(new { IsSuccess = _response.Item1, msg = _response.Item2 });
-        }
-
-        [HttpPost]
-        public IActionResult EditToCancel(DemanEditViewModel updModel)
-        {
-            var _response = Edit(updModel, DemandStatusEnum.Cancel);
-
-            return Json(new { IsSuccess = _response.Item1, msg = _response.Item2 });
-        }
-
-
-        [HttpPost]
-        public IActionResult EditToCompleted(DemanEditViewModel updModel)
-        {
-            var _response = Edit(updModel, DemandStatusEnum.Completed);
-
-            return Json(new { IsSuccess = _response.Item1, msg = _response.Item2 });
-        }
-
 
         [HttpGet]
         public IActionResult Detail([FromQuery] int sn)
@@ -203,7 +203,7 @@ namespace MOD4.Web.Controllers
                 CreateDate = _res.CreateTimeStr,
                 DemandCategoryId = _res.CategoryId,
                 DemandStatus = _res.Status,
-                DemandStatusId = (int)_res.StatusId,
+                DemandStatusId = _res.StatusId,
                 Subject = _res.Subject,
                 Content = _res.Content,
                 Applicant = _res.Applicant,
@@ -244,7 +244,11 @@ namespace MOD4.Web.Controllers
         [HttpGet]
         public IActionResult Create()
         {
+            UserEntity _userEntity = GetUserInfo();
+
             ViewBag.CategoryOptions = _optionDomainService.GetDemandCategoryOptionList();
+            ViewBag.AccountName = _userEntity.Name;
+            ViewBag.JobId = _userEntity.JobId;
             return View();
         }
 
@@ -289,7 +293,6 @@ namespace MOD4.Web.Controllers
                     RejectReason = updModel.RejectReason,
                     Remark = updModel.Remark
                 },
-                newStatusId,
                 GetUserInfo());
 
                 return _res;

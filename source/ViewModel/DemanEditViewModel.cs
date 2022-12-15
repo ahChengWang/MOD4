@@ -19,7 +19,7 @@ namespace MOD4.Web.ViewModel
 
         [Display(Name = "狀態")]
         public string DemandStatus { get; set; }
-        public int DemandStatusId { get; set; }
+        public DemandStatusEnum DemandStatusId { get; set; }
 
         [Display(Name = "主旨")]
         public string Subject { get; set; }

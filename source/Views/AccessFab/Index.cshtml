@@ -134,6 +134,12 @@
                     else {
                         $("#table1_wrapper").remove();
                         $("#splitbr").after(res);
+
+                        $('th:nth-child(2)').hide();
+                        $('th:nth-child(5)').hide();
+                        $('td:nth-child(2)').hide();
+                        $('td:nth-child(5)').hide();
+
                         $('#table1').DataTable({
                             "responsive": false
                             , "lengthChange": true
@@ -142,10 +148,6 @@
                             , "order": [[0, "desc"]]
                         }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
 
-                        $('th:nth-child(2)').hide();
-                        $('th:nth-child(5)').hide();
-                        $('td:nth-child(2)').hide();
-                        $('td:nth-child(5)').hide();
                     }
                 }
             });
@@ -153,6 +155,12 @@
     }
 
     $(function () {
+
+        $('th:nth-child(2)').hide();
+        $('th:nth-child(5)').hide();
+        $('td:nth-child(2)').hide();
+        $('td:nth-child(5)').hide();
+
         $('#table1').DataTable({
             "paging": true,
             //"searching": false,
@@ -166,11 +174,6 @@
         }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
 
         $("#dropCat,#dropStatus").multiselect({});
-
-        $('th:nth-child(2)').hide();
-        $('th:nth-child(5)').hide();
-        $('td:nth-child(2)').hide();
-        $('td:nth-child(5)').hide();
 
         $('#startDTE').attr("max", new Date().toISOString().slice(0, 10));
         $('#endDTE').attr("max", new Date().toISOString().slice(0, 10));
