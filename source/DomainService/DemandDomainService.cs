@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
+using MOD4.Web.Extension.Demand;
 using MOD4.Web.Helper;
 using MOD4.Web.Repostory;
 using MOD4.Web.Repostory.Dao;
@@ -74,9 +75,14 @@ namespace MOD4.Web.DomainService
         }
 
 
-        public DemandEntity GetDemandDetail(int sn, string orderId = "")
+        public DemandEntity GetDemandDetail(int sn, UserEntity userEntity, string orderId = "")
         {
             DemandsDao _demandDao = _demandsRepository.SelectDetail(sn, orderId);
+
+            if (userEntity != null &&
+                (_demandDao.statusId == DemandStatusEnum.Pending || _demandDao.statusId == DemandStatusEnum.Processing || _demandDao.statusId == DemandStatusEnum.Completed) &&
+                !userEntity.UserMenuPermissionList.CheckPermission(MenuEnum.Demand, PermissionEnum.Management))
+                throw new Exception("您的申請單已更新, 請回主頁確認");
 
             DemandEntity _result = new DemandEntity
             {
@@ -222,7 +228,8 @@ namespace MOD4.Web.DomainService
                 var _nowTime = DateTime.Now;
                 var _url = _uploadDomainService.GetFileServerUrl();
                 var _folder = $@"upload\{userEntity.Account}\{_nowTime.ToString("yyMMdd")}";
-                var _fileNameStr = "";
+                //var _fileNameStr = "";
+
 
                 DemandsDao _oldDemand = _demandsRepository.SelectDetail(updEntity.OrderSn, updEntity.OrderNo);
 
@@ -237,6 +244,22 @@ namespace MOD4.Web.DomainService
                     updateTime = _nowTime
                 };
 
+                var _demandProcess = DemandFlowFactory.dicDemandFlow[updEntity.StatusId](new DemandFlowEntity 
+                {
+                    InEntity = updEntity,
+                    UserInfo = userEntity,
+                    OldDemandOrder = _oldDemand,
+                    UpdateDemandOrder = _updDemandsDao,
+                    DemandsRepository = _demandsRepository,
+                    AccountDomainService = _accountDomainService,
+                    MAppDomainService = _mappDomainService,
+                    MailService = _mailServer,
+                    UploadUrl = _uploadDomainService.GetFileServerUrl()
+                });
+
+                return _demandProcess;
+
+                /*
                 // 剔退
                 if (_oldDemand.statusId == DemandStatusEnum.Pending && updEntity.StatusId == DemandStatusEnum.Rejected)
                 {
@@ -304,6 +327,7 @@ namespace MOD4.Web.DomainService
                 }
                 else
                     return (false, "需求單狀態異常");
+                */
             }
             catch (Exception ex)
             {

@@ -127,7 +127,7 @@ namespace MOD4.Web.Controllers
                     AccountPermission = _userCurrentPagePermission.AccountPermission
                 };
 
-                var _res = _demandDomainService.GetDemandDetail(sn, orderId);
+                var _res = _demandDomainService.GetDemandDetail(sn, _userInfo, orderId);
 
                 DemanEditViewModel _response = new DemanEditViewModel
                 {
@@ -194,7 +194,7 @@ namespace MOD4.Web.Controllers
         {
             ViewBag.CategoryOptions = _optionDomainService.GetDemandCategoryOptionList();
 
-            var _res = _demandDomainService.GetDemandDetail(sn);
+            var _res = _demandDomainService.GetDemandDetail(sn, null);
 
             DemanEditViewModel _response = new DemanEditViewModel
             {

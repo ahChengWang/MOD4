@@ -9,7 +9,7 @@ namespace MOD4.Web.DomainService
     {
         List<DemandEntity> GetDemands(UserEntity userEntity, string sn = null, string dateStart = null, string dateEnd = null, string categoryId = null, string statusId = "1,2,3,6", string kw = "");
 
-        DemandEntity GetDemandDetail(int sn, string orderId = "");
+        DemandEntity GetDemandDetail(int sn, UserEntity userEntity, string orderId = "");
 
         (FileStream, string) GetDownFileStr(int sn, int typeId, int fileNo);
 
