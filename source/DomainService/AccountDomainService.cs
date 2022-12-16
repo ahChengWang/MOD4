@@ -106,6 +106,7 @@ namespace MOD4.Web.DomainService
         public List<AccountDeptEntity> GetAccountDepartmentList()
         {
             var _allAccountInfo = GetAccountInfo(null);
+            _allAccountInfo = _allAccountInfo.OrderBy(o => o.Name, StringComparer.Create(new System.Globalization.CultureInfo(0x00030404), false)).ToList();
             var _allDepartmentInfo = _accountInfoRepository.SelectDefinitionDepartment();
 
             return _allAccountInfo.Select(acc => new AccountDeptEntity
@@ -144,27 +145,31 @@ namespace MOD4.Web.DomainService
             else
                 _allDepartmentList = JsonConvert.DeserializeObject<List<DefinitionDepartmentDao>>(_catchDeptInfo);
 
-            DefinitionDepartmentDao _currentDept = _allDepartmentList.FirstOrDefault(f => f.DeptSn == _accountInfo.DeptSn);
-
             int _sectionId = 0;
             int _deptId = 0;
             int _modId = 0;
 
-            switch (_currentDept.LevelId)
+            DefinitionDepartmentDao _currentDept = _allDepartmentList.FirstOrDefault(f => f.DeptSn == _accountInfo.DeptSn);
+
+            if (_currentDept != null)
             {
-                case 1:
-                    _modId = _currentDept.DeptSn;
-                    break;
-                case 2:
-                    _deptId = _currentDept.DeptSn;
-                    _modId = _currentDept.ParentDeptId;
-                    break;
-                case 3:
-                    _sectionId = _currentDept.DeptSn;
-                    var _upper = _allDepartmentList.FirstOrDefault(f => f.DeptSn == _currentDept.ParentDeptId);
-                    _deptId = _upper.DeptSn;
-                    _modId = _upper.ParentDeptId;
-                    break;
+
+                switch (_currentDept.LevelId)
+                {
+                    case 1:
+                        _modId = _currentDept.DeptSn;
+                        break;
+                    case 2:
+                        _deptId = _currentDept.DeptSn;
+                        _modId = _currentDept.ParentDeptId;
+                        break;
+                    case 3:
+                        _sectionId = _currentDept.DeptSn;
+                        var _upper = _allDepartmentList.FirstOrDefault(f => f.DeptSn == _currentDept.ParentDeptId);
+                        _deptId = _upper.DeptSn;
+                        _modId = _upper.ParentDeptId;
+                        break;
+                }
             }
 
             AccountEditEntity _response = new AccountEditEntity
@@ -291,6 +296,8 @@ namespace MOD4.Web.DomainService
             }).ToList();
         }
 
+
+        #region =========== AccountManagement ===========
         public string Create(AccountCreateEntity createEntity)
         {
             string _createRes = "";
@@ -321,8 +328,8 @@ namespace MOD4.Web.DomainService
                     menu_group_sn = 0
                 }).ToList();
 
+            // 新增子頁權限, 查詢主頁 menu_sn 並新增
             var _parentPage = _menuRepository.SelectParentMenu(_insAccMenuInfo.Select(s => (int)s.menu_sn).ToList());
-
             _insAccMenuInfo.AddRange(_parentPage.Select(parentMenu => new AccountMenuInfoDao
             {
                 menu_sn = parentMenu,
@@ -353,6 +360,72 @@ namespace MOD4.Web.DomainService
 
             return _createRes;
         }
+
+        public string Update(AccountCreateEntity updateEntity)
+        {
+            string _updateRes = "";
+
+            AccountInfoEntity _oldAccountInfo = GetAccountInfo(new List<int> { updateEntity.sn }).FirstOrDefault();
+
+            AccountInfoDao _updAccountInfoDao = new AccountInfoDao
+            {
+                sn = updateEntity.sn,
+                //account = updateEntity.Account,
+                //password = Encrypt(updateEntity.Password, "MOD4_Saikou"),
+                name = updateEntity.Name,
+                jobId = updateEntity.JobId,
+                mail = updateEntity.Mail,
+                role = RoleEnum.User,
+                apiKey = updateEntity.ApiKey,
+                deptSn = updateEntity.SectionId != 0
+                       ? updateEntity.SectionId
+                       : updateEntity.DepartmentId != 0
+                           ? updateEntity.DepartmentId
+                           : updateEntity.MODId,
+                level_id = updateEntity.Level_id,
+            };
+
+            List<AccountMenuInfoDao> _insAccMenuInfo = updateEntity.MenuPermissionList
+                .Select(s =>
+                new AccountMenuInfoDao
+                {
+                    account_sn = updateEntity.sn,
+                    menu_sn = (int)s.MenuSn,
+                    account_permission = s.AccountPermission,
+                    menu_group_sn = 0
+                }).ToList();
+
+            var _parentPage = _menuRepository.SelectParentMenu(_insAccMenuInfo.Select(s => s.menu_sn).ToList());
+
+            _insAccMenuInfo.AddRange(_parentPage.Select(parentMenu => new AccountMenuInfoDao
+            {
+                account_sn = updateEntity.sn,
+                menu_sn = parentMenu,
+                account_permission = 0,
+                menu_group_sn = 0
+            }));
+
+            using (var scope = new TransactionScope())
+            {
+                bool _insAccInfoRes = false;
+                bool _insAccMenuInfoRes = false;
+
+                _insAccInfoRes = _accountInfoRepository.UpdateUserAccount(_updAccountInfoDao) == 1;
+
+                _accountInfoRepository.DeleteAccountPermission(_updAccountInfoDao.sn);
+                _insAccMenuInfoRes = _accountInfoRepository.InsertUserPermission(_insAccMenuInfo) == _insAccMenuInfo.Count;
+
+                if (_insAccInfoRes && _insAccMenuInfoRes)
+                    scope.Complete();
+                else
+                    _updateRes = "";
+            }
+
+            CatchHelper.Delete(new string[] { $"accInfo" });
+
+            return _updateRes;
+        }
+        #endregion
 
 
         #region Private

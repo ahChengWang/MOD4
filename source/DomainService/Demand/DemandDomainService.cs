@@ -1,18 +1,16 @@
 ﻿using Microsoft.AspNetCore.Http;
 using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
-using MOD4.Web.Extension.Demand;
-using MOD4.Web.Helper;
+using MOD4.Web.Extension.Interface;
 using MOD4.Web.Repostory;
 using MOD4.Web.Repostory.Dao;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Transactions;
 
-namespace MOD4.Web.DomainService
+namespace MOD4.Web.DomainService.Demand
 {
     public class DemandDomainService : BaseDomainService, IDemandDomainService
     {
@@ -20,16 +18,19 @@ namespace MOD4.Web.DomainService
         private readonly IUploadDomainService _uploadDomainService;
         private readonly IMAppDomainService _mappDomainService;
         private readonly IAccountDomainService _accountDomainService;
+        private readonly IDemadStatusFactory _demadStatusFactory;
 
         public DemandDomainService(IDemandsRepository demandsRepository,
             IUploadDomainService uploadDomainService,
             IMAppDomainService mappDomainService,
-            IAccountDomainService accountDomainService)
+            IAccountDomainService accountDomainService,
+            IDemadStatusFactory demadStatusFactory)
         {
             _demandsRepository = demandsRepository;
             _uploadDomainService = uploadDomainService;
             _mappDomainService = mappDomainService;
             _accountDomainService = accountDomainService;
+            _demadStatusFactory = demadStatusFactory;
         }
 
         public List<DemandEntity> GetDemands(UserEntity userEntity,
@@ -130,8 +131,8 @@ namespace MOD4.Web.DomainService
 
             if (typeId != 1 && typeId != 2)
                 return (null, "參數錯誤");
-            else if ((typeId == 1 && string.IsNullOrEmpty(_demandDao.uploadFiles)) ||
-                     (typeId == 2 && string.IsNullOrEmpty(_demandDao.completeFiles)))
+            else if (typeId == 1 && string.IsNullOrEmpty(_demandDao.uploadFiles) ||
+                     typeId == 2 && string.IsNullOrEmpty(_demandDao.completeFiles))
                 return (null, "查無上傳檔");
 
             switch (typeId)
@@ -244,7 +245,8 @@ namespace MOD4.Web.DomainService
                     updateTime = _nowTime
                 };
 
-                var _demandProcess = DemandFlowFactory.dicDemandFlow[updEntity.StatusId](new DemandFlowEntity 
+                // 取得更新狀態 update flow
+                var _demandProcess = _demadStatusFactory.GetFlow(updEntity.StatusId)(new DemandFlowEntity
                 {
                     InEntity = updEntity,
                     UserInfo = userEntity,
@@ -357,7 +359,7 @@ namespace MOD4.Web.DomainService
 
                     for (int i = 0; i < _fileArray.Length; i++)
                     {
-                        _newFileName += i == (_fileArray.Length - 2) ? $"{_fileArray[i]}_{nowTime.ToString("ffff")}." : _fileArray[i];
+                        _newFileName += i == _fileArray.Length - 2 ? $"{_fileArray[i]}_{nowTime.ToString("ffff")}." : _fileArray[i];
                     }
 
                     var path = $@"{_url}\{_folder}\{_newFileName}";
@@ -487,7 +489,7 @@ namespace MOD4.Web.DomainService
             }
 
             // 需求單 "驗證"&"完成" 發送 MApp & mail 給相關人員
-            if (_updateRes.Item1 && !string.IsNullOrEmpty(createAccount) && 
+            if (_updateRes.Item1 && !string.IsNullOrEmpty(createAccount) &&
                 (updDao.statusId == DemandStatusEnum.Verify || updDao.statusId == DemandStatusEnum.Completed))
             {
                 var _createAccInfo = _accountDomainService.GetAccountInfoByConditions(null, null, null, createAccount).FirstOrDefault();
@@ -505,7 +507,7 @@ namespace MOD4.Web.DomainService
                     To = updDao.statusId == DemandStatusEnum.Verify ? _createAccInfo.Mail : "WEITING.GUO@INNOLUX.COM",
                     Subject = updDao.statusId == DemandStatusEnum.Verify ? $"需求申請單 - 待確認通知" : $"需求申請單 - 已完成通知 申請人:({_createAccInfo.Name})",
                     Content = "<br /> Dear Sir <br /><br />" +
-                    "您有 <a style='text-decoration:underline'>" + 
+                    "您有 <a style='text-decoration:underline'>" +
                     (updDao.statusId == DemandStatusEnum.Verify ? "待確認" : "已完成") +
                     "</a><a style='font-weight:900'> 需求申請單</a>， <br /><br />煩請上系統確認， <br /><br />謝謝"
                 });

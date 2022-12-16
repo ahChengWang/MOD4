@@ -105,7 +105,7 @@ namespace MOD4.Web.Controllers
                     LevelId = _result.Level_id,
                     Mail = _result.Mail,
                     MenuPermissionList = _result.MenuPermissionList.Select(menu =>
-                    new MenuPermissionViewModel 
+                    new MenuPermissionViewModel
                     {
                         IsMenuActive = menu.IsMenuActive,
                         MenuId = menu.MenuId,
@@ -123,7 +123,44 @@ namespace MOD4.Web.Controllers
             }
             catch (Exception ex)
             {
-                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = $"{ex.Message}\n{ex.StackTrace}" });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult Edit([FromForm] AccountEditViewModel updateModel)
+        {
+            try
+            {
+                string _response = _accountDomainService.Update(new AccountCreateEntity
+                {
+                    sn = updateModel.Sn,
+                    Account = updateModel.Account,
+                    Password = updateModel.Password,
+                    Name = updateModel.Name,
+                    JobId = updateModel.JobId,
+                    MODId = updateModel.MODId,
+                    DepartmentId = updateModel.DepartmentId,
+                    SectionId = updateModel.SectionId,
+                    Level_id = updateModel.LevelId,
+                    Mail = updateModel.Mail,
+                    ApiKey = updateModel.ApiKey,
+                    MenuPermissionList = updateModel.MenuPermissionList.Where(w => w.IsMenuActive)
+                        .Select(s => new AccountMenuInfoEntity
+                        {
+                            MenuSn = s.MenuId,
+                            AccountPermission = s.MenuActionList.Where(action => action.IsActionActive).Sum(sum => (int)sum.ActionId)
+                        }).ToList()
+                });
+
+                if (_response == "")
+                    return Json(new { IsSuccess = true, msg = "" });
+                else
+                    return Json(new { IsSuccess = false, msg = _response });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { IsSuccess = false, msg = ex.Message });
             }
         }
 
@@ -196,18 +233,6 @@ namespace MOD4.Web.Controllers
                     RelatedId = s.SubId,
                     Value = s.Value
                 }));
-        }
-
-        private (bool, string) Edit(DemanEditViewModel updModel, DemandStatusEnum newStatusId)
-        {
-            try
-            {
-                return (true, "");
-            }
-            catch (Exception ex)
-            {
-                return (false, ex.Message);
-            }
         }
     }
 }

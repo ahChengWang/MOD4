@@ -24,6 +24,8 @@ namespace MOD4.Web.DomainService
 
         string Create(AccountCreateEntity createEntity);
 
+        string Update(AccountCreateEntity updateEntity);
+
         void InsertUpdateAccountInfo(string account, string password);
 
         bool VerifyInxSSO(string account, string password);

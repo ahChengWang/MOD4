@@ -52,17 +52,7 @@
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">進出申請單 申請/查詢作業</h3>
-                            @{
-                                UserPermissionViewModel _test = (UserPermissionViewModel)ViewBag.UserPermission;
-
-                                if (Convert.ToBoolean(_test.AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Create))
-                                {
-                                    <a id="btnCreate" class="btn btn-danger btn-sm" href="./AccessFab/Create" style="float:right"><i class="fa fa-plus">申請</i></a>
-                                }
-                            }
-                            @*<input id="btnCreate" type="button" class="btn btn-danger" style="margin-left:7px" name="name" value="建立" />*@
                         </div>
-
                         <div id="barDiv1" class="card-body">
                             <div class="row" style="margin-bottom:5px">
                                 <div class="col-3">
@@ -99,6 +89,15 @@
                                     <input id="btnSearch" type="button" class="btn" style="float: right" name="btn29" value="查詢" />
                                 </div>
                             </div>
+                            @{
+                                UserPermissionViewModel _test = (UserPermissionViewModel)ViewBag.UserPermission;
+
+                                if (Convert.ToBoolean(_test.AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Create))
+                                {
+                                    <input id="btnCreate" type="button" style="margin:10px 0" class="btn" name="btn30" value="+申請" />
+                                }
+                            }
+                            @*<input id="btnCreate" type="button" class="btn btn-danger" style="margin-left:7px" name="name" value="建立" />*@
                             <br id="splitbr" />
                             <partial name="_PartialTable" model="Model" />
                         </div>
@@ -147,10 +146,12 @@
                             , "paging": true
                             , "order": [[0, "desc"]]
                         }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
-
                     }
                 }
             });
+        },
+        createOrder() {
+            location.href = "./AccessFab/Create";
         }
     }
 
@@ -180,6 +181,7 @@
     });
 
     $("#btnSearch").click(myFun.mainSearch);
+    $("#btnCreate").click(myFun.createOrder);
 
     function orderNoClick(url, sn) {
         location.href = url;

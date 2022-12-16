@@ -175,7 +175,8 @@ VALUES
         {
             try
             {
-                string sql = @"INSERT INTO [dbo].[account_menu_info] 
+                string sql = @"
+INSERT INTO [dbo].[account_menu_info] 
 ([account_sn],
 [menu_sn],
 [menu_group_sn],
@@ -226,6 +227,36 @@ VALUES
  where ami.account_sn = @account_sn and menu.href != '#' ; ";
 
             var dao = _dbHelper.ExecuteQuery<AccountMenuInfoDao>(sql, new
+            {
+                account_sn = accountSn
+            });
+
+            return dao;
+        }
+
+        public int UpdateUserAccount(AccountInfoDao updAccountInfo)
+        {
+            string sql = @"Update [dbo].[account_info] 
+SET name = @name,
+role = @role,
+level_id = @level_id,
+jobId = @jobId,
+apiKey = @apiKey,
+deptSn = @deptSn,
+mail = @mail  
+where sn = @sn ; ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, updAccountInfo);
+
+            return dao;
+        }
+
+
+        public int DeleteAccountPermission(int accountSn)
+        {
+            string sql = "DELETE [dbo].[account_menu_info] WHERE account_sn = @account_sn; ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, new 
             {
                 account_sn = accountSn
             });

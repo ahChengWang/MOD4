@@ -26,5 +26,9 @@ namespace MOD4.Web.Repostory
         List<DefinitionDepartmentDao> SelectDefinitionDepartment(int deptSn = 0, int parentDeptId = 0);
 
         List<AccountMenuInfoDao> SelectUserMenuPermission(int accountSn);
+
+        int UpdateUserAccount(AccountInfoDao updAccountInfo);
+
+        int DeleteAccountPermission(int accountSn);
     }
 }

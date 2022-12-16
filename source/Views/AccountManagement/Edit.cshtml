@@ -62,6 +62,9 @@
 
                         <form id="updateForm">
                             <div class="card-body">
+
+                                <input type="hidden" asp-for="Sn" value="@Model.Sn" />
+
                                 <div class="form-group" style="display:flex">
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="Account"></label>
@@ -69,7 +72,7 @@
                                         <span asp-validation-for="Account" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-3">
-                                        <input class="form-control" type="text" asp-for="Account" />
+                                        <input class="form-control" type="text" readonly asp-for="Account" />
                                     </div>
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="Password"></label>
@@ -77,7 +80,7 @@
                                         <span asp-validation-for="Password" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-3">
-                                        <input class="form-control" style="position:relative" type="text" asp-for="Password" />
+                                        <input class="form-control" style="position:relative" type="password" readonly value="@Model.Password" />
                                         @*<div>
                                                 <i class="far fa-eye" id="eye"></i>
                                             </div>*@
@@ -164,15 +167,15 @@
                                     foreach (var menu in Model.MenuPermissionList)
                                     {
                                         string _switchId = "switch_" + @menu.MenuId.ToString();
-                                        string _actionDisable = "disabled";
+                                        bool _actionDisable = true;
 
                                         <div style="display:flex">
                                             <div class="col-2 custom-control custom-switch custom-switch">
                                                 @{
                                                     if (menu.IsMenuActive)
                                                     {
-                                                        <input class="custom-control-input" type="checkbox" checked asp-for="@Model.MenuPermissionList[_menuCnt].IsMenuActive" id="@_switchId" value="@menu.MenuId" />
-                                                        _actionDisable = "";
+                                                        <input class="custom-control-input" type="checkbox" checked asp-for="@Model.MenuPermissionList[_menuCnt].IsMenuActive" id="@_switchId" value="true" />
+                                                        _actionDisable = false;
                                                     }
                                                     else
                                                     {
@@ -191,13 +194,20 @@
                                                     _actionId = "action_" + _menuCnt.ToString() + _detailCnt.ToString();
                                                     <div class="col-1 custom-control custom-checkbox">
                                                         @{
-                                                            if (action.IsActionActive)
+                                                            if (_actionDisable)
                                                             {
-                                                                <input class="custom-control-input" @_actionDisable type="checkbox" checked asp-for="@Model.MenuPermissionList[_menuCnt].MenuActionList[_detailCnt].IsActionActive" id="@_actionId" />
+                                                                <input class="custom-control-input" asp-for="@Model.MenuPermissionList[_menuCnt].MenuActionList[_detailCnt].IsActionActive" disabled type="checkbox" id="@_actionId" />
                                                             }
                                                             else
                                                             {
-                                                                <input class="custom-control-input" @_actionDisable type="checkbox" asp-for="@Model.MenuPermissionList[_menuCnt].MenuActionList[_detailCnt].IsActionActive" id="@_actionId" />
+                                                                if (action.IsActionActive)
+                                                                {
+                                                                    <input class="custom-control-input" asp-for="@Model.MenuPermissionList[_menuCnt].MenuActionList[_detailCnt].IsActionActive" type="checkbox" id="@_actionId" value="true" />
+                                                                }
+                                                                else
+                                                                {
+                                                                    <input class="custom-control-input" asp-for="@Model.MenuPermissionList[_menuCnt].MenuActionList[_detailCnt].IsActionActive" type="checkbox" id="@_actionId" />
+                                                                }
                                                             }
                                                         }
 
@@ -343,28 +353,18 @@
 
         $("#btnUpdate").click(function (e) {
 
-            alert("開發中...");
-
-            @*if ($("#updateForm").valid()) {
+            if ($("#updateForm").valid()) {
 
                 e.preventDefault();
                 $.blockUI({
-                    message: '請稍等...',
+                    message: '<img src="./img/Loading.gif" />',
                     css: {
-                        border: 'none',
-                        padding: '5px',
-                        backgroundColor: '#000',
-                        '-webkit-border-radius': '10px',
-                        '-moz-border-radius': '10px',
-                        opacity: '.5',
-                        color: '#fff',
-                        fontSize: '25px',
-                        fontFamily: '微軟正黑體',
-                        fontWeight: 300,
+                        borderWidth: '0px',
+                        backgroundColor: 'transparent'
                     }
                 });
                 $.ajax({
-                    url: "./Create",
+                    url: "./Edit",
                     type: "POST",
                     dataType: "json",
                     data: $("#updateForm").serialize(),
@@ -380,7 +380,7 @@
                         }
                     }
                 });
-            }*@
+            }
         });
 
     </script>

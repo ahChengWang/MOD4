@@ -5,7 +5,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MOD4.Web.DomainService;
+using MOD4.Web.DomainService.Demand;
 using MOD4.Web.Extension.Demand;
+using MOD4.Web.Extension.Interface;
 using MOD4.Web.Helper;
 using MOD4.Web.Repostory;
 using System;
@@ -64,6 +66,7 @@ namespace MOD4.Web
             services.AddSingleton<IMAppDomainService, MAppDomainService>();
             services.AddSingleton<IAccessFabDomainService, AccessFabDomainService>();
             services.AddSingleton(new ServiceDescriptor(typeof(IUploadDomainService), new UploadDomainService(Configuration)));
+            services.AddSingleton<IDemandFlowService, DemandFlowService>();
 
             services.AddSingleton<IAlarmXmlRepository, AlarmXmlRepository>();
             services.AddSingleton<IEqpInfoRepository, EqpInfoRepository>();
@@ -85,7 +88,7 @@ namespace MOD4.Web
             services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));
             services.AddSingleton(new ServiceDescriptor(typeof(CatchHelper), new CatchHelper(Configuration)));
             services.AddSingleton(new ServiceDescriptor(typeof(MailService), new MailService(Configuration)));
-            services.AddSingleton(new ServiceDescriptor(typeof(DemandFlowFactory), new DemandFlowFactory()));
+            services.AddSingleton<IDemadStatusFactory, DemadStatusFactory>();
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             services.AddHttpContextAccessor();
 
