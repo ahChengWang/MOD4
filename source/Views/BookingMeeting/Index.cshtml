@@ -1,0 +1,257 @@
+﻿@model MOD4.Web.ViewModel.MeetingViewModel
+
+@{
+    ViewData["Title"] = "會議室預約";
+}
+
+<head>
+    <link rel="stylesheet" href="~/plugins/fullcalendar/main.min.css">
+    <link rel="stylesheet" href="~/plugins/daterangepicker/daterangepicker.css">
+</head>
+
+<style>
+    #imgMap {
+        width: 100%;
+        height: auto;
+    }
+
+    #divBooking, #calendar {
+        background-color: #c3cadb;
+    }
+
+    .card-title {
+        font-size: 20px;
+        font-family: "Microsoft JhengHei";
+        font-weight: 900;
+        font-style: italic;
+    }
+</style>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card">
+                        <div style="background-color: #c3cadb ">
+                            <div>
+                                <img id="imgMap" src="~/img/meetingRoomMap.png" />
+                            </div>
+                            <br />
+                            <br />
+                            <div id="divBooking" class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">我要預約</h3>
+                                </div>
+                                <div class="card-body">
+                                    <form id="bookingForm">
+                                        <div class="row">
+                                            <div class="col-3">
+                                                <label class="col-form-label" asp-for="MeetingRoomId"></label>
+                                            </div>
+                                            <div class="col-7">
+                                                <select class="form-control" asp-for="MeetingRoomId">
+                                                    <option value="1">R201</option>
+                                                    <option value="2">R202</option>
+                                                    <option value="4">R204</option>
+                                                    <option value="5">中控室</option>
+                                                    <option value="6">D</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-top:3px">
+                                            <div class="col-3">
+                                                <label class="col-form-label" asp-for="Date"></label>
+                                                <span asp-validation-for="Date" style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                            </div>
+                                            <div class="col-7">
+                                                <input type="date" class="form-control" asp-for="Date" />
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-top:3px">
+                                            <div class="col-3">
+                                                <label class="col-form-label" asp-for="TimeStart"></label>
+                                                <span asp-validation-for="TimeStart" style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                            </div>
+                                            <div class="col-7">
+                                                <input type="text" class="datepicker example form-control" asp-for="TimeStart" />
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-top:3px">
+                                            <div class="col-3">
+                                                <label class="col-form-label" asp-for="Name"></label>
+                                                <span asp-validation-for="Name" style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                            </div>
+                                            <div class="col-7">
+                                                <input type="text" class="form-control" asp-for="Name" />
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-top:2px">
+                                            <div class="col-3">
+                                                <label class="col-form-label" asp-for="Subject"></label>
+                                                <span asp-validation-for="Subject" style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                            </div>
+                                            <div class="col-7">
+                                                <input type="text" class="form-control" asp-for="Subject" />
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-top:2px">
+                                            <label class="col-form-label" style="margin-right:20px" asp-for="RepeatWeekly"></label>
+                                            <input type="checkbox" class="custom-checkbox" asp-for="RepeatWeekly" />
+                                            <label id="repeatNote" class="col-form-label" style="color:red;margin-left:5px"></label>
+                                        </div>
+                                        <div class="row" style="margin-top:2px">
+                                            <input id="btnBooking" class="btn btn-sm btn-info" type="button" value="預約" />
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="card">
+                        <div id="calendar">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section scripts{
+    <!-- fullCalendar 2.2.5 -->
+    <script src="~/plugins/moment/moment.min.js"></script>
+    <script src="~/plugins/fullcalendar/main.js"></script>
+    <script src="~/plugins/daterangepicker/daterangepicker.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('.example').daterangepicker({
+                "timePicker": true,
+                "timePicker24Hour": true,
+                "timePickerIncrement": 10,
+                locale: {
+                    format: 'HH:mm'
+                }
+            }).on('show.daterangepicker', function (ev, picker) {
+                picker.container.find(".calendar-table").hide();
+            });
+
+            $('.example').val('');
+
+            var date = new Date()
+            var d = date.getDate(),
+                m = date.getMonth(),
+                y = date.getFullYear()
+
+            var Calendar = FullCalendar.Calendar;
+            var calendarEl = document.getElementById('calendar');
+
+            var calendar = new Calendar(calendarEl, {
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                initialView: 'timeGridWeek',
+                themeSystem: 'bootstrap',
+                editable: true,
+                eventResizableFromStart: true,
+                droppable: false, // this allows things to be dropped onto the calendar !!!
+                events: [
+                    {
+                        title: 'R201 test 會議',
+                        start: new Date(y, m, d, 14, 0, 0),
+                        end: new Date(y, m, d, 16, 0, 0),
+                        backgroundColor: '#01803B', //red
+                        borderColor: '#01803B', //red
+                        textColor: '#000000',
+                        allDay: false
+                    },
+                    {
+                        title: 'R202 test 會議',
+                        start: new Date(y, m, d, 14, 0, 0),
+                        end: new Date(y, m, d, 16, 0, 0),
+                        backgroundColor: '#F1E515', //red
+                        borderColor: '#F1E515', //red
+                        textColor: '#000000',
+                        allDay: false
+                    },
+                    {
+                        title: 'R204 test 會議',
+                        start: new Date(y, m, d, 14, 0, 0),
+                        end: new Date(y, m, d, 16, 0, 0),
+                        backgroundColor: '#C50C0C', //red
+                        borderColor: '#C50C0C', //red
+                        textColor: '#000000',
+                        allDay: false
+                    },
+                    {
+                        title: '中控室 test 會議',
+                        start: new Date(y, m, d, 14, 0, 0),
+                        end: new Date(y, m, d, 16, 0, 0),
+                        backgroundColor: '#3F48CC', //red
+                        borderColor: '#3F48CC', //red
+                        textColor: '#000000',
+                        allDay: false
+                    },
+                    {
+                        title: 'D test 會議',
+                        start: new Date(y, m, d, 14, 0, 0),
+                        end: new Date(y, m, d, 16, 0, 0),
+                        backgroundColor: '#A349A4', //red
+                        borderColor: '#A349A4', //red
+                        textColor: '#000000',
+                        allDay: false
+                    }]
+            });
+
+            calendar.render();
+
+            let _repeatDTE = new Date(date.setMonth(m + 6));
+            var nd = _repeatDTE.getDate(),
+                nm = _repeatDTE.getMonth(),
+                ny = _repeatDTE.getFullYear()
+            $("#repeatNote").html("*會議重複至" + [_repeatDTE.getFullYear(), _repeatDTE.getMonth(), _repeatDTE.getDate()].join('/'));
+        });
+
+        $('#btnBooking').click(function (e) {
+            if ($('#bookingForm').valid()) {
+                e.preventDefault();
+
+                var Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+
+                $.ajax({
+                    url: "./BookingMeeting/Create",
+                    type: "POST",
+                    dataType: "json",
+                    data: $('#bookingForm').serialize(),
+                    success: function (res) {
+                        $.unblockUI();
+                        if (res.isSuccess) {
+                            alert('申請成功');
+
+                        }
+                        else {
+                            Toast.fire({
+                                icon: 'error',
+                                title: res.msg
+                            })
+                            //alert(res.msg);
+                            return false;
+                        }
+                    }
+                });
+            }
+        });
+
+    </script>
+}
