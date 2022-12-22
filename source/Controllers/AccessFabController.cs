@@ -396,7 +396,12 @@ namespace MOD4.Web.Controllers
                 ViewBag.FabInTypeList = new SelectList(_optionList.FirstOrDefault(f => f.Item1 == "fabInTypeList").Item2, "Id", "Value");
                 ViewBag.FabInCategoryList = new SelectList(_optionList.FirstOrDefault(f => f.Item1 == "fabInCategoryList").Item2, "Id", "Value");
 
-                List<AccessFabOrderEntity> _result = _accessFabDomainService.GetAuditList(GetUserInfo(), new AccessFabSelectOptionEntity());
+                List<AccessFabOrderEntity> _result = _accessFabDomainService.GetAuditList(
+                    GetUserInfo(), 
+                    new AccessFabSelectOptionEntity() 
+                    { 
+                        IsDefaultPage = true
+                    });
 
                 List<AccessFabMainViewModel> _resAccessList = _result.Select(s => new AccessFabMainViewModel
                 {
@@ -438,7 +443,8 @@ namespace MOD4.Web.Controllers
                         EndFabInDate = endFabInDate,
                         FabInTypeId = fabInTypeId,
                         Applicant = applicant,
-                        GuestName = guestName
+                        GuestName = guestName,
+                        IsDefaultPage = false
                     });
 
                 List<AccessFabMainViewModel> _resAccessList = _result.Select(s => new AccessFabMainViewModel

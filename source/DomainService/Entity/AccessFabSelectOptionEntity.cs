@@ -19,5 +19,6 @@ namespace MOD4.Web.DomainService.Entity
         public string EndFabInDate { get; set; }
         public int CreateAccountSn { get; set; }
         public List<int> OrderSnList { get; set; }
+        public bool IsDefaultPage { get; set; }
     }
 }

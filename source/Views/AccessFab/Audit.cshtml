@@ -49,7 +49,7 @@
                         <div class="card-header">
                             <h3 class="card-title">進出申請單 簽核作業</h3>
                         </div>
-                        <span style="color:red;font-size:8px">*預設顯示當日入場申請單</span>
+                        <span style="color:red;font-size:8px">*預設顯示30天入廠申請單</span>
                         <div id="barDiv1" class="card-body">
                             <div class="row" style="margin-bottom:5px">
                                 <div class="col-3">
@@ -132,7 +132,7 @@
                                 "lengthChange": true,
                                 "autoWidth": true,
                                 "paging": true,
-                                "order": [[0, "desc"]]
+                                "order": [[1, "desc"]]
                             }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
                         }
                     }
@@ -170,7 +170,7 @@
                 "responsive": false,
                 "lengthChange": true,
                 "autoWidth": true,
-                "order": [[0, "desc"]],
+                "order": [[1, "desc"]],
                 /*"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]*/
             }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
 

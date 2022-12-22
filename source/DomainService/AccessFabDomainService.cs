@@ -414,9 +414,10 @@ namespace MOD4.Web.DomainService
             if (userEntity.RoleId == RoleEnum.GateEmployee)
             {
                 selectOption.StatusId = (int)FabInOutStatusEnum.Completed;
-                if (string.IsNullOrEmpty(selectOption.StartFabInDate) && string.IsNullOrEmpty(selectOption.EndFabInDate))
+
+                if (selectOption.IsDefaultPage)
                 {
-                    selectOption.StartFabInDate = DateTime.Now.ToString("yyyy-MM-dd");
+                    selectOption.StartFabInDate = DateTime.Now.AddMonths(-1).ToString("yyyy-MM-dd");
                     selectOption.EndFabInDate = DateTime.Now.ToString("yyyy-MM-dd");
                 }
             }
@@ -425,18 +426,8 @@ namespace MOD4.Web.DomainService
 
             selectOption.AuditAccountSn = userEntity.sn;
 
-            //if (!string.IsNullOrEmpty(selectOption.GuestName?.Trim() ?? ""))
-            //{
-            //    _accseeFabDetail = _accessFabOrderDetailRepository.SelectList(guestName: selectOption.GuestName);
-            //    selectOption.OrderSnList = _accseeFabDetail.Select(detail => detail.AccessFabOrderSn).ToList();
-            //    _accessFabOrderAuditList = GetAccessFabOrderList(selectOption);
-            //}
-            //else
-            //{
             _accessFabOrderAuditList = GetAccessFabOrderList(selectOption);
             _accseeFabDetail = _accessFabOrderDetailRepository.SelectList(accessFabSnList: _accessFabOrderAuditList.Select(s => s.OrderSn).ToList());
-            //}
-
 
             _accessFabOrderAuditList.ForEach(fe =>
             {
