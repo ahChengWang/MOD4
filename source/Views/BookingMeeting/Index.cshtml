@@ -127,131 +127,262 @@
     <script src="~/plugins/daterangepicker/daterangepicker.js"></script>
 
     <script type="text/javascript">
-        $(document).ready(function () {
 
-            $('.example').daterangepicker({
-                "timePicker": true,
-                "timePicker24Hour": true,
-                "timePickerIncrement": 10,
-                locale: {
-                    format: 'HH:mm'
-                }
-            }).on('show.daterangepicker', function (ev, picker) {
-                picker.container.find(".calendar-table").hide();
-            });
+        const vm = new Vue({
+            el: '#calendar',
+            data: {},
+            methods: {
+                bookingClick: function (e) {
+                    if ($('#bookingForm').valid()) {
+                        e.preventDefault();
 
-            $('.example').val('');
+                        var Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
 
-            var date = new Date()
-            var d = date.getDate(),
-                m = date.getMonth(),
-                y = date.getFullYear()
+                        $.ajax({
+                            url: "./BookingMeeting/Create",
+                            type: "POST",
+                            dataType: "json",
+                            data: $('#bookingForm').serialize(),
+                            success: function (res) {
+                                $.unblockUI();
+                                if (res.isSuccess) {
+                                    alert('申請成功');
 
-            var Calendar = FullCalendar.Calendar;
-            var calendarEl = document.getElementById('calendar');
-
-            var calendar = new Calendar(calendarEl, {
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                },
-                initialView: 'timeGridWeek',
-                themeSystem: 'bootstrap',
-                editable: true,
-                eventResizableFromStart: true,
-                droppable: false, // this allows things to be dropped onto the calendar !!!
-                events: [
-                    {
-                        title: 'R201 test 會議',
-                        start: new Date(y, m, d, 14, 0, 0),
-                        end: new Date(y, m, d, 16, 0, 0),
-                        backgroundColor: '#01803B', //red
-                        borderColor: '#01803B', //red
-                        textColor: '#000000',
-                        allDay: false
-                    },
-                    {
-                        title: 'R202 test 會議',
-                        start: new Date(y, m, d, 14, 0, 0),
-                        end: new Date(y, m, d, 16, 0, 0),
-                        backgroundColor: '#F1E515', //red
-                        borderColor: '#F1E515', //red
-                        textColor: '#000000',
-                        allDay: false
-                    },
-                    {
-                        title: 'R204 test 會議',
-                        start: new Date(y, m, d, 14, 0, 0),
-                        end: new Date(y, m, d, 16, 0, 0),
-                        backgroundColor: '#C50C0C', //red
-                        borderColor: '#C50C0C', //red
-                        textColor: '#000000',
-                        allDay: false
-                    },
-                    {
-                        title: '中控室 test 會議',
-                        start: new Date(y, m, d, 14, 0, 0),
-                        end: new Date(y, m, d, 16, 0, 0),
-                        backgroundColor: '#3F48CC', //red
-                        borderColor: '#3F48CC', //red
-                        textColor: '#000000',
-                        allDay: false
-                    },
-                    {
-                        title: 'D test 會議',
-                        start: new Date(y, m, d, 14, 0, 0),
-                        end: new Date(y, m, d, 16, 0, 0),
-                        backgroundColor: '#A349A4', //red
-                        borderColor: '#A349A4', //red
-                        textColor: '#000000',
-                        allDay: false
-                    }]
-            });
-
-            calendar.render();
-
-            let _repeatDTE = new Date(date.setMonth(m + 6));
-            var nd = _repeatDTE.getDate(),
-                nm = _repeatDTE.getMonth(),
-                ny = _repeatDTE.getFullYear()
-            $("#repeatNote").html("*會議重複至" + [_repeatDTE.getFullYear(), _repeatDTE.getMonth(), _repeatDTE.getDate()].join('/'));
-        });
-
-        $('#btnBooking').click(function (e) {
-            if ($('#bookingForm').valid()) {
-                e.preventDefault();
-
-                var Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-
-                $.ajax({
-                    url: "./BookingMeeting/Create",
-                    type: "POST",
-                    dataType: "json",
-                    data: $('#bookingForm').serialize(),
-                    success: function (res) {
-                        $.unblockUI();
-                        if (res.isSuccess) {
-                            alert('申請成功');
-
-                        }
-                        else {
-                            Toast.fire({
-                                icon: 'error',
-                                title: res.msg
-                            })
-                            //alert(res.msg);
-                            return false;
-                        }
+                                }
+                                else {
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: res.msg
+                                    })
+                                    //alert(res.msg);
+                                    return false;
+                                }
+                            }
+                        });
                     }
-                });
-            }
+                }
+            },
+            mounted:
+                function () {
+
+                    $('.example').daterangepicker({
+                        "timePicker": true,
+                        "timePicker24Hour": true,
+                        "timePickerIncrement": 10,
+                        locale: {
+                            format: 'HH:mm'
+                        }
+                    }).on('show.daterangepicker', function (ev, picker) {
+                        picker.container.find(".calendar-table").hide();
+                    });
+
+                    $('.example').val('');
+
+                    var date = new Date()
+                    var d = date.getDate(),
+                        m = date.getMonth(),
+                        y = date.getFullYear()
+
+                    var Calendar = FullCalendar.Calendar;
+                    var calendarEl = document.getElementById('calendar');
+
+                    var calendar = new Calendar(calendarEl, {
+                        headerToolbar: {
+                            left: 'prev,next today',
+                            center: 'title',
+                            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                        },
+                        initialView: 'timeGridWeek',
+                        themeSystem: 'bootstrap',
+                        editable: true,
+                        eventResizableFromStart: true,
+                        droppable: false, // this allows things to be dropped onto the calendar !!!
+                        events: [
+                            {
+                                title: 'R201 test 會議',
+                                start: new Date(y, m, 18, 14, 0, 0),
+                                end: new Date(y, m, 18, 16, 0, 0),
+                                backgroundColor: '#01803B', //red
+                                borderColor: '#01803B', //red
+                                textColor: '#000000',
+                                allDay: false
+                            },
+                            {
+                                title: 'R202 test 會議',
+                                start: new Date(y, m, 19, 14, 0, 0),
+                                end: new Date(y, m, 19, 16, 0, 0),
+                                backgroundColor: '#F1E515', //red
+                                borderColor: '#F1E515', //red
+                                textColor: '#000000',
+                                allDay: false
+                            },
+                            {
+                                title: 'R204 test 會議',
+                                start: new Date(y, m, 20, 14, 0, 0),
+                                end: new Date(y, m, 20, 16, 0, 0),
+                                backgroundColor: '#C50C0C', //red
+                                borderColor: '#C50C0C', //red
+                                textColor: '#000000',
+                                allDay: false
+                            },
+                            {
+                                title: '中控室 test 會議',
+                                start: new Date(y, m, d, 14, 0, 0),
+                                end: new Date(y, m, d, 16, 0, 0),
+                                backgroundColor: '#3F48CC', //red
+                                borderColor: '#3F48CC', //red
+                                textColor: '#000000',
+                                allDay: false
+                            },
+                            {
+                                title: 'D test 會議',
+                                start: new Date(y, m, d, 14, 0, 0),
+                                end: new Date(y, m, d, 16, 0, 0),
+                                backgroundColor: '#A349A4', //red
+                                borderColor: '#A349A4', //red
+                                textColor: '#000000',
+                                allDay: false
+                            }]
+                    });
+
+                    calendar.render();
+
+                    let _repeatDTE = new Date(date.setMonth(m + 6));
+
+                    $("#repeatNote").html("*會議重複至" + [_repeatDTE.getFullYear(), _repeatDTE.getMonth(), _repeatDTE.getDate()].join('/'));
+                }
         });
+
+                //$(document).ready(function () {
+
+                //    $('.example').daterangepicker({
+                //        "timePicker": true,
+                //        "timePicker24Hour": true,
+                //        "timePickerIncrement": 10,
+                //        locale: {
+                //            format: 'HH:mm'
+                //        }
+                //    }).on('show.daterangepicker', function (ev, picker) {
+                //        picker.container.find(".calendar-table").hide();
+                //    });
+
+                //    $('.example').val('');
+
+                //    var date = new Date()
+                //    var d = date.getDate(),
+                //        m = date.getMonth(),
+                //        y = date.getFullYear()
+
+                //    var Calendar = FullCalendar.Calendar;
+                //    var calendarEl = document.getElementById('calendar');
+
+                //    var calendar = new Calendar(calendarEl, {
+                //        headerToolbar: {
+                //            left: 'prev,next today',
+                //            center: 'title',
+                //            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                //        },
+                //        initialView: 'timeGridWeek',
+                //        themeSystem: 'bootstrap',
+                //        editable: true,
+                //        eventResizableFromStart: true,
+                //        droppable: false, // this allows things to be dropped onto the calendar !!!
+                //        events: [
+                //            {
+                //                title: 'R201 test 會議',
+                //                start: new Date(y, m, 23, 14, 0, 0),
+                //                end: new Date(y, m, 23, 16, 0, 0),
+                //                backgroundColor: '#01803B', //red
+                //                borderColor: '#01803B', //red
+                //                textColor: '#000000',
+                //                allDay: false
+                //            },
+                //            {
+                //                title: 'R202 test 會議',
+                //                start: new Date(y, m, 23, 14, 0, 0),
+                //                end: new Date(y, m, 23, 16, 0, 0),
+                //                backgroundColor: '#F1E515', //red
+                //                borderColor: '#F1E515', //red
+                //                textColor: '#000000',
+                //                allDay: false
+                //            },
+                //            {
+                //                title: 'R204 test 會議',
+                //                start: new Date(y, m, 23, 14, 0, 0),
+                //                end: new Date(y, m, 23, 16, 0, 0),
+                //                backgroundColor: '#C50C0C', //red
+                //                borderColor: '#C50C0C', //red
+                //                textColor: '#000000',
+                //                allDay: false
+                //            },
+                //            {
+                //                title: '中控室 test 會議',
+                //                start: new Date(y, m, 23, 14, 0, 0),
+                //                end: new Date(y, m, 23, 16, 0, 0),
+                //                backgroundColor: '#3F48CC', //red
+                //                borderColor: '#3F48CC', //red
+                //                textColor: '#000000',
+                //                allDay: false
+                //            },
+                //            {
+                //                title: 'D test 會議',
+                //                start: new Date(y, m, 23, 14, 0, 0),
+                //                end: new Date(y, m, 23, 16, 0, 0),
+                //                backgroundColor: '#A349A4', //red
+                //                borderColor: '#A349A4', //red
+                //                textColor: '#000000',
+                //                allDay: false
+                //            }]
+                //    });
+
+                //    calendar.render();
+
+                //    let _repeatDTE = new Date(date.setMonth(m + 6));
+                //    var nd = _repeatDTE.getDate(),
+                //        nm = _repeatDTE.getMonth(),
+                //        ny = _repeatDTE.getFullYear()
+                //    $("#repeatNote").html("*會議重複至" + [_repeatDTE.getFullYear(), _repeatDTE.getMonth(), _repeatDTE.getDate()].join('/'));
+                //});
+
+                //$('#btnBooking').click(function (e) {
+                //    if ($('#bookingForm').valid()) {
+                //        e.preventDefault();
+
+                //        var Toast = Swal.mixin({
+                //            toast: true,
+                //            position: 'top-end',
+                //            showConfirmButton: false,
+                //            timer: 3000
+                //        });
+
+                //        $.ajax({
+                //            url: "./BookingMeeting/Create",
+                //            type: "POST",
+                //            dataType: "json",
+                //            data: $('#bookingForm').serialize(),
+                //            success: function (res) {
+                //                $.unblockUI();
+                //                if (res.isSuccess) {
+                //                    alert('申請成功');
+
+                //                }
+                //                else {
+                //                    Toast.fire({
+                //                        icon: 'error',
+                //                        title: res.msg
+                //                    })
+                //                    //alert(res.msg);
+                //                    return false;
+                //                }
+                //            }
+                //        });
+                //    }
+                //});
 
     </script>
 }
