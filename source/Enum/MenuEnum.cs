@@ -6,8 +6,8 @@ namespace MOD4.Web.Enum
     {
         [Description("首頁")]
         Home = 1,
-        [Description("隱私權")]
-        Privacy = 3,
+        [Description("會議室預約")]
+        BookingMeeting = 3,
         [Description("分時產出")]
         Performance = 5,
         [Description("TT設定")]
