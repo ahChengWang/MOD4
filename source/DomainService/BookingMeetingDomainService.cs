@@ -47,6 +47,36 @@ namespace MOD4.Web.DomainService
             }).ToList();
         }
 
+
+        public string GetFreeTimeRoom(MeetingRoomEnum roomId, string date)
+        {
+            DateTime _startTime = DateTime.Parse(date);
+            DateTime _endTime = DateTime.Parse(date).AddDays(1).AddMilliseconds(-1);
+
+            var _alreadyBookingMeeting = _bookingMeetingRepository.VerifyOverlap(roomId, _startTime, _endTime).OrderBy(o => o.StartTime);
+
+            if (_alreadyBookingMeeting.Any())
+            {
+                string _response = $"會議室 {roomId.GetDescription()} {date} 空閒時段如下：\n";
+                DateTime _tmpStartTime = DateTime.Parse($"{date} 08:00:00");
+
+                foreach (BookingMeetingDao meeting in _alreadyBookingMeeting)
+                {
+                    if (meeting.StartTime > _tmpStartTime)
+                    {
+                        _response += $"{_tmpStartTime.ToString("HH:mm:ss")} - {meeting.StartTime.ToString("HH:mm:ss")}\n";
+                        _tmpStartTime = meeting.EndTime;
+                    }
+                    else
+                        _tmpStartTime = meeting.EndTime;
+                }
+                _response += $"{_tmpStartTime.ToString("HH:mm:ss")} - \n";
+                return _response;
+            }
+            else
+                return $"{date} 全時段都可預約";
+        }
+
         public string Create(BookingRoomEntity bookingEntity)
         {
             string _createRes = "";

@@ -63,6 +63,14 @@ namespace MOD4.Web.Controllers
             return View(_response);
         }
 
+        [HttpGet]
+        public IActionResult Search([FromQuery] MeetingRoomEnum roomId, string searchDate)
+        {
+            string _response = _bookingMeetingDomainService.GetFreeTimeRoom(roomId, searchDate);
+
+            return Json(_response);
+        }
+
         [HttpPost]
         public IActionResult Create([FromForm] MeetingCreateViewModel createViewModel)
         {

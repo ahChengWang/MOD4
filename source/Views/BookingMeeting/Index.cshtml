@@ -16,7 +16,7 @@
         height: auto;
     }
 
-    #divBooking, #calendar {
+    #divBooking, #divSrcFreeRoom, #calendar {
         background-color: #c3cadb;
     }
 
@@ -39,7 +39,41 @@
                                 <img id="imgMap" src="~/img/meetingRoomMap.png" />
                             </div>
                             <br />
-                            <br />
+                            <div id="divSrcFreeRoom" class="card">
+                                <div class="card-body">
+                                    <form id="bookingForm">
+                                        <div class="row">
+                                            <p style="font-weight:600">閒置時段查詢</p>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-3">
+                                                <label class="col-form-label-sm" asp-for="@Model.FirstOrDefault().MeetingRoomId"></label>
+                                            </div>
+                                            <div class="col-7">
+                                                <select id="srcRoom" class="form-control-sm">
+                                                    <option value="1" style="color:black;background-color: #01803B ">R201</option>
+                                                    <option value="2" style="color:black;background-color: #F1E515">R202</option>
+                                                    <option value="4" style="color:black;background-color: #C50C0C">R204</option>
+                                                    @*<option value="5" style="color:black;background-color: #3F48CC">中控室</option>*@
+                                                    <option value="6" style="color:black;background-color: #A349A4">D</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-top:3px">
+                                            <div class="col-3">
+                                                <label class="col-form-label-sm" asp-for="@Model.FirstOrDefault().Date"></label>
+                                                <span asp-validation-for="@Model.FirstOrDefault().Date" style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                            </div>
+                                            <div class="col-7">
+                                                <input id="srcDTE" type="date" class="form-control-sm"/>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-top:2px">
+                                            <input id="btnSearch" class="btn btn-sm btn-info" type="button" value="查詢" v-on:click="freeTimeSearch" />
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                             <div id="divBooking" class="card">
                                 <div class="card-header">
                                     <h3 class="card-title">我要預約</h3>
@@ -146,7 +180,7 @@
                                                 <label>　到　</label>
                                                 <label id="mEndTime"></label>
                                             </div>
-                                            <input id="mMeetingSn" type="hidden" value=""/>
+                                            <input id="mMeetingSn" type="hidden" value="" />
                                         </div>
                                         <div class="modal-footer justify-content-between" style="background-color: #a5bec2 ">
                                             @{
@@ -250,6 +284,16 @@
                                 //alert(res.msg);
                                 return false;
                             }
+                        }
+                    });
+                },
+                freeTimeSearch: function () {
+                    $.ajax({
+                        url: "./BookingMeeting/Search?roomId=" + $("#srcRoom").val() + "&searchDate=" + $("#srcDTE").val(),
+                        type: "GET",
+                        dataType: "json",
+                        success: function (res) {
+                            alert(res);
                         }
                     });
                 }
