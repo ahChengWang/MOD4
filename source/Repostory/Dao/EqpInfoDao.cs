@@ -37,5 +37,6 @@ namespace MOD4.Web.Repostory.Dao
         public EqIssueStatusEnum statusId { get; set; }
         public string tool_name { get; set; }
         public int prod_sn { get; set; }
+        public int isManual { get; set; }
     }
 }

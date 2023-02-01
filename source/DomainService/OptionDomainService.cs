@@ -37,7 +37,7 @@ namespace MOD4.Web.DomainService
         }
 
 
-        public List<OptionEntity> GetOptionByType(OptionTypeEnum optionTypeId, int mainId = 0, int subId = 0)
+        public List<OptionEntity> GetEqProcessOptionByType(OptionTypeEnum optionTypeId, int mainId = 0, int subId = 0)
         {
             try
             {
@@ -71,6 +71,31 @@ namespace MOD4.Web.DomainService
                     default:
                         return new List<OptionEntity>();
                 }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<EqSituationMappingEntity> GetAllEqProcessOption()
+        {
+            try
+            {
+                var _catchEqMapping = CatchHelper.Get($"eqMappingList");
+                List<EqSituationMappingDao> _eqMappingList = new List<EqSituationMappingDao>();
+
+                if (_catchEqMapping == null)
+                {
+                    _eqMappingList = _eqSituationMappingRepository.SelectList();
+                    CatchHelper.Set($"eqMappingList", JsonConvert.SerializeObject(_eqMappingList), 86400);
+                }
+                else
+                {
+                    _eqMappingList = JsonConvert.DeserializeObject<List<EqSituationMappingDao>>(_catchEqMapping);
+                }
+
+                return _eqMappingList.CopyAToB<EqSituationMappingEntity>();
             }
             catch (Exception ex)
             {
@@ -167,6 +192,22 @@ namespace MOD4.Web.DomainService
             }
         }
 
+        public List<EqEvanCodeMappingEntity> GetAllEqEvenCodeOptionList()
+        {
+            var _catchEqMapping = CatchHelper.Get($"eqEvenCodeList");
+            List<EqEvanCodeMappingDao> _eqEvenCodeList = new List<EqEvanCodeMappingDao>();
+
+            if (_catchEqMapping == null)
+            {
+                _eqEvenCodeList = _eqEvanCodeMappingRepository.SelectList();
+                CatchHelper.Set($"eqEvenCodeList", JsonConvert.SerializeObject(_eqEvenCodeList), 86400);
+            }
+            else
+                _eqEvenCodeList = JsonConvert.DeserializeObject<List<EqEvanCodeMappingDao>>(_catchEqMapping);
+
+            return _eqEvenCodeList.CopyAToB<EqEvanCodeMappingEntity>();
+        }
+
         public List<EqEvanCodeMappingEntity> GetEqEvenCode(int typeId = 0, int yId = 0, int subyId = 0, int xId = 0, int subxId = 0, int rId = 0)
         {
             var _catchEqMapping = CatchHelper.Get($"eqEvenCodeList");
@@ -181,7 +222,6 @@ namespace MOD4.Web.DomainService
             {
                 _eqEvenCodeList = JsonConvert.DeserializeObject<List<EqEvanCodeMappingDao>>(_catchEqMapping);
             }
-
 
             if (typeId != 0 && typeId != 99)
                 _eqEvenCodeList = _eqEvenCodeList.Where(w => w.TypeId == typeId).ToList();
@@ -200,7 +240,7 @@ namespace MOD4.Web.DomainService
         }
 
         public List<(string, List<string>)> GetAreaEqGroupOptions()
-            => _equipMappingRepository.SelectAll().GroupBy(gb => gb.AREA).Select(s => (s.Key, s.Select(ss => ss.EQUIP_NBR).ToList())).ToList();
+        => _equipMappingRepository.SelectAll().GroupBy(gb => gb.AREA).Select(s => (s.Key, s.Select(ss => ss.EQUIP_NBR).ToList())).ToList();
 
         public List<(string, List<OptionEntity>)> GetAccessFabOptions()
         {
@@ -363,6 +403,11 @@ namespace MOD4.Web.DomainService
                 .Select(prod => (prod.Key, prod.Select(p => (p.sn, $"{p.ProdNo}-{p.Descr}")).ToList()))
                 .OrderBy(ob => ob.Key)
                 .ToList();
+        }
+
+        public List<EqMappingEntity> GetEqIDAreaList()
+        {
+            return _equipMappingRepository.SelectEqByConditions(2).OrderBy(o => o.EQUIP_GROUP).CopyAToB<EqMappingEntity>();
         }
 
         private List<OptionEntity> GetEqProdOptionList(int id)

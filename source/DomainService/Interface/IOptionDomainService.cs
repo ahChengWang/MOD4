@@ -7,7 +7,9 @@ namespace MOD4.Web.DomainService
 {
     public interface IOptionDomainService
     {
-        List<OptionEntity> GetOptionByType(OptionTypeEnum optionTypeId, int mainId = 0, int subId = 0);
+        List<OptionEntity> GetEqProcessOptionByType(OptionTypeEnum optionTypeId, int mainId = 0, int subId = 0);
+
+        List<EqSituationMappingEntity> GetAllEqProcessOption();
 
         List<OptionEntity> GetShiftOptionList();
 
@@ -18,6 +20,8 @@ namespace MOD4.Web.DomainService
         List<OptionEntity> GetEqEvenCodeOptionList(int typeId = 0, int yId = 0, int subyId = 0, int xId = 0, int subxId = 0, int rId = 0);
 
         List<EqEvanCodeMappingEntity> GetEqEvenCode(int typeId = 0, int yId = 0, int subyId = 0, int xId = 0, int subxId = 0, int rId = 0);
+
+        List<EqEvanCodeMappingEntity> GetAllEqEvenCodeOptionList();
 
         List<(string, List<OptionEntity>)> GetAccessFabOptions();
 
@@ -30,6 +34,8 @@ namespace MOD4.Web.DomainService
         List<MenuPermissionViewModel> GetCreatePermissionList();
 
         List<(string, List<(int, string)>)> GetLcmProdOptions();
+
+        List<EqMappingEntity> GetEqIDAreaList();
 
         List<OptionEntity> GetDepartmentOptionList(int parentDeptId, int levelId);
     }

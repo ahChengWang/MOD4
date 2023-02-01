@@ -7,7 +7,6 @@ namespace MOD4.Web.Repostory
     public class EqpInfoRepository : BaseRepository, IEqpInfoRepository
     {
 
-
         public List<string> SelectToolList(string date)
         {
             string sql = "select Equipment from vw_eqpinfo_repaired where 1=1 ";
@@ -26,7 +25,6 @@ namespace MOD4.Web.Repostory
 
             return dao;
         }
-
 
         public List<EqpInfoDao> SelectByConditions(string date, List<string> equipmentList, bool isDefault, bool showAuto, List<int> prodSnList = null)
         {
@@ -81,6 +79,108 @@ namespace MOD4.Web.Repostory
             return dao.FirstOrDefault();
         }
 
+        public List<EquipMappingDao> SelectUnRepaireEqList(string beginDate, string endDate)
+        {
+            string sql = @"WITH CTE AS
+(select tool_id from alarm_xml_unrepaired where MFG_Day between @BeginDate and @EndDate
+ group by tool_id)
+select b.EQUIP_NBR, b.AREA 
+  from CTE cte
+  join equip_mapping b
+    on cte.tool_id = b.EQUIP_NBR ";
+
+            var dao = _dbHelper.ExecuteQuery<EquipMappingDao>(sql, new
+            {
+                BeginDate = beginDate,
+                EndDate = endDate
+            });
+
+            return dao;
+        }
+
+        public List<EquipMappingDao> SelectRepairedEqList(string beginDate,string endDate)
+        {
+            string sql = @"WITH CTE AS
+(
+select Equipment from eqpinfo 
+ where Start_Time between @BeginDate and @EndDate
+ group by Equipment
+)
+select b.EQUIP_NBR, b.AREA 
+  from CTE cte
+  join equip_mapping b
+    on cte.Equipment = b.EQUIP_NBR ";
+
+            var dao = _dbHelper.ExecuteQuery<EquipMappingDao>(sql, new
+            {
+                BeginDate = beginDate,
+                EndDate = endDate
+            });
+
+            return dao;
+        }
+
+        public int Insert(EqpInfoDao eqpinfo)
+        {
+            string sql = @"INSERT INTO [dbo].[eqpinfo]
+([Equipment]
+,[Operator]
+,[Code]
+,[Code_Desc]
+,[Comments]
+,[Start_Time]
+,[Repair_Time]
+,[Update_Time]
+,[shift]
+,[eq_unitId]
+,[defect_qty]
+,[defect_rate]
+,[engineer]
+,[mnt_minutes]
+,[prod_id]
+,[typeId]
+,[yId]
+,[subYId]
+,[xId]
+,[subXId]
+,[rId]
+,[processId]
+,[eq_unit_partId]
+,[statusId]
+,[prod_sn]
+,[isManual])
+VALUES
+(@Equipment
+,@Operator
+,@Code
+,@Code_Desc
+,@Comments
+,@Start_Time
+,@Repair_Time
+,@Update_Time
+,@shift
+,@eq_unitId
+,@defect_qty
+,@defect_rate
+,@engineer
+,@mnt_minutes
+,@prod_id
+,@typeId
+,@yId
+,@subYId
+,@xId
+,@subXId
+,@rId
+,@processId
+,@eq_unit_partId
+,@statusId
+,@prod_sn
+,@isManual); ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, eqpinfo);
+
+            return dao;
+        }
 
         public int UpdateEqpinfoByPM(EqpInfoDao updDao)
         {

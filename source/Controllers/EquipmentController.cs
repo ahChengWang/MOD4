@@ -110,8 +110,8 @@ namespace MOD4.Web.Controllers
                     searchConditions = searchVal.Split(";");
                 }
 
-                ViewBag.ToolId = _equipmentDomainService.GetEqPageDropdown();
-                ViewBag.RepairedToolId = _equipmentDomainService.GetEqPageDropdown();
+                ViewBag.ToolId = _equipmentDomainService.GetUnRepaireEqOptions();
+                ViewBag.RepairedToolId = _equipmentDomainService.GetRepairedEqOptions(null);  //_equipmentDomainService.GetEqPageDropdown();
                 ViewBag.RoleId = GetUserInfo().RoleId;
 
                 List<EquipmentEntity> _repairedEqList = new List<EquipmentEntity>();
@@ -181,7 +181,7 @@ namespace MOD4.Web.Controllers
             try
             {
                 SelectList _shiftSelect = new SelectList(_optionDomainService.GetShiftOptionList().CopyAToB<OptionViewModel>(), "Id", "Value");
-                SelectList _processSelect = new SelectList(_optionDomainService.GetOptionByType(OptionTypeEnum.ProcessOption).CopyAToB<OptionViewModel>(), "Id", "Value");
+                SelectList _processSelect = new SelectList(_optionDomainService.GetEqProcessOptionByType(OptionTypeEnum.ProcessOption).CopyAToB<OptionViewModel>(), "Id", "Value");
                 SelectList _prioritySelect = new SelectList(_optionDomainService.GetPriorityOptionList().CopyAToB<OptionViewModel>(), "Id", "Value");
                 SelectList _eqEvenCodeSelect = new SelectList(_optionDomainService.GetEqEvenCodeOptionList().CopyAToB<OptionViewModel>(), "Id", "Value");
 
@@ -194,8 +194,8 @@ namespace MOD4.Web.Controllers
                     Code = _res.Code,
                     Codedesc = _res.CodeDesc,
                     Product = _res.Product,
-                    ProductShortName = "VCS",
-                    ModelName = "VCS 1234",
+                    ProductShortName = _res.ProductName,
+                    //ModelName = "VCS 1234",
                     Comment = _res.Comments,
                     StartTime = _res.StartTime.ToString("yyyy/MM/dd HH:mm:ss"),
                     Shift = _res.Shift,
@@ -232,9 +232,9 @@ namespace MOD4.Web.Controllers
                 if (statusId == EqIssueStatusEnum.PendingENG)
                 {
                     _resModel.EqUnitOptionList =
-                        new SelectList(_optionDomainService.GetOptionByType(OptionTypeEnum.EqUnit, _res.ProcessId, 0).CopyAToB<OptionViewModel>(), "Id", "Value");
+                        new SelectList(_optionDomainService.GetEqProcessOptionByType(OptionTypeEnum.EqUnit, _res.ProcessId, 0).CopyAToB<OptionViewModel>(), "Id", "Value");
                     _resModel.EqUnitPartOptionList =
-                        new SelectList(_optionDomainService.GetOptionByType(OptionTypeEnum.EqUnitPart, _res.ProcessId, _res.EqUnitId).CopyAToB<OptionViewModel>(), "Id", "Value");
+                        new SelectList(_optionDomainService.GetEqProcessOptionByType(OptionTypeEnum.EqUnitPart, _res.ProcessId, _res.EqUnitId).CopyAToB<OptionViewModel>(), "Id", "Value");
                     _resModel.EvenCodeYOptionList =
                         new SelectList(_optionDomainService.GetEqEvenCodeOptionList(_res.TypeId).CopyAToB<OptionViewModel>(), "Id", "Value");
                     _resModel.EvenCodeSubYOptionList =
@@ -297,15 +297,72 @@ namespace MOD4.Web.Controllers
             }
         }
 
+        [HttpGet]
+        public IActionResult Create()
+        {
+            try
+            {
+                ViewBag.ShiftSelect = new SelectList(_optionDomainService.GetShiftOptionList().CopyAToB<OptionViewModel>(), "Id", "Value");
+                ViewBag.ProcessSelect = new SelectList(_optionDomainService.GetEqProcessOptionByType(OptionTypeEnum.ProcessOption).CopyAToB<OptionViewModel>(), "Id", "Value");
+                ViewBag.ProcessAllOptions = _optionDomainService.GetAllEqProcessOption().CopyAToB<EqProcessOptionlViewModel>();
+                ViewBag.EqEvenCodeSelect = new SelectList(_optionDomainService.GetEqEvenCodeOptionList().CopyAToB<OptionViewModel>(), "Id", "Value");
+                ViewBag.EqAllEvenCodeOptionList = _optionDomainService.GetAllEqEvenCodeOptionList().CopyAToB<EqEvenCodeOptionlViewModel>();
+                ViewBag.ProductOption = _optionDomainService.GetLcmProdOptions();
+                ViewBag.EqIDMappingOption = _optionDomainService.GetEqIDAreaList();
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult Create([FromForm] EquipmentCreateViewModel createVM)
+        {
+            try
+            {
+                var res = _equipmentDomainService.Create(new EquipmentEditEntity
+                {
+                    StartTime = createVM.StartTime,
+                    EndTime = createVM.EndTime,
+                    ProductId = createVM.ProductId,
+                    Equipment = createVM.ToolId,
+                    Code = createVM.Code,
+                    CodeDesc = createVM.Codedesc,
+                    Comments = createVM.Comment,
+                    ProcessId = createVM.ProcessId,
+                    EqUnitId = createVM.EqUnitId,
+                    EqUnitPartId = createVM.EqUnitPartId,
+                    DefectQty = createVM.DefectQty,
+                    DefectRate = createVM.DefectRate,
+                    Shift = createVM.Shift,
+                    MntMinutes = createVM.MntMinutes,
+                    Memo = createVM.Memo,
+                    TypeId = createVM.TypeId,
+                    YId = createVM.YId,
+                    SubYId = createVM.SubYId,
+                    XId = createVM.XId,
+                    SubXId = createVM.SubXId,
+                    RId = createVM.RId
+                }, GetUserInfo());
+
+                return Json("");
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
 
         [HttpGet]
         public IActionResult GetSubOption([FromQuery] OptionTypeEnum optionTypeId, int mainId, int subId)
         {
-            List<OptionViewModel> _processOptions = _optionDomainService.GetOptionByType(optionTypeId, mainId, subId).CopyAToB<OptionViewModel>();
+            List<OptionViewModel> _processOptions = _optionDomainService.GetEqProcessOptionByType(optionTypeId, mainId, subId).CopyAToB<OptionViewModel>();
 
             return Json(_processOptions);
         }
-
 
         [HttpGet]
         public IActionResult GetEvenCodeOption([FromQuery] int typeId, int yId = 0, int subYId = 0, int xId = 0, int subXId = 0, int rId = 0)
@@ -382,7 +439,6 @@ namespace MOD4.Web.Controllers
                 return Json($"錯誤：{ex.Message}");
             }
         }
-
 
         public IActionResult Dashboard()
         {

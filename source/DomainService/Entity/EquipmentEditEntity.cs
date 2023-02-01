@@ -9,12 +9,15 @@ namespace MOD4.Web.DomainService.Entity
         public string Equipment { get; set; }
         public string Code { get; set; }
         public string CodeDesc { get; set; }
+        public int ProductId { get; set; }
         public string Product { get; set; }
+        public string ProductName { get; set; }
         public string Operator { get; set; }
         public string Comments { get; set; }
         public string MFGDay { get; set; }
         public string MFGHr { get; set; }
         public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
         public DateTime UpdateTime { get; set; }
         public int Shift { get; set; }
         public string ShiftDesc { get; set; }

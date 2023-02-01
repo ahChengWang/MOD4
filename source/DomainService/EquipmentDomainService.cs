@@ -1,6 +1,5 @@
 ﻿using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
-using MOD4.Web.Helper;
 using MOD4.Web.Repostory;
 using MOD4.Web.Repostory.Dao;
 using System;
@@ -25,11 +24,20 @@ namespace MOD4.Web.DomainService
             _optionDomainService = optionDomainService;
         }
 
-        public List<(string, List<string>)> GetEqPageDropdown()
+        public List<(string, List<string>)> GetUnRepaireEqOptions()
         {
             try
             {
-                return _optionDomainService.GetAreaEqGroupOptions();
+                DateTime _mfgDate = DateTime.Now;
+
+                string _beginDTE = $"{_mfgDate.AddMonths(-3).ToString("yyyy-MM-dd")} 07:30:00";
+                string _endDTE = $"{_mfgDate.ToString("yyyy-MM-dd")} 07:30:00";
+
+                var _repairedEqList = _eqpInfoRepository.SelectUnRepaireEqList(_beginDTE, _endDTE);
+
+                return _repairedEqList.GroupBy(g => g.AREA).Select(s => (s.Key, s.Select(ss => ss.EQUIP_NBR).ToList())).ToList();
+
+                //return _optionDomainService.GetAreaEqGroupOptions();
             }
             catch (Exception ex)
             {
@@ -155,6 +163,26 @@ namespace MOD4.Web.DomainService
             }
         }
 
+        public List<(string, List<string>)> GetRepairedEqOptions(string mfgDate)
+        {
+            try
+            {
+                DateTime _mfgDate = DateTime.Now;
+
+                string _beginDTE = $"{_mfgDate.AddMonths(-3).ToString("yyyy-MM-dd")} 07:30:00";
+                string _endDTE = $"{_mfgDate.ToString("yyyy-MM-dd")} 07:30:00";
+
+                var _repairedEqList = _eqpInfoRepository.SelectRepairedEqList(_beginDTE, _endDTE);
+
+                return _repairedEqList.GroupBy(g => g.AREA).Select(s => (s.Key, s.Select(ss => ss.EQUIP_NBR).ToList())).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
         public (int, int) GetTodayRepairedEqPendingList()
         {
             var _eqpInfoList = _eqpInfoRepository.SelectByConditions(DateTime.Now.ToString("yyyy-MM-dd"), null, false, false);
@@ -174,6 +202,8 @@ namespace MOD4.Web.DomainService
                     return null;
                 }
 
+                var _lcmProdList = _optionDomainService.GetLcmProdOptions().SelectMany(option => option.Item2).ToList();
+
                 //if (userEntity != null)
                 //    CatchHelper.Set($"Eq_Edit:{sn}", userEntity.Account, 600);
 
@@ -185,6 +215,7 @@ namespace MOD4.Web.DomainService
                     Equipment = _r.Equipment,
                     ToolName = _r.tool_name,
                     Product = _r.prod_id,
+                    ProductName = _lcmProdList.FirstOrDefault(f => f.Item1 == _r.prod_sn).Item2 ?? "",
                     Code = _r.Code,
                     CodeDesc = _r.Code_Desc,
                     Operator = _r.Operator,
@@ -234,9 +265,9 @@ namespace MOD4.Web.DomainService
                     return null;
                 }
 
-                var _processOptions = _optionDomainService.GetOptionByType(OptionTypeEnum.ProcessOption);
-                var _eqUnitOptions = _optionDomainService.GetOptionByType(OptionTypeEnum.EqUnit, _r.processId);
-                var _eqUnitPartOptions = _optionDomainService.GetOptionByType(OptionTypeEnum.EqUnitPart, _r.processId, _r.eq_unitId);
+                var _processOptions = _optionDomainService.GetEqProcessOptionByType(OptionTypeEnum.ProcessOption);
+                var _eqUnitOptions = _optionDomainService.GetEqProcessOptionByType(OptionTypeEnum.EqUnit, _r.processId);
+                var _eqUnitPartOptions = _optionDomainService.GetEqProcessOptionByType(OptionTypeEnum.EqUnitPart, _r.processId, _r.eq_unitId);
                 var _shiftOptions = _optionDomainService.GetShiftOptionList();
                 var _priorityOptions = _optionDomainService.GetPriorityOptionList();
                 var _evenCodeList = _optionDomainService.GetEqEvenCode(_r.typeId, _r.yId, _r.subYId, _r.xId, _r.subXId, _r.rId);
@@ -335,6 +366,65 @@ namespace MOD4.Web.DomainService
             {
                 throw ex;
             }
+        }
+
+        public string Create(EquipmentEditEntity editEntity, UserEntity userEntity)
+        {
+            try
+            {
+                var _updateResponse = "";
+
+                EqpInfoDao _updEqpinfo = new EqpInfoDao
+                {
+                    Start_Time = editEntity.StartTime,
+                    Repair_Time = editEntity.EndTime.Subtract(editEntity.StartTime).TotalMinutes.ToString(),
+                    Equipment = editEntity.Equipment,
+                    Code = editEntity.Code,
+                    Code_Desc = editEntity.CodeDesc,
+                    Comments = editEntity.Comments,
+                    processId = editEntity.ProcessId,
+                    eq_unitId = editEntity.EqUnitId,
+                    eq_unit_partId = editEntity.EqUnitPartId,
+                    shift = editEntity.Shift,
+                    defect_qty = editEntity.DefectQty,
+                    defect_rate = editEntity.DefectRate,
+                    mnt_user = userEntity.Name,
+                    mnt_minutes = editEntity.MntMinutes,
+                    typeId = editEntity.TypeId,
+                    yId = editEntity.YId,
+                    subYId = editEntity.SubYId,
+                    xId = editEntity.XId,
+                    subXId = editEntity.SubXId,
+                    rId = editEntity.RId,
+                    Update_Time = DateTime.Now,
+                    prod_id = editEntity.Product,
+                    prod_sn = editEntity.ProductId,
+                    statusId = EqIssueStatusEnum.PendingENG,
+                    Operator = userEntity.JobId,
+                    isManual = 1
+                };
+
+                using (var scope = new TransactionScope())
+                {
+                    var _uprdResult = false;
+
+                    _uprdResult = _eqpInfoRepository.Insert(_updEqpinfo) == 1;
+
+                    if (_uprdResult)
+                    {
+                        scope.Complete();
+                    }
+                    else
+                        _updateResponse = "新增失敗";
+                }
+
+                return _updateResponse;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
         }
 
         public string UpdateEqpinfo(EquipmentEditEntity editEntity, UserEntity userEntity)

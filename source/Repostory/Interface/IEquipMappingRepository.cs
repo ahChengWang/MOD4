@@ -6,5 +6,7 @@ namespace MOD4.Web.Repostory
     public interface IEquipMappingRepository
     {
         List<EquipMappingDao> SelectAll();
+
+        List<EquipMappingDao> SelectEqByConditions(int floor);
     }
 }

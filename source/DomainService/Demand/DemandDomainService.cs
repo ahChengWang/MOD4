@@ -8,7 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Transactions;
+using static System.Net.WebRequestMethods;
 
 namespace MOD4.Web.DomainService.Demand
 {
@@ -372,6 +374,17 @@ namespace MOD4.Web.DomainService.Demand
                     _fileNameStr += _newFileName + ",";
                 }
             }
+
+            // 未來要調整成 FTP
+            //string url = "ftp://10.54.212.193/M6CFM-20211109/layout/test.png";
+            //FtpWebRequest request = (FtpWebRequest)WebRequest.Create(url);
+            //request.Credentials = new NetworkCredential("ftpuser", "cimeng0@");
+            //request.Method = WebRequestMethods.Ftp.UploadFile;
+
+            //using (Stream ftpStream = request.GetRequestStream())
+            //{
+            //    insertEntity.UploadFileList[0].CopyTo(ftpStream);
+            //}
 
             // 移除結尾逗號
             if (_fileNameStr.Length > 0)

@@ -14,5 +14,17 @@ namespace MOD4.Web.Repostory
 
             return dao;
         }
+
+        public List<EquipMappingDao> SelectEqByConditions(int floor)
+        {
+            string sql = "select * from equip_mapping where AREA is not null and FLOOR = @FLOOR; ";
+
+            var dao = _dbHelper.ExecuteQuery<EquipMappingDao>(sql, new 
+            {
+                FLOOR = floor
+            });
+
+            return dao;
+        }
     }
 }
