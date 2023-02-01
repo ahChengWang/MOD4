@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -240,6 +241,16 @@ namespace MOD4.Web.DomainService
                 new KeyValuePair<string, string>("LoginType","RadioButton1"),
                 new KeyValuePair<string, string>("btnLogin","Sign In"),
             });
+
+            //// 新增加入 cookie 測試段落
+            //var baseUrl = "http://mfgform/CFEQPLIC/ApplyEQPLIC.aspx?LoginFAB=O4";
+            //var baseAddress = new Uri(baseUrl);
+            //var cookie = new CookieContainer();
+            //var handler = new HttpClientHandler() { CookieContainer = cookie };
+            //using (var client = new HttpClient(handler))
+            //{
+            //    cookie.Add(baseAddress, new Cookie("CFEQPLICCookieUID", "UID=22008163"));
+            //    cookie.Add(baseAddress, new Cookie("CFEQPLICCookiePWD", "PWD=22008163"));
 
             using (var client = new HttpClient())
             {

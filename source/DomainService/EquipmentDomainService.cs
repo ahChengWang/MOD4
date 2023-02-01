@@ -374,6 +374,8 @@ namespace MOD4.Web.DomainService
             {
                 var _updateResponse = "";
 
+                var _prodDesc = (_optionDomainService.GetLcmProdOptions().SelectMany(s => s.Item2).FirstOrDefault(f => f.Item1 == editEntity.ProductId).Item2).Split("-")[0] ?? "";
+
                 EqpInfoDao _updEqpinfo = new EqpInfoDao
                 {
                     Start_Time = editEntity.StartTime,
@@ -397,7 +399,7 @@ namespace MOD4.Web.DomainService
                     subXId = editEntity.SubXId,
                     rId = editEntity.RId,
                     Update_Time = DateTime.Now,
-                    prod_id = editEntity.Product,
+                    prod_id = _prodDesc,
                     prod_sn = editEntity.ProductId,
                     statusId = EqIssueStatusEnum.PendingENG,
                     Operator = userEntity.JobId,
