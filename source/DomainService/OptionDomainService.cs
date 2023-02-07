@@ -20,13 +20,15 @@ namespace MOD4.Web.DomainService
         private readonly IAccountInfoRepository _accountInfoRepository;
         private readonly IMenuRepository _menuRepository;
         private readonly ILcmProductRepository _lcmProductRepository;
+        private readonly ICertifiedAreaMappingRepository _certifiedAreaMappingRepository;
 
         public OptionDomainService(IEqSituationMappingRepository eqSituationMappingRepository,
             IEqEvanCodeMappingRepository eqEvanCodeMappingRepository,
             IEquipMappingRepository equipMappingRepository,
             IAccountInfoRepository accountInfoRepository,
             IMenuRepository menuRepository,
-            ILcmProductRepository lcmProductRepository)
+            ILcmProductRepository lcmProductRepository,
+            ICertifiedAreaMappingRepository certifiedAreaMappingRepository)
         {
             _eqSituationMappingRepository = eqSituationMappingRepository;
             _eqEvanCodeMappingRepository = eqEvanCodeMappingRepository;
@@ -34,6 +36,7 @@ namespace MOD4.Web.DomainService
             _accountInfoRepository = accountInfoRepository;
             _menuRepository = menuRepository;
             _lcmProductRepository = lcmProductRepository;
+            _certifiedAreaMappingRepository = certifiedAreaMappingRepository;
         }
 
 
@@ -408,6 +411,11 @@ namespace MOD4.Web.DomainService
         public List<EqMappingEntity> GetEqIDAreaList()
         {
             return _equipMappingRepository.SelectEqByConditions(2).OrderBy(o => o.EQUIP_GROUP).CopyAToB<EqMappingEntity>();
+        }
+
+        public List<CertifiedAreaMappingEntity> GetCertifiedAreaOptions()
+        {
+            return _certifiedAreaMappingRepository.SelectByConditions().CopyAToB<CertifiedAreaMappingEntity>();
         }
 
         private List<OptionEntity> GetEqProdOptionList(int id)

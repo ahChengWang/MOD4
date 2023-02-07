@@ -68,6 +68,7 @@ namespace MOD4.Web
             services.AddSingleton(new ServiceDescriptor(typeof(IUploadDomainService), new UploadDomainService(Configuration)));
             services.AddSingleton<IDemandFlowService, DemandFlowService>();
             services.AddSingleton<IBookingMeetingDomainService, BookingMeetingDomainService>();
+            services.AddSingleton<IExtensionDomainService, ExtensionDomainService>();
 
             services.AddSingleton<IAlarmXmlRepository, AlarmXmlRepository>();
             services.AddSingleton<IEqpInfoRepository, EqpInfoRepository>();
@@ -85,6 +86,7 @@ namespace MOD4.Web
             services.AddSingleton<IAccessFabOrderAuditHistoryRepository, AccessFabOrderAuditHistoryRepository>();
             services.AddSingleton<ILcmProductRepository, LcmProductRepository>();
             services.AddSingleton<IBookingMeetingRepository, BookingMeetingRepository>();
+            services.AddSingleton<ICertifiedAreaMappingRepository, CertifiedAreaMappingRepository>();
 
             services.AddScoped<MenuService>();
             services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));

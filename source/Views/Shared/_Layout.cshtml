@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="~/img/CarUX_logo_rmb.ico" type="image/x-icon" sizes="16x16" />
     <title>@ViewData["Title"] - MOD4.Web</title>
-    @*<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="~/css/site.css" />*@
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    @*<link rel="stylesheet" href="~/css/site.css" />*@
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Ionicons -->
@@ -121,7 +121,8 @@
 
     <script src="~/js/dashboard.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @*<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>*@
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     <!-- jQuery UI 1.11.4 -->
@@ -376,7 +377,7 @@
         $(document).ready(function () {
             let _pathArray = location.pathname.split('/');
             let _locationPathname = "/" + _pathArray[1] + "/" + _pathArray[2];
-            if (_pathArray.length > 3 && (_pathArray[3] == "Audit" || _pathArray[3] == "Setting")) {
+            if (_pathArray.length > 3 && (_pathArray[3] == "Audit" || _pathArray[3] == "Setting" || _pathArray[3] == "Dashboard")) {
                 _locationPathname = _locationPathname + "/" + _pathArray[3];
             }
             //$("a[class='nav-link active']").removeClass('active').removeAttr('aria-current');

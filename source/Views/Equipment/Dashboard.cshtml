@@ -1,7 +1,7 @@
-﻿@model MOD4.Web.ViewModel.EquipmentViewModel
+﻿
 
 @{
-    ViewBag.Title = "設備機況";
+    ViewBag.Title = "機況分析";
 }
 
 <style>
@@ -35,32 +35,86 @@
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
-            <div class="col-12">
-                <!-- Bar chart -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="far fa-chart-bar">各區本週機況</i>
-                        </h3>
-
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                <i class="fas fa-times"></i>
-                            </button>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">機況明細</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div id="hisBody" class="card-body">
+                            <div class="row" style="margin-bottom:5px">
+                                <div style="margin-right:5px;">
+                                    <label>日期起日：</label>
+                                    <input id="startDate" class="my-control" type="date" name="name" value="" />
+                                </div>
+                                <div style="margin-right:5px;">
+                                    <label>日期訖日：</label>
+                                    <input id="endDate" class="my-control" type="date" name="name" value="" />
+                                </div>
+                                <div id="hisLine" style="margin-right: 5px;">
+                                    <label>Equipment：</label>
+                                    <select class="my-select" id="selTool" multiple="multiple">
+                                        @{
+                                            foreach (var node in ViewBag.RepairedToolId)
+                                            {
+                                                <optgroup label="@node.Item1">
+                                                    @foreach (var eq in node.Item2)
+                                                    {
+                                                        <option value="@eq">@eq</option>
+                                                    }
+                                                </optgroup>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <div style="margin-right: 5px;">
+                                    <label>Code：</label>
+                                    <select class="my-select" id="selStatus" multiple="multiple">
+                                        <option value="1">待 PM 確認</option>
+                                        <option value="2">待工程師確認</option>
+                                        <option value="3">已完成</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <input id="_btnSearchHis" type="button" class="btn btn-info" style="margin-left:7px" name="btn29" value="查詢" onclick="btnClickSearchHis()" />
+                                </div>
+                            </div>
+                            <table id="example2" class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        foreach (var eqinfo in Model.RepairedEqInfoList)
+                                        {
+                                            <tr>
+                                                <td style="width:8%">@eqinfo.MFGDay</td>
+                                                <td style="width:10%">@eqinfo.ToolId</td>
+                                                <td style="width:5%">@eqinfo.ToolStatus</td>
+                                                <td style="width:12%">@eqinfo.StatusCdsc</td>
+                                                <td style="width:25%">@eqinfo.Comment</td>
+                                                <td style="width:10%">@eqinfo.LmTime</td>
+                                                <td style="width:8%">@eqinfo.RepairedTime</td>
+                                                <td style="width:8%">@eqinfo.UserId</td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <div id="bar-chart" style="min-height:300px;min-width:300px"></div>
-                    </div>
-                    <!-- /.card-body-->
+                    <!-- /.card-body -->
                 </div>
                 <!-- /.card -->
+                <!-- Modal -->
+                <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
+                </div>
             </div>
             <!-- /.col -->
         </div>
+        <!-- /.row -->
         <!-- /.container-fluid -->
     </section>
     <!-- /.content -->
@@ -74,143 +128,6 @@
 
         $(document).ready(function () {
 
-            var chartDom = document.getElementById('bar-chart');
-            var echar = echarts.init(chartDom);
-
-            var option = {
-                title: {
-                    text: ''
-                },
-                tooltip: {},
-                legend: {
-                    data: ['BONDING', 'LAM', 'ASSY', 'CKEN', 'DKEN'],
-                    textStyle: { color: "white" }
-                },
-                xAxis: {
-                    data: ['9/5', '9/6', '9/7', '9/8', '9/9', '9/10', '9/11'],
-                    axisLabel: { color: "white" }
-                },
-                yAxis: {
-                    name: "機況數量",
-                    nameTextStyle: {
-                        color: "white"
-                    },
-                    axisLabel: {
-                        color: "white"
-                    }
-                },
-                series: [
-                    {
-                        name: 'BONDING',
-                        type: 'bar',
-                        data: [28, 48, 86, 27, 1, 33, 77]
-                    },
-                    {
-                        name: 'LAM',
-                        type: 'bar',
-                        data: [5, 22, 47, 69, 19, 12, 7]
-                    },
-                    {
-                        name: 'ASSY',
-                        type: 'bar',
-                        data: [9, 33, 87, 46, 7, 44, 13]
-                    },
-                    {
-                        name: 'CKEN',
-                        type: 'bar',
-                        data: [7, 9, 36, 4, 52, 21, 38]
-                    },
-                    {
-                        name: 'DKEN',
-                        type: 'bar',
-                        data: [7, 9, 36, 4, 52, 21, 38]
-                    }
-                ]
-            };
-
-            echar.setOption(option);
-
-            echar.on('click', function (params) {
-                let _test = params;
-            })
-
-            //var areaChartData = {
-            //    labels: ['9/5', '9/6', '9/7', '9/8', '9/9', '9/10', '9/11'],
-            //    datasets: [
-            //        {
-            //            label: 'BONDING',
-            //            backgroundColor: '#3483eb',
-            //            borderColor: 'rgba(60,141,188,0.8)',
-            //            pointRadius: false,
-            //            pointColor: '#3b8bba',
-            //            pointStrokeColor: 'rgba(60,141,188,1)',
-            //            pointHighlightFill: '#fff',
-            //            pointHighlightStroke: 'rgba(60,141,188,1)',
-            //            data: [28, 48, 86, 27, 1, 33, 77]
-            //        },
-            //        {
-            //            label: 'LAM',
-            //            backgroundColor: '#e6b239',
-            //            borderColor: 'rgba(60,141,188,0.8)',
-            //            pointRadius: false,
-            //            pointColor: '#3b8bba',
-            //            pointStrokeColor: 'rgba(60,141,188,1)',
-            //            pointHighlightFill: '#fff',
-            //            pointHighlightStroke: 'rgba(60,141,188,1)',
-            //            data: [5, 22, 47, 69, 19, 12, 7]
-            //        },
-            //        {
-            //            label: 'ASSY',
-            //            backgroundColor: '#db3b32',
-            //            borderColor: 'rgba(60,141,188,0.8)',
-            //            pointRadius: false,
-            //            pointColor: '#3b8bba',
-            //            pointStrokeColor: 'rgba(60,141,188,1)',
-            //            pointHighlightFill: '#fff',
-            //            pointHighlightStroke: 'rgba(60,141,188,1)',
-            //            data: [9, 33, 87, 46, 7, 44, 13]
-            //        },
-            //        {
-            //            label: 'CKEN',
-            //            backgroundColor: '#1d4180',
-            //            borderColor: 'rgba(60,141,188,0.8)',
-            //            pointRadius: false,
-            //            pointColor: '#3b8bba',
-            //            pointStrokeColor: 'rgba(60,141,188,1)',
-            //            pointHighlightFill: '#fff',
-            //            pointHighlightStroke: 'rgba(60,141,188,1)',
-            //            data: [15, 76, 13, 24, 7, 63, 2]
-            //        },
-            //        {
-            //            label: 'DKEN',
-            //            backgroundColor: '#929aa8',
-            //            borderColor: 'rgba(60,141,188,0.8)',
-            //            pointRadius: false,
-            //            pointColor: '#3b8bba',
-            //            pointStrokeColor: 'rgba(60,141,188,1)',
-            //            pointHighlightFill: '#fff',
-            //            pointHighlightStroke: 'rgba(60,141,188,1)',
-            //            data: [7, 9, 36, 4, 52, 21, 38]
-            //        }
-            //    ]
-            //}
-
-
-            //var barChartCanvas = $('#bar-chart').get(0).getContext('2d')
-            ////var barChartData = $.extend(true, {}, areaChartData)
-
-            //var barChartOptions = {
-            //    responsive: true,
-            //    maintainAspectRatio: false,
-            //    datasetFill: false
-            //}
-
-            //new Chart(barChartCanvas, {
-            //    type: 'bar',
-            //    data: areaChartData,
-            //    options: barChartOptions,
-            //    outerWidth: 500
-            //})
         });
 
     </script>

@@ -38,5 +38,7 @@ namespace MOD4.Web.DomainService
         List<EqMappingEntity> GetEqIDAreaList();
 
         List<OptionEntity> GetDepartmentOptionList(int parentDeptId, int levelId);
+
+        List<CertifiedAreaMappingEntity> GetCertifiedAreaOptions();
     }
 }

@@ -1,0 +1,253 @@
+﻿@model MOD4.Web.ViewModel.ReportUploadViewModel
+
+@{
+    ViewBag.Title = "認證檔案上傳";
+}
+
+<style>
+
+    .card {
+        box-shadow: 1px 2px 2px 2px #999;
+        margin-top: 5px;
+    }
+
+    .card-header, .card-body, .card-footer, #divMark {
+        background-color: #c3cadb;
+    }
+
+    .card-title {
+        font-family: "Microsoft JhengHei";
+        font-weight: 900;
+        font-style: italic;
+        font-size: 30px;
+    }
+
+    label[name="textRight"] {
+        display: block;
+        text-align: right;
+    }
+
+    .unit {
+        font-size: 8px;
+        color: darkred;
+    }
+</style>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">認 證 檔 案 上傳</h3>
+                        </div>
+                        <div id="divMark">
+                            <span style="color:indianred;font-weight:600;font-size:10px">* 工號、區域、學習項目必填</span>
+                            <br />
+                            <span style="color:indianred;font-weight:600;font-size:10px">* 上傳功能"檔案"必選</span>
+                        </div>
+                        <!-- /.card-header -->
+                        <!-- form start -->
+                        <form id="fileForm" enctype="multipart/form-data">
+                            <div class="card-body">
+                                <div class="form-group d-flex align-content-center flex-wrap">
+                                    <div class="col-lg-2">
+                                        <label class="col-form-label" asp-for="JobId"></label>
+                                        <span style="font-size:8px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="JobId" style="font-size:8px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <input class="form-control" type="text" asp-for="JobId" />
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label" asp-for="ApplyAreaId"></label>
+                                        <span style="font-size:8px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="ApplyAreaId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <select class="form-control" asp-for="ApplyAreaId">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <label class="col-form-label" asp-for="ItemId"></label>
+                                        <span style="font-size:8px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="ItemId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <select class="form-control" asp-for="ItemId">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group d-flex align-content-center flex-wrap">
+                                    <div class="col-lg-2">
+                                        <label class="col-form-label" asp-for="File"></label>
+                                        @*<span style="font-size:8px;font-weight:700" class="text-danger">*</span>*@
+                                        @*<span asp-validation-for="File" style="font-size:10px;font-weight:700" class="text-danger"></span>*@
+                                        <div>
+                                            <span class="unit">(允許 pdf,doc,docx,jpg,png,jpeg)</span>
+                                            <br />
+                                            <span class="unit">單檔最大2MB</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 custom-file">
+                                        <input type="file" class="custom-file-input" asp-for="File" onchange="verifyFile(this)">
+                                        <label class="custom-file-label">Choose file</label>
+                                    </div>
+                                    <br />
+                                    <div class="col-lg-2">
+                                        <input id="btnUpload" type="button" class="btn btn-primary" value="上傳" style="float:right" />
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <input id="btnDownload" type="button" class="btn btn-outline-secondary" value="下載" style="float: right" />
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.card-body -->
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+
+        var _applyAreaOption = [];
+
+        let myFuc = {
+            optionReduce(item, option, propId, propName, optionId) {
+                if (item[option[propId]] == null) {
+                    $("<option></option>").attr("value", option[propId]).text(option[propName]).appendTo($(optionId));
+                }
+                (item[option[propId]] = item[option[propId]] || []).push(option);
+                return item;
+            }
+        }
+
+        $(function () {
+            bsCustomFileInput.init();
+
+            _applyAreaOption = @Json.Serialize(ViewBag.ApplyAreaOption);
+
+            _applyAreaOption.reduce(function (item, option) {
+                if (item[option['areaId']] == null) {
+                    $("<option></option>").attr("value", option['areaId']).text(option['area']).appendTo($('#ApplyAreaId'));
+                }
+                (item[option['areaId']] = item[option['areaId']] || []).push(option);
+                return item;
+            }, {});
+        });
+
+        function verifyFile(e) {
+            var validExtensions = ['pdf', 'doc', 'docx', 'jpg', 'png', 'jpeg'];
+            var rg1 = /[^0-9a-zA-Z ._-\u4e00-\u9fa5]/;
+            let fileEx = e.files[0].name.replace(/^.*\./, '');
+
+            if ($.inArray(fileEx, validExtensions) == -1) {
+                alert("無效檔案類型");
+                e.value = "";
+            }
+        }
+
+        $("#ApplyAreaId").change(function (e) {
+
+            let _applyAreaId = $("#ApplyAreaId").find(":selected").val();
+            $("#ItemId").empty();
+
+            $("<option></option>").appendTo($('#ItemId'));
+            let _filterOptions = _applyAreaOption.filter(function (area) {
+                return area.areaId == _applyAreaId;
+            });
+
+            _filterOptions.reduce(function (item, option) {
+                return myFuc.optionReduce(item, option, 'subjectId', 'subject', '#ItemId');
+            }, {});
+        });
+
+        $('#btnUpload').click(function (e) {
+            e.preventDefault();
+            if ($("#fileForm").valid()) {
+
+                if ($("#File")[0].files.length == 0) {
+                    alert("請選擇檔案");
+                    return false;
+                }
+
+                $.blockUI({
+                    message: '請稍等...',
+                    css: {
+                        border: 'none',
+                        padding: '5px',
+                        backgroundColor: '#000',
+                        '-webkit-border-radius': '10px',
+                        '-moz-border-radius': '10px',
+                        opacity: '.5',
+                        color: '#fff',
+                        fontSize: '25px',
+                        fontFamily: '微軟正黑體',
+                        fontWeight: 300,
+                    }
+                });
+                $.ajax({
+                    type: "POST",
+                    url: "./Extension/Upload",
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    data: new FormData(document.getElementById("fileForm")),
+                    success: function (result) {
+                        if (result != '') {
+                            alert(result);
+                            $.unblockUI();
+                        }
+                        else {
+                            alert('上傳成功');
+                            location.href = "@Url.ActionLink("Index", "Extension")";
+                        }
+                    }
+                });
+            }
+            $.unblockUI();
+        });
+
+        $('#btnDownload').click(function (e) {
+            e.preventDefault();
+            if ($("#fileForm").valid()) {
+                $.blockUI({
+                    message: '請稍等...',
+                    css: {
+                        border: 'none',
+                        padding: '5px',
+                        backgroundColor: '#000',
+                        '-webkit-border-radius': '10px',
+                        '-moz-border-radius': '10px',
+                        opacity: '.5',
+                        color: '#fff',
+                        fontSize: '25px',
+                        fontFamily: '微軟正黑體',
+                        fontWeight: 300,
+                    }
+                });
+
+                window.location = "./Extension/Download?jobId=" + $("#JobId").val() + "&applyAreaId=" + $("#ApplyAreaId").val() + "&itemId=" + $("#ItemId").val();
+
+                //$.ajax({
+                //    type: "POST",
+                //    url: "./Extension/Download?jobId=" + $("#JobId").val() + "&applyAreaId=" + $("#ApplyAreaId").val() + "&itemId=" + $("#ItemId").val(),
+                //    success: function (result) {
+                //        alert("");
+                //        var _test = result;
+                //        $.unblockUI();
+                //    }
+                //});
+            }
+            $.unblockUI();
+        });
+
+    </script>
+}
