@@ -26,7 +26,7 @@ namespace MOD4.Web.Enum
         AccessFabAudit = 14,
         [Description("帳號管理")]
         AccountManagement = 15,
-        [Description("擴充功能")]
-        Extension = 16,
+        [Description("認證紀錄上傳")]
+        Extension = 17,
     }
 }
