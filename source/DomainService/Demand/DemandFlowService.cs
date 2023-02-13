@@ -18,7 +18,7 @@ namespace MOD4.Web.DomainService.Demand
     {
         private DateTime _nowTime;
         private (bool, string) _updateRes = (false, "");
-        private readonly string _url = "http://10.54.215.210/MOD4/Demand";
+        private readonly string _url = "http://10.54.215.210/CarUX/Demand";
 
         /// <summary>
         /// role : manager

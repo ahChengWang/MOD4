@@ -208,7 +208,7 @@ namespace MOD4.Web.DomainService.Demand
                         Subject = $"新需求申請單 - 申請人: {_insDemandsDao.applicant}",
                         Content = "<br /><br />" +
                         "您有新需求申請單</a>， <br /><br />" +
-                        $"需求單連結：<a href='http://10.54.215.210/MOD4/Demand/Edit?sn={_demandOrderSn}&orderId={_insDemandsDao.orderNo}' target='_blank'>" + _insDemandsDao.orderNo + "</a>"
+                        $"需求單連結：<a href='http://10.54.215.210/CarUX/Demand/Edit?sn={_demandOrderSn}&orderId={_insDemandsDao.orderNo}' target='_blank'>" + _insDemandsDao.orderNo + "</a>"
                     });
                 }
 

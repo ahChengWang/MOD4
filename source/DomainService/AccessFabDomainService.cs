@@ -228,7 +228,7 @@ namespace MOD4.Web.DomainService
                         Subject = $"管制口進出申請單 - 待簽核通知 (申請人:{_insAccessFabOrderDao.Applicant})",
                         Content = "<br /> Dear Sir <br /><br />" +
                         "您有<a style='text-decoration:underline'>待簽核</a><a style='font-weight:900'>管制口進出請單</a>， <br /><br />" +
-                        $"簽核單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit/Detail/{_latestOrderSn}' target='_blank'>" + _insAccessFabOrderDao.OrderNo + "</a>"
+                        $"簽核單號連結：<a href='http://10.54.215.210/CarUX/AccessFab/Audit/Detail/{_latestOrderSn}' target='_blank'>" + _insAccessFabOrderDao.OrderNo + "</a>"
                     });
                 }
 
@@ -351,7 +351,7 @@ namespace MOD4.Web.DomainService
                         Subject = $"管制口進出申請單 - 待簽核通知 (申請人:{_updAccessFabOrderDao.Applicant})",
                         Content = "<br /> Dear Sir <br /><br />" +
                         "您有<a style='text-decoration:underline'>待簽核</a><a style='font-weight:900'>管制口進出請單</a>， <br /><br />" +
-                        $"簽核單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit/Detail/{_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
+                        $"簽核單號連結：<a href='http://10.54.215.210/CarUX/AccessFab/Audit/Detail/{_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
                     });
                 }
 
@@ -527,7 +527,7 @@ namespace MOD4.Web.DomainService
                         Subject = "管制口進出申請單 - 退件通知",
                         Content = "<br /> Dear Sir <br /><br />" +
                         "您有<a style='text-decoration:underline'>待重送</a><a style='font-weight:900'>管制口進出申請單</a>， <br /><br />" +
-                        $"單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Edit?orderSn={_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
+                        $"單號連結：<a href='http://10.54.215.210/CarUX/AccessFab/Edit?orderSn={_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
                     });
                 }
                 // 發送待簽核 mail
@@ -538,7 +538,7 @@ namespace MOD4.Web.DomainService
                         Subject = $"管制口進出申請單 - 待簽核通知 (申請人:{_oldAccessFabOrder.Applicant})",
                         Content = "<br /> Dear Sir <br /><br />" +
                         "您有<a style='text-decoration:underline'>待簽核</a><a style='font-weight:900'>管制口進出申請單</a>， <br /><br />" +
-                        $"單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit/Detail/{_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
+                        $"單號連結：<a href='http://10.54.215.210/CarUX/AccessFab/Audit/Detail/{_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
                     });
                 else if (_updAccessFabOrderDao.StatusId == FabInOutStatusEnum.Completed && _auditRes == "")
                 {
@@ -549,7 +549,7 @@ namespace MOD4.Web.DomainService
                         Subject = $"管制口進出申請單 - 確認通知 (申請人:{_oldAccessFabOrder.Applicant})",
                         Content = "<br /> Dear Sir <br /><br />" +
                         "您有<a style='text-decoration:underline'>已完成</a><a style='font-weight:900'>管制口進出申請單</a>， <br /><br />" +
-                        $"單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Audit/Detail/{_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
+                        $"單號連結：<a href='http://10.54.215.210/CarUX/AccessFab/Audit/Detail/{_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
                     });
                     // 通知申請人
                     _mailServer.Send(new MailEntity
@@ -558,7 +558,7 @@ namespace MOD4.Web.DomainService
                         Subject = $"管制口進出申請單 - 簽核完成",
                         Content = "<br /> Dear Sir <br /><br />" +
                         "您有<a style='text-decoration:underline'>已完成</a><a style='font-weight:900'>管制口進出申請單</a>， <br /><br />" +
-                        $"單號連結：<a href='http://10.54.215.210/MOD4/AccessFab/Detail?orderSn={_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
+                        $"單號連結：<a href='http://10.54.215.210/CarUX/AccessFab/Detail?orderSn={_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
                     });
                 }
 
