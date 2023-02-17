@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using MOD4.Web.DomainService;
 using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
+using MOD4.Web.Helper;
 using MOD4.Web.Models;
 using MOD4.Web.ViewModel;
 using System;
@@ -19,16 +20,16 @@ namespace MOD4.Web.Controllers
     {
         private readonly ILogger<SPCReportController> _logger;
         private readonly IOptionDomainService _optionDomainService;
-        private readonly IExtensionDomainService _extensionDomainService;
+        private readonly ISPCReportDomainService _spcReportDomainService;
 
-        public SPCReportController(IExtensionDomainService extensionDomainService,
+        public SPCReportController(ISPCReportDomainService spcReportDomainService,
             IHttpContextAccessor httpContextAccessor,
             IAccountDomainService accountDomainService,
             IOptionDomainService optionDomainService,
             ILogger<SPCReportController> logger)
             : base(httpContextAccessor, accountDomainService)
         {
-            _extensionDomainService = extensionDomainService;
+            _spcReportDomainService = spcReportDomainService;
             _optionDomainService = optionDomainService;
             _logger = logger;
         }
@@ -44,6 +45,7 @@ namespace MOD4.Web.Controllers
                 new OptionEntity{Id = 3, Value = "BA_A_BSP016Rx_L" },
                 new OptionEntity{Id = 4, Value = "BA_A_BSP016Ry_L" },
                 new OptionEntity{Id = 5, Value = "DW_A_BSP016Ry_L" },
+                new OptionEntity{Id = 5, Value = "BA_A_BSC020Ly_L" },
             };
 
             ViewBag.TestItemOptions = new SelectList(_options, "Value", "Value");
@@ -51,9 +53,38 @@ namespace MOD4.Web.Controllers
             return View();
         }
 
-        public IActionResult Search()
+        public IActionResult Search([FromQuery] string dateRange, string eqpId, string prodId, string dataGroup)
+        {
+            try
+            {
+                var _resilt = _spcReportDomainService.Search(dateRange, eqpId, prodId, dataGroup);
+
+                var _response = _resilt.Select(res => new SPCMainViewModel
+                {
+                    EquiomentId = res.EquipmentId,
+                    ProductId = res.ProductId,
+                    DataGroup = res.DataGroup,
+                    Count = res.Count,
+                    OOSCount = res.OOSCount,
+                    OOCCount = res.OOCCount,
+                    OORCount = res.OORCount,
+                }).ToList();
+
+                return PartialView("_PartialDetail", _response);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { IsException = true, Msg = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult Detail([FromQuery] string dateRange, string eqpId, string prodId, string dataGroup)
         {
             ViewBag.ProdOptions = _optionDomainService.GetLcmProdOptions();
+
+            var _resilt = _spcReportDomainService.Detail(dateRange, eqpId, prodId, dataGroup);
+
             List<OptionEntity> _options = new List<OptionEntity>
             {
                 new OptionEntity{Id = 0, Value = "BA_A_BSP011Lx_L" },
@@ -66,88 +97,28 @@ namespace MOD4.Web.Controllers
 
             ViewBag.TestItemOptions = new SelectList(_options, "Value", "Value");
 
-            return Json(new List<SPCDataViewModel> {
-                new SPCDataViewModel{ 
-                    MeasureDate = "2023-02-09",
-                    MeasureTime = "00:01:00",
-                    SHTId = "T31732U7NZ06",
-                    ProductId = "GDD340IA0050S",
-                    DataGroup = "BA_A_BSP011Lx_L",
-                    DTX = 0.129,
-                    DTRM = 0.019
-                },
-                new SPCDataViewModel{
-                    MeasureDate = "2023-02-09",
-                    MeasureTime = "00:02:00",
-                    SHTId = "T31732U7NZ06",
-                    ProductId = "GDD340IA0050S",
-                    DataGroup = "BA_A_BSP011Ly_L",
-                    DTX = 0.169,
-                    DTRM = 0.059
-                },
-                new SPCDataViewModel{
-                    MeasureDate = "2023-02-09",
-                    MeasureTime = "00:03:00",
-                    SHTId = "T31732U7NZ06",
-                    ProductId = "GDD340IA0050S",
-                    DataGroup = "DW_A_BSP011Ly_L",
-                    DTX = 1.509,
-                    DTRM = 1.399
-                },
-                new SPCDataViewModel{
-                    MeasureDate = "2023-02-09",
-                    MeasureTime = "00:04:00",
-                    SHTId = "T31732U7NZ06",
-                    ProductId = "GDD340IA0050S",
-                    DataGroup = "BA_A_BSP016Rx_L",
-                    DTX = 0.018,
-                    DTRM = -0.028
-                },
-                new SPCDataViewModel{
-                    MeasureDate = "2023-02-09",
-                    MeasureTime = "00:05:00",
-                    SHTId = "T31732U7NZ06",
-                    ProductId = "GDD340IA0050S",
-                    DataGroup = "BA_A_BSP016Ry_L",
-                    DTX = 0.12,
-                    DTRM = -0.12
-                },
-            });
+            var _response = new SPCOnlineChartViewModel
+            {
+                ChartId = _resilt.ChartId,
+                TypeStr = _resilt.TypeStr,
+                TestItem = _resilt.TestItem,
+                XBarBar = _resilt.XBarBar,
+                Sigma = _resilt.Sigma,
+                Ca = _resilt.Ca,
+                Cp = _resilt.Cp,
+                Cpk = _resilt.Cpk,
+                Sample = _resilt.Sample,
+                n = _resilt.n,
+                RMBar = _resilt.RMBar,
+                PpkBar = _resilt.PpkBar,
+                PpkSigma = _resilt.PpkSigma,
+                Pp = _resilt.Pp,
+                Ppk = _resilt.Ppk,
+                SPCDetail = _resilt.DetailList.CopyAToB<SPCDataViewModel>()
+            };
+
+            return Json(_response);
         }
 
-        [HttpPost]
-        public IActionResult Upload([FromForm] ReportUploadViewModel uploadVM)
-        {
-            try
-            {
-                string _uplRes = _extensionDomainService.Upload(uploadVM.JobId, uploadVM.ApplyAreaId, uploadVM.ItemId, uploadVM.File, GetUserInfo());
-                if (_uplRes == "")
-                    return Json("");
-                else
-                    return Json(_uplRes);
-            }
-            catch (Exception ex)
-            {
-                return Json(ex.Message);
-            }
-        }
-
-        [HttpGet]
-        public IActionResult Download([FromQuery] string jobId, ApplyAreaEnum applyAreaId, int itemId)
-        {
-            try
-            {
-                var _uplRes = _extensionDomainService.Download(jobId, applyAreaId, itemId, GetUserInfo());
-
-                if (_uplRes.Item2 == "")
-                    return File(_uplRes.Item1, System.Net.Mime.MediaTypeNames.Application.Zip, $"{jobId}_{applyAreaId.GetDescription()}.zip");
-                else
-                    return RedirectToAction("Error", "Home", new ErrorViewModel { Message = _uplRes.Item2 });
-            }
-            catch (Exception ex)
-            {
-                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
-            }
-        }
     }
 }

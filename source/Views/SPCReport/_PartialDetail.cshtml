@@ -1,19 +1,16 @@
-﻿@model List<MOD4.Web.ViewModel.SPCDataViewModel>
-@using MOD4.Web.Enum;
-
-
-<div id="bar-chart" style="margin-bottom:5px"></div>
+﻿@model List<MOD4.Web.ViewModel.SPCMainViewModel>
 
 <table id="sample" class="table table-bordered table-hover">
     <thead>
         <tr>
-            <th class="myth2">@Html.DisplayNameFor(model => model.First().MeasureDate)</th>
-            <th class="myth2">@Html.DisplayNameFor(model => model.First().MeasureTime)</th>
-            <th class="myth2">@Html.DisplayNameFor(model => model.First().SHTId)</th>
-            <th class="myth2">@Html.DisplayNameFor(model => model.First().ProductId)</th>
+            <th class="myth2">@Html.DisplayNameFor(model => model.First().Count)</th>
+            <th class="myth2">@Html.DisplayNameFor(model => model.First().OOSCount)</th>
+            <th class="myth2">@Html.DisplayNameFor(model => model.First().OOCCount)</th>
+            <th class="myth2">@Html.DisplayNameFor(model => model.First().OORCount)</th>
+            <th class="myth2">@Html.DisplayNameFor(model => model.First().EquiomentId)</th>
             <th class="myth2">@Html.DisplayNameFor(model => model.First().DataGroup)</th>
-            <th class="myth2">@Html.DisplayNameFor(model => model.First().DTX)</th>
-            <th class="myth2">@Html.DisplayNameFor(model => model.First().DTRM)</th>
+            <th class="myth2">@Html.DisplayNameFor(model => model.First().ProductId)</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -21,13 +18,18 @@
             foreach (var data in Model)
             {
                 <tr>
-                    <td>@data.MeasureDate</td>
-                    <td>@data.MeasureTime</td>
-                    <td>@data.SHTId</td>
-                    <td>@data.ProductId</td>
-                    <td>@data.DataGroup</td>
-                    <td>@data.DTX</td>
-                    <td>@data.DTRM</td>
+                    <td style="width:10%">@data.Count</td>
+                    <td style="width:10%">@data.OOSCount</td>
+                    <td style="width:10%">@data.OOCCount</td>
+                    <td style="width:10%">@data.OORCount</td>
+                    <td style="width:15%">@data.EquiomentId</td>
+                    <td style="width:15%">@data.DataGroup</td>
+                    <td style="width:15%">@data.ProductId</td>
+                    <td>
+                        <a class="btn btn-sm" style="font-size:15px" onclick="detailClick(this)">
+                            <i class="fa fa-search"></i>
+                        </a>
+                    </td>
                 </tr>
             }
         }

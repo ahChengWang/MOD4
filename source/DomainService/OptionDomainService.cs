@@ -418,6 +418,11 @@ namespace MOD4.Web.DomainService
             return _certifiedAreaMappingRepository.SelectByConditions().CopyAToB<CertifiedAreaMappingEntity>();
         }
 
+        public List<SPCChartSettingEntity> GetSPCChartOptions()
+        {
+            return new List<SPCChartSettingEntity>();
+        }
+
         private List<OptionEntity> GetEqProdOptionList(int id)
         {
             switch (id)

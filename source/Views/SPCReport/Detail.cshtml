@@ -39,8 +39,6 @@
 
 <head>
     <link rel="stylesheet" href="~/css/buttonStyleCRUD.css">
-    <link rel="stylesheet" href="~/plugins/select2/css/select2.min.css" />
-    <link rel="stylesheet" href="~/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" />
 </head>
 
 <div class="content-wrapper">
@@ -55,31 +53,23 @@
                         <div id="srcDiv1" class="card-body">
                             <div class="form-group d-flex align-content-center flex-wrap">
                                 <div class="col-lg-1">
-                                    <label class="col-form-label">查詢區間：</label>
+                                    <label class="col-form-label">查詢起日：</label>
                                 </div>
-                                <div class="col-lg-4">
-                                    <input id="dateRange" class="my-control" name="datepicker" value="" />
+                                <div class="col-lg-3">
+                                    <input id="startDTE" class="my-control" type="datetime-local" name="name" value="" />
                                 </div>
-                                @*<div class="col-lg-1">
-                                        <label class="col-form-label">查詢訖日：</label>
-                                    </div>
-                                    <div class="col-lg-3">
-                                        <input id="endDTE" class="my-control" type="datetime-local" name="name" value="" />
-                                    </div>*@
                                 <div class="col-lg-1">
-                                    <label class="col-form-label">Node：</label>
+                                    <label class="col-form-label">查詢訖日：</label>
                                 </div>
-                                <div class="col-lg-2">
-                                    <select id="selEQ" class="custom-select select2bs4" style="width:60%" asp-items="@(SelectList)ViewBag.StatusList">
-                                        <option value="">　</option>
-                                    </select>
+                                <div class="col-lg-3">
+                                    <input id="endDTE" class="my-control" type="datetime-local" name="name" value="" />
                                 </div>
                                 <div class="col-lg-1">
                                     <label class="col-form-label">EQP：</label>
                                 </div>
                                 <div class="col-lg-3">
-                                    <select id="selEQ" class="custom-select select2bs4" style="width:60%" asp-items="@(SelectList)ViewBag.StatusList">
-                                        <option value="">　</option>
+                                    <select id="selEQ" class="custom-select" style="width:60%" asp-items="@(SelectList)ViewBag.StatusList">
+                                        <option value=""></option>
                                     </select>
                                 </div>
                             </div>
@@ -87,10 +77,10 @@
                                 <div class="col-lg-1">
                                     <label class="col-form-label">Prod ID：</label>
                                 </div>
-                                <div class="col-lg-4">
-                                    <select id="selProd" class="custom-select select2bs4" style="width:80%">
+                                <div class="col-lg-3">
+                                    <select id="selProd" class="custom-select" style="width:80%">
                                         @{
-                                            <option value="">　</option>
+                                            <option value=""></option>
                                             foreach (var lcmProd in ViewBag.ProdOptions)
                                             {
                                                 <optgroup label="@lcmProd.Item1">
@@ -107,14 +97,55 @@
                                     <label class="col-form-label">測項：</label>
                                 </div>
                                 <div class="col-lg-3">
-                                    <select id="selGroup" class="custom-select select2bs4" style="width:80%" asp-items="@(SelectList)ViewBag.TestItemOptions">
-                                        <option value=""></option>
+                                    <select id="selGroup" class="custom-select" style="width:80%" asp-items="@(SelectList)ViewBag.TestItemOptions">
+                                        <option value="0"></option>
                                     </select>
                                 </div>
                                 <div class="col-lg-1">
                                     <input class="btn btn-info" type="button" name="btn29" value="查詢" onclick="btnClickSearch()" />
                                 </div>
                             </div>
+                            <hr />
+                            @*<div id="bar-chart" style="min-height:300px;min-width:300px"></div>*@
+                            <div id="lineChart" style="margin-bottom:5px"></div>
+
+                            <table id="sample" class="table table-bordered table-hover">
+                            </table>
+
+                            @*@{
+                                    if (@Model != null)
+                                    {
+                                        <table id="sample" class="table table-bordered table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th class="myth2">@Html.DisplayNameFor(model => model.First().MeasureDate)</th>
+                                                    <th class="myth2">@Html.DisplayNameFor(model => model.First().MeasureTime)</th>
+                                                    <th class="myth2">@Html.DisplayNameFor(model => model.First().SHTId)</th>
+                                                    <th class="myth2">@Html.DisplayNameFor(model => model.First().ProductId)</th>
+                                                    <th class="myth2">@Html.DisplayNameFor(model => model.First().DataGroup)</th>
+                                                    <th class="myth2">@Html.DisplayNameFor(model => model.First().DTX)</th>
+                                                    <th class="myth2">@Html.DisplayNameFor(model => model.First().DTRM)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @{
+                                                    foreach (var data in Model)
+                                                    {
+                                                        <tr>
+                                                            <td>@data.MeasureDate</td>
+                                                            <td>@data.MeasureTime</td>
+                                                            <td>@data.SHTId</td>
+                                                            <td>@data.ProductId</td>
+                                                            <td>@data.DataGroup</td>
+                                                            <td>@data.DTX</td>
+                                                            <td>@data.DTRM</td>
+                                                        </tr>
+                                                    }
+                                                }
+                                            </tbody>
+                                        </table>
+                                    }
+                                }*@
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -131,40 +162,10 @@
 @section scripts{
     <!-- CHARTS -->
     <script src="~/lib/echarts/echarts.js"></script>
-    <script src="~/plugins/select2/js/select2.full.min.js"></script>
     <script type="text/javascript">
-
-        $(function () {
-            $('input[name="datepicker"]').daterangepicker({
-                timePicker: true,
-                startDate: moment().startOf('hour').add(-24, 'hour'),
-                endDate: moment().startOf('hour'),
-                locale: {
-                    format: 'yyyy/MM/DD HH:mm'
-                }
-            });
-
-            $('.select2bs4').select2({
-                theme: 'bootstrap4'
-            })
-        });
 
         let myFuc = {
             SearchChart() {
-
-                var validaMsg = '';
-
-                if ($("#dateRange").val() == "") {
-                    validaMsg = '日期區間必填';
-                }
-                if ($("#selEQ").val() == "" && $("#selProd").val() == "" && $("#selGroup").val() == "") {
-                    validaMsg += '\nEQ、Prod、測項 須擇一填';
-                }
-                if (validaMsg != '') {
-                    alert(validaMsg);
-                    return false;
-                }
-
                 $.blockUI({
                     message: '<img src="./img/Pac_Man.gif" />',
                     css: {
@@ -174,9 +175,8 @@
                 });
 
                 $.ajax({
-                    url: "./SPCReport/Search?dateRange=" + $("#dateRange").val() + "&eqpId=" + $("#selEQ").val() + "&prodId=" + $("#selProd").val() + "&dataGroup=" + $("#selGroup").val(),
+                    url: "./SPCReport/Search?startDate=" + $("#startDTE").val() + "&endDate=" + $("#endDTE").val() + "&eqpId=" + $("#selEQ").val() + "&prodId=" + $("#selProd").val() + "&dataGroup=" + $("#selGroup").val() ,
                     type: "GET",
-                    dataType: 'html',
                     success: function (result) {
                         $.unblockUI();
                         if (isJsonString(result)) {
@@ -191,30 +191,38 @@
                         }
                         else {
                             $("#sample_wrapper").remove();
-                            $("#srcDiv").after(result);
+
+                            var _tableHtml = '';
+                            $.each(result, function (index, value) {
+                                /*console.log(value);*/
+                                _tableHtml += '<tr>';
+                                _tableHtml += '<td>' + value.measureDate + '</td>';
+                                _tableHtml += '<td>' + value.measureTime + '</td>';
+                                _tableHtml += '<td>' + value.shtId + '</td>';
+                                _tableHtml += '<td>' + value.productId + '</td>';
+                                _tableHtml += '<td>' + value.dataGroup + '</td>';
+                                _tableHtml += '<td>' + value.dtx + '</td>';
+                                _tableHtml += '<td>' + value.dtrm + '</td>';
+                                _tableHtml += '</tr>';
+                            });
+                            $("#sample").append('<thead><tr><th>Measure Date</th><th>Measure Time</th><th>SHT ID</th><th>PROD ID</th><th>Data Group</th><th>DTX</th><th>DTRM</th></tr></thead>'
+                                + '<tbody' + _tableHtml + '</tbody>');
+
+
+                            //$("#bar-chart").after(result);
                             $('#sample').DataTable({
-                                "responsive": false
+                                "paging": true
+                                , "responsive": true
                                 , "lengthChange": true
                                 , "autoWidth": false
-                                , "order": [[0, "asc"]]
-                                /*,"buttons": ["excel", "colvis"]*/
+                                , "order": [[1, "asc"]]
+                                , "buttons": ["excel", "colvis"]
                             }).buttons().container().appendTo('#sample_wrapper .col-md-6:eq(0)');
+
+                            myFuc.SetChart(result);
                         }
                     }
                 });
-            },
-            DatetimeFormate(dt) {
-                var date = new Date(dt);
-                var year = date.getFullYear();
-                var month = date.getMonth() + 1;
-                var day = date.getDate();
-                if (month < 10) {
-                    month = '0' + month;
-                }
-                if (day < 10) {
-                    day = '0' + day;
-                }
-                return year + '/' + month + '/' + day;
             },
             SetChart(data) {
                 $("#lineChart").css("min-height", "400px");
@@ -328,7 +336,6 @@
                 });
             }
         }
-
 
         function btnClickSearch() {
             myFuc.SearchChart();
