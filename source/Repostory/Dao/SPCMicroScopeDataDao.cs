@@ -10,23 +10,23 @@ namespace MOD4.Web.Repostory.Dao
         public string SHTId { get; set; }
         public string ProductId { get; set; }
         public string DataGroup { get; set; }
-        public double DTX { get; set; }
-        public double DTRM { get; set; }
-        public double USL { get; set; }
-        public double Target { get; set; }
-        public double LSL { get; set; }
-        public double UCL1 { get; set; }
-        public double CL1 { get; set; }
-        public double LCL1 { get; set; }
-        public double UCL2 { get; set; }
-        public double CL2 { get; set; }
-        public double LCL2 { get; set; }
+        public float DTX { get; set; }
+        public float DTRM { get; set; }
+        public float USL { get; set; }
+        public float Target { get; set; }
+        public float LSL { get; set; }
+        public float UCL1 { get; set; }
+        public float CL1 { get; set; }
+        public float LCL1 { get; set; }
+        public float UCL2 { get; set; }
+        public float CL2 { get; set; }
+        public float LCL2 { get; set; }
         public bool OOS { get; set; }
         public bool OOC1 { get; set; }
         public bool OOC2 { get; set; }
-        public double OOR1 { get; set; }
-        public double OOR2 { get; set; }
-        public double OOR3 { get; set; }
+        public bool OOR1 { get; set; }
+        public bool OOR2 { get; set; }
+        public bool OOR3 { get; set; }
         public DateTime CreateTime { get; set; }
     }
 }

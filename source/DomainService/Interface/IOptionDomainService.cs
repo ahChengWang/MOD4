@@ -39,6 +39,11 @@ namespace MOD4.Web.DomainService
 
         List<OptionEntity> GetDepartmentOptionList(int parentDeptId, int levelId);
 
-        List<CertifiedAreaMappingEntity> GetCertifiedAreaOptions();
+        List<CertifiedAreaMappingEntity> GetCertifiedAreaOptions();        
+
+        List<(string, List<OptionEntity>)> GetSPCChartCategoryOptions();
+
+
+        List<SPCChartSettingEntity> GetSPCMainChartOptions(int floor, string chartgrade);
     }
 }

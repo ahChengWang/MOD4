@@ -1,4 +1,4 @@
-﻿@model List<MOD4.Web.ViewModel.SPCDataViewModel>
+﻿@model MOD4.Web.ViewModel.SPCOnlineChartViewModel
 
 @{
     ViewBag.Title = "SPC chart";
@@ -17,6 +17,11 @@
     .card {
         box-shadow: 2px 2px 2px #999;
         background-color: #c3cadb;
+    }
+
+    td[name='dataCol'] {
+        text-align: center;
+        font-size: 18px;
     }
 
     .my-control {
@@ -51,101 +56,112 @@
                             <h3 class="card-title">SPC Trend Chart</h3>
                         </div>
                         <div id="srcDiv1" class="card-body">
-                            <div class="form-group d-flex align-content-center flex-wrap">
-                                <div class="col-lg-1">
-                                    <label class="col-form-label">查詢起日：</label>
-                                </div>
-                                <div class="col-lg-3">
-                                    <input id="startDTE" class="my-control" type="datetime-local" name="name" value="" />
-                                </div>
-                                <div class="col-lg-1">
-                                    <label class="col-form-label">查詢訖日：</label>
-                                </div>
-                                <div class="col-lg-3">
-                                    <input id="endDTE" class="my-control" type="datetime-local" name="name" value="" />
-                                </div>
-                                <div class="col-lg-1">
-                                    <label class="col-form-label">EQP：</label>
-                                </div>
-                                <div class="col-lg-3">
-                                    <select id="selEQ" class="custom-select" style="width:60%" asp-items="@(SelectList)ViewBag.StatusList">
-                                        <option value=""></option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div id="srcDiv" class="form-group d-flex align-content-center flex-wrap">
-                                <div class="col-lg-1">
-                                    <label class="col-form-label">Prod ID：</label>
-                                </div>
-                                <div class="col-lg-3">
-                                    <select id="selProd" class="custom-select" style="width:80%">
-                                        @{
-                                            <option value=""></option>
-                                            foreach (var lcmProd in ViewBag.ProdOptions)
-                                            {
-                                                <optgroup label="@lcmProd.Item1">
-                                                    @foreach (var item in lcmProd.Item2)
-                                                    {
-                                                        <option value="@item.Item1">@item.Item2</option>
-                                                    }
-                                                </optgroup>
-                                            }
-                                        }
-                                    </select>
-                                </div>
-                                <div class="col-lg-1">
-                                    <label class="col-form-label">測項：</label>
-                                </div>
-                                <div class="col-lg-3">
-                                    <select id="selGroup" class="custom-select" style="width:80%" asp-items="@(SelectList)ViewBag.TestItemOptions">
-                                        <option value="0"></option>
-                                    </select>
-                                </div>
-                                <div class="col-lg-1">
-                                    <input class="btn btn-info" type="button" name="btn29" value="查詢" onclick="btnClickSearch()" />
-                                </div>
-                            </div>
-                            <hr />
-                            @*<div id="bar-chart" style="min-height:300px;min-width:300px"></div>*@
-                            <div id="lineChart" style="margin-bottom:5px"></div>
 
-                            <table id="sample" class="table table-bordered table-hover">
+                            <table class="table table-bordered table-striped table-hover">
+                                <tr>
+                                    <td name="dataCol"><label asp-for="ChartId"></label></td>
+                                    <td name="dataCol" colspan="3">@Model.ChartId</td>
+                                    <td name="dataCol"><label asp-for="TypeStr"></label></td>
+                                    <td name="dataCol">@Model.TypeStr</td>
+                                    <td name="dataCol"><label asp-for="TestItem"></label></td>
+                                    <td name="dataCol">@Model.TestItem</td>
+                                </tr>
+                                <tr>
+                                    <td name="dataCol"><label asp-for="XBarBar"></label></td>
+                                    <td name="dataCol">@Model.XBarBar</td>
+                                    <td name="dataCol"><label asp-for="Sigma"></label></td>
+                                    <td name="dataCol">@Model.Sigma</td>
+                                    <td name="dataCol"><label asp-for="Ca"></label></td>
+                                    <td name="dataCol">@Model.Ca</td>
+                                    <td name="dataCol"><label asp-for="Cp"></label></td>
+                                    <td name="dataCol">@Model.Cp</td>
+                                </tr>
+                                <tr>
+                                    <td name="dataCol"><label asp-for="Cpk"></label></td>
+                                    <td name="dataCol">@Model.Cpk</td>
+                                    <td name="dataCol"><label asp-for="Sample"></label></td>
+                                    <td name="dataCol">@Model.Sample</td>
+                                    <td name="dataCol"><label asp-for="n"></label></td>
+                                    <td name="dataCol">@Model.n</td>
+                                    <td name="dataCol"><label asp-for="RMBar"></label></td>
+                                    <td name="dataCol">@Model.RMBar</td>
+                                </tr>
+                                <tr>
+                                    <td name="dataCol"><label asp-for="PpkBar"></label></td>
+                                    <td name="dataCol">@Model.PpkBar</td>
+                                    <td name="dataCol"><label asp-for="PpkSigma"></label></td>
+                                    <td name="dataCol">@Model.PpkSigma</td>
+                                    <td name="dataCol"><label asp-for="Pp"></label></td>
+                                    <td name="dataCol">@Model.Pp</td>
+                                    <td name="dataCol"><label asp-for="Ppk"></label></td>
+                                    <td name="dataCol">@Model.Ppk</td>
+                                </tr>
                             </table>
+                            <hr />
+                            <div id="lineChart1" style="margin-bottom:5px"></div>
+                            <hr />
+                            <div id="lineChart2" style="margin-bottom:5px"></div>
 
-                            @*@{
-                                    if (@Model != null)
-                                    {
-                                        <table id="sample" class="table table-bordered table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th class="myth2">@Html.DisplayNameFor(model => model.First().MeasureDate)</th>
-                                                    <th class="myth2">@Html.DisplayNameFor(model => model.First().MeasureTime)</th>
-                                                    <th class="myth2">@Html.DisplayNameFor(model => model.First().SHTId)</th>
-                                                    <th class="myth2">@Html.DisplayNameFor(model => model.First().ProductId)</th>
-                                                    <th class="myth2">@Html.DisplayNameFor(model => model.First().DataGroup)</th>
-                                                    <th class="myth2">@Html.DisplayNameFor(model => model.First().DTX)</th>
-                                                    <th class="myth2">@Html.DisplayNameFor(model => model.First().DTRM)</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @{
-                                                    foreach (var data in Model)
-                                                    {
-                                                        <tr>
-                                                            <td>@data.MeasureDate</td>
-                                                            <td>@data.MeasureTime</td>
-                                                            <td>@data.SHTId</td>
-                                                            <td>@data.ProductId</td>
-                                                            <td>@data.DataGroup</td>
-                                                            <td>@data.DTX</td>
-                                                            <td>@data.DTRM</td>
-                                                        </tr>
-                                                    }
+                            @{
+                                if (@Model != null)
+                                {
+                                    <table id="sample" class="table table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>@Html.DisplayNameFor(model => model.SPCDetail.First().MeasureDateStr)</th>
+                                                <th>@Html.DisplayNameFor(model => model.SPCDetail.First().MeasureTimeStr)</th>
+                                                <th>@Html.DisplayNameFor(model => model.SPCDetail.First().SHTId)</th>
+                                                <th>@Html.DisplayNameFor(model => model.SPCDetail.First().ProductId)</th>
+                                                <th>@Html.DisplayNameFor(model => model.SPCDetail.First().DataGroup)</th>
+                                                <th>@Html.DisplayNameFor(model => model.SPCDetail.First().DTX)</th>
+                                                <th>@Html.DisplayNameFor(model => model.SPCDetail.First().Target)</th>
+                                                <th>@Html.DisplayNameFor(model => model.SPCDetail.First().UCL1)</th>
+                                                <th>@Html.DisplayNameFor(model => model.SPCDetail.First().CL1)</th>
+                                                <th>@Html.DisplayNameFor(model => model.SPCDetail.First().LCL1)</th>
+                                                <th>@Html.DisplayNameFor(model => model.SPCDetail.First().USL)</th>
+                                                <th>@Html.DisplayNameFor(model => model.SPCDetail.First().LSL)</th>
+                                                <th>@Html.DisplayNameFor(model => model.SPCDetail.First().DTRM)</th>
+                                                <th>@Html.DisplayNameFor(model => model.SPCDetail.First().UCL2)</th>
+                                                <th>@Html.DisplayNameFor(model => model.SPCDetail.First().CL2)</th>
+                                                <th>@Html.DisplayNameFor(model => model.SPCDetail.First().LCL2)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                foreach (var data in Model.SPCDetail)
+                                                {
+                                                    var _isOut = data.OOR1 || data.OOR2 ? "#eccfff" : "";
+                                                    _isOut = data.OOC1 || data.OOC2 ? "#f3faac" : _isOut;
+                                                    _isOut = data.OOS ? "#fcaeae" : _isOut;
+                                                    <tr style="background-color: @_isOut ">
+                                                        <td>@data.MeasureDateStr</td>
+                                                        <td>@data.MeasureTimeStr</td>
+                                                        <td>@data.SHTId</td>
+                                                        <td>@data.ProductId</td>
+                                                        <td>@data.DataGroup</td>
+                                                        <td>@data.DTX</td>
+                                                        <td>@data.Target</td>
+                                                        <td>@data.UCL1</td>
+                                                        <td>@data.CL1</td>
+                                                        <td>@data.LCL1</td>
+                                                        <td>@data.USL</td>
+                                                        <td>@data.LSL</td>
+                                                        <td>@data.DTRM</td>
+                                                        <td>@data.UCL2</td>
+                                                        <td>@data.CL2</td>
+                                                        <td>@data.LCL2</td>
+                                                    </tr>
                                                 }
-                                            </tbody>
-                                        </table>
-                                    }
-                                }*@
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                            }
+                            <div class="d-flex align-content-center flex-wrap">
+                                <div><a style="background-color: #f3faac">OOC</a></div>
+                                <div><a style="background-color: #fcaeae; margin-left: 4px;">OOS</a></div>
+                                <div><a style="background-color: #eccfff; margin-left: 4px;">OOR</a></div>
+                            </div>
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -164,87 +180,68 @@
     <script src="~/lib/echarts/echarts.js"></script>
     <script type="text/javascript">
 
+        $(function () {
+
+            myFuc.SetChart(@Json.Serialize(Model));
+
+            $('#sample').DataTable({
+                "scrollX": true
+                , "responsive": false
+                , "lengthChange": true
+                , "autoWidth": false
+                , "order": [[0, "asc"]]
+                , "buttons": ["excel"]
+            }).buttons().container().appendTo('#sample_wrapper .col-md-6:eq(0)');
+        });
+
         let myFuc = {
-            SearchChart() {
-                $.blockUI({
-                    message: '<img src="./img/Pac_Man.gif" />',
-                    css: {
-                        borderWidth: '0px',
-                        backgroundColor: 'transparent'
-                    }
-                });
-
-                $.ajax({
-                    url: "./SPCReport/Search?startDate=" + $("#startDTE").val() + "&endDate=" + $("#endDTE").val() + "&eqpId=" + $("#selEQ").val() + "&prodId=" + $("#selProd").val() + "&dataGroup=" + $("#selGroup").val() ,
-                    type: "GET",
-                    success: function (result) {
-                        $.unblockUI();
-                        if (isJsonString(result)) {
-                            var _res = JSON.parse(result);
-                            if (result == '""') {
-                                alert('查無資料');
-                            }
-                            if ('isException' in _res) {
-                                alert(_res.msg);
-                                return false;
-                            }
-                        }
-                        else {
-                            $("#sample_wrapper").remove();
-
-                            var _tableHtml = '';
-                            $.each(result, function (index, value) {
-                                /*console.log(value);*/
-                                _tableHtml += '<tr>';
-                                _tableHtml += '<td>' + value.measureDate + '</td>';
-                                _tableHtml += '<td>' + value.measureTime + '</td>';
-                                _tableHtml += '<td>' + value.shtId + '</td>';
-                                _tableHtml += '<td>' + value.productId + '</td>';
-                                _tableHtml += '<td>' + value.dataGroup + '</td>';
-                                _tableHtml += '<td>' + value.dtx + '</td>';
-                                _tableHtml += '<td>' + value.dtrm + '</td>';
-                                _tableHtml += '</tr>';
-                            });
-                            $("#sample").append('<thead><tr><th>Measure Date</th><th>Measure Time</th><th>SHT ID</th><th>PROD ID</th><th>Data Group</th><th>DTX</th><th>DTRM</th></tr></thead>'
-                                + '<tbody' + _tableHtml + '</tbody>');
-
-
-                            //$("#bar-chart").after(result);
-                            $('#sample').DataTable({
-                                "paging": true
-                                , "responsive": true
-                                , "lengthChange": true
-                                , "autoWidth": false
-                                , "order": [[1, "asc"]]
-                                , "buttons": ["excel", "colvis"]
-                            }).buttons().container().appendTo('#sample_wrapper .col-md-6:eq(0)');
-
-                            myFuc.SetChart(result);
-                        }
-                    }
-                });
-            },
             SetChart(data) {
-                $("#lineChart").css("min-height", "400px");
+                $("#lineChart1").css("min-height", "400px");
                 /*$("#lineChart").css("min-width", "100%");*/
-                $("#lineChart").css("background-color", "#7a8591");
-                var chartDom = document.getElementById('lineChart');
-                var echar = echarts.init(chartDom);
+                $("#lineChart1").css("background-color", "#7a8591");
+                var chartDom1 = document.getElementById('lineChart1');
+                var echar1 = echarts.init(chartDom1);
 
-                var _catgory = ['DTX', 'DTRM', 'Target'];
+                $("#lineChart2").css("min-height", "400px");
+                $("#lineChart2").css("background-color", "#7a8591");
+                var chartDom2 = document.getElementById('lineChart2');
+                var echar2 = echarts.init(chartDom2);
+
+                var _catgory1 = ['DTX', 'Target', 'USL', 'UCL1', 'CL1', 'LCL1', 'LSL'];
+                var _catgory2 = ['DTRM', 'UCL2', 'CL2', 'LCL2'];
                 var _xAxisTime = [];
                 var _dtx = [];
+                var _target = [];
+                var _usl = [];
+                var _lsl = [];
+                var _ucl1 = [];
+                var _cl1 = [];
+                var _lcl1 = [];
+
+                var _ucl2 = [];
+                var _cl2 = [];
+                var _lcl2 = [];
                 var _dtrm = [];
                 var _title = '';
 
-                $.each(data, function (index, value) {
-                    _xAxisTime.push(value.measureTime);
+                $.each(data.spcDetail, function (index, value) {
+                    _xAxisTime.push(value.measureTimeStr);
                     _dtx.push(value.dtx);
+                    _target.push(value.target);
+                    _usl.push(value.usl);
+                    _lsl.push(value.lsl);
+                    _ucl1.push(value.ucL1);
+                    _cl1.push(value.cL1);
+                    _lcl1.push(value.lcL1);
+
+                    _ucl2.push(value.ucL2);
+                    _cl2.push(value.cL2);
+                    _lcl2.push(value.lcL2);
                     _dtrm.push(value.dtrm);
                     _title = value.dataGroup;
                 });
 
-                var option = {
+                var option1 = {
                     title: {
                         text: _title,
                         textStyle: {
@@ -258,7 +255,7 @@
                     legend: {
                         right: '0%',
                         icon: 'circle',
-                        data: _catgory,
+                        data: _catgory1,
                         textStyle: { color: "black" }
                     },
                     xAxis: {
@@ -278,67 +275,195 @@
                         {
                             name: 'DTX',
                             type: 'line',
-                            data: _dtx
+                            data: _dtx,
+                            itemStyle: {
+                                normal: {
+                                    color: 'black'
+                                }
+                            },
+                            lineStyle: {
+                                width: 1
+                            },
                         },
+                        {
+                            name: 'Target',
+                            type: 'line',
+                            data: _target,
+                            itemStyle: {
+                                normal: {
+                                    color: '#c90e27',
+                                    lineStyle: {
+                                        width: 3,
+                                        type: 'dotted', //'dotted'虚线 'solid'实线
+                                        color: '#c90e27'
+                                    }
+                                }
+                            },
+                        },
+                        {
+                            name: 'USL',
+                            type: 'line',
+                            data: _usl,
+                            itemStyle: {
+                                normal: {
+                                    color: 'red'
+                                }
+                            },
+                            lineStyle: {
+                                width: 1
+                            },
+                        },
+                        {
+                            name: 'UCL1',
+                            type: 'line',
+                            data: _ucl1,
+                            itemStyle: {
+                                normal: {
+                                    color: 'blue'
+                                }
+                            },
+                            lineStyle: {
+                                width: 1
+                            },
+                        },
+                        {
+                            name: 'CL1',
+                            type: 'line',
+                            data: _cl1,
+                            itemStyle: {
+                                normal: {
+                                    color: 'blue'
+                                }
+                            },
+                            lineStyle: {
+                                width: 1
+                            },
+                        },
+                        {
+                            name: 'LCL1',
+                            type: 'line',
+                            data: _lcl1,
+                            itemStyle: {
+                                normal: {
+                                    color: 'blue'
+                                }
+                            },
+                            lineStyle: {
+                                width: 1
+                            },
+                        },
+                        {
+                            name: 'LSL',
+                            type: 'line',
+                            data: _lsl,
+                            itemStyle: {
+                                normal: {
+                                    color: 'red'
+                                }
+                            },
+                            lineStyle: {
+                                width: 1
+                            },
+                        }
+                    ]
+                };
+
+                var option2 = {
+                    title: {
+                        text: _title,
+                        textStyle: {
+                            color: "black",
+                            fontWeight: 600,
+                            fontSize: 25,
+                            textAlign: 'center'
+                        }
+                    },
+                    tooltip: {},
+                    legend: {
+                        right: '0%',
+                        icon: 'circle',
+                        data: _catgory2,
+                        textStyle: { color: "black" }
+                    },
+                    xAxis: {
+                        data: _xAxisTime,
+                        axisLabel: { color: "black" }
+                    },
+                    yAxis: {
+                        name: "",
+                        nameTextStyle: {
+                            color: "black"
+                        },
+                        axisLabel: {
+                            color: "black"
+                        }
+                    },
+                    series: [
                         {
                             name: 'DTRM',
                             type: 'line',
                             data: _dtrm,
                             itemStyle: {
                                 normal: {
-                                    color: '#c90e27',
-                                    lineStyle: {
-                                        width: 2,
-                                        type: 'dotted', //'dotted'虚线 'solid'实线
-                                        color: '#c90e27'
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            name: 'Target',
-                            type: 'line',
-                            data: [0, 0, 0, 0, 0],
-                            itemStyle: {
-                                normal: {
                                     color: 'black'
                                 }
-                            }
+                            },
+                            lineStyle: {
+                                width: 1
+                            },
+                        },
+                        {
+                            name: 'UCL2',
+                            type: 'line',
+                            data: _ucl2,
+                            itemStyle: {
+                                normal: {
+                                    color: 'blue'
+                                }
+                            },
+                            lineStyle: {
+                                width: 1
+                            },
+                        },
+                        {
+                            name: 'CL2',
+                            type: 'line',
+                            data: _cl2,
+                            itemStyle: {
+                                normal: {
+                                    color: 'blue'
+                                }
+                            },
+                            lineStyle: {
+                                width: 1
+                            },
+                        },
+                        {
+                            name: 'LCL2',
+                            type: 'line',
+                            data: _lcl2,
+                            itemStyle: {
+                                normal: {
+                                    color: 'blue'
+                                }
+                            },
+                            lineStyle: {
+                                width: 1
+                            },
                         }
                     ]
                 };
+                echar1.setOption(option1);
+                echar2.setOption(option2);
 
-                echar.setOption(option);
-
-                echar.on('click', function (params) {
-                    let _test = params;
-                })
-
-
-                /*var barChartCanvas = $('#lineChart').get(0).getContext('2d');*/
-                //var barChartData = $.extend(true, {}, areaChartData)
-
-                //var barChartOptions = {
-                //    responsive: true,
-                //    maintainAspectRatio: false,
-                //    datasetFill: false
-                //}
-
-                //new Chart(barChartCanvas, {
-                //    type: 'bar',
-                //    data: areaChartData,
-                //    options: barChartOptions,
-                //    outerWidth: 500
+                //echar1.on('click', function (params) {
+                //    let _test = params;
                 //})
-
                 window.addEventListener('resize', function () {
-                    echar.resize();
+                    echar1.resize();
+                    echar2.resize();
                 });
             }
-        }
-
-        function btnClickSearch() {
-            myFuc.SearchChart();
         }
 
     </script>

@@ -36,28 +36,19 @@ namespace MOD4.Web.Controllers
 
         public IActionResult Index()
         {
-            ViewBag.ProdOptions = _optionDomainService.GetLcmProdOptions();
-            List<OptionEntity> _options = new List<OptionEntity>
-            {
-                new OptionEntity{Id = 0, Value = "BA_A_BSP011Lx_L" },
-                new OptionEntity{Id = 1, Value = "BA_A_BSP011Ly_L" },
-                new OptionEntity{Id = 2, Value = "DW_A_BSP011Ly_L" },
-                new OptionEntity{Id = 3, Value = "BA_A_BSP016Rx_L" },
-                new OptionEntity{Id = 4, Value = "BA_A_BSP016Ry_L" },
-                new OptionEntity{Id = 5, Value = "DW_A_BSP016Ry_L" },
-                new OptionEntity{Id = 5, Value = "BA_A_BSC020Ly_L" },
-            };
+            var _allOptions = _optionDomainService.GetSPCChartCategoryOptions();
 
-            ViewBag.TestItemOptions = new SelectList(_options, "Value", "Value");
+            ViewBag.Floor = new SelectList(_allOptions.FirstOrDefault(f => f.Item1 == "floor").Item2, "Value", "Value");
+            ViewBag.ChartGrade = new SelectList(_allOptions.FirstOrDefault(f => f.Item1 == "chartgrade").Item2, "Value", "Value");
 
             return View();
         }
 
-        public IActionResult Search([FromQuery] string dateRange, string eqpId, string prodId, string dataGroup)
+        public IActionResult Search([FromQuery] int floor, string chartgrade, string dateRange, string eqpId, string prodId, string dataGroup)
         {
             try
             {
-                var _resilt = _spcReportDomainService.Search(dateRange, eqpId, prodId, dataGroup);
+                var _resilt = _spcReportDomainService.Search(floor, chartgrade, dateRange, eqpId, prodId, dataGroup);
 
                 var _response = _resilt.Select(res => new SPCMainViewModel
                 {
@@ -78,46 +69,76 @@ namespace MOD4.Web.Controllers
             }
         }
 
-        [HttpGet]
-        public IActionResult Detail([FromQuery] string dateRange, string eqpId, string prodId, string dataGroup)
+        public IActionResult GetMainOptions([FromQuery] int floor, string chartgrade)
         {
-            ViewBag.ProdOptions = _optionDomainService.GetLcmProdOptions();
-
-            var _resilt = _spcReportDomainService.Detail(dateRange, eqpId, prodId, dataGroup);
-
-            List<OptionEntity> _options = new List<OptionEntity>
+            try
             {
-                new OptionEntity{Id = 0, Value = "BA_A_BSP011Lx_L" },
-                new OptionEntity{Id = 1, Value = "BA_A_BSP011Ly_L" },
-                new OptionEntity{Id = 2, Value = "DW_A_BSP011Ly_L" },
-                new OptionEntity{Id = 3, Value = "BA_A_BSP016Rx_L" },
-                new OptionEntity{Id = 4, Value = "BA_A_BSP016Ry_L" },
-                new OptionEntity{Id = 5, Value = "DW_A_BSP016Ry_L" },
-            };
+                var _allOptions = _optionDomainService.GetSPCMainChartOptions(floor, chartgrade);
 
-            ViewBag.TestItemOptions = new SelectList(_options, "Value", "Value");
+                var _response = _allOptions.CopyAToB<SPCChartSettingViewModel>().ToList();
 
-            var _response = new SPCOnlineChartViewModel
+                return Json(_response);
+            }
+            catch (Exception ex)
             {
-                ChartId = _resilt.ChartId,
-                TypeStr = _resilt.TypeStr,
-                TestItem = _resilt.TestItem,
-                XBarBar = _resilt.XBarBar,
-                Sigma = _resilt.Sigma,
-                Ca = _resilt.Ca,
-                Cp = _resilt.Cp,
-                Cpk = _resilt.Cpk,
-                Sample = _resilt.Sample,
-                n = _resilt.n,
-                RMBar = _resilt.RMBar,
-                PpkBar = _resilt.PpkBar,
-                PpkSigma = _resilt.PpkSigma,
-                Pp = _resilt.Pp,
-                Ppk = _resilt.Ppk,
-                SPCDetail = _resilt.DetailList.CopyAToB<SPCDataViewModel>()
-            };
+                return Json(new { IsException = true, Msg = ex.Message });
+            }
+        }
 
-            return Json(_response);
+        [HttpGet]
+        public IActionResult Detail([FromQuery] int floor, string chartgrade, string dateRange, string eqpId, string prodId, string dataGroup)
+        {
+            try
+            {
+                var _resilt = _spcReportDomainService.Detail(floor, chartgrade, dateRange, eqpId, prodId, dataGroup);
+
+                var _response = new SPCOnlineChartViewModel
+                {
+                    ChartId = _resilt.ChartId,
+                    TypeStr = _resilt.TypeStr,
+                    TestItem = _resilt.TestItem,
+                    XBarBar = _resilt.XBarBar,
+                    Sigma = _resilt.Sigma,
+                    Ca = _resilt.Ca,
+                    Cp = _resilt.Cp,
+                    Cpk = _resilt.Cpk,
+                    Sample = _resilt.Sample,
+                    n = _resilt.n,
+                    RMBar = _resilt.RMBar,
+                    PpkBar = _resilt.PpkBar,
+                    PpkSigma = _resilt.PpkSigma,
+                    Pp = _resilt.Pp,
+                    Ppk = _resilt.Ppk,
+                    SPCDetail = _resilt.DetailList.Select(detail => new SPCDataViewModel
+                    {
+                        MeasureDateStr = detail.MeasureDateStr,
+                        MeasureTimeStr = detail.MeasureTimeStr,
+                        SHTId = detail.SHTId,
+                        ProductId = detail.ProductId,
+                        DataGroup = detail.DataGroup,
+                        DTX = detail.DTX.ToString("0.###"),
+                        USL = detail.USL.ToString("0.###"),
+                        Target = detail.Target.ToString("0.###"),
+                        LSL = detail.LSL.ToString("0.###"),
+                        UCL1 = detail.UCL1.ToString("0.###"),
+                        CL1 = detail.CL1.ToString("0.###"),
+                        LCL1 = detail.LCL1.ToString("0.###"),
+                        OOC1 = detail.OOC1,
+                        OOS = detail.OOS,
+                        DTRM = detail.DTRM.ToString("0.###"),
+                        UCL2 = detail.UCL2.ToString("0.###"),
+                        CL2 = detail.CL2.ToString("0.###"),
+                        LCL2 = detail.LCL2.ToString("0.###"),
+                        OOC2 = detail.OOC2,
+                    }).ToList()
+                };
+
+                return View(_response);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
         }
 
     }

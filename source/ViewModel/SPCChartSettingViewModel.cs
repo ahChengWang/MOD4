@@ -1,6 +1,8 @@
-﻿namespace MOD4.Web.DomainService.Entity
+﻿using System.ComponentModel;
+
+namespace MOD4.Web.ViewModel
 {
-    public class SPCChartSettingEntity
+    public class SPCChartSettingViewModel
     {
         public string ONCHID { get; set; }
         public string PECD { get; set; }

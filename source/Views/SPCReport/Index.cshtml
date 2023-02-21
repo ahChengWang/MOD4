@@ -1,5 +1,4 @@
-﻿@model List<MOD4.Web.ViewModel.SPCDataViewModel>
-
+﻿
 @{
     ViewBag.Title = "SPC chart";
 }
@@ -53,6 +52,7 @@
                             <h3 class="card-title">SPC Trend Chart</h3>
                         </div>
                         <div id="srcDiv1" class="card-body">
+                            <span style="font-size:8px;font-weight:700" class="text-danger">*請先選擇區間、樓層、chartgrade</span>
                             <div class="form-group d-flex align-content-center flex-wrap">
                                 <div class="col-lg-1">
                                     <label class="col-form-label">查詢區間：</label>
@@ -60,47 +60,43 @@
                                 <div class="col-lg-4">
                                     <input id="dateRange" class="my-control" name="datepicker" value="" />
                                 </div>
-                                @*<div class="col-lg-1">
-                                        <label class="col-form-label">查詢訖日：</label>
-                                    </div>
-                                    <div class="col-lg-3">
-                                        <input id="endDTE" class="my-control" type="datetime-local" name="name" value="" />
-                                    </div>*@
+                                <div class="col-lg-1">
+                                    <label class="col-form-label">樓層：</label>
+                                </div>
+                                <div class="col-lg-1">
+                                    <select id="selFloor" class="custom-select" style="width:60%" asp-items="@(SelectList)ViewBag.Floor">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-1">
+                                    <label class="col-form-label">chartgrade：</label>
+                                </div>
+                                <div class="col-lg-1">
+                                    <select id="selCG" class="custom-select" style="width:60%" asp-items="@(SelectList)ViewBag.ChartGrade">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
                                 <div class="col-lg-1">
                                     <label class="col-form-label">Node：</label>
                                 </div>
                                 <div class="col-lg-2">
-                                    <select id="selEQ" class="custom-select select2bs4" style="width:60%" asp-items="@(SelectList)ViewBag.StatusList">
-                                        <option value="">　</option>
-                                    </select>
-                                </div>
-                                <div class="col-lg-1">
-                                    <label class="col-form-label">EQP：</label>
-                                </div>
-                                <div class="col-lg-3">
-                                    <select id="selEQ" class="custom-select select2bs4" style="width:60%" asp-items="@(SelectList)ViewBag.StatusList">
-                                        <option value="">　</option>
+                                    <select id="selNode" class="custom-select select2bs4" style="width:60%" asp-items="@(SelectList)ViewBag.StatusList">
                                     </select>
                                 </div>
                             </div>
                             <div id="srcDiv" class="form-group d-flex align-content-center flex-wrap">
                                 <div class="col-lg-1">
+                                    <label class="col-form-label">EQP：</label>
+                                </div>
+                                <div class="col-lg-2">
+                                    <select id="selEQ" class="custom-select select2bs4" style="width:60%" asp-items="@(SelectList)ViewBag.StatusList">
+                                    </select>
+                                </div>
+                                <div class="col-lg-1">
                                     <label class="col-form-label">Prod ID：</label>
                                 </div>
-                                <div class="col-lg-4">
+                                <div class="col-lg-3">
                                     <select id="selProd" class="custom-select select2bs4" style="width:80%">
-                                        @{
-                                            <option value="">　</option>
-                                            foreach (var lcmProd in ViewBag.ProdOptions)
-                                            {
-                                                <optgroup label="@lcmProd.Item1">
-                                                    @foreach (var item in lcmProd.Item2)
-                                                    {
-                                                        <option value="@item.Item1">@item.Item2</option>
-                                                    }
-                                                </optgroup>
-                                            }
-                                        }
                                     </select>
                                 </div>
                                 <div class="col-lg-1">
@@ -108,13 +104,16 @@
                                 </div>
                                 <div class="col-lg-3">
                                     <select id="selGroup" class="custom-select select2bs4" style="width:80%" asp-items="@(SelectList)ViewBag.TestItemOptions">
-                                        <option value=""></option>
+                                        @*<option value=""></option>*@
                                     </select>
                                 </div>
                                 <div class="col-lg-1">
                                     <input class="btn btn-info" type="button" name="btn29" value="查詢" onclick="btnClickSearch()" />
                                 </div>
                             </div>
+                            <input id="floor" type="hidden" value="" />
+                            <input id="chartgrade" type="hidden" value="" />
+                            <input id="selDate" type="hidden" value="" />
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -133,6 +132,9 @@
     <script src="~/lib/echarts/echarts.js"></script>
     <script src="~/plugins/select2/js/select2.full.min.js"></script>
     <script type="text/javascript">
+
+        var _mainsOptions = [];
+        var _filterOptions = [];
 
         $(function () {
             $('input[name="datepicker"]').daterangepicker({
@@ -155,10 +157,13 @@
                 var validaMsg = '';
 
                 if ($("#dateRange").val() == "") {
-                    validaMsg = '日期區間必填';
+                    validaMsg = '日期區間必填\n';
                 }
-                if ($("#selEQ").val() == "" && $("#selProd").val() == "" && $("#selGroup").val() == "") {
-                    validaMsg += '\nEQ、Prod、測項 須擇一填';
+
+                if (($("#selEQ").val() == "" || $("#selEQ").val() == null) &&
+                    ($("#selProd").val() == "" || $("#selProd").val() == null) &&
+                    ($("#selGroup").val() == "" || $("#selGroup").val() == null)) {
+                    validaMsg += 'EQ、Prod、測項 擇一填';
                 }
                 if (validaMsg != '') {
                     alert(validaMsg);
@@ -174,7 +179,7 @@
                 });
 
                 $.ajax({
-                    url: "./SPCReport/Search?dateRange=" + $("#dateRange").val() + "&eqpId=" + $("#selEQ").val() + "&prodId=" + $("#selProd").val() + "&dataGroup=" + $("#selGroup").val(),
+                    url: "./SPCReport/Search?floor=" + $("#selFloor").val() + "&chartgrade=" + $("#selCG").val() + "&dateRange=" + $("#dateRange").val() + "&eqpId=" + $("#selEQ").val() + "&prodId=" + $("#selProd").val() + "&dataGroup=" + $("#selGroup").val(),
                     type: "GET",
                     dataType: 'html',
                     success: function (result) {
@@ -199,6 +204,10 @@
                                 , "order": [[0, "asc"]]
                                 /*,"buttons": ["excel", "colvis"]*/
                             }).buttons().container().appendTo('#sample_wrapper .col-md-6:eq(0)');
+
+                            $("#floor").val($("#selFloor").val());
+                            $("#chartgrade").val($("#selCG").val());
+                            $("#selDate").val($("#dateRange").val());
                         }
                     }
                 });
@@ -216,122 +225,120 @@
                 }
                 return year + '/' + month + '/' + day;
             },
-            SetChart(data) {
-                $("#lineChart").css("min-height", "400px");
-                /*$("#lineChart").css("min-width", "100%");*/
-                $("#lineChart").css("background-color", "#7a8591");
-                var chartDom = document.getElementById('lineChart');
-                var echar = echarts.init(chartDom);
-
-                var _catgory = ['DTX', 'DTRM', 'Target'];
-                var _xAxisTime = [];
-                var _dtx = [];
-                var _dtrm = [];
-                var _title = '';
-
-                $.each(data, function (index, value) {
-                    _xAxisTime.push(value.measureTime);
-                    _dtx.push(value.dtx);
-                    _dtrm.push(value.dtrm);
-                    _title = value.dataGroup;
-                });
-
-                var option = {
-                    title: {
-                        text: _title,
-                        textStyle: {
-                            color: "black",
-                            fontWeight: 600,
-                            fontSize: 25,
-                            textAlign: 'center'
-                        }
-                    },
-                    tooltip: {},
-                    legend: {
-                        right: '0%',
-                        icon: 'circle',
-                        data: _catgory,
-                        textStyle: { color: "black" }
-                    },
-                    xAxis: {
-                        data: _xAxisTime,
-                        axisLabel: { color: "black" }
-                    },
-                    yAxis: {
-                        name: "",
-                        nameTextStyle: {
-                            color: "black"
-                        },
-                        axisLabel: {
-                            color: "black"
-                        }
-                    },
-                    series: [
-                        {
-                            name: 'DTX',
-                            type: 'line',
-                            data: _dtx
-                        },
-                        {
-                            name: 'DTRM',
-                            type: 'line',
-                            data: _dtrm,
-                            itemStyle: {
-                                normal: {
-                                    color: '#c90e27',
-                                    lineStyle: {
-                                        width: 2,
-                                        type: 'dotted', //'dotted'虚线 'solid'实线
-                                        color: '#c90e27'
-                                    }
-                                }
+            SetOtherOptions(floor, chartgrade) {
+                $.ajax({
+                    url: "./SPCReport/GetMainOptions?floor=" + floor + "&chartgrade=" + chartgrade,
+                    type: "GET",
+                    dataType: 'json',
+                    success: function (result) {
+                        $.unblockUI();
+                        if (isJsonString(result)) {
+                            var _res = JSON.parse(result);
+                            if (result == '""') {
+                                alert('查無資料');
                             }
-                        },
-                        {
-                            name: 'Target',
-                            type: 'line',
-                            data: [0, 0, 0, 0, 0],
-                            itemStyle: {
-                                normal: {
-                                    color: 'black'
-                                }
+                            if ('isException' in _res) {
+                                alert(_res.msg);
+                                return false;
                             }
                         }
-                    ]
-                };
+                        else {
+                            _mainsOptions = result;
+                            $('#selNode, #selEQ, #selProd, #selGroup').empty();
+                            $("<option></option>").attr("value", "").text('　').appendTo($('#selNode'));
+                            result.reduce(function (item, option) {
+                                return myFuc.OptionReduce(item, option, 'proC_ID', 'proC_ID', '#selNode');
+                            }, {});
 
-                echar.setOption(option);
+                            $("<option></option>").attr("value", "").text('　').appendTo($('#selEQ'));
+                            result.reduce(function (item, option) {
+                                return myFuc.OptionReduce(item, option, 'peqpT_ID', 'peqpT_ID', '#selEQ');
+                            }, {});
 
-                echar.on('click', function (params) {
-                    let _test = params;
-                })
+                            $("<option></option>").attr("value", "").text('　').appendTo($('#selProd'));
+                            result.reduce(function (item, option) {
+                                return myFuc.OptionReduce(item, option, 'pecd', 'pecd', '#selProd');
+                            }, {});
 
-
-                /*var barChartCanvas = $('#lineChart').get(0).getContext('2d');*/
-                //var barChartData = $.extend(true, {}, areaChartData)
-
-                //var barChartOptions = {
-                //    responsive: true,
-                //    maintainAspectRatio: false,
-                //    datasetFill: false
-                //}
-
-                //new Chart(barChartCanvas, {
-                //    type: 'bar',
-                //    data: areaChartData,
-                //    options: barChartOptions,
-                //    outerWidth: 500
-                //})
-
-                window.addEventListener('resize', function () {
-                    echar.resize();
+                            $("<option></option>").attr("value", "").text('　').appendTo($('#selGroup'));
+                            result.reduce(function (item, option) {
+                                return myFuc.OptionReduce(item, option, 'dataGroup', 'dataGroup', '#selGroup');
+                            }, {});
+                        }
+                    }
                 });
+            },
+            OptionReduce(item, option, propId, propName, optionId) {
+                if (item[option[propId]] == null) {
+                    $("<option></option>").attr("value", option[propId]).text(option[propName]).appendTo($(optionId));
+                }
+                (item[option[propId]] = item[option[propId]] || []).push(option);
+                return item;
             }
         }
 
 
+        $("#selFloor").change(function (e) {
+            let floorSelected = $("#selFloor").find(":selected").val();
+            let chartgradeSelected = $("#selCG").find(":selected").val();
+            if (floorSelected != "" && chartgradeSelected != "") {
+                myFuc.SetOtherOptions(floorSelected, chartgradeSelected);
+            }
+        });
+
+        $("#selCG").change(function (e) {
+            let floorSelected = $("#selFloor").find(":selected").val();
+            let chartgradeSelected = $("#selCG").find(":selected").val();
+            if (floorSelected != "" && chartgradeSelected != "") {
+                myFuc.SetOtherOptions(floorSelected, chartgradeSelected);
+            }
+        });
+
+        $("#selNode").change(function (e) {
+            let nodeSelector = $("#selNode").find(":selected").val();
+            let eqSelector = $("#selEQ").find(":selected").val();
+            let prodSelector = $("#selProd").find(":selected").val();
+            let dGroupSelector = $("#selGroup").find(":selected").val();
+
+            $('#selEQ, #selProd, #selGroup').empty();
+
+            if (e.currentTarget.value == "") {
+                _filterOptions = _mainsOptions;
+            }
+            else if (e.currentTarget.value != "") {
+                _filterOptions = _mainsOptions.filter(function (option) {
+                    return option.proC_ID == e.currentTarget.value;
+                });
+            }
+
+            $("<option></option>").attr("value", "").text('　').appendTo($('#selEQ'));
+            _filterOptions.reduce(function (item, option) {
+                return myFuc.OptionReduce(item, option, 'peqpT_ID', 'peqpT_ID', '#selEQ');
+            }, {});
+            var _test = $("#selEQ");
+            $("#selEQ").val(eqSelector);
+
+            $("<option></option>").attr("value", "").text('　').appendTo($('#selProd'));
+            _filterOptions.reduce(function (item, option) {
+                return myFuc.OptionReduce(item, option, 'pecd', 'pecd', '#selProd');
+            }, {});
+            $("#selProd").val(prodSelector);
+
+            $("<option></option>").attr("value", "").text('　').appendTo($('#selGroup'));
+            _filterOptions.reduce(function (item, option) {
+                return myFuc.OptionReduce(item, option, 'dataGroup', 'dataGroup', '#selGroup');
+            }, {});
+            $("#selGroup").val(dGroupSelector);
+
+        });
+
         function btnClickSearch() {
             myFuc.SearchChart();
+        }
+
+        function detailClick(e) {
+            var _rowData = e.parentElement.parentElement.children;
+            window.open("./SPCReport/Detail?floor=" + $("#floor").val() + "&chartgrade=" + $("#chartgrade").val() + "&dateRange=" + $("#dateRange").val() + "&eqpId=" + _rowData[4].innerHTML + "&prodId=" + _rowData[6].innerHTML + "&dataGroup=" + _rowData[5].innerHTML, '_blank');
         }
 
     </script>

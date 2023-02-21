@@ -6,10 +6,10 @@ namespace MOD4.Web.ViewModel
     public class SPCDataViewModel
     {
         [DisplayName("Measure Date")]
-        public string MeasureDate { get; set; }
+        public string MeasureDateStr { get; set; }
 
         [DisplayName("Measure Time")]
-        public string MeasureTime { get; set; }
+        public string MeasureTimeStr { get; set; }
 
         [DisplayName("SHT ID")]
         public string SHTId { get; set; }
@@ -63,12 +63,12 @@ namespace MOD4.Web.ViewModel
         public bool OOC2 { get; set; }
 
         [DisplayName("OOR1")]
-        public string OOR1 { get; set; }
+        public bool OOR1 { get; set; }
 
         [DisplayName("OOR2")]
-        public string OOR2 { get; set; }
+        public bool OOR2 { get; set; }
 
         [DisplayName("OOR3")]
-        public string OOR3 { get; set; }
+        public bool OOR3 { get; set; }
     }
 }

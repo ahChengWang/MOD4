@@ -21,6 +21,7 @@ namespace MOD4.Web.DomainService
         private readonly IMenuRepository _menuRepository;
         private readonly ILcmProductRepository _lcmProductRepository;
         private readonly ICertifiedAreaMappingRepository _certifiedAreaMappingRepository;
+        private readonly ISPCChartSettingRepository _spcChartSettingRepository;
 
         public OptionDomainService(IEqSituationMappingRepository eqSituationMappingRepository,
             IEqEvanCodeMappingRepository eqEvanCodeMappingRepository,
@@ -28,7 +29,8 @@ namespace MOD4.Web.DomainService
             IAccountInfoRepository accountInfoRepository,
             IMenuRepository menuRepository,
             ILcmProductRepository lcmProductRepository,
-            ICertifiedAreaMappingRepository certifiedAreaMappingRepository)
+            ICertifiedAreaMappingRepository certifiedAreaMappingRepository,
+            ISPCChartSettingRepository spcChartSettingRepository)
         {
             _eqSituationMappingRepository = eqSituationMappingRepository;
             _eqEvanCodeMappingRepository = eqEvanCodeMappingRepository;
@@ -37,6 +39,7 @@ namespace MOD4.Web.DomainService
             _menuRepository = menuRepository;
             _lcmProductRepository = lcmProductRepository;
             _certifiedAreaMappingRepository = certifiedAreaMappingRepository;
+            _spcChartSettingRepository = spcChartSettingRepository;
         }
 
 
@@ -418,9 +421,32 @@ namespace MOD4.Web.DomainService
             return _certifiedAreaMappingRepository.SelectByConditions().CopyAToB<CertifiedAreaMappingEntity>();
         }
 
-        public List<SPCChartSettingEntity> GetSPCChartOptions()
+        public List<(string, List<OptionEntity>)> GetSPCChartCategoryOptions()
         {
-            return new List<SPCChartSettingEntity>();
+            var _spcSettings = _spcChartSettingRepository.SelectSPCFloorAndChartGrade();
+
+            var _floorOptions = _spcSettings.GroupBy(g => g.FLOOR).Select(s => new OptionEntity
+            {
+                Value = s.Key.ToString()
+            }).ToList();
+
+            var _chartGradeOptions = _spcSettings.GroupBy(g => g.CHARTGRADE).Select(s => new OptionEntity
+            {
+                Value = s.Key
+            }).ToList();
+
+            return new List<(string, List<OptionEntity>)>
+            {
+                ("floor",_floorOptions),
+                ("chartgrade",_chartGradeOptions)
+            };
+        }
+
+        public List<SPCChartSettingEntity> GetSPCMainChartOptions(int floor, string chartgrade)
+        {
+            var _spcSettings = _spcChartSettingRepository.SelectByConditions(chartgrade, floor);
+
+            return _spcSettings.CopyAToB<SPCChartSettingEntity>();
         }
 
         private List<OptionEntity> GetEqProdOptionList(int id)

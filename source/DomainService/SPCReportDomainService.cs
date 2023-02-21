@@ -1,37 +1,87 @@
-﻿using Microsoft.AspNetCore.Http;
-using MOD4.Web.DomainService.Entity;
-using MOD4.Web.Enum;
-using System;
-using System.IO;
-using Ionic.Zip;
-using MOD4.Web.Repostory;
-using System.Collections.Generic;
-using MOD4.Web.Repostory.Dao;
+﻿using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Helper;
-using System.Linq;
+using MOD4.Web.Repostory;
+using MOD4.Web.Repostory.Dao;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace MOD4.Web.DomainService
 {
     public class SPCReportDomainService : ISPCReportDomainService
     {
         private readonly ISPCMicroScopeDataRepository _spcMicroScopeDataRepository;
+        private readonly ISPCChartSettingRepository _spcChartSettingRepository;
 
-        public SPCReportDomainService(ISPCMicroScopeDataRepository spcMicroScopeDataRepository)
+        public SPCReportDomainService(ISPCMicroScopeDataRepository spcMicroScopeDataRepository,
+            ISPCChartSettingRepository spcChartSettingRepository)
         {
             _spcMicroScopeDataRepository = spcMicroScopeDataRepository;
+            _spcChartSettingRepository = spcChartSettingRepository;
         }
 
-        public List<SPCMainEntity> Search(string dateRange, string equpId, string prodId, string dataGroup)
+        public List<SPCMainEntity> Search(int floor, string chartgrade, string dateRange, string equpId, string prodId, string dataGroup)
         {
             try
             {
-                var _defaultSetting = new
+                DateTime _startDate;
+                DateTime _endDate;
+
+                if (string.IsNullOrEmpty(dateRange))
+                    throw new Exception("日期異常");
+
+                string[] _dateAry = dateRange.Split("-");
+
+                if (!DateTime.TryParseExact(_dateAry[0].Trim(), "yyyy/MM/dd HH:mm", null, DateTimeStyles.None, out _) ||
+                    !DateTime.TryParseExact(_dateAry[1].Trim(), "yyyy/MM/dd HH:mm", null, DateTimeStyles.None, out _))
                 {
-                    OOS = 0.05,
-                    OOC = 0.02,
-                    OOR = 0.04,
-                };
+                    throw new Exception("日期異常");
+                }
+                DateTime.TryParseExact(_dateAry[0].Trim(), "yyyy/MM/dd HH:mm", null, DateTimeStyles.None, out _startDate);
+                DateTime.TryParseExact(_dateAry[1].Trim(), "yyyy/MM/dd HH:mm", null, DateTimeStyles.None, out _endDate);
+
+                List<SPCMicroScopeDataDao> _spcMicroScopeDataList = _spcMicroScopeDataRepository.SelectByConditions(equpId, _startDate, _endDate, prodId, dataGroup);
+                var _spcSetting = _spcChartSettingRepository.SelectByConditions(chartgrade, floor,
+                        _spcMicroScopeDataList.Select(s => s.DataGroup).Distinct().ToList(),
+                        _spcMicroScopeDataList.Select(s => s.ProductId).Distinct().ToList(),
+                        _spcMicroScopeDataList.Select(s => s.EquipmentId).Distinct().ToList());
+
+                _spcMicroScopeDataList.ForEach(spc => 
+                {
+                    var _tmpSetting = _spcSetting.FirstOrDefault(f => f.PECD == spc.ProductId && f.PEQPT_ID == spc.EquipmentId && f.DataGroup == spc.DataGroup);
+                    if (_tmpSetting == null)
+                        return;
+                    spc.OOC1 = spc.DTX > _tmpSetting.UCL1 || spc.DTX < _tmpSetting.LCL1;
+                    spc.OOC2 = spc.DTRM > _tmpSetting.UCL2 || spc.DTX < _tmpSetting.LCL2;
+                    spc.OOS = spc.DTX > _tmpSetting.USPEC || spc.DTX < _tmpSetting.LSPEC;
+                });
+
+                var _spcGroupData = _spcMicroScopeDataList.GroupBy(g => new { g.EquipmentId, g.ProductId, g.DataGroup }).Select(s => new SPCMainEntity
+                {
+                    EquipmentId = s.Key.EquipmentId,
+                    ProductId = s.Key.ProductId,
+                    DataGroup = s.Key.DataGroup,
+                    Count = s.Count(),
+                    OOCCount = s.Where(w => w.OOC1).Count() + s.Where(w => w.OOC2).Count(),
+                    OOSCount = s.Where(w => w.OOS).Count(),
+                    OORCount = s.Where(w => w.OOR1).Count() + s.Where(w => w.OOR2).Count()
+                }).ToList();
+
+                return _spcGroupData;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public SPCOnlineChartEntity Detail(int floor, string chartgrade, string dateRange, string equpId, string prodId, string dataGroup)
+        {
+            try
+            {
+                float _lastDTX = 0;
+
                 DateTime _startDate;
                 DateTime _endDate;
 
@@ -51,72 +101,13 @@ namespace MOD4.Web.DomainService
                 DateTime.TryParseExact(_dateAry[1].Trim(), "yyyy/MM/dd HH:mm", null, DateTimeStyles.None, out _endDate);
 
                 List<SPCMicroScopeDataDao> _spcMicroScopeDataList = _spcMicroScopeDataRepository.SelectByConditions(equpId, _startDate, _endDate, prodId, dataGroup);
+                var _spcSetting = _spcChartSettingRepository.SelectByConditions(chartgrade, floor,
+                        _spcMicroScopeDataList.Select(s => s.DataGroup).ToList(),
+                        _spcMicroScopeDataList.Select(s => s.ProductId).ToList(),
+                        _spcMicroScopeDataList.Select(s => s.EquipmentId).ToList()).FirstOrDefault();
 
-                var _spcGroupData = _spcMicroScopeDataList.GroupBy(g => new { g.EquipmentId, g.ProductId, g.DataGroup }).Select(s => new SPCMainEntity
-                {
-                    EquipmentId = s.Key.EquipmentId,
-                    ProductId = s.Key.ProductId,
-                    DataGroup = s.Key.DataGroup,
-                    Count = s.Count(),
-                    OOCCount = s.Where(w => w.DTX > _defaultSetting.OOC || (w.DTX < _defaultSetting.OOC * -1)).Count(),
-                    OOSCount = s.Where(w => w.DTX > _defaultSetting.OOS || (w.DTX < _defaultSetting.OOS * -1)).Count(),
-                    OORCount = s.Where(w => w.DTX > _defaultSetting.OOR || (w.DTX < _defaultSetting.OOR * -1)).Count(),
-                }).ToList();
-
-                SPCOnlineChartEntity _spcOnlineChartEntity = new SPCOnlineChartEntity
-                {
-                    ChartId = dataGroup,
-                    TypeStr = "XXRM",
-                    TestItem = dataGroup,
-                    XBarBar = "0.40604",
-                    Sigma = "0.00959",
-                    Ca = "1.000",
-                    Cp = "17386767844",
-                    Cpk = "7.1646",
-                    Sample = "78",
-                    n = "1",
-                    RMBar = "0.01818",
-                    PpkBar = "0.40604",
-                    PpkSigma = "1.083488881217",
-                    Pp = "45382706736899.6",
-                    Ppk = "6.33878216814284",
-                    DetailList = _spcMicroScopeDataList.CopyAToB<SPCMicroScopeDataEntity>()
-                };
-
-                return _spcGroupData;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public SPCOnlineChartEntity Detail(string dateRange, string equpId, string prodId, string dataGroup)
-        {
-            try
-            {
-                double _lastDTX = 0;
-
-                DateTime _startDate;
-                DateTime _endDate;
-
-                if (string.IsNullOrEmpty(dateRange))
-                {
-                    throw new Exception("日期異常");
-                }
-
-                string[] _dateAry = dateRange.Split("-");
-
-                if (!DateTime.TryParseExact(_dateAry[0], "yyyy/MM/dd HH:mm", null, DateTimeStyles.None, out _) ||
-                    !DateTime.TryParseExact(_dateAry[1], "yyyy/MM/dd HH:mm", null, DateTimeStyles.None, out _))
-                {
-                    throw new Exception("日期異常");
-                }
-                DateTime.TryParseExact(_dateAry[0], "yyyy/MM/dd HH:mm", null, DateTimeStyles.None, out _startDate);
-                DateTime.TryParseExact(_dateAry[0], "yyyy/MM/dd HH:mm", null, DateTimeStyles.None, out _endDate);
-
-
-                List<SPCMicroScopeDataDao> _spcMicroScopeDataList = _spcMicroScopeDataRepository.SelectByConditions(equpId, _startDate, _endDate, prodId, dataGroup);
+                if (_spcSetting == null)
+                    throw new Exception("查無 SPC 設定");
 
                 _spcMicroScopeDataList.ForEach(fe =>
                 {
@@ -130,29 +121,32 @@ namespace MOD4.Web.DomainService
                         fe.DTRM = Math.Abs(fe.DTX - _lastDTX);
                         _lastDTX = fe.DTX;
                     }
-                    fe.Target = 1.23;
-                    fe.USL = 1.6;
-                    fe.UCL1 = 1.4;
-                    fe.CL1 = 1.3;
-                    fe.LCL1 = -1.4;
-                    fe.LSL = -1.6;
-                    fe.UCL2 = 15000000;
-                    fe.CL2 = 8000000;
-                    fe.LCL2 = -15000000;
+                    fe.Target = _spcSetting.Target;
+                    fe.USL = _spcSetting.USPEC;
+                    fe.LSL = _spcSetting.LSPEC;
+                    fe.UCL1 = _spcSetting.UCL1;
+                    fe.CL1 = _spcSetting.CL1;
+                    fe.LCL1 = _spcSetting.LCL1;
+                    fe.OOC1 = fe.DTX > _spcSetting.UCL1 || fe.DTX < _spcSetting.LCL1;
+                    fe.OOS = fe.DTX > _spcSetting.USPEC || fe.DTX < _spcSetting.LSPEC;
+                    fe.UCL2 = _spcSetting.UCL2;
+                    fe.CL2 = _spcSetting.CL2;
+                    fe.LCL2 = _spcSetting.LCL2;
+                    fe.OOC2 = fe.DTRM > _spcSetting.UCL2 || fe.DTRM < _spcSetting.LCL2;
                 });
 
                 SPCOnlineChartEntity _spcOnlineChartEntity = new SPCOnlineChartEntity
                 {
-                    ChartId = dataGroup,
-                    TypeStr = "XXRM",
+                    ChartId = _spcSetting.ONCHID,
+                    TypeStr = _spcSetting.ONCHTYPE,
                     TestItem = dataGroup,
                     XBarBar = "0.40604",
                     Sigma = "0.00959",
                     Ca = "1.000",
                     Cp = "17386767844",
                     Cpk = "7.1646",
-                    Sample = "78",
-                    n = "1",
+                    Sample = _spcMicroScopeDataList.Count.ToString(),
+                    n = _spcMicroScopeDataList.Count.ToString(),
                     RMBar = "0.01818",
                     PpkBar = "0.40604",
                     PpkSigma = "1.083488881217",

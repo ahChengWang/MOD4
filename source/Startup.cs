@@ -87,8 +87,9 @@ namespace MOD4.Web
             services.AddSingleton<IAccessFabOrderAuditHistoryRepository, AccessFabOrderAuditHistoryRepository>();
             services.AddSingleton<ILcmProductRepository, LcmProductRepository>();
             services.AddSingleton<IBookingMeetingRepository, BookingMeetingRepository>();
-            services.AddSingleton<ICertifiedAreaMappingRepository, CertifiedAreaMappingRepository>();
+            services.AddSingleton<ICertifiedAreaMappingRepository, CertifiedAreaMappingRepository>(); 
             services.AddSingleton<ISPCMicroScopeDataRepository, SPCMicroScopeDataRepository>();
+            services.AddSingleton<ISPCChartSettingRepository, SPCChartSettingRepository>();
 
             services.AddScoped<MenuService>();
             services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));
