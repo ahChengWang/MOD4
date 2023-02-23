@@ -1,0 +1,45 @@
+﻿@model List<MOD4.Web.ViewModel.SPCSettingViewModel>
+
+<table id="sample" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.First().ProductId)</th>
+            <th>@Html.DisplayNameFor(model => model.First().DataGroup)</th>
+            <th>@Html.DisplayNameFor(model => model.First().Chartgrade)</th>
+            <th>@Html.DisplayNameFor(model => model.First().USPEC)</th>
+            <th>@Html.DisplayNameFor(model => model.First().LSPEC)</th>
+            <th>@Html.DisplayNameFor(model => model.First().UCL1)</th>
+            <th>@Html.DisplayNameFor(model => model.First().CL1)</th>
+            <th>@Html.DisplayNameFor(model => model.First().LCL1)</th>
+            <th>@Html.DisplayNameFor(model => model.First().UCL2)</th>
+            <th>@Html.DisplayNameFor(model => model.First().CL2)</th>
+            <th>@Html.DisplayNameFor(model => model.First().LCL2)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (var data in Model)
+            {
+                <tr>
+                    <td>@data.ProductId</td>
+                    <td>@data.DataGroup</td>
+                    <td>@data.Chartgrade</td>
+                    <td>@data.USPEC</td>
+                    <td>@data.LSPEC</td>
+                    <td>@data.UCL1</td>
+                    <td>@data.CL1</td>
+                    <td>@data.LCL1</td>
+                    <td>@data.UCL2</td>
+                    <td>@data.CL2</td>
+                    <td>@data.LCL2</td>
+                    <td>
+                        <a class="btn btn-sm" style="font-size:15px" onclick="">
+                            <i class="fa fa-search"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

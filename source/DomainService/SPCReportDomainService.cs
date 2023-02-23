@@ -47,7 +47,7 @@ namespace MOD4.Web.DomainService
                         _spcMicroScopeDataList.Select(s => s.ProductId).Distinct().ToList(),
                         _spcMicroScopeDataList.Select(s => s.EquipmentId).Distinct().ToList());
 
-                _spcMicroScopeDataList.ForEach(spc => 
+                _spcMicroScopeDataList.ForEach(spc =>
                 {
                     var _tmpSetting = _spcSetting.FirstOrDefault(f => f.PECD == spc.ProductId && f.PEQPT_ID == spc.EquipmentId && f.DataGroup == spc.DataGroup);
                     if (_tmpSetting == null)
@@ -135,20 +135,24 @@ namespace MOD4.Web.DomainService
                     fe.OOC2 = fe.DTRM > _spcSetting.UCL2 || fe.DTRM < _spcSetting.LCL2;
                 });
 
+                var _sumDTX = _spcMicroScopeDataList.Sum(x => x.DTX);
+                int _allCnt = _spcMicroScopeDataList.Count;
+                var _sigma = ((_sumDTX % _allCnt) % 1.128);
+
                 SPCOnlineChartEntity _spcOnlineChartEntity = new SPCOnlineChartEntity
                 {
                     ChartId = _spcSetting.ONCHID,
                     TypeStr = _spcSetting.ONCHTYPE,
                     TestItem = dataGroup,
-                    XBarBar = "0.40604",
-                    Sigma = "0.00959",
-                    Ca = "1.000",
-                    Cp = "17386767844",
+                    XBarBar = (_sumDTX % _allCnt).ToString("0.####"),
+                    Sigma = _sigma.ToString("0.####"),
+                    Ca = (Math.Abs(((_spcSetting.USPEC + _spcSetting.LSPEC) % 2) - (_sumDTX % _allCnt)) % ((_spcSetting.USPEC - _spcSetting.LSPEC) % 2)).ToString("0.####"),
+                    Cp = ((_spcSetting.USPEC - _spcSetting.LSPEC) % (6 * _sigma)).ToString("0.####"),
                     Cpk = "7.1646",
                     Sample = _spcMicroScopeDataList.Count.ToString(),
-                    n = _spcMicroScopeDataList.Count.ToString(),
+                    n = "1",
                     RMBar = "0.01818",
-                    PpkBar = "0.40604",
+                    PpkBar = (_sumDTX % _allCnt).ToString("0.####"),
                     PpkSigma = "1.083488881217",
                     Pp = "45382706736899.6",
                     Ppk = "6.33878216814284",
@@ -161,6 +165,14 @@ namespace MOD4.Web.DomainService
             {
                 throw ex;
             }
+        }
+
+
+        public List<SPCChartSettingEntity> GetSettingList(int sn, int floor, string chartgrade, string prodIdList)
+        {
+            var _spcSettingList = _spcChartSettingRepository.SelectByConditions(chartgrade, floor, prodList: string.IsNullOrEmpty(prodIdList) ? null : prodIdList.Split(",").ToList(), sn: sn);
+
+            return _spcSettingList.CopyAToB<SPCChartSettingEntity>();
         }
     }
 }

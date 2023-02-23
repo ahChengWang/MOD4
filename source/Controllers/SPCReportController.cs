@@ -36,12 +36,22 @@ namespace MOD4.Web.Controllers
 
         public IActionResult Index()
         {
-            var _allOptions = _optionDomainService.GetSPCChartCategoryOptions();
+            try
+            {
+                var _allOptions = _optionDomainService.GetSPCChartCategoryOptions();
 
-            ViewBag.Floor = new SelectList(_allOptions.FirstOrDefault(f => f.Item1 == "floor").Item2, "Value", "Value");
-            ViewBag.ChartGrade = new SelectList(_allOptions.FirstOrDefault(f => f.Item1 == "chartgrade").Item2, "Value", "Value");
+                ViewBag.Floor = new SelectList(_allOptions.FirstOrDefault(f => f.Item1 == "floor").Item2, "Value", "Value");
+                ViewBag.ChartGrade = new SelectList(_allOptions.FirstOrDefault(f => f.Item1 == "chartgrade").Item2, "Value", "Value");
 
-            return View();
+                return View();
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel
+                {
+                    Message = ex.Message
+                });
+            }
         }
 
         public IActionResult Search([FromQuery] int floor, string chartgrade, string dateRange, string eqpId, string prodId, string dataGroup)
@@ -141,5 +151,76 @@ namespace MOD4.Web.Controllers
             }
         }
 
+
+
+        #region ===== SPC setting =====
+
+        [HttpGet("[controller]/Setting")]
+        public IActionResult Setting()
+        {
+            try
+            {
+                var _allOptions = _optionDomainService.GetSPCChartCategoryOptions();
+
+                ViewBag.Floor = new SelectList(_allOptions.FirstOrDefault(f => f.Item1 == "floor").Item2, "Value", "Value");
+                ViewBag.ChartGrade = new SelectList(_allOptions.FirstOrDefault(f => f.Item1 == "chartgrade").Item2, "Value", "Value");
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+
+        [HttpGet("[controller]/Setting/Search")]
+        public IActionResult SettingSearch([FromQuery] int floor, string chartgrade, string prodId)
+        {
+            try
+            {
+                var _targetSettingList = _spcReportDomainService.GetSettingList(0, floor, chartgrade, prodId);
+
+                var _res = _targetSettingList.Select(setting => new SPCSettingViewModel
+                {
+                    ProductId = setting.PECD,
+                    OnchType = setting.ONCHTYPE,
+                    DataGroup = setting.DataGroup,
+                    Node = setting.PROC_ID,
+                    Chartgrade = setting.CHARTGRADE,
+                    USPEC = setting.USPEC.ToString("0.###"),
+                    LSPEC = setting.LSPEC.ToString("0.###"),
+                    UCL1 = setting.UCL1.ToString("0.###"),
+                    CL1 = setting.CL1.ToString("0.###"),
+                    LCL1 = setting.LCL1.ToString("0.###"),
+                    UCL2 = setting.UCL2.ToString("0.###"),
+                    CL2 = setting.CL2.ToString("0.###"),
+                    LCL2 = setting.LCL2.ToString("0.###"),
+                }).ToList();
+
+                return PartialView("_PartialSetting", _res);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+
+        [HttpPost]
+        public IActionResult Setting(TargetSettingViewModel updateMode)
+        {
+            try
+            {
+
+                return Json("");
+
+            }
+            catch (Exception ex)
+            {
+                return Json($"錯誤：{ex.Message}");
+            }
+        }
+        #endregion
     }
 }

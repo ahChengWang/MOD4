@@ -2,6 +2,7 @@
 {
     public class SPCChartSettingEntity
     {
+        public int Sn { get; set; }
         public string ONCHID { get; set; }
         public string PECD { get; set; }
         public string ONCHTYPE { get; set; }

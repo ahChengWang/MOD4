@@ -8,9 +8,12 @@ namespace MOD4.Web.Repostory
     public class SPCChartSettingRepository : BaseRepository, ISPCChartSettingRepository
     {
 
-        public List<SPCChartSettingDao> SelectByConditions(string chartgrade, int floor, List<string> dataGroupList = null, List<string> prodList = null, List<string> eqList = null)
+        public List<SPCChartSettingDao> SelectByConditions(string chartgrade, int floor, List<string> dataGroupList = null, List<string> prodList = null, List<string> eqList = null, int sn = 0)
         {
             string sql = "select * from [carUX_report].[dbo].[SPC_Chart_Setting] where CHARTGRADE=@CHARTGRADE and FLOOR=@FLOOR ";
+
+            if (sn != 0)
+                sql += " and sn = @Sn ";
 
             if (prodList != null && prodList.Any())
                 sql += " and PECD in @PECD ";
@@ -24,6 +27,7 @@ namespace MOD4.Web.Repostory
 
             var dao = _dbHelper.ExecuteQuery<SPCChartSettingDao>(sql, new
             {
+                Sn = sn,
                 CHARTGRADE = chartgrade,
                 FLOOR = floor,
                 PECD = prodList,
