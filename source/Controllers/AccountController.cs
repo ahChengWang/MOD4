@@ -74,7 +74,7 @@ namespace MOD4.Web.Controllers
                 if (_catchAccInfo == null)
                 {
                     var _allAccInfo = _innxVerify ? _accountDomainService.GetAllAccountInfo() : _accountList;
-                    CatchHelper.Set("accInfo", JsonConvert.SerializeObject(_allAccInfo), 604800);
+                    CatchHelper.Set("accInfo", JsonConvert.SerializeObject(_allAccInfo), 432000);
                     _currentUser = _allAccInfo.FirstOrDefault(f => f.Account.ToLower() == loginViewMode.Account.ToLower() && f.Password == _encryptPw);
                 }
                 else
@@ -103,7 +103,7 @@ namespace MOD4.Web.Controllers
                 //SignInAsync is a Extension method for Sign in a principal for the specified scheme.    
                 HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties()
                 {
-                    ExpiresUtc = DateTime.UtcNow.AddDays(7),
+                    ExpiresUtc = DateTime.UtcNow.AddDays(3),
                     IsPersistent = loginViewMode.RememberMe //IsPersistent = false：瀏覽器關閉立馬登出；IsPersistent = true 就變成常見的Remember Me功能
                 }).Wait();
 

@@ -28,5 +28,7 @@ namespace MOD4.Web.Enum
         AccountManagement = 15,
         [Description("認證紀錄上傳")]
         Extension = 17,
+        [Description("SPC Online Chart")]
+        SPCReport = 19,
     }
 }
