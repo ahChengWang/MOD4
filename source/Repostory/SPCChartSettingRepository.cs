@@ -10,10 +10,16 @@ namespace MOD4.Web.Repostory
 
         public List<SPCChartSettingDao> SelectByConditions(string chartgrade, int floor, List<string> dataGroupList = null, List<string> prodList = null, List<string> eqList = null, int sn = 0)
         {
-            string sql = "select * from [carUX_report].[dbo].[SPC_Chart_Setting] where CHARTGRADE=@CHARTGRADE and FLOOR=@FLOOR ";
+            string sql = "select * from [carUX_report].[dbo].[SPC_Chart_Setting] where 1=1 ";
 
             if (sn != 0)
                 sql += " and sn = @Sn ";
+
+            if (floor != 0)
+                sql += " and FLOOR = @FLOOR ";
+
+            if (!string.IsNullOrEmpty(chartgrade))
+                sql += " and CHARTGRADE = @CHARTGRADE ";
 
             if (prodList != null && prodList.Any())
                 sql += " and PECD in @PECD ";

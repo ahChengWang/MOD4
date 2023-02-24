@@ -4,7 +4,7 @@ namespace MOD4.Web.Repostory.Dao
 {
     public class SPCChartSettingDao
     {
-        public int Sn { get; set; }
+        public int sn { get; set; }
         public string ONCHID { get; set; }
         public string PECD { get; set; }
         public string ONCHTYPE { get; set; }
@@ -22,5 +22,6 @@ namespace MOD4.Web.Repostory.Dao
         public string PROC_ID { get; set; }
         public string CHARTGRADE { get; set; }
         public int FLOOR { get; set; }
+        public string Memo { get; set; }
     }
 }

@@ -1,0 +1,164 @@
+﻿@model MOD4.Web.ViewModel.SPCSettingEditViewModel
+
+
+<style>
+    .modal-dialog {
+        box-shadow: 1px 2px 2px 2px #999;
+    }
+
+    .modal-header {
+        background-color: #3c7da6;
+    }
+
+    .modal-body {
+        background-color: lightgrey;
+    }
+
+    .modal-title {
+        font-size: 20px;
+        color: white;
+        font-weight: 700;
+    }
+
+    input {
+        text-align: right;
+        width: 30%;
+    }
+
+    #editTable td {
+        padding: 0.3rem;
+    }
+</style>
+
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header" style="height: 40px; align-items: center; display: flex; ">
+            <h3 class="modal-title" id="exampleModalLabel">更新設定值</h3>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="dismissModal()">
+                <span aria-hidden="true" style="color:white">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="editForm">
+                <div class="form-group d-flex align-content-center flex-wrap">
+                    <div class="col-lg-4">
+                        <label asp-for="ProductId"></label>
+                        <label>：@Model.ProductId</label>
+                    </div>
+                    <div class="col-lg-4">
+                        <label asp-for="OnchType"></label>
+                        <label>：@Model.OnchType</label>
+                    </div>
+                    <div class="col-lg-4">
+                        <label asp-for="Node"></label>
+                        <label>：@Model.Node</label>
+                    </div>
+                </div>
+                <div class="form-group d-flex align-content-center flex-wrap">
+                    <div class="col-lg-4">
+                        <label asp-for="DataGroup"></label>
+                        <label>：@Model.DataGroup</label>
+                    </div>
+                    <div class="col-lg-3">
+                        <label asp-for="Chartgrade"></label>
+                        <label>：@Model.Chartgrade</label>
+                    </div>
+                    <div class="col-lg-3">
+                        <label asp-for="USPEC"></label>
+                        <label>：@Model.USPEC</label>
+                    </div>
+                    <div class="col-lg-2">
+                        <label asp-for="LSPEC"></label>
+                        <label>：@Model.LSPEC</label>
+                    </div>
+                </div>
+                <div>
+                    <table id="editTable" class="table table-bordered table-hover">
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td>上上月</td>
+                                <td>上月</td>
+                                <td>本月</td>
+                                <td>當前設定</td>
+                                <td>更新值</td>
+                            </tr>
+                            <tr>
+                                <td>UCL1</td>
+                                <td>@Model.Last2MonUCL1</td>
+                                <td>@Model.LastMonUCL1</td>
+                                <td>@Model.CurrMonUCL1</td>
+                                <td>@Model.UCL1</td>
+                                <td>
+                                    <input type="text" asp-for="NewUCL1" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>CL1</td>
+                                <td>@Model.Last2MonCL1</td>
+                                <td>@Model.LastMonCL1</td>
+                                <td>@Model.CurrMonCL1</td>
+                                <td>@Model.CL1</td>
+                                <td>
+                                    <input type="text" asp-for="NewCL1" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>LCL1</td>
+                                <td>@Model.Last2MonLCL1</td>
+                                <td>@Model.LastMonLCL1</td>
+                                <td>@Model.CurrMonLCL1</td>
+                                <td>@Model.LCL1</td>
+                                <td>
+                                    <input type="text" asp-for="NewLCL1" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>UCL2</td>
+                                <td>@Model.Last2MonUCL2</td>
+                                <td>@Model.LastMonUCL2</td>
+                                <td>@Model.CurrMonUCL2</td>
+                                <td>@Model.UCL2</td>
+                                <td>
+                                    <input type="text" asp-for="NewUCL2" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>CL2</td>
+                                <td>@Model.Last2MonCL2</td>
+                                <td>@Model.LastMonCL2</td>
+                                <td>@Model.CurrMonCL2</td>
+                                <td>@Model.CL2</td>
+                                <td>
+                                    <input type="text" asp-for="NewCL2" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>LCL2</td>
+                                <td>@Model.Last2MonLCL2</td>
+                                <td>@Model.LastMonLCL2</td>
+                                <td>@Model.CurrMonLCL2</td>
+                                <td>@Model.LCL2</td>
+                                <td>
+                                    <input type="text" asp-for="NewLCL2" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="form-group d-flex align-content-center flex-wrap">
+                    <div>
+                        <label asp-for="Memo"></label>：
+                    </div>
+                    <div>
+                        <textarea rows="3" cols="50" asp-for="Memo"></textarea>
+                    </div>
+                </div>
+                <div>
+                    <input type="button" class="btn btn-sm btn-outline-danger" value="更新" onclick="btnClickUpdate(this)" />
+                </div>
+                <input type="hidden" asp-for="Sn" value="@Model.Sn" />
+            </form>
+        </div>
+    </div>
+</div>

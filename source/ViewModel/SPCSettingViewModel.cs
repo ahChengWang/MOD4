@@ -4,6 +4,7 @@ namespace MOD4.Web.ViewModel
 {
     public class SPCSettingViewModel
     {
+        public int Sn { get; set; }
 
         [DisplayName("PROD ID")]
         public string ProductId { get; set; }

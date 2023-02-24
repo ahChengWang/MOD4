@@ -183,6 +183,7 @@ namespace MOD4.Web.Controllers
 
                 var _res = _targetSettingList.Select(setting => new SPCSettingViewModel
                 {
+                    Sn = setting.sn,
                     ProductId = setting.PECD,
                     OnchType = setting.ONCHTYPE,
                     DataGroup = setting.DataGroup,
@@ -207,12 +208,61 @@ namespace MOD4.Web.Controllers
         }
 
 
-        [HttpPost]
-        public IActionResult Setting(TargetSettingViewModel updateMode)
+        [HttpGet]
+        public IActionResult Edit([FromQuery] int sn)
         {
             try
             {
+                var _targetSettingList = _spcReportDomainService.GetSettingEdit(sn);
 
+                return PartialView("_PartialSettingEdit", new SPCSettingEditViewModel()
+                {
+                    Sn = _targetSettingList.sn,
+                    ProductId = _targetSettingList.PECD,
+                    OnchType = _targetSettingList.ONCHTYPE,
+                    DataGroup = _targetSettingList.DataGroup,
+                    Node = _targetSettingList.PROC_ID,
+                    Chartgrade = _targetSettingList.CHARTGRADE,
+                    USPEC = _targetSettingList.USPEC.ToString("0.#####"),
+                    LSPEC = _targetSettingList.LSPEC.ToString("0.#####"),
+                    UCL1 = _targetSettingList.UCL1.ToString("0.#####"),
+                    CL1 = _targetSettingList.CL1.ToString("0.#####"),
+                    LCL1 = _targetSettingList.LCL1.ToString("0.#####"),
+                    Last2MonCL1 = _targetSettingList.Last2MonCL1.ToString("0.#####"),
+                    LastMonCL1 = _targetSettingList.LastMonCL1.ToString("0.#####"),
+                    CurrMonCL1 = _targetSettingList.CurrMonCL1.ToString("0.#####"),
+                    Last2MonUCL1 = _targetSettingList.Last2MonUCL1.ToString("0.#####"),
+                    LastMonUCL1 = _targetSettingList.LastMonUCL1.ToString("0.#####"),
+                    CurrMonUCL1 = _targetSettingList.CurrMonUCL1.ToString("0.#####"),
+                    Last2MonLCL1 = _targetSettingList.Last2MonLCL1.ToString("0.#####"),
+                    LastMonLCL1 = _targetSettingList.LastMonLCL1.ToString("0.#####"),
+                    CurrMonLCL1 = _targetSettingList.CurrMonLCL1.ToString("0.#####"),
+                    UCL2 = _targetSettingList.UCL2.ToString("0.#####"),
+                    CL2 = _targetSettingList.CL2.ToString("0.#####"),
+                    LCL2 = _targetSettingList.LCL2.ToString("0.#####"),
+                    Last2MonCL2 = _targetSettingList.Last2MonCL2.ToString("0.#####"),
+                    LastMonCL2 = _targetSettingList.LastMonCL2.ToString("0.#####"),
+                    CurrMonCL2 = _targetSettingList.CurrMonCL2.ToString("0.#####"),
+                    Last2MonUCL2 = _targetSettingList.Last2MonUCL2.ToString("0.#####"),
+                    LastMonUCL2 = _targetSettingList.LastMonUCL2.ToString("0.#####"),
+                    CurrMonUCL2 = _targetSettingList.CurrMonUCL2.ToString("0.#####"),
+                    Last2MonLCL2 = _targetSettingList.Last2MonLCL2.ToString("0.#####"),
+                    LastMonLCL2 = _targetSettingList.LastMonLCL2.ToString("0.#####"),
+                    CurrMonLCL2 = _targetSettingList.CurrMonLCL2.ToString("0.#####"),
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return Json($"錯誤：{ex.Message}");
+            }
+        }
+
+        [HttpPost]
+        public IActionResult Edit([FromForm] SPCSettingEditViewModel updateSPCSettingEditVM)
+        {
+            try
+            {
                 return Json("");
 
             }

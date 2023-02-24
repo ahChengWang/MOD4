@@ -196,7 +196,89 @@
                 }
                 (item[option[propId]] = item[option[propId]] || []).push(option);
                 return item;
-            }
+            },
+            Edit(sn) {
+
+                $.blockUI({
+                    message: '<img src="./img/Pac_Man.gif" />',
+                    css: {
+                        borderWidth: '0px',
+                        backgroundColor: 'transparent'
+                    }
+                });
+
+                $.ajax({
+                    url: "./Edit?sn=" + sn,
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (result) {
+                        $.unblockUI();
+                        if (isJsonString(result)) {
+                            var _res = JSON.parse(result);
+                            if (result == '""') {
+                                alert('查無資料');
+                            }
+                            if ('isException' in _res) {
+                                alert(_res.msg);
+                                return false;
+                            }
+                        }
+                        else {
+                            $('body').addClass('modal-open');
+                            var ele = $('body').find('.modal-backdrop');
+                            if (ele.length == 0) {
+                                $('body').append('<div class="modal-backdrop fade show"></div>');
+                            }
+                            $('#editModal').html(result);
+                            $('#editModal').addClass('show');
+                            $('#editModal').css('display', 'block');
+                        }
+                    }
+                });
+            },
+            Update(e) {
+
+                var _form = $("#editForm");
+
+                $.blockUI({
+                    message: '<img src="./img/Pac_Man.gif" />',
+                    css: {
+                        borderWidth: '0px',
+                        backgroundColor: 'transparent'
+                    }
+                });
+
+                $.ajax({
+                    url: "./Edit",
+                    type: "POST",
+                    dataType: 'json',
+                    data: $("#editForm").serialize(),
+                    success: function (result) {
+                        $.unblockUI();
+                        if (isJsonString(result)) {
+                            var _res = JSON.parse(result);
+                            if (result == '""') {
+                                alert('查無資料');
+                            }
+                            if ('isException' in _res) {
+                                alert(_res.msg);
+                                return false;
+                            }
+                        }
+                        else {
+                            var _sn = _form[0]["Sn"].value;
+
+                            $("tr[name='tr" + _sn + "']").find("td:eq(5)").html(_form[0]["NewUCL1"].value);
+                            $("tr[name='tr" + _sn + "']").find("td:eq(6)").html(_form[0]["NewCL1"].value);
+                            $("tr[name='tr" + _sn + "']").find("td:eq(7)").html(_form[0]["NewLCL1"].value);
+                            $("tr[name='tr" + _sn + "']").find("td:eq(8)").html(_form[0]["NewUCL2"].value);
+                            $("tr[name='tr" + _sn + "']").find("td:eq(9)").html(_form[0]["NewCL2"].value);
+                            $("tr[name='tr" + _sn + "']").find("td:eq(10)").html(_form[0]["NewLCL2"].value);
+                            dismissModal();
+                        }
+                    }
+                });
+            },
         }
 
 
@@ -220,7 +302,23 @@
             myFunc.SearchChart();
         }
 
+        function btnClickEdit(sn) {
+            myFunc.Edit(sn);
+        }
+
+        function btnClickUpdate(e) {
+            myFunc.Update(e);
+        }
+
+        function dismissModal() {
+            $('body').removeClass('modal-open');
+            $('body').css({ 'padding-right': '' });
+            $('#editModal').removeClass('show');
+            $('#editModal').css('display', 'none');
+            $('.modal-backdrop').remove();
+            $('.modal-dialog').remove();
+        }
+
     </script>
 
 }
-

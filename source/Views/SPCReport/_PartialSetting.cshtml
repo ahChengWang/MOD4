@@ -21,7 +21,8 @@
         @{
             foreach (var data in Model)
             {
-                <tr>
+                string _trId = "tr" + @data.Sn.ToString();
+                <tr name="@_trId">
                     <td>@data.ProductId</td>
                     <td>@data.DataGroup</td>
                     <td>@data.Chartgrade</td>
@@ -34,7 +35,7 @@
                     <td>@data.CL2</td>
                     <td>@data.LCL2</td>
                     <td>
-                        <a class="btn btn-sm" style="font-size:15px" onclick="">
+                        <a class="btn btn-sm" style="font-size:15px" data-toggle="modal" data-target="#editModal" onclick="btnClickEdit(@data.Sn)">
                             <i class="fas fa-edit"></i>
                         </a>
                     </td>

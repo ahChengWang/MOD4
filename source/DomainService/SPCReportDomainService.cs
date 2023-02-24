@@ -80,8 +80,6 @@ namespace MOD4.Web.DomainService
         {
             try
             {
-                float _lastDTX = 0;
-
                 DateTime _startDate;
                 DateTime _endDate;
 
@@ -112,23 +110,13 @@ namespace MOD4.Web.DomainService
                 float _sumDTX = _spcMicroScopeDataList.Sum(x => x.DTX);
                 float _sumDTRM = _spcMicroScopeDataList.Sum(x => x.DTRM);
                 int _allCnt = _spcMicroScopeDataList.Count;
-                var _xBar = _sumDTRM / _allCnt; // DTX 的平均值
+                var _xBar = _sumDTX / _allCnt; // DTX 的平均值
                 var _rmBar = _sumDTRM / _allCnt; // DTRM 的平均值
                 var _sigma = _rmBar / 1.128;
                 double _calculateS = 0;
 
                 _spcMicroScopeDataList.ForEach(fe =>
                 {
-                    if (_lastDTX == 0)
-                    {
-                        fe.DTRM = fe.DTX;
-                        _lastDTX = fe.DTX;
-                    }
-                    else
-                    {
-                        fe.DTRM = Math.Abs(fe.DTX - _lastDTX);
-                        _lastDTX = fe.DTX;
-                    }
                     fe.Target = _spcSetting.Target;
                     fe.USL = _spcSetting.USPEC;
                     fe.LSL = _spcSetting.LSPEC;
@@ -163,7 +151,7 @@ namespace MOD4.Web.DomainService
                     PpkBar = _xBar.ToString("0.####"),
                     PpkSigma = "1.083488881217",
                     Pp = ((_spcSetting.USPEC - _spcSetting.LSPEC) / (6 * _sVal)).ToString("0.####"),
-                    Ppk = Math.Min((_spcSetting.USPEC - _xBar)/ (3 * _sVal), (_xBar - _spcSetting.LSPEC) / (3 * _sVal)).ToString("0.####"),
+                    Ppk = Math.Min((_spcSetting.USPEC - _xBar) / (3 * _sVal), (_xBar - _spcSetting.LSPEC) / (3 * _sVal)).ToString("0.####"),
                     DetailList = _spcMicroScopeDataList.CopyAToB<SPCMicroScopeDataEntity>()
                 };
 
@@ -176,11 +164,59 @@ namespace MOD4.Web.DomainService
         }
 
 
-        public List<SPCChartSettingEntity> GetSettingList(int sn, int floor, string chartgrade, string prodIdList)
+        public List<SPCChartSettingEntity> GetSettingList(int sn, int floor = 0, string chartgrade = "", string prodIdList = "")
         {
             var _spcSettingList = _spcChartSettingRepository.SelectByConditions(chartgrade, floor, prodList: string.IsNullOrEmpty(prodIdList) ? null : prodIdList.Split(",").ToList(), sn: sn);
 
             return _spcSettingList.CopyAToB<SPCChartSettingEntity>();
+        }
+
+        public SPCChartSettingEntity GetSettingEdit(int sn)
+        {
+            var _spcSetting = GetSettingList(sn).FirstOrDefault();
+
+            DateTime _startDate = DateTime.Parse($"{DateTime.Now.AddMonths(-2).ToString("yyyy-MM")}-01");
+
+            List<SPCMicroScopeDataDao> _spcMicroScopeDataList = _spcMicroScopeDataRepository.SelectByConditions("", _startDate, DateTime.Now, _spcSetting.PECD, _spcSetting.DataGroup);
+
+            if (!_spcMicroScopeDataList.Any())
+                return _spcSetting;
+
+            var _spcMicroScopeDataLast2Mon = _spcMicroScopeDataList.Where(w => w.MeasureDate >= _startDate && w.MeasureDate < _startDate.AddMonths(1));
+            var _spcMicroScopeDataLastMon = _spcMicroScopeDataList.Where(w => w.MeasureDate >= _startDate.AddMonths(1) && w.MeasureDate < _startDate.AddMonths(2));
+            var _spcMicroScopeDataCurrMon = _spcMicroScopeDataList.Where(w => w.MeasureDate >= _startDate.AddMonths(2) && w.MeasureDate < DateTime.Now);
+            
+            if (_spcMicroScopeDataLast2Mon.Any())
+            {
+                _spcSetting.Last2MonUCL1 = (_spcMicroScopeDataLast2Mon.Sum(spc => spc.DTX) / _spcMicroScopeDataLast2Mon.Count()) + ((_spcMicroScopeDataLast2Mon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLast2Mon.Count()) * 3);
+                _spcSetting.Last2MonCL1 = (_spcMicroScopeDataLast2Mon.Sum(spc => spc.DTX) / _spcMicroScopeDataLast2Mon.Count());
+                _spcSetting.Last2MonLCL1 = (_spcMicroScopeDataLast2Mon.Sum(spc => spc.DTX) / _spcMicroScopeDataLast2Mon.Count()) - ((_spcMicroScopeDataLast2Mon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLast2Mon.Count()) * 3);
+                _spcSetting.Last2MonUCL2 = ((_spcMicroScopeDataLast2Mon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLast2Mon.Count()) * 3.267);
+                _spcSetting.Last2MonCL2 = _spcMicroScopeDataLast2Mon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLast2Mon.Count(); _spcSetting.LastMonUCL1 = (_spcMicroScopeDataLastMon.Sum(spc => spc.DTX) / _spcMicroScopeDataLastMon.Count()) + ((_spcMicroScopeDataLastMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLastMon.Count()) * 3);
+                _spcSetting.Last2MonLCL2 = 0;
+            }
+
+            if (_spcMicroScopeDataLastMon.Any())
+            {
+                _spcSetting.LastMonUCL1 = (_spcMicroScopeDataLastMon.Sum(spc => spc.DTX) / _spcMicroScopeDataLastMon.Count()) + ((_spcMicroScopeDataLastMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLastMon.Count()) * 3);
+                _spcSetting.LastMonCL1 = (_spcMicroScopeDataLastMon.Sum(spc => spc.DTX) / _spcMicroScopeDataLastMon.Count());
+                _spcSetting.LastMonLCL1 = (_spcMicroScopeDataLastMon.Sum(spc => spc.DTX) / _spcMicroScopeDataLastMon.Count()) - ((_spcMicroScopeDataLastMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLastMon.Count()) * 3);
+                _spcSetting.LastMonUCL2 = ((_spcMicroScopeDataLastMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLastMon.Count()) * 3.267);
+                _spcSetting.LastMonCL2 = _spcMicroScopeDataLastMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLastMon.Count();
+                _spcSetting.LastMonLCL2 = 0;
+            }
+
+            if (_spcMicroScopeDataCurrMon.Any())
+            {
+                _spcSetting.CurrMonUCL1 = (_spcMicroScopeDataCurrMon.Sum(spc => spc.DTX) / _spcMicroScopeDataCurrMon.Count()) + ((_spcMicroScopeDataCurrMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataCurrMon.Count()) * 3);
+                _spcSetting.CurrMonCL1 = (_spcMicroScopeDataCurrMon.Sum(spc => spc.DTX) / _spcMicroScopeDataCurrMon.Count());
+                _spcSetting.CurrMonLCL1 = (_spcMicroScopeDataCurrMon.Sum(spc => spc.DTX) / _spcMicroScopeDataCurrMon.Count()) - ((_spcMicroScopeDataCurrMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataCurrMon.Count()) * 3);
+                _spcSetting.CurrMonUCL2 = ((_spcMicroScopeDataCurrMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataCurrMon.Count()) * 3.267);
+                _spcSetting.CurrMonCL2 = _spcMicroScopeDataCurrMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataCurrMon.Count();
+                _spcSetting.CurrMonLCL2 = 0;
+            }
+
+            return _spcSetting;
         }
     }
 }
