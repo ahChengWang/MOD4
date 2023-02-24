@@ -9,8 +9,8 @@ namespace MOD4.Web.Repostory
 
         public List<SPCMicroScopeDataDao> SelectByConditions(string equip, DateTime startDate, DateTime endDate, string prodId, string dataGroup)
         {
-            string sql = "select * from [CarUXReport].[dbo].SPC_MicroScope_Data where 1=1 ";
-            string subSql = "select TOP 1 * from [CarUXReport].[dbo].SPC_MicroScope_Data where 1=1 ";
+            string sql = "select * from [carUX_report].[dbo].SPC_MicroScope_Data where 1=1 ";
+            string subSql = "select TOP 1 * from [carUX_report].[dbo].SPC_MicroScope_Data where 1=1 ";
 
             if (!string.IsNullOrEmpty(equip))
             {

@@ -109,6 +109,14 @@ namespace MOD4.Web.DomainService
                 if (_spcSetting == null)
                     throw new Exception("查無 SPC 設定");
 
+                float _sumDTX = _spcMicroScopeDataList.Sum(x => x.DTX);
+                float _sumDTRM = _spcMicroScopeDataList.Sum(x => x.DTRM);
+                int _allCnt = _spcMicroScopeDataList.Count;
+                var _xBar = _sumDTRM / _allCnt; // DTX 的平均值
+                var _rmBar = _sumDTRM / _allCnt; // DTRM 的平均值
+                var _sigma = _rmBar / 1.128;
+                double _calculateS = 0;
+
                 _spcMicroScopeDataList.ForEach(fe =>
                 {
                     if (_lastDTX == 0)
@@ -133,29 +141,29 @@ namespace MOD4.Web.DomainService
                     fe.CL2 = _spcSetting.CL2;
                     fe.LCL2 = _spcSetting.LCL2;
                     fe.OOC2 = fe.DTRM > _spcSetting.UCL2 || fe.DTRM < _spcSetting.LCL2;
+
+                    _calculateS += Math.Pow(fe.DTX - _xBar, 2);
                 });
 
-                var _sumDTX = _spcMicroScopeDataList.Sum(x => x.DTX);
-                int _allCnt = _spcMicroScopeDataList.Count;
-                var _sigma = ((_sumDTX % _allCnt) % 1.128);
+                var _sVal = Math.Sqrt(_calculateS / (_allCnt - 1));
 
                 SPCOnlineChartEntity _spcOnlineChartEntity = new SPCOnlineChartEntity
                 {
                     ChartId = _spcSetting.ONCHID,
                     TypeStr = _spcSetting.ONCHTYPE,
                     TestItem = dataGroup,
-                    XBarBar = (_sumDTX % _allCnt).ToString("0.####"),
+                    XBarBar = _xBar.ToString("0.####"),
                     Sigma = _sigma.ToString("0.####"),
-                    Ca = (Math.Abs(((_spcSetting.USPEC + _spcSetting.LSPEC) % 2) - (_sumDTX % _allCnt)) % ((_spcSetting.USPEC - _spcSetting.LSPEC) % 2)).ToString("0.####"),
-                    Cp = ((_spcSetting.USPEC - _spcSetting.LSPEC) % (6 * _sigma)).ToString("0.####"),
-                    Cpk = "7.1646",
-                    Sample = _spcMicroScopeDataList.Count.ToString(),
+                    Ca = (Math.Abs(((_spcSetting.USPEC + _spcSetting.LSPEC) / 2) - _xBar) / ((_spcSetting.USPEC - _spcSetting.LSPEC) / 2)).ToString("0.####"),
+                    Cp = ((_spcSetting.USPEC - _spcSetting.LSPEC) / (6 * _sigma)).ToString("0.####"),
+                    Cpk = Math.Min((_spcSetting.USPEC - _xBar) / (3 * _sigma), (_xBar - _spcSetting.LSPEC) / (3 * _sigma)).ToString("0.####"),
+                    Sample = _allCnt.ToString(),
                     n = "1",
-                    RMBar = "0.01818",
-                    PpkBar = (_sumDTX % _allCnt).ToString("0.####"),
+                    RMBar = _rmBar.ToString("0.####"),
+                    PpkBar = _xBar.ToString("0.####"),
                     PpkSigma = "1.083488881217",
-                    Pp = "45382706736899.6",
-                    Ppk = "6.33878216814284",
+                    Pp = ((_spcSetting.USPEC - _spcSetting.LSPEC) / (6 * _sVal)).ToString("0.####"),
+                    Ppk = Math.Min((_spcSetting.USPEC - _xBar)/ (3 * _sVal), (_xBar - _spcSetting.LSPEC) / (3 * _sVal)).ToString("0.####"),
                     DetailList = _spcMicroScopeDataList.CopyAToB<SPCMicroScopeDataEntity>()
                 };
 

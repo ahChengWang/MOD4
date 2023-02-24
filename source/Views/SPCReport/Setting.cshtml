@@ -179,6 +179,8 @@
                             }
                         }
                         else {
+                            $("#selProd").empty();
+
                             $("<option></option>").attr("value", "").text('　').appendTo($('#selProd'));
                             result.reduce(function (item, option) {
                                 return myFunc.OptionReduce(item, option, 'pecd', 'pecd', '#selProd');
