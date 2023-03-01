@@ -126,19 +126,19 @@ namespace MOD4.Web.Controllers
                         SHTId = detail.SHTId,
                         ProductId = detail.ProductId,
                         DataGroup = detail.DataGroup,
-                        DTX = detail.DTX.ToString("0.###"),
-                        USL = detail.USL.ToString("0.###"),
-                        Target = detail.Target.ToString("0.###"),
-                        LSL = detail.LSL.ToString("0.###"),
-                        UCL1 = detail.UCL1.ToString("0.###"),
-                        CL1 = detail.CL1.ToString("0.###"),
-                        LCL1 = detail.LCL1.ToString("0.###"),
+                        DTX = detail.DTX.ToString("0.#####"),
+                        USL = detail.USL.ToString("0.#####"),
+                        Target = detail.Target.ToString("0.#####"),
+                        LSL = detail.LSL.ToString("0.#####"),
+                        UCL1 = detail.UCL1.ToString("0.#####"),
+                        CL1 = detail.CL1.ToString("0.#####"),
+                        LCL1 = detail.LCL1.ToString("0.#####"),
                         OOC1 = detail.OOC1,
                         OOS = detail.OOS,
-                        DTRM = detail.DTRM.ToString("0.###"),
-                        UCL2 = detail.UCL2.ToString("0.###"),
-                        CL2 = detail.CL2.ToString("0.###"),
-                        LCL2 = detail.LCL2.ToString("0.###"),
+                        DTRM = detail.DTRM.ToString("0.#####"),
+                        UCL2 = detail.UCL2.ToString("0.#####"),
+                        CL2 = detail.CL2.ToString("0.#####"),
+                        LCL2 = detail.LCL2.ToString("0.#####"),
                         OOC2 = detail.OOC2,
                     }).ToList()
                 };
@@ -181,6 +181,9 @@ namespace MOD4.Web.Controllers
             {
                 var _targetSettingList = _spcReportDomainService.GetSettingList(0, floor, chartgrade, prodId);
 
+                UserEntity _userInfo = GetUserInfo();
+                var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.SPCParaSetting);
+
                 var _res = _targetSettingList.Select(setting => new SPCSettingViewModel
                 {
                     Sn = setting.sn,
@@ -189,17 +192,26 @@ namespace MOD4.Web.Controllers
                     DataGroup = setting.DataGroup,
                     Node = setting.PROC_ID,
                     Chartgrade = setting.CHARTGRADE,
-                    USPEC = setting.USPEC.ToString("0.###"),
-                    LSPEC = setting.LSPEC.ToString("0.###"),
-                    UCL1 = setting.UCL1.ToString("0.###"),
-                    CL1 = setting.CL1.ToString("0.###"),
-                    LCL1 = setting.LCL1.ToString("0.###"),
-                    UCL2 = setting.UCL2.ToString("0.###"),
-                    CL2 = setting.CL2.ToString("0.###"),
-                    LCL2 = setting.LCL2.ToString("0.###"),
+                    USPEC = setting.USPEC.ToString("0.#####"),
+                    LSPEC = setting.LSPEC.ToString("0.#####"),
+                    UCL1 = setting.UCL1.ToString("0.#####"),
+                    CL1 = setting.CL1.ToString("0.#####"),
+                    LCL1 = setting.LCL1.ToString("0.#####"),
+                    UCL2 = setting.UCL2.ToString("0.#####"),
+                    CL2 = setting.CL2.ToString("0.#####"),
+                    LCL2 = setting.LCL2.ToString("0.#####"),
                 }).ToList();
 
-                return PartialView("_PartialSetting", _res);
+                return PartialView("_PartialSetting", new SPCSettingMainViewModel
+                {
+                    SettingList = _res,
+                    UserPermission = new UserPermissionViewModel
+                    {
+                        AccountSn = _userCurrentPagePermission.AccountSn,
+                        MenuSn = _userCurrentPagePermission.MenuSn,
+                        AccountPermission = _userCurrentPagePermission.AccountPermission
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -225,32 +237,29 @@ namespace MOD4.Web.Controllers
                     Chartgrade = _targetSettingList.CHARTGRADE,
                     USPEC = _targetSettingList.USPEC.ToString("0.#####"),
                     LSPEC = _targetSettingList.LSPEC.ToString("0.#####"),
+                    Last3MonCPK = _targetSettingList.Last3MonCPK.ToString("0.#####"),
+                    Last2MonCPK = _targetSettingList.Last2MonCPK.ToString("0.#####"),
+                    LastMonCPK = _targetSettingList.LastMonCPK.ToString("0.#####"),
+                    LastMonCL1 = _targetSettingList.LastMonCL1.ToString("0.#####"),
+                    LastMonUCL1 = _targetSettingList.LastMonUCL1.ToString("0.#####"),
+                    LastMonLCL1 = _targetSettingList.LastMonLCL1.ToString("0.#####"),
+                    LastMonCL2 = _targetSettingList.LastMonCL2.ToString("0.#####"),
+                    LastMonUCL2 = _targetSettingList.LastMonUCL2.ToString("0.#####"),
+                    LastMonLCL2 = _targetSettingList.LastMonLCL2.ToString("0.#####"),
                     UCL1 = _targetSettingList.UCL1.ToString("0.#####"),
                     CL1 = _targetSettingList.CL1.ToString("0.#####"),
                     LCL1 = _targetSettingList.LCL1.ToString("0.#####"),
-                    Last2MonCL1 = _targetSettingList.Last2MonCL1.ToString("0.#####"),
-                    LastMonCL1 = _targetSettingList.LastMonCL1.ToString("0.#####"),
-                    CurrMonCL1 = _targetSettingList.CurrMonCL1.ToString("0.#####"),
-                    Last2MonUCL1 = _targetSettingList.Last2MonUCL1.ToString("0.#####"),
-                    LastMonUCL1 = _targetSettingList.LastMonUCL1.ToString("0.#####"),
-                    CurrMonUCL1 = _targetSettingList.CurrMonUCL1.ToString("0.#####"),
-                    Last2MonLCL1 = _targetSettingList.Last2MonLCL1.ToString("0.#####"),
-                    LastMonLCL1 = _targetSettingList.LastMonLCL1.ToString("0.#####"),
-                    CurrMonLCL1 = _targetSettingList.CurrMonLCL1.ToString("0.#####"),
                     UCL2 = _targetSettingList.UCL2.ToString("0.#####"),
                     CL2 = _targetSettingList.CL2.ToString("0.#####"),
                     LCL2 = _targetSettingList.LCL2.ToString("0.#####"),
-                    Last2MonCL2 = _targetSettingList.Last2MonCL2.ToString("0.#####"),
-                    LastMonCL2 = _targetSettingList.LastMonCL2.ToString("0.#####"),
-                    CurrMonCL2 = _targetSettingList.CurrMonCL2.ToString("0.#####"),
-                    Last2MonUCL2 = _targetSettingList.Last2MonUCL2.ToString("0.#####"),
-                    LastMonUCL2 = _targetSettingList.LastMonUCL2.ToString("0.#####"),
-                    CurrMonUCL2 = _targetSettingList.CurrMonUCL2.ToString("0.#####"),
-                    Last2MonLCL2 = _targetSettingList.Last2MonLCL2.ToString("0.#####"),
-                    LastMonLCL2 = _targetSettingList.LastMonLCL2.ToString("0.#####"),
-                    CurrMonLCL2 = _targetSettingList.CurrMonLCL2.ToString("0.#####"),
+                    NewCL1 = _targetSettingList.NewCL1,
+                    NewUCL1 = _targetSettingList.NewUCL1,
+                    NewLCL1 = _targetSettingList.NewLCL1,
+                    NewCL2 = _targetSettingList.NewCL2,
+                    NewUCL2 = _targetSettingList.NewUCL2,
+                    NewLCL2 = _targetSettingList.NewLCL2,
+                    Memo = _targetSettingList.Memo
                 });
-
             }
             catch (Exception ex)
             {
@@ -263,7 +272,21 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                return Json("");
+
+                var _updResult = _spcReportDomainService.UpdateSPCSetting(new SPCChartSettingEntity
+                {
+                    sn = updateSPCSettingEditVM.Sn,
+                    NewUCL1 = updateSPCSettingEditVM.NewUCL1,
+                    NewCL1 = updateSPCSettingEditVM.NewCL1,
+                    NewLCL1 = updateSPCSettingEditVM.NewLCL1,
+                    NewUCL2 = updateSPCSettingEditVM.NewUCL2,
+                    NewCL2 = updateSPCSettingEditVM.NewCL2,
+                    NewLCL2 = updateSPCSettingEditVM.NewLCL2,
+                    Memo = updateSPCSettingEditVM.Memo
+                }
+                , GetUserInfo());
+
+                return Json(_updResult);
 
             }
             catch (Exception ex)

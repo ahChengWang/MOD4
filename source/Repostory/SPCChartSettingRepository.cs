@@ -52,5 +52,24 @@ namespace MOD4.Web.Repostory
 
             return dao;
         }
+
+        public int Update(SPCChartSettingDao updDao)
+        {
+            string sql = @" UPDATE [carUX_report].[dbo].[SPC_Chart_Setting]
+SET [UCL1] = @UCL1
+   ,[LCL1] = @LCL1
+   ,[CL1] = @CL1
+   ,[UCL2] = @UCL2
+   ,[LCL2] = @LCL2
+   ,[CL2] = @CL2
+   ,[Memo] = @Memo
+   ,[UpdateUser] = @UpdateUser
+   ,[UpdateTime] = @UpdateTime
+ WHERE sn=@sn; ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, updDao);
+
+            return dao;
+        }
     }
 }

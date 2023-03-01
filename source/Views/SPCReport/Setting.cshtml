@@ -40,6 +40,15 @@
         box-shadow: inset 0 0 0 transparent;
         transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
     }
+
+    #sample td {
+        padding: 0.5rem;
+        text-align: right;
+    }
+
+    #sample th {
+        text-align: center;
+    }
 </style>
 
 <head>
@@ -58,7 +67,7 @@
                             <h3 class="card-title">SPC 參數設定</h3>
                         </div>
                         <div class="card-body">
-                            <span style="font-size:8px;font-weight:700" class="text-danger">*chartgrade</span>
+                            <span style="font-size:8px;font-weight:700" class="text-danger">*樓層、chartgrade 必選</span>
                             <div id="srcDiv" class="form-group d-flex align-content-center flex-wrap">
                                 <div class="col-lg-1">
                                     <label class="col-form-label">樓層：</label>
@@ -232,6 +241,30 @@
                             $('#editModal').html(result);
                             $('#editModal').addClass('show');
                             $('#editModal').css('display', 'block');
+
+                            const m = new Date();
+                            var _month = "";
+
+                            var _showTable = $("#showTable tr").first();
+
+                            (m.setMonth(m.getMonth() - 2));
+                            _month = m.getMonth();
+                            if (_month == 0)
+                                _month = 12;
+                            _showTable.find("td:eq(2)").html(_month + '月CPK');
+
+                            (m.setMonth(m.getMonth() + 1));
+                            _month = m.getMonth();
+                            if (_month == 0)
+                                _month = 12;
+                            _showTable.find("td:eq(3)").html(_month + '月CPK');
+
+                            (m.setMonth(m.getMonth() + 1));
+                            _month = m.getMonth();
+                            if (_month == 0)
+                                _month = 12;
+                            _showTable.find("td:eq(4)").html(_month + '月CPK');
+
                         }
                     }
                 });
@@ -255,17 +288,9 @@
                     data: $("#editForm").serialize(),
                     success: function (result) {
                         $.unblockUI();
-                        if (isJsonString(result)) {
-                            var _res = JSON.parse(result);
-                            if (result == '""') {
-                                alert('查無資料');
-                            }
-                            if ('isException' in _res) {
-                                alert(_res.msg);
-                                return false;
-                            }
-                        }
-                        else {
+                        if (result == '') {
+                            alert('更新成功');
+
                             var _sn = _form[0]["Sn"].value;
 
                             $("tr[name='tr" + _sn + "']").find("td:eq(5)").html(_form[0]["NewUCL1"].value);
@@ -275,6 +300,9 @@
                             $("tr[name='tr" + _sn + "']").find("td:eq(9)").html(_form[0]["NewCL2"].value);
                             $("tr[name='tr" + _sn + "']").find("td:eq(10)").html(_form[0]["NewLCL2"].value);
                             dismissModal();
+                        }
+                        else {
+                            alert(result);
                         }
                     }
                 });

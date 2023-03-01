@@ -23,5 +23,7 @@ namespace MOD4.Web.Repostory.Dao
         public string CHARTGRADE { get; set; }
         public int FLOOR { get; set; }
         public string Memo { get; set; }
+        public string UpdateUser { get; set; }
+        public DateTime UpdateTime { get; set; }
     }
 }

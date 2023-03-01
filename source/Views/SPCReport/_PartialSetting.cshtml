@@ -1,31 +1,32 @@
-﻿@model List<MOD4.Web.ViewModel.SPCSettingViewModel>
+﻿@model MOD4.Web.ViewModel.SPCSettingMainViewModel
+@using MOD4.Web.ViewModel
 
 <table id="sample" class="table table-bordered table-hover">
     <thead>
         <tr>
-            <th>@Html.DisplayNameFor(model => model.First().ProductId)</th>
-            <th>@Html.DisplayNameFor(model => model.First().DataGroup)</th>
-            <th>@Html.DisplayNameFor(model => model.First().Chartgrade)</th>
-            <th>@Html.DisplayNameFor(model => model.First().USPEC)</th>
-            <th>@Html.DisplayNameFor(model => model.First().LSPEC)</th>
-            <th>@Html.DisplayNameFor(model => model.First().UCL1)</th>
-            <th>@Html.DisplayNameFor(model => model.First().CL1)</th>
-            <th>@Html.DisplayNameFor(model => model.First().LCL1)</th>
-            <th>@Html.DisplayNameFor(model => model.First().UCL2)</th>
-            <th>@Html.DisplayNameFor(model => model.First().CL2)</th>
-            <th>@Html.DisplayNameFor(model => model.First().LCL2)</th>
+            <th>@Html.DisplayNameFor(model => model.SettingList.First().ProductId)</th>
+            <th>@Html.DisplayNameFor(model => model.SettingList.First().DataGroup)</th>
+            <th>@Html.DisplayNameFor(model => model.SettingList.First().Chartgrade)</th>
+            <th>@Html.DisplayNameFor(model => model.SettingList.First().USPEC)</th>
+            <th>@Html.DisplayNameFor(model => model.SettingList.First().LSPEC)</th>
+            <th>@Html.DisplayNameFor(model => model.SettingList.First().UCL1)</th>
+            <th>@Html.DisplayNameFor(model => model.SettingList.First().CL1)</th>
+            <th>@Html.DisplayNameFor(model => model.SettingList.First().LCL1)</th>
+            <th>@Html.DisplayNameFor(model => model.SettingList.First().UCL2)</th>
+            <th>@Html.DisplayNameFor(model => model.SettingList.First().CL2)</th>
+            <th>@Html.DisplayNameFor(model => model.SettingList.First().LCL2)</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
         @{
-            foreach (var data in Model)
+            foreach (var data in Model.SettingList)
             {
                 string _trId = "tr" + @data.Sn.ToString();
                 <tr name="@_trId">
                     <td>@data.ProductId</td>
                     <td>@data.DataGroup</td>
-                    <td>@data.Chartgrade</td>
+                    <td width="8%">@data.Chartgrade</td>
                     <td>@data.USPEC</td>
                     <td>@data.LSPEC</td>
                     <td>@data.UCL1</td>
@@ -34,11 +35,23 @@
                     <td>@data.UCL2</td>
                     <td>@data.CL2</td>
                     <td>@data.LCL2</td>
-                    <td>
-                        <a class="btn btn-sm" style="font-size:15px" data-toggle="modal" data-target="#editModal" onclick="btnClickEdit(@data.Sn)">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                    </td>
+
+                    @{
+                        UserPermissionViewModel _userPermission = Model.UserPermission;
+
+                        if (Convert.ToBoolean(_userPermission.AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management))
+                        {
+                            <td>
+                                <a class="btn btn-sm" style="font-size:15px" data-toggle="modal" data-target="#editModal" onclick="btnClickEdit(@data.Sn)">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+                    }
                 </tr>
             }
         }

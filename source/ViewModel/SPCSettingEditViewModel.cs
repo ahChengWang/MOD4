@@ -28,6 +28,33 @@ namespace MOD4.Web.ViewModel
         [DisplayName("LSPEC")]
         public string LSPEC { get; set; }
 
+        [DisplayName("上上上月CPK")]
+        public string Last3MonCPK { get; set; }
+
+        [DisplayName("上上月CPK")]
+        public string Last2MonCPK { get; set; }
+
+        [DisplayName("上月CPK")]
+        public string LastMonCPK { get; set; }
+
+        [DisplayName("UCL1 建議值")]
+        public string LastMonUCL1 { get; set; }
+
+        [DisplayName("CL1 建議值")]
+        public string LastMonCL1 { get; set; }
+
+        [DisplayName("LCL1 建議值")]
+        public string LastMonLCL1 { get; set; }
+
+        [DisplayName("UCL2 建議值")]
+        public string LastMonUCL2 { get; set; }
+
+        [DisplayName("CL2 建議值")]
+        public string LastMonCL2 { get; set; }
+
+        [DisplayName("LCL2 建議值")]
+        public string LastMonLCL2 { get; set; }
+
         [DisplayName("UCL1")]
         public string UCL1 { get; set; }
 
@@ -36,33 +63,6 @@ namespace MOD4.Web.ViewModel
 
         [DisplayName("LCL1")]
         public string LCL1 { get; set; }
-
-        public string Last2MonUCL1 { get; set; }
-
-        public string Last2MonCL1 { get; set; }
-
-        public string Last2MonLCL1 { get; set; }
-
-        public string LastMonUCL1 { get; set; }
-
-        public string LastMonCL1 { get; set; }
-
-        public string LastMonLCL1 { get; set; }
-
-        public string CurrMonUCL1 { get; set; }
-
-        public string CurrMonCL1 { get; set; }
-
-        public string CurrMonLCL1 { get; set; }
-
-        [Required(ErrorMessage = "*必填")]
-        public string NewUCL1 { get; set; }
-
-        [Required(ErrorMessage = "*必填")]
-        public string NewCL1 { get; set; }
-
-        [Required(ErrorMessage = "*必填")]
-        public string NewLCL1 { get; set; }
 
         [DisplayName("UCL2")]
         public string UCL2 { get; set; }
@@ -73,32 +73,23 @@ namespace MOD4.Web.ViewModel
         [DisplayName("LCL2")]
         public string LCL2 { get; set; }
 
-        public string Last2MonUCL2 { get; set; }
-
-        public string Last2MonCL2 { get; set; }
-
-        public string Last2MonLCL2 { get; set; }
-
-        public string LastMonUCL2 { get; set; }
-
-        public string LastMonCL2 { get; set; }
-
-        public string LastMonLCL2 { get; set; }
-
-        public string CurrMonUCL2 { get; set; }
-
-        public string CurrMonCL2 { get; set; }
-
-        public string CurrMonLCL2 { get; set; }
+        [Required(ErrorMessage = "*必填")]
+        public double NewUCL1 { get; set; }
 
         [Required(ErrorMessage = "*必填")]
-        public string NewUCL2 { get; set; }
+        public double NewCL1 { get; set; }
 
         [Required(ErrorMessage = "*必填")]
-        public string NewCL2 { get; set; }
+        public double NewLCL1 { get; set; }
 
         [Required(ErrorMessage = "*必填")]
-        public string NewLCL2 { get; set; }
+        public double NewUCL2 { get; set; }
+
+        [Required(ErrorMessage = "*必填")]
+        public double NewCL2 { get; set; }
+
+        [Required(ErrorMessage = "*必填")]
+        public double NewLCL2 { get; set; }
 
         [DisplayName("備註")]
         [Required(ErrorMessage = "*必填")]

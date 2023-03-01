@@ -22,11 +22,18 @@
 
     input {
         text-align: right;
-        width: 30%;
+        width: 50%;
+    }
+
+    #showTable td {
+        padding: 0.3rem;
+        text-align: right;
     }
 
     #editTable td {
         padding: 0.3rem;
+        text-align: right;
+        width:10%;
     }
 </style>
 
@@ -63,84 +70,82 @@
                         <label asp-for="Chartgrade"></label>
                         <label>：@Model.Chartgrade</label>
                     </div>
-                    <div class="col-lg-3">
-                        <label asp-for="USPEC"></label>
-                        <label>：@Model.USPEC</label>
-                    </div>
-                    <div class="col-lg-2">
-                        <label asp-for="LSPEC"></label>
-                        <label>：@Model.LSPEC</label>
-                    </div>
+                </div>
+                <div>
+                    <table id="showTable" class="table table-bordered table-hover">
+                        <tbody>
+                            <tr>
+                                <td>USPEC</td>
+                                <td>LSPEC</td>
+                                <td>上上上月CPK</td>
+                                <td>上上月CPK</td>
+                                <td>上月CPK</td>
+                            </tr>
+                            <tr>
+                                <td>@Model.USPEC</td>
+                                <td>@Model.LSPEC</td>
+                                <td>@Model.Last3MonCPK</td>
+                                <td>@Model.Last2MonCPK</td>
+                                <td>@Model.LastMonCPK</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
                 <div>
                     <table id="editTable" class="table table-bordered table-hover">
                         <tbody>
                             <tr>
                                 <td></td>
-                                <td>上上月</td>
-                                <td>上月</td>
-                                <td>本月</td>
+                                <td>建議值</td>
                                 <td>當前設定</td>
                                 <td>更新值</td>
                             </tr>
                             <tr>
                                 <td>UCL1</td>
-                                <td>@Model.Last2MonUCL1</td>
                                 <td>@Model.LastMonUCL1</td>
-                                <td>@Model.CurrMonUCL1</td>
                                 <td>@Model.UCL1</td>
                                 <td>
-                                    <input type="text" asp-for="NewUCL1" />
+                                    <input type="text" asp-for="NewUCL1" value="@Model.NewUCL1" />
                                 </td>
                             </tr>
                             <tr>
                                 <td>CL1</td>
-                                <td>@Model.Last2MonCL1</td>
                                 <td>@Model.LastMonCL1</td>
-                                <td>@Model.CurrMonCL1</td>
                                 <td>@Model.CL1</td>
                                 <td>
-                                    <input type="text" asp-for="NewCL1" />
+                                    <input type="text" asp-for="NewCL1" value="@Model.NewCL1" />
                                 </td>
                             </tr>
                             <tr>
                                 <td>LCL1</td>
-                                <td>@Model.Last2MonLCL1</td>
                                 <td>@Model.LastMonLCL1</td>
-                                <td>@Model.CurrMonLCL1</td>
                                 <td>@Model.LCL1</td>
                                 <td>
-                                    <input type="text" asp-for="NewLCL1" />
+                                    <input type="text" asp-for="NewLCL1" value="@Model.NewLCL1"/>
                                 </td>
                             </tr>
                             <tr>
                                 <td>UCL2</td>
-                                <td>@Model.Last2MonUCL2</td>
                                 <td>@Model.LastMonUCL2</td>
-                                <td>@Model.CurrMonUCL2</td>
                                 <td>@Model.UCL2</td>
                                 <td>
-                                    <input type="text" asp-for="NewUCL2" />
+                                    <input type="text" asp-for="NewUCL2" value="@Model.NewUCL2"/>
                                 </td>
                             </tr>
                             <tr>
                                 <td>CL2</td>
-                                <td>@Model.Last2MonCL2</td>
                                 <td>@Model.LastMonCL2</td>
-                                <td>@Model.CurrMonCL2</td>
                                 <td>@Model.CL2</td>
                                 <td>
-                                    <input type="text" asp-for="NewCL2" />
+                                    <input type="text" asp-for="NewCL2" value="@Model.NewCL2" />
                                 </td>
                             </tr>
                             <tr>
                                 <td>LCL2</td>
-                                <td>@Model.Last2MonLCL2</td>
                                 <td>@Model.LastMonLCL2</td>
-                                <td>@Model.CurrMonLCL2</td>
                                 <td>@Model.LCL2</td>
                                 <td>
-                                    <input type="text" asp-for="NewLCL2" />
+                                    <input type="text" asp-for="NewLCL2" value="@Model.NewLCL2"/>
                                 </td>
                             </tr>
                         </tbody>

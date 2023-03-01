@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Transactions;
 
 namespace MOD4.Web.DomainService
 {
@@ -53,7 +54,7 @@ namespace MOD4.Web.DomainService
                     if (_tmpSetting == null)
                         return;
                     spc.OOC1 = spc.DTX > _tmpSetting.UCL1 || spc.DTX < _tmpSetting.LCL1;
-                    spc.OOC2 = spc.DTRM > _tmpSetting.UCL2 || spc.DTX < _tmpSetting.LCL2;
+                    spc.OOC2 = spc.DTRM > _tmpSetting.UCL2 || spc.DTRM < _tmpSetting.LCL2;
                     spc.OOS = spc.DTX > _tmpSetting.USPEC || spc.DTX < _tmpSetting.LSPEC;
                 });
 
@@ -140,18 +141,18 @@ namespace MOD4.Web.DomainService
                     ChartId = _spcSetting.ONCHID,
                     TypeStr = _spcSetting.ONCHTYPE,
                     TestItem = dataGroup,
-                    XBarBar = _xBar.ToString("0.####"),
-                    Sigma = _sigma.ToString("0.####"),
-                    Ca = (Math.Abs(((_spcSetting.USPEC + _spcSetting.LSPEC) / 2) - _xBar) / ((_spcSetting.USPEC - _spcSetting.LSPEC) / 2)).ToString("0.####"),
-                    Cp = ((_spcSetting.USPEC - _spcSetting.LSPEC) / (6 * _sigma)).ToString("0.####"),
-                    Cpk = Math.Min((_spcSetting.USPEC - _xBar) / (3 * _sigma), (_xBar - _spcSetting.LSPEC) / (3 * _sigma)).ToString("0.####"),
+                    XBarBar = _xBar.ToString("0.#####"),
+                    Sigma = _sigma.ToString("0.#####"),
+                    Ca = (Math.Abs(((_spcSetting.USPEC + _spcSetting.LSPEC) / 2) - _xBar) / ((_spcSetting.USPEC - _spcSetting.LSPEC) / 2)).ToString("0.#####"),
+                    Cp = ((_spcSetting.USPEC - _spcSetting.LSPEC) / (6 * _sigma)).ToString("0.#####"),
+                    Cpk = Math.Min((_spcSetting.USPEC - _xBar) / (3 * _sigma), (_xBar - _spcSetting.LSPEC) / (3 * _sigma)).ToString("0.#####"),
                     Sample = _allCnt.ToString(),
                     n = "1",
-                    RMBar = _rmBar.ToString("0.####"),
-                    PpkBar = _xBar.ToString("0.####"),
-                    PpkSigma = "1.083488881217",
-                    Pp = ((_spcSetting.USPEC - _spcSetting.LSPEC) / (6 * _sVal)).ToString("0.####"),
-                    Ppk = Math.Min((_spcSetting.USPEC - _xBar) / (3 * _sVal), (_xBar - _spcSetting.LSPEC) / (3 * _sVal)).ToString("0.####"),
+                    RMBar = _rmBar.ToString("0.#####"),
+                    //PpkBar = _xBar.ToString("0.####"),
+                    //PpkSigma = "1.083488881217",
+                    //Pp = ((_spcSetting.USPEC - _spcSetting.LSPEC) / (6 * _sVal)).ToString("0.####"),
+                    //Ppk = Math.Min((_spcSetting.USPEC - _xBar) / (3 * _sVal), (_xBar - _spcSetting.LSPEC) / (3 * _sVal)).ToString("0.####"),
                     DetailList = _spcMicroScopeDataList.CopyAToB<SPCMicroScopeDataEntity>()
                 };
 
@@ -175,48 +176,100 @@ namespace MOD4.Web.DomainService
         {
             var _spcSetting = GetSettingList(sn).FirstOrDefault();
 
-            DateTime _startDate = DateTime.Parse($"{DateTime.Now.AddMonths(-2).ToString("yyyy-MM")}-01");
+            DateTime _startDate = DateTime.Parse($"{DateTime.Now.AddMonths(-3).ToString("yyyy-MM")}-01");
 
             List<SPCMicroScopeDataDao> _spcMicroScopeDataList = _spcMicroScopeDataRepository.SelectByConditions("", _startDate, DateTime.Now, _spcSetting.PECD, _spcSetting.DataGroup);
 
             if (!_spcMicroScopeDataList.Any())
                 return _spcSetting;
 
-            var _spcMicroScopeDataLast2Mon = _spcMicroScopeDataList.Where(w => w.MeasureDate >= _startDate && w.MeasureDate < _startDate.AddMonths(1));
-            var _spcMicroScopeDataLastMon = _spcMicroScopeDataList.Where(w => w.MeasureDate >= _startDate.AddMonths(1) && w.MeasureDate < _startDate.AddMonths(2));
-            var _spcMicroScopeDataCurrMon = _spcMicroScopeDataList.Where(w => w.MeasureDate >= _startDate.AddMonths(2) && w.MeasureDate < DateTime.Now);
-            
+            var _spcMicroScopeDatarLast3Mon = _spcMicroScopeDataList.Where(w => w.MeasureDate >= _startDate && w.MeasureDate < _startDate.AddMonths(1));
+            var _spcMicroScopeDataLast2Mon = _spcMicroScopeDataList.Where(w => w.MeasureDate >= _startDate.AddMonths(1) && w.MeasureDate < _startDate.AddMonths(2));
+            var _spcMicroScopeDataLastMon = _spcMicroScopeDataList.Where(w => w.MeasureDate >= _startDate.AddMonths(2) && w.MeasureDate < _startDate.AddMonths(3));
+            var _xBar = 0.0; // DTX 的平均值
+            var _rmBar = 0.0; // DTRM 的平均值
+            var _sigma = 0.0;
+
+            if (_spcMicroScopeDatarLast3Mon.Any())
+            {
+                _xBar = _spcMicroScopeDatarLast3Mon.Sum(spc => spc.DTX) / _spcMicroScopeDatarLast3Mon.Count();
+                _rmBar = _spcMicroScopeDatarLast3Mon.Sum(spc => spc.DTRM) / _spcMicroScopeDatarLast3Mon.Count();
+                _sigma = _rmBar / 1.128;
+                _spcSetting.Last3MonCPK = Math.Min((_spcSetting.USPEC - _xBar) / (3 * _sigma), (_xBar - _spcSetting.LSPEC) / (3 * _sigma));
+            }
+
             if (_spcMicroScopeDataLast2Mon.Any())
             {
-                _spcSetting.Last2MonUCL1 = (_spcMicroScopeDataLast2Mon.Sum(spc => spc.DTX) / _spcMicroScopeDataLast2Mon.Count()) + ((_spcMicroScopeDataLast2Mon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLast2Mon.Count()) * 3);
-                _spcSetting.Last2MonCL1 = (_spcMicroScopeDataLast2Mon.Sum(spc => spc.DTX) / _spcMicroScopeDataLast2Mon.Count());
-                _spcSetting.Last2MonLCL1 = (_spcMicroScopeDataLast2Mon.Sum(spc => spc.DTX) / _spcMicroScopeDataLast2Mon.Count()) - ((_spcMicroScopeDataLast2Mon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLast2Mon.Count()) * 3);
-                _spcSetting.Last2MonUCL2 = ((_spcMicroScopeDataLast2Mon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLast2Mon.Count()) * 3.267);
-                _spcSetting.Last2MonCL2 = _spcMicroScopeDataLast2Mon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLast2Mon.Count(); _spcSetting.LastMonUCL1 = (_spcMicroScopeDataLastMon.Sum(spc => spc.DTX) / _spcMicroScopeDataLastMon.Count()) + ((_spcMicroScopeDataLastMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLastMon.Count()) * 3);
-                _spcSetting.Last2MonLCL2 = 0;
+                _xBar = _spcMicroScopeDataLast2Mon.Sum(spc => spc.DTX) / _spcMicroScopeDataLast2Mon.Count();
+                _rmBar = _spcMicroScopeDataLast2Mon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLast2Mon.Count();
+                _sigma = _rmBar / 1.128;
+                _spcSetting.Last2MonCPK = Math.Min((_spcSetting.USPEC - _xBar) / (3 * _sigma), (_xBar - _spcSetting.LSPEC) / (3 * _sigma));
             }
 
             if (_spcMicroScopeDataLastMon.Any())
             {
-                _spcSetting.LastMonUCL1 = (_spcMicroScopeDataLastMon.Sum(spc => spc.DTX) / _spcMicroScopeDataLastMon.Count()) + ((_spcMicroScopeDataLastMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLastMon.Count()) * 3);
-                _spcSetting.LastMonCL1 = (_spcMicroScopeDataLastMon.Sum(spc => spc.DTX) / _spcMicroScopeDataLastMon.Count());
-                _spcSetting.LastMonLCL1 = (_spcMicroScopeDataLastMon.Sum(spc => spc.DTX) / _spcMicroScopeDataLastMon.Count()) - ((_spcMicroScopeDataLastMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLastMon.Count()) * 3);
-                _spcSetting.LastMonUCL2 = ((_spcMicroScopeDataLastMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLastMon.Count()) * 3.267);
-                _spcSetting.LastMonCL2 = _spcMicroScopeDataLastMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLastMon.Count();
-                _spcSetting.LastMonLCL2 = 0;
-            }
+                _xBar = _spcMicroScopeDataLastMon.Sum(spc => spc.DTX) / _spcMicroScopeDataLastMon.Count();
+                _rmBar = _spcMicroScopeDataLastMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataLastMon.Count();
+                _sigma = _rmBar / 1.128;
+                _spcSetting.LastMonCPK = Math.Min((_spcSetting.USPEC - _xBar) / (3 * _sigma), (_xBar - _spcSetting.LSPEC) / (3 * _sigma));
 
-            if (_spcMicroScopeDataCurrMon.Any())
-            {
-                _spcSetting.CurrMonUCL1 = (_spcMicroScopeDataCurrMon.Sum(spc => spc.DTX) / _spcMicroScopeDataCurrMon.Count()) + ((_spcMicroScopeDataCurrMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataCurrMon.Count()) * 3);
-                _spcSetting.CurrMonCL1 = (_spcMicroScopeDataCurrMon.Sum(spc => spc.DTX) / _spcMicroScopeDataCurrMon.Count());
-                _spcSetting.CurrMonLCL1 = (_spcMicroScopeDataCurrMon.Sum(spc => spc.DTX) / _spcMicroScopeDataCurrMon.Count()) - ((_spcMicroScopeDataCurrMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataCurrMon.Count()) * 3);
-                _spcSetting.CurrMonUCL2 = ((_spcMicroScopeDataCurrMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataCurrMon.Count()) * 3.267);
-                _spcSetting.CurrMonCL2 = _spcMicroScopeDataCurrMon.Sum(spc => spc.DTRM) / _spcMicroScopeDataCurrMon.Count();
-                _spcSetting.CurrMonLCL2 = 0;
+                // 計算建議值
+                _spcSetting.LastMonUCL1 = _xBar + (_sigma * 3);
+                _spcSetting.LastMonCL1 = _xBar;
+                _spcSetting.LastMonLCL1 = _xBar - (_sigma * 3);
+                _spcSetting.LastMonUCL2 = _rmBar * 3.267;
+                _spcSetting.LastMonCL2 = _rmBar;
+                _spcSetting.LastMonLCL2 = 0;
+
+                _spcSetting.NewUCL1 = _xBar + (_sigma * 3);
+                _spcSetting.NewCL1 = _xBar;
+                _spcSetting.NewLCL1 = _xBar - (_sigma * 3);
+                _spcSetting.NewUCL2 = _rmBar * 3.267;
+                _spcSetting.NewCL2 = _rmBar;
+                _spcSetting.NewLCL2 = 0;
             }
 
             return _spcSetting;
+        }
+
+        public string UpdateSPCSetting(SPCChartSettingEntity updEntity, UserEntity userEntity)
+        {
+            try
+            {
+                string _result = "";
+
+                var _spcSetting = GetSettingList(updEntity.sn).FirstOrDefault();
+
+                SPCChartSettingDao _updSPCChartSettingDao = new SPCChartSettingDao();
+
+                _updSPCChartSettingDao.sn = updEntity.sn;
+                _updSPCChartSettingDao.UCL1 = Convert.ToSingle(updEntity.NewUCL1);
+                _updSPCChartSettingDao.CL1 = Convert.ToSingle(updEntity.NewCL1);
+                _updSPCChartSettingDao.LCL1 = Convert.ToSingle(updEntity.NewLCL1);
+                _updSPCChartSettingDao.UCL2 = Convert.ToSingle(updEntity.NewUCL2);
+                _updSPCChartSettingDao.CL2 = Convert.ToSingle(updEntity.NewCL2);
+                _updSPCChartSettingDao.LCL2 = Convert.ToSingle(updEntity.NewLCL2);
+                _updSPCChartSettingDao.Memo = updEntity.Memo;
+                _updSPCChartSettingDao.UpdateUser = userEntity.Name;
+                _updSPCChartSettingDao.UpdateTime = DateTime.Now;
+
+                using (TransactionScope _scope = new TransactionScope())
+                {
+                    bool _updRes = _spcChartSettingRepository.Update(_updSPCChartSettingDao) == 1;
+
+                    if (_updRes)
+                        _scope.Complete();
+                    else
+                        _result = "更新異常";
+                }
+
+                return _result;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+
         }
     }
 }

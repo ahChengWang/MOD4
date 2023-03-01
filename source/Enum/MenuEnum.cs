@@ -30,5 +30,7 @@ namespace MOD4.Web.Enum
         Extension = 17,
         [Description("SPC Online Chart")]
         SPCReport = 19,
+        [Description("SPC參數設定")]
+        SPCParaSetting = 20,
     }
 }

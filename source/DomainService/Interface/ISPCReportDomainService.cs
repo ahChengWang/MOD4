@@ -11,5 +11,7 @@ namespace MOD4.Web.DomainService
         List<SPCChartSettingEntity> GetSettingList(int sn, int floor = 0, string chartgrade = "", string prodIdList = "");
 
         SPCChartSettingEntity GetSettingEdit(int sn);
+
+        string UpdateSPCSetting(SPCChartSettingEntity updEntity, UserEntity userEntity);
     }
 }
