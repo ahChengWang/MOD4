@@ -119,6 +119,51 @@ namespace MOD4.Web.DomainService.Demand
         }
 
         /// <summary>
+        /// role : user
+        /// scenario : 作廢申請單
+        /// </summary>
+        /// <param name="flowDataEntity"></param>
+        /// <returns></returns>
+        public (bool, string) DoCancelFlow(DemandFlowEntity flowDataEntity)
+        {
+            flowDataEntity.UpdateDemandOrder.isCancel = true;
+
+            _updateRes = (false, "");
+
+            using (var scope = new TransactionScope())
+            {
+                var _insResult = false;
+
+                _insResult = flowDataEntity.DemandsRepository.UpdateToCancel(flowDataEntity.UpdateDemandOrder) == 1;
+
+                if (_insResult)
+                {
+                    scope.Complete();
+                    _updateRes = (true, $"需求單:{flowDataEntity.UpdateDemandOrder.orderNo} \n{flowDataEntity.UpdateDemandOrder.statusId.GetDescription()}");
+                }
+                else
+                    _updateRes = (false, "更新失敗");
+            }
+
+            // 發送 MApp & mail 給管理者
+            if (_updateRes.Item1)
+            {
+                flowDataEntity.MAppDomainService.SendMsgToOneAsync($"需求申請單作廢通知  主旨: {flowDataEntity.UpdateDemandOrder.subject}, 申請人: {flowDataEntity.UpdateDemandOrder.updateUser}", "253425");
+                flowDataEntity.MailService.Send(new MailEntity
+                {
+                    To = "WEITING.GUO@INNOLUX.COM",
+                    Subject = $"需求申請單 - 作廢通知 申請人:({flowDataEntity.UpdateDemandOrder.applicant})",
+                    Content = "<br /> Dear Sir <br /><br />" +
+                        "您有 <a style='text-decoration:underline'>已作廢</a><a style='font-weight:900'> 需求申請單</a>，" + 
+                        $"<br /><br />主旨：{flowDataEntity.UpdateDemandOrder.subject}，" +
+                        $"<br /><br />單號：{flowDataEntity.OldDemandOrder.orderNo}" +
+                        "<br /><br />謝謝"
+                });
+            }
+            return _updateRes;
+        }
+
+        /// <summary>
         /// role : manager
         /// scenario : 處理申請單
         /// </summary>

@@ -49,37 +49,41 @@
                         <div class="card-header">
                             <h3 class="card-title">進出申請單 簽核作業</h3>
                         </div>
-                        <span style="color:red;font-size:8px">*預設顯示30天入廠申請單</span>
-                        <div id="barDiv1" class="card-body">
-                            <div class="row" style="margin-bottom:5px">
-                                <div class="col-3">
-                                    <label>入廠起日：</label>
-                                    <input id="startDTE" class="my-control" type="date" name="name" value="" />
+                        <div class="card-body">
+                            <span style="color:red;font-size:8px">*預設顯示30天入廠申請單</span>
+                            <fieldset id="searchArea">
+                                <legend id="legend">查詢區塊</legend>
+                                <div class="row" style="margin-bottom:5px">
+                                    <div class="col-3">
+                                        <label>入廠起日：</label>
+                                        <input id="startDTE" class="my-control" type="date" name="name" value="" />
+                                    </div>
+                                    <div class="col-3">
+                                        <label>入廠訖日：</label>
+                                        <input id="endDTE" class="my-control" type="date" name="name" value="" />
+                                    </div>
+                                    <div class="col-3">
+                                        <label>入廠性質：</label>
+                                        <select id="selFabInType" class="custom-select" style="width:50%" asp-items="@(SelectList)ViewBag.FabInTypeList">
+                                            <option value="0"></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-3">
+                                        <label>入廠人員：</label>
+                                        <input id="guestName" type="text" class="form-control" style="width:65%;display:initial;" />
+                                    </div>
                                 </div>
-                                <div class="col-3">
-                                    <label>入廠訖日：</label>
-                                    <input id="endDTE" class="my-control" type="date" name="name" value="" />
+                                <div class="row">
+                                    <div class="col-3">
+                                        <label>申請人：</label>
+                                        <input id="applicant" type="text" class="form-control" style="width:65%;display:initial;" />
+                                    </div>
+                                    <div>
+                                        <input id="btnSearch" type="button" class="btn btn-info" style="float: right" name="name" value="查詢" />
+                                    </div>
                                 </div>
-                                <div class="col-3">
-                                    <label>入廠性質：</label>
-                                    <select id="selFabInType" class="custom-select" style="width:50%" asp-items="@(SelectList)ViewBag.FabInTypeList">
-                                        <option value="0"></option>
-                                    </select>
-                                </div>
-                                <div class="col-3">
-                                    <label>入廠人員：</label>
-                                    <input id="guestName" type="text" class="form-control" style="width:65%;display:initial;" />
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-3">
-                                    <label>申請人：</label>
-                                    <input id="applicant" type="text" class="form-control" style="width:65%;display:initial;" />
-                                </div>
-                                <div>
-                                    <input id="btnSearch" type="button" class="btn btn-info" style="float: right" name="name" value="查詢" />
-                                </div>
-                            </div>
+                                <br />
+                            </fieldset>
                             <br id="diviBr" />
 
                             <partial name="_PartialTable" model="Model" />
@@ -130,7 +134,7 @@
                             $('#table1').DataTable({
                                 "responsive": false,
                                 "lengthChange": true,
-                                "autoWidth": true,
+                                "autoWidth": false,
                                 "paging": true,
                                 "order": [[1, "desc"]]
                             }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
@@ -169,7 +173,7 @@
                 //"info": true,
                 "responsive": false,
                 "lengthChange": true,
-                "autoWidth": true,
+                "autoWidth": false,
                 "order": [[1, "desc"]],
                 /*"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]*/
             }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');

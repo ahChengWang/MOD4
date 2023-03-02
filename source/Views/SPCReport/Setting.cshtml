@@ -68,34 +68,37 @@
                         </div>
                         <div class="card-body">
                             <span style="font-size:8px;font-weight:700" class="text-danger">*樓層、chartgrade 必選</span>
-                            <div id="srcDiv" class="form-group d-flex align-content-center flex-wrap">
-                                <div class="col-lg-1">
-                                    <label class="col-form-label">樓層：</label>
+                            <fieldset id="searchArea">
+                                <legend id="legend">查詢區塊</legend>
+                                <div id="srcDiv" class="form-group d-flex align-content-center flex-wrap">
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">樓層：</label>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <select id="selFloor" class="custom-select" style="width:60%" asp-items="@(SelectList)ViewBag.Floor">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">chartgrade：</label>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <select id="selCG" class="custom-select" style="width:60%" asp-items="@(SelectList)ViewBag.ChartGrade">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">Prod ID：</label>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <select id="selProd" class="custom-select select2bs4" style="width:80%">
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <input class="btn btn-info" type="button" name="btn29" value="查詢" onclick="btnClickSearch()" />
+                                    </div>
                                 </div>
-                                <div class="col-lg-1">
-                                    <select id="selFloor" class="custom-select" style="width:60%" asp-items="@(SelectList)ViewBag.Floor">
-                                        <option value=""></option>
-                                    </select>
-                                </div>
-                                <div class="col-lg-1">
-                                    <label class="col-form-label">chartgrade：</label>
-                                </div>
-                                <div class="col-lg-1">
-                                    <select id="selCG" class="custom-select" style="width:60%" asp-items="@(SelectList)ViewBag.ChartGrade">
-                                        <option value=""></option>
-                                    </select>
-                                </div>
-                                <div class="col-lg-1">
-                                    <label class="col-form-label">Prod ID：</label>
-                                </div>
-                                <div class="col-lg-3">
-                                    <select id="selProd" class="custom-select select2bs4" style="width:80%">
-                                    </select>
-                                </div>
-                                <div class="col-lg-1">
-                                    <input class="btn btn-info" type="button" name="btn29" value="查詢" onclick="btnClickSearch()" />
-                                </div>
-                            </div>
+                            </fieldset>
                         </div>
                         <!-- /.card-body -->
                         <!-- Modal -->
@@ -158,7 +161,7 @@
                         }
                         else {
                             $("#sample_wrapper").remove();
-                            $("#srcDiv").after(result);
+                            $("#searchArea").after(result);
                             $('#sample').DataTable({
                                 "responsive": true
                                 , "lengthChange": true

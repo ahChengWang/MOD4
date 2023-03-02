@@ -51,66 +51,69 @@
                         <div class="card-header">
                             <h3 class="card-title">SPC Trend Chart</h3>
                         </div>
-                        <div id="srcDiv1" class="card-body">
+                        <div class="card-body">
                             <span style="font-size:8px;font-weight:700" class="text-danger">*請先選擇區間、樓層、chartgrade</span>
-                            <div class="form-group d-flex align-content-center flex-wrap">
-                                <div class="col-lg-1">
-                                    <label class="col-form-label">查詢區間：</label>
+                            <fieldset id="searchArea">
+                                <legend id="legend">查詢區塊</legend>
+                                <div class="form-group d-flex align-content-center flex-wrap">
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">查詢區間：</label>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <input id="dateRange" class="my-control" name="datepicker" value="" />
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">樓層：</label>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <select id="selFloor" class="custom-select" style="width:60%" asp-items="@(SelectList)ViewBag.Floor">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">chartgrade：</label>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <select id="selCG" class="custom-select" style="width:60%" asp-items="@(SelectList)ViewBag.ChartGrade">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">Node：</label>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <select id="selNode" class="custom-select select2bs4" style="width:60%" asp-items="@(SelectList)ViewBag.StatusList">
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="col-lg-4">
-                                    <input id="dateRange" class="my-control" name="datepicker" value="" />
+                                <div id="srcDiv" class="form-group d-flex align-content-center flex-wrap">
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">EQP：</label>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <select id="selEQ" class="custom-select select2bs4" style="width:60%" asp-items="@(SelectList)ViewBag.StatusList">
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">Prod ID：</label>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <select id="selProd" class="custom-select select2bs4" style="width:80%">
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">測項：</label>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <select id="selGroup" class="custom-select select2bs4" style="width:80%" asp-items="@(SelectList)ViewBag.TestItemOptions">
+                                            @*<option value=""></option>*@
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <input class="btn btn-info" type="button" name="btn29" value="查詢" onclick="btnClickSearch()" />
+                                    </div>
                                 </div>
-                                <div class="col-lg-1">
-                                    <label class="col-form-label">樓層：</label>
-                                </div>
-                                <div class="col-lg-1">
-                                    <select id="selFloor" class="custom-select" style="width:60%" asp-items="@(SelectList)ViewBag.Floor">
-                                        <option value=""></option>
-                                    </select>
-                                </div>
-                                <div class="col-lg-1">
-                                    <label class="col-form-label">chartgrade：</label>
-                                </div>
-                                <div class="col-lg-1">
-                                    <select id="selCG" class="custom-select" style="width:60%" asp-items="@(SelectList)ViewBag.ChartGrade">
-                                        <option value=""></option>
-                                    </select>
-                                </div>
-                                <div class="col-lg-1">
-                                    <label class="col-form-label">Node：</label>
-                                </div>
-                                <div class="col-lg-2">
-                                    <select id="selNode" class="custom-select select2bs4" style="width:60%" asp-items="@(SelectList)ViewBag.StatusList">
-                                    </select>
-                                </div>
-                            </div>
-                            <div id="srcDiv" class="form-group d-flex align-content-center flex-wrap">
-                                <div class="col-lg-1">
-                                    <label class="col-form-label">EQP：</label>
-                                </div>
-                                <div class="col-lg-2">
-                                    <select id="selEQ" class="custom-select select2bs4" style="width:60%" asp-items="@(SelectList)ViewBag.StatusList">
-                                    </select>
-                                </div>
-                                <div class="col-lg-1">
-                                    <label class="col-form-label">Prod ID：</label>
-                                </div>
-                                <div class="col-lg-3">
-                                    <select id="selProd" class="custom-select select2bs4" style="width:80%">
-                                    </select>
-                                </div>
-                                <div class="col-lg-1">
-                                    <label class="col-form-label">測項：</label>
-                                </div>
-                                <div class="col-lg-3">
-                                    <select id="selGroup" class="custom-select select2bs4" style="width:80%" asp-items="@(SelectList)ViewBag.TestItemOptions">
-                                        @*<option value=""></option>*@
-                                    </select>
-                                </div>
-                                <div class="col-lg-1">
-                                    <input class="btn btn-info" type="button" name="btn29" value="查詢" onclick="btnClickSearch()" />
-                                </div>
-                            </div>
+                            </fieldset>
                             <input id="floor" type="hidden" value="" />
                             <input id="chartgrade" type="hidden" value="" />
                             <input id="selDate" type="hidden" value="" />
@@ -196,7 +199,7 @@
                         }
                         else {
                             $("#sample_wrapper").remove();
-                            $("#srcDiv").after(result);
+                            $("#searchArea").after(result);
                             $('#sample').DataTable({
                                 "responsive": false
                                 , "lengthChange": true

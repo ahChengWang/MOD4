@@ -13,5 +13,7 @@ namespace MOD4.Web.DomainService
         (bool, string) DoVerifyFlow(DemandFlowEntity flowDataEntity);
 
         (bool, string) DoCompletedFlow(DemandFlowEntity flowDataEntity);
+
+        (bool, string) DoCancelFlow(DemandFlowEntity flowDataEntity);
     }
 }

@@ -54,49 +54,53 @@
                             <h3 class="card-title">進出申請單 申請/查詢作業</h3>
                         </div>
                         <div id="barDiv1" class="card-body">
-                            <div class="row" style="margin-bottom:5px">
-                                <div class="col-3">
-                                    <label>申請起日：</label>
-                                    <input id="startDTE" class="my-control" type="date" name="name" value="" />
+                            <fieldset id="searchArea">
+                                <legend id="legend">查詢區塊</legend>
+                                <div class="row" style="margin-bottom:5px">
+                                    <div class="col-3">
+                                        <label>申請起日：</label>
+                                        <input id="startDTE" class="my-control" type="date" name="name" value="" />
+                                    </div>
+                                    <div class="col-3">
+                                        <label>申請訖日：</label>
+                                        <input id="endDTE" class="my-control" type="date" name="name" value="" />
+                                    </div>
+                                    <div class="col-3">
+                                        <label>狀態：</label>
+                                        <select id="selStatus" class="custom-select" style="width:50%" asp-items="@(SelectList)ViewBag.StatusList">
+                                            <option value="0"></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-3">
+                                        <label>入廠性質：</label>
+                                        <select id="selFabInType" class="custom-select" style="width:50%" asp-items="@(SelectList)ViewBag.FabInTypeList">
+                                            <option value="0"></option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="col-3">
-                                    <label>申請訖日：</label>
-                                    <input id="endDTE" class="my-control" type="date" name="name" value="" />
+                                <div class="row">
+                                    <div class="col-3">
+                                        <label>單號：</label>
+                                        <input id="orderNo" type="text" class="form-control" style="width:70%;display:initial;" />
+                                    </div>
+                                    <div class="col-3">
+                                        <label>申請人：</label>
+                                        <input id="applicant" type="text" class="form-control" style="width:65%;display:initial;" />
+                                    </div>
+                                    <div>
+                                        <input id="btnSearch" type="button" class="btn" style="float: right" name="btn29" value="查詢" />
+                                    </div>
                                 </div>
-                                <div class="col-3">
-                                    <label>狀態：</label>
-                                    <select id="selStatus" class="custom-select" style="width:50%" asp-items="@(SelectList)ViewBag.StatusList">
-                                        <option value="0"></option>
-                                    </select>
-                                </div>
-                                <div class="col-3">
-                                    <label>入廠性質：</label>
-                                    <select id="selFabInType" class="custom-select" style="width:50%" asp-items="@(SelectList)ViewBag.FabInTypeList">
-                                        <option value="0"></option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-3">
-                                    <label>單號：</label>
-                                    <input id="orderNo" type="text" class="form-control" style="width:70%;display:initial;" />
-                                </div>
-                                <div class="col-3">
-                                    <label>申請人：</label>
-                                    <input id="applicant" type="text" class="form-control" style="width:65%;display:initial;" />
-                                </div>
-                                <div>
-                                    <input id="btnSearch" type="button" class="btn" style="float: right" name="btn29" value="查詢" />
-                                </div>
-                            </div>
-                            @{
-                                UserPermissionViewModel _test = (UserPermissionViewModel)ViewBag.UserPermission;
+                                <br />
+                            </fieldset>
+                                @{
+                                    UserPermissionViewModel _test = (UserPermissionViewModel)ViewBag.UserPermission;
 
-                                if (Convert.ToBoolean(_test.AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Create))
-                                {
-                                    <input id="btnCreate" type="button" style="margin:10px 0" class="btn" name="btn30" value="+申請" />
+                                    if (Convert.ToBoolean(_test.AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Create))
+                                    {
+                                        <input id="btnCreate" type="button" style="margin-bottom:5px" class="btn" name="btn30" value="+申請" />
+                                    }
                                 }
-                            }
                             @*<input id="btnCreate" type="button" class="btn btn-danger" style="margin-left:7px" name="name" value="建立" />*@
                             <br id="splitbr" />
                             <partial name="_PartialTable" model="Model" />
@@ -142,7 +146,7 @@
                         $('#table1').DataTable({
                             "responsive": false
                             , "lengthChange": true
-                            , "autoWidth": true
+                            , "autoWidth": false
                             , "paging": true
                             , "order": [[0, "desc"]]
                         }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
@@ -169,7 +173,7 @@
             //"info": true,
             "responsive": false,
             "lengthChange": true,
-            "autoWidth": true,
+            "autoWidth": false,
             "order": [[0, "desc"]],
             /*"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]*/
         }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');

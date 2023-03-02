@@ -115,6 +115,22 @@
             font-size: 0.5rem;
             text-align: end;
         }
+
+        #searchArea {
+            border-top: solid #9e9e9e 1px;
+            border-right: none;
+            border-left: none;
+            border-bottom: solid #9e9e9e 1px;
+            border-radius: 8px;
+            margin-bottom:5px;
+        }
+
+        #legend {
+            width: auto;
+            font-size: 15px;
+            font-weight: 600;
+            color: #787878;
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -268,6 +284,8 @@
                 <span class="brand-text font-weight-light">CarUX</span>
             </a>
 
+
+
             <!-- Sidebar -->
             @await Component.InvokeAsync("Navigation")
             <!--<div class="sidebar">
@@ -316,11 +334,13 @@
             <!-- /.sidebar -->
         </aside>
 
+
+
         <!-- /.content-wrapper -->
         <footer class="main-footer">
             <div style="float:left">
                 <strong style="font-size: 7px; color: #a7aba9; font-family: sans-serif ">
-                    系統負責人:王士誠 5014-62721 |
+                    1 |
                 </strong>
                 <a>v @GetType().Assembly.GetName().Version.ToString()</a>
             </div>

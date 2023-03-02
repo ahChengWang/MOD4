@@ -120,7 +120,7 @@
                         $('#table1').DataTable({
                             "responsive": false
                             , "lengthChange": true
-                            , "autoWidth": true
+                            , "autoWidth": false
                             , "paging": true
                             , "order": false
                         }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
@@ -145,7 +145,7 @@
                         $('#table1').DataTable({
                             "responsive": false
                             , "lengthChange": true
-                            , "autoWidth": true
+                            , "autoWidth": false
                             , "paging": true
                             , "order": [[0, "desc"]]
                         }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
@@ -166,7 +166,7 @@
             //"info": true,
             "responsive": false,
             "lengthChange": true,
-            "autoWidth": true,
+            "autoWidth": false,
             "order": false
             /*"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]*/
         }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');

@@ -221,11 +221,11 @@ namespace MOD4.Web.DomainService
                 _spcSetting.LastMonCL2 = _rmBar;
                 _spcSetting.LastMonLCL2 = 0;
 
-                _spcSetting.NewUCL1 = _xBar + (_sigma * 3);
-                _spcSetting.NewCL1 = _xBar;
-                _spcSetting.NewLCL1 = _xBar - (_sigma * 3);
-                _spcSetting.NewUCL2 = _rmBar * 3.267;
-                _spcSetting.NewCL2 = _rmBar;
+                _spcSetting.NewUCL1 = Math.Round(_xBar + (_sigma * 3), 5);
+                _spcSetting.NewCL1 = Math.Round(_xBar, 5);
+                _spcSetting.NewLCL1 = Math.Round(_xBar - (_sigma * 3), 5);
+                _spcSetting.NewUCL2 = Math.Round(_rmBar * 3.267, 5);
+                _spcSetting.NewCL2 = Math.Round(_rmBar, 5);
                 _spcSetting.NewLCL2 = 0;
             }
 

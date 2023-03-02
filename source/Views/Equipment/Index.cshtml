@@ -107,30 +107,36 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body">
-                            <div id="barDiv1" class="row" style="margin-bottom:5px">
-                                <div style="margin-right:5px;">
-                                    <label>日期：</label>
-                                    <input id="srcDate" class="my-control" type="date" name="name" value="" />
-                                </div>
-                                <div style="margin-right: 5px;">
-                                    <label>線體：</label>
-                                    <select class="select" id="selLoc" multiple="multiple">
-                                        @{
-                                            foreach (var node in ViewBag.ToolId)
-                                            {
-                                                <optgroup label="@node.Item1">
-                                                    @foreach (var eq in node.Item2)
+                            <div id="barDiv1" style="margin-bottom:15px">
+                                <fieldset id="searchArea">
+                                    <legend id="legend">查詢區塊</legend>
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <label>日期：</label>
+                                            <input id="srcDate" class="my-control" type="date" name="name" value="" />
+                                        </div>
+                                        <div class="col-3">
+                                            <label>線體：</label>
+                                            <select class="select" id="selLoc" multiple="multiple">
+                                                @{
+                                                    foreach (var node in ViewBag.ToolId)
                                                     {
-                                                        <option value="@eq">@eq</option>
+                                                        <optgroup label="@node.Item1">
+                                                            @foreach (var eq in node.Item2)
+                                                            {
+                                                                <option value="@eq">@eq</option>
+                                                            }
+                                                        </optgroup>
                                                     }
-                                                </optgroup>
-                                            }
-                                        }
-                                    </select>
-                                </div>
-                                <div>
-                                    <input id="btnSearch" type="button" class="btn btn-info" style="margin-left:7px" name="btn29" value="查詢" />
-                                </div>
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="col-3">
+                                            <input id="btnSearch" type="button" class="btn btn-info" style="" name="btn29" value="查詢" />
+                                        </div>
+                                    </div>
+                                    <br />
+                                </fieldset>
                             </div>
                             <partial name="_PartialUnrepaired" model="Model" />
                             @*<table id="example1" class="table table-bordered table-hover">
@@ -171,58 +177,61 @@
                         </div>
                         <!-- /.card-header -->
                         <div id="hisBody" class="card-body">
-                            <div class="row" style="margin-bottom:5px">
-                                <div style="margin-right:5px;">
-                                    <label>日期：</label>
-                                    <input id="srcHisDate" class="my-control" type="date" name="name" value="" />
-                                </div>
-                                <div id="hisLine" style="margin-right: 5px;">
-                                    <label>線體：</label>
-                                    <select class="my-select" id="selTool" multiple="multiple">
-                                        @{
-                                            foreach (var node in ViewBag.RepairedToolId)
-                                            {
-                                                <optgroup label="@node.Item1">
-                                                    @foreach (var eq in node.Item2)
-                                                    {
-                                                        <option value="@eq">@eq</option>
-                                                    }
-                                                </optgroup>
+                            <fieldset id="searchArea">
+                                <legend id="legend">查詢區塊</legend>
+                                <div class="row" style="margin-bottom:5px">
+                                    <div style="margin-right:5px;">
+                                        <label>日期：</label>
+                                        <input id="srcHisDate" class="my-control" type="date" name="name" value="" />
+                                    </div>
+                                    <div id="hisLine" style="margin-right: 5px;">
+                                        <label>線體：</label>
+                                        <select class="my-select" id="selTool" multiple="multiple">
+                                            @{
+                                                foreach (var node in ViewBag.RepairedToolId)
+                                                {
+                                                    <optgroup label="@node.Item1">
+                                                        @foreach (var eq in node.Item2)
+                                                        {
+                                                            <option value="@eq">@eq</option>
+                                                        }
+                                                    </optgroup>
+                                                }
                                             }
-                                        }
-                                    </select>
+                                        </select>
+                                    </div>
+                                    <div style="margin-right: 5px;">
+                                        <label>狀態：</label>
+                                        <select class="my-select" id="selStatus" multiple="multiple">
+                                            <option value="1">待 PM 確認</option>
+                                            <option value="2">待工程師確認</option>
+                                            <option value="3">已完成</option>
+                                        </select>
+                                    </div>
+                                    <div class="icheck-primary d-inline" style="margin-right: 5px;">
+                                        <label for="autoChk">顯示Auto機況：</label>
+                                        <input id="autoChk" type="checkbox" class="custom-checkbox" />
+                                    </div>
+                                    <div>
+                                        <input id="_btnSearchHis" type="button" class="btn btn-info" style="margin-left:7px" name="btn29" value="查詢" onclick="btnClickSearchHis()" />
+                                    </div>
                                 </div>
-                                <div style="margin-right: 5px;">
-                                    <label>狀態：</label>
-                                    <select class="my-select" id="selStatus" multiple="multiple">
-                                        <option value="1">待 PM 確認</option>
-                                        <option value="2">待工程師確認</option>
-                                        <option value="3">已完成</option>
-                                    </select>
+                                <div class="row" style="display:flex;">
+                                    <div>
+                                        <label class="col-form-label">本日：</label>
+                                    </div>
+                                    <div class="info-box" style="min-height: 50%; background-color: #6c757d; color: white; width:fit-content; margin-right: 5px;">
+                                        <i class="fas fa-pen-alt"></i>
+                                        <i id="pmttl">待 PM 確認 (0)</i>
+                                    </div>
+                                    <div class="info-box" style="min-height: 50%; margin-left: 5px; background-color: #007bff; color: white; width: fit-content ">
+                                        <i class="fas fa-pen-alt"></i>
+                                        <i id="engttl">待工程師確認 (0)</i>
+                                    </div>
                                 </div>
-                                <div class="icheck-primary d-inline" style="margin-right: 5px;">
-                                    <label for="autoChk">顯示Auto機況：</label>
-                                    <input id="autoChk" type="checkbox" class="custom-checkbox" />
-                                </div>
-                                <div>
-                                    <input id="_btnSearchHis" type="button" class="btn btn-info" style="margin-left:7px" name="btn29" value="查詢" onclick="btnClickSearchHis()" />
-                                </div>
-                            </div>
-                            <div class="row" style="display:flex;">
-                                <div>
-                                    <label class="col-form-label">本日：</label>
-                                </div>
-                                <div class="info-box" style="min-height: 50%; background-color: #6c757d; color: white; width:fit-content; margin-right: 5px;">
-                                    <i class="fas fa-pen-alt"></i>
-                                    <i id="pmttl">待 PM 確認 (0)</i>
-                                </div>
-                                <div class="info-box" style="min-height: 50%; margin-left: 5px; background-color: #007bff; color: white; width: fit-content ">
-                                    <i class="fas fa-pen-alt"></i>
-                                    <i id="engttl">待工程師確認 (0)</i>
-                                </div>
-                            </div>
+                            </fieldset>
                             <div id="barDiv2" class="row">
-                                <input type="button" style="margin-bottom:5px" class="btn" name="btn30" value="+新增" onclick="btnClickCreateHis()"/>
+                                <input type="button" style="margin-bottom:5px" class="btn" name="btn30" value="+新增" onclick="btnClickCreateHis()" />
                             </div>
                             <partial name="_PartialEqHisotry" model="Model" />
                         </div>

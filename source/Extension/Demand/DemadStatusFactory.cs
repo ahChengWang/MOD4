@@ -23,6 +23,7 @@ namespace MOD4.Web.Extension.Demand
             dicDemandFlow.Add(DemandStatusEnum.Processing, demandFlowService.DoProcessingFlow);
             dicDemandFlow.Add(DemandStatusEnum.Verify, demandFlowService.DoVerifyFlow);
             dicDemandFlow.Add(DemandStatusEnum.Completed, demandFlowService.DoCompletedFlow);
+            dicDemandFlow.Add(DemandStatusEnum.Cancel, demandFlowService.DoCancelFlow);
         }
 
         public Func<DemandFlowEntity, (bool, string)> GetFlow(DemandStatusEnum statusId)

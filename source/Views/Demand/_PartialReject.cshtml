@@ -105,9 +105,7 @@
         <input id="btnResend" type="button" class="btn" style="background-color: #e5e83c" value="重送" onclick="resendClick(@((int)DemandStatusEnum.Pending))" />
     </div>
     <div style="margin-left:8px">
-        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-sm-cancel">
-            作廢
-        </button>
+        <input id="btnCancel" type="button" class="btn btn-danger" value="作廢" onclick="cancelClick(@((int)DemandStatusEnum.Cancel))" />
     </div>
 </div>
 

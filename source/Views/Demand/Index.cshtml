@@ -77,50 +77,54 @@
                             <h3 class="card-title">系統需求單</h3>
                         </div>
                         <div class="card-body">
-                            <div id="barDiv1" class="row" style="margin-bottom:5px">
-                                <div class="col-3">
-                                    <label>申請起日：</label>
-                                    <input id="startDTE" class="my-control" type="date" name="name" value="" />
+                            <fieldset id="searchArea">
+                                <legend id="legend">查詢區塊</legend>
+                                <div id="barDiv1" class="row" style="margin-bottom:5px">
+                                    <div class="col-3">
+                                        <label>申請起日：</label>
+                                        <input id="startDTE" class="my-control" type="date" name="name" value="" />
+                                    </div>
+                                    <div class="col-3">
+                                        <label>申請訖日：</label>
+                                        <input id="endDTE" class="my-control" type="date" name="name" value="" />
+                                    </div>
+                                    <div>
+                                        <label>分類：</label>
+                                        <select class="my-select" id="dropCat" multiple="multiple">
+                                            <option value="1">設定</option>
+                                            <option value="2">新增</option>
+                                            <option value="3">其他</option>
+                                        </select>
+                                    </div>
+                                    <div style="margin-left:5px;">
+                                        <label>狀態：</label>
+                                        <select class="my-select" id="dropStatus" multiple="multiple">
+                                            <option value="1">待評估</option>
+                                            <option value="2">已退件</option>
+                                            <option value="3">進行中</option>
+                                            <option value="4">已完成</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="col-3">
-                                    <label>申請訖日：</label>
-                                    <input id="endDTE" class="my-control" type="date" name="name" value="" />
+                                <div class="row" style="display:flex">
+                                    <div class="col-4">
+                                        <label>關鍵字：</label>
+                                        <input class="my-control" id="keyWord" type="text" style="width:70%;text-align:left" />
+                                    </div>
+                                    <div>
+                                        <input id="btnSearch" type="button" class="btn" name="btn29" style="margin-left:7px" value="查詢" />
+                                    </div>
                                 </div>
-                                <div>
-                                    <label>分類：</label>
-                                    <select class="my-select" id="dropCat" multiple="multiple">
-                                        <option value="1">設定</option>
-                                        <option value="2">新增</option>
-                                        <option value="3">其他</option>
-                                    </select>
-                                </div>
-                                <div style="margin-left:5px;">
-                                    <label>狀態：</label>
-                                    <select class="my-select" id="dropStatus" multiple="multiple">
-                                        <option value="1">待評估</option>
-                                        <option value="2">已退件</option>
-                                        <option value="3">進行中</option>
-                                        <option value="4">已完成</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row" style="display:flex">
-                                <div class="col-4">
-                                    <label>關鍵字：</label>
-                                    <input class="my-control" id="keyWord" type="text" style="width:70%;text-align:left" />
-                                </div>
-                                <div>
-                                    <input id="btnSearch" type="button" class="btn" name="btn29" style="margin-left:7px" value="查詢" />
-                                </div>
-                            </div>
+                                <br />
+                            </fieldset>
                             <div class="row">
-                                <div style="float:left">
+                                <div style="float: left;">
                                     @{
                                         UserPermissionViewModel _test = (UserPermissionViewModel)ViewBag.UserPermission;
 
                                         if (Convert.ToBoolean(_test.AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Create))
                                         {
-                                            <input id="btnCreate" type="button" style="margin-bottom:10px" class="btn" name="btn30" value="+建立" />
+                                            <input id="btnCreate" type="button" class="btn" name="btn30" value="+建立" />
                                         }
                                     }
                                     @*<input id="btnCreate" type="button" class="btn btn-danger" style="margin-left:7px" name="name" value="建立" />*@
@@ -191,7 +195,7 @@
                                     "paging": true,
                                     "responsive": false,
                                     "lengthChange": true,
-                                    "autoWidth": true,
+                                    "autoWidth": false,
                                     "order": [[0, "desc"]]
                                 }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
                             }
@@ -217,7 +221,7 @@
                 //"info": true,
                 "responsive": false,
                 "lengthChange": true,
-                "autoWidth": true,
+                "autoWidth": false,
                 "order": [[0, "desc"]],
                 /*"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]*/
             }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');

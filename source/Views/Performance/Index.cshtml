@@ -67,67 +67,71 @@
                         <div class="card-header">
                             <h2>每日分時產出</h2>
                         </div>
-                        <h2 id="prodName" style="font-family:Impact">@ViewData["ProdName"]</h2>
                         <!-- /.card-header -->
                         <div class="card-body">
+                            <h2 id="prodName" style="font-family:Impact">@ViewData["ProdName"]</h2>
                             <div id="barDiv1" class="row" style="margin-bottom:5px">
-                                <div style="margin-right:5px;">
-                                    <label>日期：</label>
-                                    <input id="srcDate" class="my-control" type="date" value="" />
-                                </div>
-                                <div style="margin-right: 5px;">
-                                    <label>線體：</label>
-                                    <select id="dropLine" multiple="multiple">
-                                        @{
-                                            foreach (var lcmProd in ViewBag.ProdOptions)
-                                            {
-                                                <optgroup label="@lcmProd.Item1">
-                                                    @foreach (var item in lcmProd.Item2)
-                                                    {
-                                                        <option value="@item.Item1">@item.Item2</option>
-                                                    }
-                                                </optgroup>
+                                <fieldset id="searchArea">
+                                    <legend id="legend">查詢區塊</legend>
+                                    <div style="margin-right:5px;">
+                                        <label>日期：</label>
+                                        <input id="srcDate" class="my-control" type="date" value="" />
+                                    </div>
+                                    <div style="margin-right: 5px;">
+                                        <label>線體：</label>
+                                        <select id="dropLine" multiple="multiple">
+                                            @{
+                                                foreach (var lcmProd in ViewBag.ProdOptions)
+                                                {
+                                                    <optgroup label="@lcmProd.Item1">
+                                                        @foreach (var item in lcmProd.Item2)
+                                                        {
+                                                            <option value="@item.Item1">@item.Item2</option>
+                                                        }
+                                                    </optgroup>
+                                                }
                                             }
-                                        }
-                                    </select>
-                                </div>
-                                <div style="margin-right: 5px;">
-                                    <label>Node：</label>
-                                    <select id="dropNode" multiple="multiple">
-                                        @*@{
-                                                foreach (var item in ViewBag.ToolId)
-                                                {
-                                                    <option value="@item">@item</option>
-                                                }
-                                            }*@
-                                        <option value="1300">1300</option>
-                                        <option value="1330">1330</option>
-                                        <option value="1355">1355</option>
-                                        <option value="1415">1415</option>
-                                        <option value="1420">1420</option>
-                                        <option value="1460">1460</option>
-                                        <option value="1500">1500</option>
-                                        <option value="1600">1600</option>
-                                        <option value="1700">1700</option>
-                                        <option value="1720">1720</option>
-                                    </select>
-                                </div>
-                                <div style="margin-right: 5px;">
-                                    <label>班別：</label>
-                                    <select class="my-control" id="dropShift">
-                                        @*@{
-                                                foreach (var item in ViewBag.ToolId)
-                                                {
-                                                    <option value="@item">@item</option>
-                                                }
-                                            }*@
-                                        <option value="A">日(A)</option>
-                                        <option value="B">夜(B)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <input id="btnSearch" type="button" class="btn btn-info" style="margin-left:7px" name="name" value="查詢" />
-                                </div>
+                                        </select>
+                                    </div>
+                                    <div style="margin-right: 5px;">
+                                        <label>Node：</label>
+                                        <select id="dropNode" multiple="multiple">
+                                            @*@{
+                                                    foreach (var item in ViewBag.ToolId)
+                                                    {
+                                                        <option value="@item">@item</option>
+                                                    }
+                                                }*@
+                                            <option value="1300">1300</option>
+                                            <option value="1330">1330</option>
+                                            <option value="1355">1355</option>
+                                            <option value="1415">1415</option>
+                                            <option value="1420">1420</option>
+                                            <option value="1460">1460</option>
+                                            <option value="1500">1500</option>
+                                            <option value="1600">1600</option>
+                                            <option value="1700">1700</option>
+                                            <option value="1720">1720</option>
+                                        </select>
+                                    </div>
+                                    <div style="margin-right: 5px;">
+                                        <label>班別：</label>
+                                        <select class="my-control" id="dropShift">
+                                            @*@{
+                                                    foreach (var item in ViewBag.ToolId)
+                                                    {
+                                                        <option value="@item">@item</option>
+                                                    }
+                                                }*@
+                                            <option value="A">日(A)</option>
+                                            <option value="B">夜(B)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <input id="btnSearch" type="button" class="btn btn-info" style="margin-left:7px" name="name" value="查詢" />
+                                    </div>
+                                    <br />
+                                </fieldset>
                             </div>
                             @{
                                 var _nowTime = DateTime.Now;

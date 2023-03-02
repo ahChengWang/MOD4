@@ -200,12 +200,12 @@
                 /*$("#lineChart").css("min-width", "100%");*/
                 $("#lineChart1").css("background-color", "#7a8591");
                 var chartDom1 = document.getElementById('lineChart1');
-                var echar1 = echarts.init(chartDom1);
+                var dtxEchar1 = echarts.init(chartDom1);
 
                 $("#lineChart2").css("min-height", "400px");
                 $("#lineChart2").css("background-color", "#7a8591");
                 var chartDom2 = document.getElementById('lineChart2');
-                var echar2 = echarts.init(chartDom2);
+                var dtrmEchar2 = echarts.init(chartDom2);
 
                 var _catgory1 = ['DTX', 'Target', 'USL', 'UCL1', 'CL1', 'LCL1', 'LSL'];
                 var _catgory2 = ['DTRM', 'UCL2', 'CL2', 'LCL2'];
@@ -222,7 +222,7 @@
                 var _cl2 = [];
                 var _lcl2 = [];
                 var _dtrm = [];
-                var _title = '';
+                var _title = data.chartId;
 
                 $.each(data.spcDetail, function (index, value) {
                     _xAxisTime.push(value.measureTimeStr);
@@ -238,12 +238,11 @@
                     _cl2.push(value.cL2);
                     _lcl2.push(value.lcL2);
                     _dtrm.push(value.dtrm);
-                    _title = value.dataGroup;
                 });
 
-                var option1 = {
+                var dtxOption1 = {
                     title: {
-                        text: _title,
+                        text: _title + '   I',
                         textStyle: {
                             color: "black",
                             fontWeight: 600,
@@ -368,9 +367,9 @@
                     ]
                 };
 
-                var option2 = {
+                var dtrmOption2 = {
                     title: {
-                        text: _title,
+                        text: _title + '   MR',
                         textStyle: {
                             color: "black",
                             fontWeight: 600,
@@ -453,15 +452,15 @@
                         }
                     ]
                 };
-                echar1.setOption(option1);
-                echar2.setOption(option2);
+                dtxEchar1.setOption(dtxOption1);
+                dtrmEchar2.setOption(dtrmOption2);
 
-                //echar1.on('click', function (params) {
+                //dtxEchar1.on('click', function (params) {
                 //    let _test = params;
                 //})
                 window.addEventListener('resize', function () {
-                    echar1.resize();
-                    echar2.resize();
+                    dtxEchar1.resize();
+                    dtrmEchar2.resize();
                 });
             }
         }
