@@ -53,9 +53,14 @@ namespace MOD4.Web.DomainService
                     var _tmpSetting = _spcSetting.FirstOrDefault(f => f.PECD == spc.ProductId && f.PEQPT_ID == spc.EquipmentId && f.DataGroup == spc.DataGroup);
                     if (_tmpSetting == null)
                         return;
-                    spc.OOC1 = spc.DTX > _tmpSetting.UCL1 || spc.DTX < _tmpSetting.LCL1;
-                    spc.OOC2 = spc.DTRM > _tmpSetting.UCL2 || spc.DTRM < _tmpSetting.LCL2;
-                    spc.OOS = spc.DTX > _tmpSetting.USPEC || spc.DTX < _tmpSetting.LSPEC;
+                    if (_tmpSetting.ONCHTYPE == "CX")
+                        spc.OOS = spc.DTX > _tmpSetting.USPEC || spc.DTX < _tmpSetting.LSPEC;
+                    else if (_tmpSetting.ONCHTYPE == "XXRM")
+                    {
+                        spc.OOC1 = spc.DTX > _tmpSetting.UCL1 || spc.DTX < _tmpSetting.LCL1;
+                        spc.OOC2 = spc.DTRM > _tmpSetting.UCL2 || spc.DTRM < _tmpSetting.LCL2;
+                        spc.OOS = spc.DTX > _tmpSetting.USPEC || spc.DTX < _tmpSetting.LSPEC;
+                    }
                 });
 
                 var _spcGroupData = _spcMicroScopeDataList.GroupBy(g => new { g.EquipmentId, g.ProductId, g.DataGroup }).Select(s => new SPCMainEntity
@@ -130,6 +135,8 @@ namespace MOD4.Web.DomainService
                     fe.CL2 = _spcSetting.CL2;
                     fe.LCL2 = _spcSetting.LCL2;
                     fe.OOC2 = fe.DTRM > _spcSetting.UCL2 || fe.DTRM < _spcSetting.LCL2;
+                    fe.OOR1 = fe.OOR1;
+                    fe.OOR2 = fe.OOR2;
 
                     _calculateS += Math.Pow(fe.DTX - _xBar, 2);
                 });
@@ -141,20 +148,24 @@ namespace MOD4.Web.DomainService
                     ChartId = _spcSetting.ONCHID,
                     TypeStr = _spcSetting.ONCHTYPE,
                     TestItem = dataGroup,
-                    XBarBar = _xBar.ToString("0.#####"),
-                    Sigma = _sigma.ToString("0.#####"),
-                    Ca = (Math.Abs(((_spcSetting.USPEC + _spcSetting.LSPEC) / 2) - _xBar) / ((_spcSetting.USPEC - _spcSetting.LSPEC) / 2)).ToString("0.#####"),
-                    Cp = ((_spcSetting.USPEC - _spcSetting.LSPEC) / (6 * _sigma)).ToString("0.#####"),
-                    Cpk = Math.Min((_spcSetting.USPEC - _xBar) / (3 * _sigma), (_xBar - _spcSetting.LSPEC) / (3 * _sigma)).ToString("0.#####"),
-                    Sample = _allCnt.ToString(),
-                    n = "1",
-                    RMBar = _rmBar.ToString("0.#####"),
                     //PpkBar = _xBar.ToString("0.####"),
                     //PpkSigma = "1.083488881217",
                     //Pp = ((_spcSetting.USPEC - _spcSetting.LSPEC) / (6 * _sVal)).ToString("0.####"),
                     //Ppk = Math.Min((_spcSetting.USPEC - _xBar) / (3 * _sVal), (_xBar - _spcSetting.LSPEC) / (3 * _sVal)).ToString("0.####"),
                     DetailList = _spcMicroScopeDataList.CopyAToB<SPCMicroScopeDataEntity>()
                 };
+
+                if (_spcOnlineChartEntity.TypeStr == "XXRM")
+                {
+                    _spcOnlineChartEntity.XBarBar = _xBar.ToString("0.#####");
+                    _spcOnlineChartEntity.Sigma = _sigma.ToString("0.#####");
+                    _spcOnlineChartEntity.Ca = (Math.Abs(((_spcSetting.USPEC + _spcSetting.LSPEC) / 2) - _xBar) / ((_spcSetting.USPEC - _spcSetting.LSPEC) / 2)).ToString("0.#####");
+                    _spcOnlineChartEntity.Cp = ((_spcSetting.USPEC - _spcSetting.LSPEC) / (6 * _sigma)).ToString("0.#####");
+                    _spcOnlineChartEntity.Cpk = Math.Min((_spcSetting.USPEC - _xBar) / (3 * _sigma), (_xBar - _spcSetting.LSPEC) / (3 * _sigma)).ToString("0.#####");
+                    _spcOnlineChartEntity.Sample = _allCnt.ToString();
+                    _spcOnlineChartEntity.n = "1";
+                    _spcOnlineChartEntity.RMBar = _rmBar.ToString("0.#####");
+                }
 
                 return _spcOnlineChartEntity;
             }

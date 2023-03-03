@@ -140,6 +140,8 @@ namespace MOD4.Web.Controllers
                         CL2 = detail.CL2.ToString("0.#####"),
                         LCL2 = detail.LCL2.ToString("0.#####"),
                         OOC2 = detail.OOC2,
+                        OOR1 = detail.OOR1,
+                        OOR2 = detail.OOR2
                     }).ToList()
                 };
 

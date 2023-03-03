@@ -131,7 +131,11 @@
                                                 foreach (var data in Model.SPCDetail)
                                                 {
                                                     var _isOut = data.OOR1 || data.OOR2 ? "#eccfff" : "";
-                                                    _isOut = data.OOC1 || data.OOC2 ? "#f3faac" : _isOut;
+
+                                                    if (Model.TypeStr == "XXRM")
+                                                    {
+                                                        _isOut = data.OOC1 || data.OOC2 ? "#f3faac" : _isOut;
+                                                    }
                                                     _isOut = data.OOS ? "#fcaeae" : _isOut;
                                                     <tr style="background-color: @_isOut ">
                                                         <td>@data.MeasureDateStr</td>
@@ -202,11 +206,6 @@
                 var chartDom1 = document.getElementById('lineChart1');
                 var dtxEchar1 = echarts.init(chartDom1);
 
-                $("#lineChart2").css("min-height", "400px");
-                $("#lineChart2").css("background-color", "#7a8591");
-                var chartDom2 = document.getElementById('lineChart2');
-                var dtrmEchar2 = echarts.init(chartDom2);
-
                 var _catgory1 = ['DTX', 'Target', 'USL', 'UCL1', 'CL1', 'LCL1', 'LSL'];
                 var _catgory2 = ['DTRM', 'UCL2', 'CL2', 'LCL2'];
                 var _xAxisTime = [];
@@ -224,244 +223,358 @@
                 var _dtrm = [];
                 var _title = data.chartId;
 
-                $.each(data.spcDetail, function (index, value) {
-                    _xAxisTime.push(value.measureTimeStr);
-                    _dtx.push(value.dtx);
-                    _target.push(value.target);
-                    _usl.push(value.usl);
-                    _lsl.push(value.lsl);
-                    _ucl1.push(value.ucL1);
-                    _cl1.push(value.cL1);
-                    _lcl1.push(value.lcL1);
+                if (data.typeStr == "XXRM") {
 
-                    _ucl2.push(value.ucL2);
-                    _cl2.push(value.cL2);
-                    _lcl2.push(value.lcL2);
-                    _dtrm.push(value.dtrm);
-                });
+                    $("#lineChart2").css("min-height", "400px");
+                    $("#lineChart2").css("background-color", "#7a8591");
+                    var chartDom2 = document.getElementById('lineChart2');
+                    var dtrmEchar2 = echarts.init(chartDom2);
 
-                var dtxOption1 = {
-                    title: {
-                        text: _title + '   I',
-                        textStyle: {
-                            color: "black",
-                            fontWeight: 600,
-                            fontSize: 25,
-                            textAlign: 'center'
-                        }
-                    },
-                    tooltip: {},
-                    legend: {
-                        right: '0%',
-                        icon: 'circle',
-                        data: _catgory1,
-                        textStyle: { color: "black" }
-                    },
-                    xAxis: {
-                        data: _xAxisTime,
-                        axisLabel: { color: "black" }
-                    },
-                    yAxis: {
-                        name: "",
-                        nameTextStyle: {
-                            color: "black"
+                    $.each(data.spcDetail, function (index, value) {
+                        _xAxisTime.push(value.measureTimeStr);
+                        _dtx.push(value.dtx);
+                        _target.push(value.target);
+                        _usl.push(value.usl);
+                        _lsl.push(value.lsl);
+                        _ucl1.push(value.ucL1);
+                        _cl1.push(value.cL1);
+                        _lcl1.push(value.lcL1);
+
+                        _ucl2.push(value.ucL2);
+                        _cl2.push(value.cL2);
+                        _lcl2.push(value.lcL2);
+                        _dtrm.push(value.dtrm);
+                    });
+
+                    var dtxOption1 = {
+                        title: {
+                            text: _title + '   I',
+                            textStyle: {
+                                color: "black",
+                                fontWeight: 600,
+                                fontSize: 25,
+                                textAlign: 'center'
+                            }
                         },
-                        axisLabel: {
-                            color: "black"
-                        }
-                    },
-                    series: [
-                        {
-                            name: 'DTX',
-                            type: 'line',
-                            data: _dtx,
-                            itemStyle: {
-                                normal: {
-                                    color: 'black'
-                                }
-                            },
-                            lineStyle: {
-                                width: 1
-                            },
+                        tooltip: {},
+                        legend: {
+                            right: '0%',
+                            icon: 'circle',
+                            data: _catgory1,
+                            textStyle: { color: "black" }
                         },
-                        {
-                            name: 'Target',
-                            type: 'line',
-                            data: _target,
-                            itemStyle: {
-                                normal: {
-                                    color: '#c90e27',
-                                    lineStyle: {
-                                        width: 3,
-                                        type: 'dotted', //'dotted'虚线 'solid'实线
-                                        color: '#c90e27'
+                        xAxis: {
+                            data: _xAxisTime,
+                            axisLabel: { color: "black" }
+                        },
+                        yAxis: {
+                            name: "",
+                            nameTextStyle: {
+                                color: "black"
+                            },
+                            axisLabel: {
+                                color: "black"
+                            }
+                        },
+                        series: [
+                            {
+                                name: 'DTX',
+                                type: 'line',
+                                data: _dtx,
+                                itemStyle: {
+                                    normal: {
+                                        color: 'black'
                                     }
-                                }
+                                },
+                                lineStyle: {
+                                    width: 1
+                                },
                             },
-                        },
-                        {
-                            name: 'USL',
-                            type: 'line',
-                            data: _usl,
-                            itemStyle: {
-                                normal: {
-                                    color: 'red'
-                                }
+                            {
+                                name: 'Target',
+                                type: 'line',
+                                data: _target,
+                                itemStyle: {
+                                    normal: {
+                                        color: '#c90e27',
+                                        lineStyle: {
+                                            width: 3,
+                                            type: 'dotted', //'dotted'虚线 'solid'实线
+                                            color: '#c90e27'
+                                        }
+                                    }
+                                },
                             },
-                            lineStyle: {
-                                width: 1
+                            {
+                                name: 'USL',
+                                type: 'line',
+                                data: _usl,
+                                itemStyle: {
+                                    normal: {
+                                        color: 'red'
+                                    }
+                                },
+                                lineStyle: {
+                                    width: 1
+                                },
                             },
-                        },
-                        {
-                            name: 'UCL1',
-                            type: 'line',
-                            data: _ucl1,
-                            itemStyle: {
-                                normal: {
-                                    color: 'blue'
-                                }
+                            {
+                                name: 'UCL1',
+                                type: 'line',
+                                data: _ucl1,
+                                itemStyle: {
+                                    normal: {
+                                        color: 'blue'
+                                    }
+                                },
+                                lineStyle: {
+                                    width: 1
+                                },
                             },
-                            lineStyle: {
-                                width: 1
+                            {
+                                name: 'CL1',
+                                type: 'line',
+                                data: _cl1,
+                                itemStyle: {
+                                    normal: {
+                                        color: 'blue'
+                                    }
+                                },
+                                lineStyle: {
+                                    width: 1
+                                },
                             },
-                        },
-                        {
-                            name: 'CL1',
-                            type: 'line',
-                            data: _cl1,
-                            itemStyle: {
-                                normal: {
-                                    color: 'blue'
-                                }
+                            {
+                                name: 'LCL1',
+                                type: 'line',
+                                data: _lcl1,
+                                itemStyle: {
+                                    normal: {
+                                        color: 'blue'
+                                    }
+                                },
+                                lineStyle: {
+                                    width: 1
+                                },
                             },
-                            lineStyle: {
-                                width: 1
-                            },
-                        },
-                        {
-                            name: 'LCL1',
-                            type: 'line',
-                            data: _lcl1,
-                            itemStyle: {
-                                normal: {
-                                    color: 'blue'
-                                }
-                            },
-                            lineStyle: {
-                                width: 1
-                            },
-                        },
-                        {
-                            name: 'LSL',
-                            type: 'line',
-                            data: _lsl,
-                            itemStyle: {
-                                normal: {
-                                    color: 'red'
-                                }
-                            },
-                            lineStyle: {
-                                width: 1
-                            },
-                        }
-                    ]
-                };
+                            {
+                                name: 'LSL',
+                                type: 'line',
+                                data: _lsl,
+                                itemStyle: {
+                                    normal: {
+                                        color: 'red'
+                                    }
+                                },
+                                lineStyle: {
+                                    width: 1
+                                },
+                            }
+                        ]
+                    };
 
-                var dtrmOption2 = {
-                    title: {
-                        text: _title + '   MR',
-                        textStyle: {
-                            color: "black",
-                            fontWeight: 600,
-                            fontSize: 25,
-                            textAlign: 'center'
-                        }
-                    },
-                    tooltip: {},
-                    legend: {
-                        right: '0%',
-                        icon: 'circle',
-                        data: _catgory2,
-                        textStyle: { color: "black" }
-                    },
-                    xAxis: {
-                        data: _xAxisTime,
-                        axisLabel: { color: "black" }
-                    },
-                    yAxis: {
-                        name: "",
-                        nameTextStyle: {
-                            color: "black"
+                    var dtrmOption2 = {
+                        title: {
+                            text: _title + '   MR',
+                            textStyle: {
+                                color: "black",
+                                fontWeight: 600,
+                                fontSize: 25,
+                                textAlign: 'center'
+                            }
                         },
-                        axisLabel: {
-                            color: "black"
-                        }
-                    },
-                    series: [
-                        {
-                            name: 'DTRM',
-                            type: 'line',
-                            data: _dtrm,
-                            itemStyle: {
-                                normal: {
-                                    color: 'black'
-                                }
-                            },
-                            lineStyle: {
-                                width: 1
-                            },
+                        tooltip: {},
+                        legend: {
+                            right: '0%',
+                            icon: 'circle',
+                            data: _catgory2,
+                            textStyle: { color: "black" }
                         },
-                        {
-                            name: 'UCL2',
-                            type: 'line',
-                            data: _ucl2,
-                            itemStyle: {
-                                normal: {
-                                    color: 'blue'
-                                }
-                            },
-                            lineStyle: {
-                                width: 1
-                            },
+                        xAxis: {
+                            data: _xAxisTime,
+                            axisLabel: { color: "black" }
                         },
-                        {
-                            name: 'CL2',
-                            type: 'line',
-                            data: _cl2,
-                            itemStyle: {
-                                normal: {
-                                    color: 'blue'
-                                }
+                        yAxis: {
+                            name: "",
+                            nameTextStyle: {
+                                color: "black"
                             },
-                            lineStyle: {
-                                width: 1
-                            },
+                            axisLabel: {
+                                color: "black"
+                            }
                         },
-                        {
-                            name: 'LCL2',
-                            type: 'line',
-                            data: _lcl2,
-                            itemStyle: {
-                                normal: {
-                                    color: 'blue'
-                                }
+                        series: [
+                            {
+                                name: 'DTRM',
+                                type: 'line',
+                                data: _dtrm,
+                                itemStyle: {
+                                    normal: {
+                                        color: 'black'
+                                    }
+                                },
+                                lineStyle: {
+                                    width: 1
+                                },
                             },
-                            lineStyle: {
-                                width: 1
+                            {
+                                name: 'UCL2',
+                                type: 'line',
+                                data: _ucl2,
+                                itemStyle: {
+                                    normal: {
+                                        color: 'blue'
+                                    }
+                                },
+                                lineStyle: {
+                                    width: 1
+                                },
                             },
-                        }
-                    ]
-                };
-                dtxEchar1.setOption(dtxOption1);
-                dtrmEchar2.setOption(dtrmOption2);
+                            {
+                                name: 'CL2',
+                                type: 'line',
+                                data: _cl2,
+                                itemStyle: {
+                                    normal: {
+                                        color: 'blue'
+                                    }
+                                },
+                                lineStyle: {
+                                    width: 1
+                                },
+                            },
+                            {
+                                name: 'LCL2',
+                                type: 'line',
+                                data: _lcl2,
+                                itemStyle: {
+                                    normal: {
+                                        color: 'blue'
+                                    }
+                                },
+                                lineStyle: {
+                                    width: 1
+                                },
+                            }
+                        ]
+                    };
 
-                //dtxEchar1.on('click', function (params) {
-                //    let _test = params;
-                //})
-                window.addEventListener('resize', function () {
-                    dtxEchar1.resize();
-                    dtrmEchar2.resize();
-                });
+                    dtxEchar1.setOption(dtxOption1);
+                    dtrmEchar2.setOption(dtrmOption2);
+
+                    //dtxEchar1.on('click', function (params) {
+                    //    let _test = params;
+                    //})
+                    window.addEventListener('resize', function () {
+                        dtxEchar1.resize();
+                        dtrmEchar2.resize();
+                    });
+                }
+                else if (data.typeStr == "CX") {
+
+                    $.each(data.spcDetail, function (index, value) {
+                        _xAxisTime.push(value.measureTimeStr);
+                        _dtx.push(value.dtx);
+                        _target.push(value.target);
+                        _usl.push(value.usl);
+                        _lsl.push(value.lsl);
+                    });
+
+                    var dtxOption1 = {
+                        title: {
+                            text: _title + '   C Chart',
+                            textStyle: {
+                                color: "black",
+                                fontWeight: 600,
+                                fontSize: 25,
+                                textAlign: 'center'
+                            }
+                        },
+                        tooltip: {},
+                        legend: {
+                            right: '0%',
+                            icon: 'circle',
+                            data: _catgory1,
+                            textStyle: { color: "black" }
+                        },
+                        xAxis: {
+                            data: _xAxisTime,
+                            axisLabel: { color: "black" }
+                        },
+                        yAxis: {
+                            name: "",
+                            nameTextStyle: {
+                                color: "black"
+                            },
+                            axisLabel: {
+                                color: "black"
+                            }
+                        },
+                        series: [
+                            {
+                                name: 'DTX',
+                                type: 'line',
+                                data: _dtx,
+                                itemStyle: {
+                                    normal: {
+                                        color: 'black'
+                                    }
+                                },
+                                lineStyle: {
+                                    width: 1
+                                },
+                            },
+                            {
+                                name: 'Target',
+                                type: 'line',
+                                data: _target,
+                                itemStyle: {
+                                    normal: {
+                                        color: '#c90e27',
+                                        lineStyle: {
+                                            width: 3,
+                                            type: 'dotted', //'dotted'虚线 'solid'实线
+                                            color: '#c90e27'
+                                        }
+                                    }
+                                },
+                            },
+                            {
+                                name: 'USL',
+                                type: 'line',
+                                data: _usl,
+                                itemStyle: {
+                                    normal: {
+                                        color: 'red'
+                                    }
+                                },
+                                lineStyle: {
+                                    width: 1
+                                },
+                            },
+                            {
+                                name: 'LSL',
+                                type: 'line',
+                                data: _lsl,
+                                itemStyle: {
+                                    normal: {
+                                        color: 'red'
+                                    }
+                                },
+                                lineStyle: {
+                                    width: 1
+                                },
+                            }
+                        ]
+                    };
+
+                    dtxEchar1.setOption(dtxOption1);
+
+                    window.addEventListener('resize', function () {
+                        dtxEchar1.resize();
+                    });
+                }
+
             }
         }
 
