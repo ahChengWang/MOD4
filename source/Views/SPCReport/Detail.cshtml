@@ -478,6 +478,10 @@
                         _target.push(value.target);
                         _usl.push(value.usl);
                         _lsl.push(value.lsl);
+
+                        _ucl1.push(value.ucL1);
+                        _cl1.push(value.cL1);
+                        _lcl1.push(value.lcL1);
                     });
 
                     var dtxOption1 = {
@@ -559,6 +563,45 @@
                                 itemStyle: {
                                     normal: {
                                         color: 'red'
+                                    }
+                                },
+                                lineStyle: {
+                                    width: 1
+                                },
+                            },
+                            {
+                                name: 'UCL1',
+                                type: 'line',
+                                data: _ucl1,
+                                itemStyle: {
+                                    normal: {
+                                        color: 'blue'
+                                    }
+                                },
+                                lineStyle: {
+                                    width: 1
+                                },
+                            },
+                            {
+                                name: 'CL1',
+                                type: 'line',
+                                data: _cl1,
+                                itemStyle: {
+                                    normal: {
+                                        color: 'blue'
+                                    }
+                                },
+                                lineStyle: {
+                                    width: 1
+                                },
+                            },
+                            {
+                                name: 'LCL1',
+                                type: 'line',
+                                data: _lcl1,
+                                itemStyle: {
+                                    normal: {
+                                        color: 'blue'
                                     }
                                 },
                                 lineStyle: {
