@@ -57,7 +57,7 @@
                                                 <option value="3">其他</option>
                                             </select>*@
 
-                                        <select class="custom-select" style="width:30%" asp-for="DemandCategoryId">
+                                        <select class="custom-select" style="width:30%" asp-for="DemandCategoryId" readonly>
                                             @{
                                                 foreach (var category in ViewBag.CategoryOptions)
                                                 {
@@ -161,6 +161,7 @@
                         fontWeight: 300,
                     }
                 });
+
                 var formData = new FormData(document.getElementById("demandForm"));
                 $.ajax({
                     type: "POST",

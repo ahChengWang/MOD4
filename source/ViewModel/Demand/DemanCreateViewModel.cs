@@ -11,7 +11,7 @@ namespace MOD4.Web.ViewModel
         public string OrderId { get; set; }
 
         [Display(Name = "系統類型")]
-        [Required(ErrorMessage = "*必填")]
+        //[Required(ErrorMessage = "*必填")]
         public DemandCategoryEnum DemandCategoryId { get; set; }
 
         public DemandStatusEnum DemandStatusId { get; set; }

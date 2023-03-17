@@ -8,9 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Transactions;
-using static System.Net.WebRequestMethods;
 
 namespace MOD4.Web.DomainService.Demand
 {
@@ -21,18 +19,27 @@ namespace MOD4.Web.DomainService.Demand
         private readonly IMAppDomainService _mappDomainService;
         private readonly IAccountDomainService _accountDomainService;
         private readonly IDemadStatusFactory _demadStatusFactory;
+        private readonly IMESPermissionRepository _mesPermissionRepository;
+        private readonly IMESPermissionApplicantsRepository _mesPermissionApplicantsRepository;
+        private readonly IMESPermissionAuditHistoryRepository _mesPermissionAuditHistoryRepository;
 
         public DemandDomainService(IDemandsRepository demandsRepository,
             IUploadDomainService uploadDomainService,
             IMAppDomainService mappDomainService,
             IAccountDomainService accountDomainService,
-            IDemadStatusFactory demadStatusFactory)
+            IDemadStatusFactory demadStatusFactory,
+            IMESPermissionRepository mesPermissionRepository,
+            IMESPermissionApplicantsRepository mesPermissionApplicantsRepository,
+            IMESPermissionAuditHistoryRepository mesPermissionAuditHistoryRepository)
         {
             _demandsRepository = demandsRepository;
             _uploadDomainService = uploadDomainService;
             _mappDomainService = mappDomainService;
             _accountDomainService = accountDomainService;
             _demadStatusFactory = demadStatusFactory;
+            _mesPermissionRepository = mesPermissionRepository;
+            _mesPermissionApplicantsRepository = mesPermissionApplicantsRepository;
+            _mesPermissionAuditHistoryRepository = mesPermissionAuditHistoryRepository;
         }
 
         public List<DemandEntity> GetDemands(UserEntity userEntity,
@@ -76,7 +83,6 @@ namespace MOD4.Web.DomainService.Demand
                 throw ex;
             }
         }
-
 
         public DemandEntity GetDemandDetail(int sn, UserEntity userEntity, string orderId = "")
         {
@@ -212,7 +218,6 @@ namespace MOD4.Web.DomainService.Demand
                     });
                 }
 
-
                 return string.IsNullOrEmpty(_insResponse)
                     ? (true, $"需求單:{_insDemandsDao.orderNo} \n待評估")
                     : (false, _insResponse);
@@ -340,6 +345,440 @@ namespace MOD4.Web.DomainService.Demand
 
         }
 
+
+        #region MES Permission
+
+        public List<MESPermissionEntity> GetMESApplicantList(UserEntity userEntity,
+            int sn = 0, string dateStart = null, string dateEnd = null, string statusId = "1,2,4,7,8,9", string kw = "")
+        {
+            try
+            {
+                var _nowTime = DateTime.Now;
+                DateTime? _dateStart = string.IsNullOrEmpty(dateStart) ? (DateTime?)null : DateTime.Parse(dateStart);
+                DateTime? _dateEnd = string.IsNullOrEmpty(dateEnd) ? (DateTime?)null : DateTime.Parse(dateEnd).AddDays(1).AddSeconds(-1);
+
+                var _mesOrderDaoList = _mesPermissionRepository.SelectByConditions(_dateStart, _dateEnd, sn, statusId?.Split(",") ?? null, kw)
+                        .Where(w => w.applicantAccountSn == userEntity.sn || w.auditAccountSn == userEntity.sn);
+                var _mesOrderDetailList = _mesPermissionApplicantsRepository.SelectByConditions(_mesOrderDaoList.Select(mes => mes.orderSn).ToList());
+
+                var _responseEntity = _mesOrderDaoList
+                        .Select(mes => new MESPermissionEntity
+                        {
+                            OrderSn = mes.orderSn,
+                            OrderNo = mes.orderNo,
+                            Status = mes.statusId.GetDescription(),
+                            StatusId = mes.statusId,
+                            Department = mes.department,
+                            SubUnit = mes.subUnit,
+                            Applicant = mes.applicant,
+                            JobId = mes.jobId,
+                            Phone = mes.phone,
+                            ApplicantName = string.Join(",", _mesOrderDetailList.Where(w => w.mesPermissionSn == mes.orderSn).Select(s => s.applicantName)),
+                            AuditAccountSn = mes.auditAccountSn,
+                            CreateTimeStr = mes.createTime.ToString("yyyy-MM-dd"),
+                            Url = mes.statusId == DemandStatusEnum.Rejected && mes.applicantAccountSn == userEntity.sn
+                                    ? $"./MES/Update/{mes.orderSn}"
+                                    : mes.statusId == DemandStatusEnum.Completed || mes.applicantAccountSn == userEntity.sn
+                                        ? $"./MES/Detail/{mes.orderSn}"
+                                        : $"./MES/Audit/{mes.orderSn}"
+                        }).ToList();
+
+                // 查詢待簽核人員姓名
+                List<AccountInfoEntity> _accInfoList = _accountDomainService.GetAccountInfo(_responseEntity.Select(s => s.AuditAccountSn).ToList());
+                _responseEntity.ForEach(fe => fe.AuditName = _accInfoList.FirstOrDefault(f => f.sn == fe.AuditAccountSn)?.Name ?? "");
+
+                return _responseEntity;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public MESPermissionEntity GetDetail(int mesPermissionSn)
+        {
+            try
+            {
+                MESPermissionDao _mesOrder = _mesPermissionRepository.SelectByConditions(null, null, orderSn: mesPermissionSn).FirstOrDefault();
+                List<MESPermissionApplicantsDao> _accessOrderDetail = _mesPermissionApplicantsRepository.SelectByConditions(mesOrderSn: new List<int> { _mesOrder.orderSn });
+                List<MESPermissionDetailEntity> _permissionList = EnumHelper.GetEnumValue<MESPermissionEnum>().Select(per => new MESPermissionDetailEntity
+                {
+                    MESPermission = per.GetDescription(),
+                    MESPermissionId = (int)per,
+                    IsEnable = _mesOrder.permissionList.Split(",").Any(p => p == ((int)per).ToString())
+                }).ToList();
+                List<MESPermissionAuditHistoryDao> _accessOrderAuditHisList = _mesPermissionAuditHistoryRepository.SelectList(_mesOrder.orderSn);
+
+                return new MESPermissionEntity
+                {
+                    OrderSn = mesPermissionSn,
+                    OrderNo = _mesOrder.orderNo,
+                    StatusId = _mesOrder.statusId,
+                    Status = _mesOrder.statusId.GetDescription(),
+                    Department = _mesOrder.department,
+                    SubUnit = _mesOrder.subUnit,
+                    Applicant = _mesOrder.applicant,
+                    JobId = _mesOrder.jobId,
+                    Phone = _mesOrder.phone,
+                    PermissionInfo = _permissionList,
+                    OtherPermission = _mesOrder.otherPermission,
+                    SamePermName = _mesOrder.samePermName,
+                    SamePermJobId = _mesOrder.samePermJobId,
+                    CreateTimeStr = _mesOrder.createTime.ToString("yyyy/MM/dd"),
+                    Applicants = _accessOrderDetail.Select(s => new MESApplicantEntity
+                    {
+                        ApplicantName = s.applicantName,
+                        ApplicantJobId = s.applicantJobId
+                    }).ToList(),
+                    MESOrderAuditHistory = _accessOrderAuditHisList.Select(his => new MESPermissionAuditHistoryEntity
+                    {
+                        AuditSn = his.auditSn,
+                        AuditAccountName = his.auditAccountName,
+                        StatusId = his.statusId,
+                        Status = his.statusId.GetDescription(),
+                        ReceivedTimeStr = his.receivedTime?.ToString("yyyy/MM/dd HH:mm:ss") ?? "",
+                        AuditTimeStr = his.auditTime?.ToString("yyyy/MM/dd HH:mm:ss") ?? "",
+                        AuditRemark = his.auditRemark,
+                        Duration = his.receivedTime != null
+                            ? ((DateTime)(his.auditTime ?? DateTime.Now)).Subtract((DateTime)his.receivedTime).TotalHours.ToString("0.00")
+                            : "0"
+                    }).ToList()
+                };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public (bool, string) CreateMESApplicant(MESPermissionEntity mESPermissionEntity, UserEntity userEntity)
+        {
+            try
+            {
+                string _createRes = "";
+                DateTime _nowTime = DateTime.Now;
+                int _orderSn = 0;
+
+                if (mESPermissionEntity.Applicants.Any(a => string.IsNullOrEmpty(a.ApplicantName) || string.IsNullOrEmpty(a.ApplicantJobId)))
+                    return (false, "申請名單不能為空");
+
+                MESPermissionDao _mesPermissionDao = new MESPermissionDao
+                {
+                    orderNo = "MPRS" + _nowTime.ToString("yyMMddHHmmssff"),
+                    statusId = DemandStatusEnum.Signing,
+                    department = mESPermissionEntity.Department,
+                    subUnit = mESPermissionEntity.SubUnit,
+                    applicant = mESPermissionEntity.Applicant,
+                    jobId = mESPermissionEntity.JobId,
+                    phone = mESPermissionEntity.Phone,
+                    auditAccountSn = 6,
+                    applicantAccountSn = userEntity.sn,
+                    permissionList = string.Join(",", mESPermissionEntity.PermissionInfo.Where(w => w.IsEnable).Select(s => s.MESPermissionId)),
+                    otherPermission = mESPermissionEntity.OtherPermission,
+                    samePermName = mESPermissionEntity.SamePermName,
+                    samePermJobId = mESPermissionEntity.SamePermJobId,
+                    createUser = userEntity.Name,
+                    createTime = _nowTime,
+                };
+
+                List<MESPermissionApplicantsDao> _mesOrderDetails = mESPermissionEntity.Applicants.Select(detail =>
+                new MESPermissionApplicantsDao
+                {
+                    applicantName = detail.ApplicantName,
+                    applicantJobId = detail.ApplicantJobId,
+                    createUser = userEntity.Name,
+                    createTime = _nowTime
+                }).ToList();
+
+                // 取得申請人上級
+                List<MESPermissionAuditHistoryDao> _mesOrderAuditHistory = GetMESPermAuditFlow(_nowTime, userEntity);
+
+                using (TransactionScope _scope = new TransactionScope())
+                {
+                    bool _insResult = false;
+                    bool _insDetailResult = false;
+                    bool _insHistoryResult = false;
+
+                    _insResult = _mesPermissionRepository.Insert(_mesPermissionDao) == 1;
+
+                    _orderSn = _mesPermissionRepository.SelectNewOrderSn(_mesPermissionDao.orderNo).orderSn;
+                    _mesOrderDetails.ForEach(detail =>
+                    {
+                        detail.mesPermissionSn = _orderSn;
+                    });
+                    _mesOrderAuditHistory.ForEach(his =>
+                    {
+                        his.mesPermissionSn = _orderSn;
+                    });
+
+                    _insDetailResult = _mesPermissionApplicantsRepository.Insert(_mesOrderDetails) == _mesOrderDetails.Count;
+                    _insHistoryResult = _mesPermissionAuditHistoryRepository.Insert(_mesOrderAuditHistory) == _mesOrderAuditHistory.Count;
+
+                    if (_insResult && _insDetailResult && _insHistoryResult)
+                        _scope.Complete();
+                    else
+                        _createRes = "新增申請單失敗";
+                }
+
+                // 發送MApp & mail 給作業人員
+                if (_createRes == "")
+                {
+                    _mappDomainService.SendMsgToOneAsync($"新MES權限申請單, 申請人: {_mesPermissionDao.applicant}", "253425");
+                    _mailServer.Send(new MailEntity
+                    {
+                        To = "WEITING.GUO@INNOLUX.COM",
+                        Subject = $"新MES權限申請單 - 申請人: {_mesPermissionDao.applicant}",
+                        Content = "<br /><br />" +
+                        "您有新MES權限申請單</a>， <br /><br />" +
+                        $"需求單連結：<a href='http://10.54.215.210/CarUX/Demand/MES/Audit/{_orderSn}' target='_blank'>" + _mesPermissionDao.orderNo + "</a>"
+                    });
+
+                    return (true, "申請成功");
+                }
+
+                return (false, _createRes);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
+        }
+
+        public (bool, string) UpdateMES(MESPermissionEntity mesEntity, UserEntity userEntity)
+        {
+            try
+            {
+                MESPermissionDao _mesOrder = _mesPermissionRepository.SelectByConditions(null, null, orderSn: mesEntity.OrderSn).FirstOrDefault();
+                List<MESPermissionApplicantsDao> _accessOrderDetail = _mesPermissionApplicantsRepository.SelectByConditions(mesOrderSn: new List<int> { _mesOrder.orderSn });
+                List<MESPermissionAuditHistoryDao> _accessOrderAuditHisList = _mesPermissionAuditHistoryRepository.SelectList(_mesOrder.orderSn).OrderBy(ob => ob.auditSn).ToList();
+                var _currentAuditFlow = _accessOrderAuditHisList.FirstOrDefault(f => f.auditAccountSn == userEntity.sn && f.auditTime == null);
+
+                if ((_mesOrder.auditAccountSn == userEntity.sn && (_mesOrder.statusId != DemandStatusEnum.Signing && _mesOrder.statusId != DemandStatusEnum.Setting)) ||
+                    _currentAuditFlow != null && _currentAuditFlow.statusId == DemandStatusEnum.Completed)
+                    return (false, "申請單狀態異常");
+
+                DateTime _nowTime = DateTime.Now;
+                string _auditRes = "";
+                MESPermissionDao _updMESOrder = new MESPermissionDao()
+                {
+                    orderSn = mesEntity.OrderSn,
+                    statusId = mesEntity.StatusId,
+                    applicantAccountSn = userEntity.sn,
+                    department = mesEntity.Department,
+                    subUnit = mesEntity.SubUnit,
+                    applicant = mesEntity.Applicant,
+                    jobId = mesEntity.JobId,
+                    phone = mesEntity.Phone,
+                    samePermName = mesEntity.SamePermName,
+                    samePermJobId = mesEntity.SamePermJobId,
+                    otherPermission = mesEntity.OtherPermission,
+                    auditAccountSn = 6,
+                    permissionList = string.Join(",", mesEntity.PermissionInfo.Where(w => w.IsEnable).Select(s => s.MESPermissionId)),
+                    updateUser = userEntity.Name,
+                    updateTime = _nowTime,
+                    isCancel = mesEntity.StatusId == DemandStatusEnum.Cancel
+                };
+                List<MESPermissionApplicantsDao> _mesOrderDetails = mesEntity.Applicants.Select(detail =>
+                new MESPermissionApplicantsDao
+                {
+                    mesPermissionSn = mesEntity.OrderSn,
+                    applicantName = detail.ApplicantName,
+                    applicantJobId = detail.ApplicantJobId,
+                    createUser = userEntity.Name,
+                    createTime = _nowTime
+                }).ToList();
+
+                // 取得申請人上級
+                List<MESPermissionAuditHistoryDao> _mesOrderAuditHistory = GetMESPermAuditFlow(_nowTime, userEntity);
+                _mesOrderAuditHistory.ForEach(mes => mes.mesPermissionSn = mesEntity.OrderSn);
+
+                using (TransactionScope _scope = new TransactionScope())
+                {
+                    bool _updResMES = false;
+                    bool _insResMESDetail = false;
+                    bool _insResMESHis = false;
+
+                    _updResMES = _mesPermissionRepository.UpdateMESOrder(_updMESOrder) == 1;
+
+                    if (_updMESOrder.isCancel)
+                    {
+                        _insResMESDetail = true;
+                        _insResMESHis = true;
+                    }
+                    else
+                    {
+                        _insResMESDetail = _mesPermissionApplicantsRepository.Delete(_mesOrderDetails.Select(s => s.mesPermissionSn).ToList()) == _mesOrderDetails.Count;
+                        _insResMESDetail = _mesPermissionApplicantsRepository.Insert(_mesOrderDetails) == _mesOrderDetails.Count;
+                        _insResMESHis = _mesPermissionAuditHistoryRepository.Delete(_mesOrderAuditHistory.Select(s => s.mesPermissionSn).ToList()) == _mesOrderAuditHistory.Count;
+                        _insResMESHis = _mesPermissionAuditHistoryRepository.Insert(_mesOrderAuditHistory) == _mesOrderAuditHistory.Count;
+                    }
+
+                    if (_updResMES && _insResMESDetail && _insResMESHis)
+                        _scope.Complete();
+                    else
+                        _auditRes = "更新申請單異常";
+                }
+
+                if (_auditRes == "")
+                {
+                    _mappDomainService.SendMsgToOneAsync($"新MES權限申請單 ,申請人: {_updMESOrder.applicant}", "253425");
+                    _mailServer.Send(new MailEntity
+                    {
+                        To = "WEITING.GUO@INNOLUX.COM",
+                        Subject = $"新MES權限申請單 - 申請人: {_updMESOrder.applicant}",
+                        Content = "<br /><br />" +
+                        "您有新MES權限申請單</a>，<br /><br />" +
+                        $"申請單連結：<a href='http://10.54.215.210/CarUX/Demand/MES/Audit/{_updMESOrder.orderSn}' target='_blank'>" + _updMESOrder.orderNo + "</a>"
+                    });
+
+                    return (true, $"申請單{mesEntity.StatusId.GetDescription()}");
+                }
+                else
+                {
+                    return (false, _auditRes);
+                }
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
+        }
+
+
+        public string AuditMES(int orderSn, DemandStatusEnum statusId, string remark, UserEntity userEntity)
+        {
+            try
+            {
+                MESPermissionDao _mesOrder = _mesPermissionRepository.SelectByConditions(null, null, orderSn: orderSn).FirstOrDefault();
+                List<MESPermissionAuditHistoryDao> _accessOrderAuditHisList = _mesPermissionAuditHistoryRepository.SelectList(_mesOrder.orderSn).OrderBy(ob => ob.auditSn).ToList();
+                var _currentAuditFlow = _accessOrderAuditHisList.FirstOrDefault(f => f.auditAccountSn == userEntity.sn && f.auditTime == null);
+
+                if ((_mesOrder.auditAccountSn == userEntity.sn && (_mesOrder.statusId != DemandStatusEnum.Signing && _mesOrder.statusId != DemandStatusEnum.Setting)) ||
+                    _currentAuditFlow != null && _currentAuditFlow.statusId == DemandStatusEnum.Completed)
+                    return "申請單狀態異常";
+
+                DateTime _nowTime = DateTime.Now;
+                string _auditRes = "";
+                MESPermissionDao _updMESOrder = new MESPermissionDao()
+                {
+                    orderSn = _mesOrder.orderSn,
+                    statusId = _mesOrder.statusId,
+                    auditAccountSn = 0,
+                    updateUser = userEntity.Name,
+                    updateTime = _nowTime
+                };
+                List<MESPermissionAuditHistoryDao> _updMESPermAuditHis = new List<MESPermissionAuditHistoryDao>();
+                MESPermissionAuditHistoryDao _currentRecord = _accessOrderAuditHisList.FirstOrDefault(f => f.auditAccountSn == userEntity.sn && f.auditTime == null);
+                MESPermissionAuditHistoryDao _nextRecord = _accessOrderAuditHisList.FirstOrDefault(f => f.receivedTime == null);
+
+                switch (statusId)
+                {
+                    case DemandStatusEnum.Rejected:
+                        _updMESOrder.statusId = statusId;
+                        _currentRecord.statusId = statusId;
+                        _currentRecord.auditTime = _nowTime;
+                        _currentRecord.auditRemark = remark;
+                        break;
+                    case DemandStatusEnum.Approve when _nextRecord == null:
+                        _updMESOrder.statusId = DemandStatusEnum.Setting;
+                        _updMESOrder.auditAccountSn = 6;
+                        _currentRecord.statusId = statusId;
+                        _currentRecord.auditTime = _nowTime;
+                        _currentRecord.auditRemark = remark;
+                        break;
+                    case DemandStatusEnum.Completed when _nextRecord == null:
+                        _updMESOrder.statusId = statusId;
+                        _updMESOrder.auditAccountSn = 6;
+                        break;
+                    default:
+                        _updMESOrder.auditAccountSn = _nextRecord.auditAccountSn;
+                        _currentRecord.statusId = statusId;
+                        _currentRecord.auditTime = _nowTime;
+                        _currentRecord.auditRemark = remark;
+                        _nextRecord.receivedTime = _nowTime;
+                        break;
+                }
+
+                if (_currentRecord != null)
+                    _updMESPermAuditHis.Add(_currentRecord);
+                if (_nextRecord != null)
+                    _updMESPermAuditHis.Add(_nextRecord);
+
+                using (TransactionScope _scope = new TransactionScope())
+                {
+                    bool _updResMES = false;
+                    bool _updResMESHis = true;
+
+                    _updResMES = _mesPermissionRepository.Update(_updMESOrder) == 1;
+                    if (_updMESPermAuditHis.Any())
+                        _updResMESHis = _mesPermissionAuditHistoryRepository.Update(_updMESPermAuditHis) == _updMESPermAuditHis.Count;
+
+                    if (_updResMES && _updResMESHis)
+                        _scope.Complete();
+                    else
+                        _auditRes = "更新申請單簽核異常";
+                }
+
+                if (_auditRes != "")
+                    return _auditRes;
+
+                // 剔退 通知申請人
+                if (_updMESOrder.statusId == DemandStatusEnum.Rejected)
+                {
+                    _mailServer.Send(new MailEntity
+                    {
+                        To = _accountDomainService.GetAccountInfo(new List<int> { _mesOrder.applicantAccountSn }).FirstOrDefault().Mail,
+                        Subject = "MES 權限申請單 - 退件通知",
+                        Content = "<br /> Dear Sir <br /><br />" +
+                        "您有<a style='text-decoration:underline'>待重送</a><a style='font-weight:900'>MES 權限申請單</a>， <br /><br />" +
+                        $"單號連結：<a href='http://10.54.215.210/CarUX/MES/Audit/{_mesOrder.orderSn}' target='_blank'>" + _mesOrder.orderNo + "</a>"
+                    });
+                }
+                // 發送待簽核 mail
+                else if (_nextRecord != null)
+                    _mailServer.Send(new MailEntity
+                    {
+                        To = _nextRecord.Mail,
+                        Subject = $"MES 權限申請單 - 待簽核通知 (申請人:{_mesOrder.applicant})",
+                        Content = "<br /> Dear Sir <br /><br />" +
+                        "您有<a style='text-decoration:underline'>待簽核</a><a style='font-weight:900'>MES 權限申請單</a>， <br /><br />" +
+                        $"單號連結：<a href='http://10.54.215.210/CarUX/MES/Audit/{_mesOrder.orderSn}' target='_blank'>" + _mesOrder.orderNo + "</a>"
+                    });
+                else if (_updMESOrder.statusId == DemandStatusEnum.Setting)
+                {
+                    // 通知系統設定人員
+                    _mailServer.Send(new MailEntity
+                    {
+                        To = _accessOrderAuditHisList.FirstOrDefault(f => f.auditSn == 1).Mail,
+                        Subject = $"MES 權限申請單 - 簽核完成",
+                        Content = "<br /> Dear Sir <br /><br />" +
+                        "您有<a style='text-decoration:underline'>已簽核完成</a><a style='font-weight:900'>MES 權限申請單</a>， <br /><br />" +
+                        $"單號連結：<a href='http://10.54.215.210/CarUX/MES/Detail/{_mesOrder.orderSn}' target='_blank'>" + _mesOrder.orderNo + "</a>"
+                    });
+                }
+                else if (_updMESOrder.statusId == DemandStatusEnum.Completed)
+                {
+                    // 通知申請人
+                    _mailServer.Send(new MailEntity
+                    {
+                        To = _accountDomainService.GetAccountInfo(new List<int> { _mesOrder.applicantAccountSn }).FirstOrDefault().Mail,
+                        Subject = $"MES 權限申請單 - 設定完成",
+                        Content = "<br /> Dear Sir <br /><br />" +
+                        "您有<a style='text-decoration:underline'>已完成</a><a style='font-weight:900'>MES 權限申請單</a>， <br /><br />" +
+                        $"單號連結：<a href='http://10.54.215.210/CarUX/MES/Detail/{_mesOrder.orderSn}' target='_blank'>" + _mesOrder.orderNo + "</a>"
+                    });
+                }
+
+                return "";
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+        #endregion
+
+        #region Private
         private string DoUploadFiles(List<IFormFile> uploadFiles, string userAcc, DateTime nowTime, DateTime folderTime)
         {
             var _url = _uploadDomainService.GetFileServerUrl();
@@ -393,140 +832,43 @@ namespace MOD4.Web.DomainService.Demand
             return _fileNameStr;
         }
 
-        private (bool, string) UpdateToPending(DemandsDao updDao)
+        private List<MESPermissionAuditHistoryDao> GetMESPermAuditFlow(DateTime nowTime, UserEntity userEntity)
         {
-            using (var scope = new TransactionScope())
-            {
-                var _insResult = false;
+            // 取得申請人上級
+            var _auditFlow = _accountDomainService.GetAuditFlowInfo(userEntity);
 
-                _insResult = _demandsRepository.UpdateToPending(updDao) == 1;
-
-                if (_insResult)
+            List<MESPermissionAuditHistoryDao> _mesOrderAuditHistory = new List<MESPermissionAuditHistoryDao>
                 {
-                    scope.Complete();
-                    return (true, $"需求單:{updDao.orderNo} \n{updDao.statusId.GetDescription()}");
-                }
-                else
-                    return (false, "更新失敗");
-            }
+                    new MESPermissionAuditHistoryDao
+                    {
+                        auditSn = 1,
+                        auditAccountSn = 6,
+                        auditAccountName = "郭瑋婷",
+                        statusId = DemandStatusEnum.Signing,
+                        receivedTime = nowTime,
+                        Mail = "WEITING.GUO@INNOLUX.COM"
+                    },
+                    new MESPermissionAuditHistoryDao
+                    {
+                        auditSn = 2,
+                        auditAccountSn = _auditFlow.SectionAccSn,
+                        auditAccountName = _auditFlow.SectionName,
+                        statusId = DemandStatusEnum.Signing,
+                        Mail = _auditFlow.SectionMail
+                    },
+                    new MESPermissionAuditHistoryDao
+                    {
+                        auditSn = 3,
+                        auditAccountSn = 42,
+                        auditAccountName = "陳繹印",
+                        statusId = DemandStatusEnum.Signing,
+                        Mail = "MORRISE.CHEN@INNOLUX.COM"
+                    }
+                };
+
+            return _mesOrderAuditHistory;
         }
+        #endregion
 
-        private (bool, string) UpdateToProcess(DemandsDao updDao)
-        {
-            using (var scope = new TransactionScope())
-            {
-                var _insResult = false;
-
-                _insResult = _demandsRepository.UpdateToProcess(updDao) == 1;
-
-                if (_insResult)
-                {
-                    scope.Complete();
-                    return (true, $"需求單:{updDao.orderNo} \n{updDao.statusId.GetDescription()}");
-                }
-                else
-                    return (false, "更新失敗");
-            }
-        }
-
-        private (bool, string) UpdateToReject(DemandsDao updDao, string createAccount)
-        {
-            (bool, string) _updateRes = (false, "");
-
-            using (var scope = new TransactionScope())
-            {
-                var _insResult = false;
-
-                _insResult = _demandsRepository.UpdateToReject(updDao) == 1;
-
-                if (_insResult)
-                {
-                    scope.Complete();
-                    _updateRes = (true, $"需求單:{updDao.orderNo} \n{updDao.statusId.GetDescription()}");
-                }
-                else
-                    _updateRes = (false, "更新失敗");
-            }
-
-            // 發送MApp & mail 給申請人
-            if (_updateRes.Item1)
-            {
-                var _createAccInfo = _accountDomainService.GetAccountInfoByConditions(null, null, null, createAccount).FirstOrDefault();
-                _mailServer.Send(new MailEntity
-                {
-                    To = _createAccInfo.Mail,
-                    Subject = $"需求申請單 - 剔退通知",
-                    Content = "<br /> Dear Sir <br /><br />" +
-                    "您有 <a style='text-decoration:underline'>已剔退</a><a style='font-weight:900'> 需求申請單</a>， <br /><br />煩請上系統確認， <br /><br />謝謝"
-                });
-            }
-
-            return _updateRes;
-        }
-
-        private (bool, string) UpdateToCancel(DemandsDao updDao)
-        {
-            using (var scope = new TransactionScope())
-            {
-                var _insResult = false;
-
-                _insResult = _demandsRepository.UpdateToCancel(updDao) == 1;
-
-                if (_insResult)
-                {
-                    scope.Complete();
-                    return (true, $"需求單:{updDao.orderNo} \n{updDao.statusId.GetDescription()}");
-                }
-                else
-                    return (false, "更新失敗");
-            }
-        }
-
-        private (bool, string) UpdateToCompleted(DemandsDao updDao, string createAccount)
-        {
-            (bool, string) _updateRes = (false, "");
-
-            using (var scope = new TransactionScope())
-            {
-                var _insResult = false;
-
-                _insResult = _demandsRepository.UpdateToComplete(updDao) == 1;
-
-                if (_insResult)
-                {
-                    scope.Complete();
-                    _updateRes = (true, $"需求單:{updDao.orderNo} \n{updDao.statusId.GetDescription()}");
-                }
-                else
-                    _updateRes = (false, "更新失敗");
-            }
-
-            // 需求單 "驗證"&"完成" 發送 MApp & mail 給相關人員
-            if (_updateRes.Item1 && !string.IsNullOrEmpty(createAccount) &&
-                (updDao.statusId == DemandStatusEnum.Verify || updDao.statusId == DemandStatusEnum.Completed))
-            {
-                var _createAccInfo = _accountDomainService.GetAccountInfoByConditions(null, null, null, createAccount).FirstOrDefault();
-
-                if (_createAccInfo == null)
-                    return (true, "查無申請人, mail 無法發送");
-
-                // 已完成 MApp 通知
-                if (updDao.statusId == DemandStatusEnum.Completed)
-                    _mappDomainService.SendMsgToOneAsync($"需求單已完成, 主旨: {updDao.subject} 申請人: {_createAccInfo.Name}", "253425");
-
-                // mail 通知
-                _mailServer.Send(new MailEntity
-                {
-                    To = updDao.statusId == DemandStatusEnum.Verify ? _createAccInfo.Mail : "WEITING.GUO@INNOLUX.COM",
-                    Subject = updDao.statusId == DemandStatusEnum.Verify ? $"需求申請單 - 待確認通知" : $"需求申請單 - 已完成通知 申請人:({_createAccInfo.Name})",
-                    Content = "<br /> Dear Sir <br /><br />" +
-                    "您有 <a style='text-decoration:underline'>" +
-                    (updDao.statusId == DemandStatusEnum.Verify ? "待確認" : "已完成") +
-                    "</a><a style='font-weight:900'> 需求申請單</a>， <br /><br />煩請上系統確認， <br /><br />謝謝"
-                });
-            }
-
-            return _updateRes;
-        }
     }
 }

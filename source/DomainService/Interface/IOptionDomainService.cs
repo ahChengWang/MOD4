@@ -45,5 +45,7 @@ namespace MOD4.Web.DomainService
 
 
         List<SPCChartSettingEntity> GetSPCMainChartOptions(int floor, string chartgrade);
+
+        List<OptionEntity> GetMESPermission();
     }
 }

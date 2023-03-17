@@ -449,6 +449,17 @@ namespace MOD4.Web.DomainService
             return _spcSettings.CopyAToB<SPCChartSettingEntity>();
         }
 
+        public List<OptionEntity> GetMESPermission()
+        {
+            var _test = EnumHelper.GetEnumValue<MESPermissionEnum>();
+
+            return EnumHelper.GetEnumValue<MESPermissionEnum>().Select(per => new OptionEntity
+            {
+                Id = (int)per,
+                Value = per.GetDescription()
+            }).ToList();
+        }
+
         private List<OptionEntity> GetEqProdOptionList(int id)
         {
             switch (id)

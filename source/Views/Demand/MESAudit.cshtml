@@ -1,0 +1,522 @@
+﻿@model MOD4.Web.ViewModel.MESPermissionDetailViewModel
+
+@{
+    ViewBag.Title = "簽核權限申請單";
+}
+
+
+<style>
+    .card {
+        box-shadow: 1px 2px 2px 2px #999;
+        margin-top: 5px;
+    }
+
+    .card-header, .card-body, .card-footer {
+        background-color: #c3cadb;
+    }
+
+    .card-title {
+        font-family: "Microsoft JhengHei";
+        font-weight: 900;
+        font-style: italic;
+        font-size: 30px;
+    }
+
+    h5 {
+        font-family: "Microsoft JhengHei";
+        font-weight: 600;
+        font-style: italic;
+        font-size: 20px;
+    }
+
+    .myInputStyle1 {
+        text-align: center;
+    }
+
+    div[name="historyLine"] {
+        display: flex;
+    }
+
+    .custom-checkbox {
+        width: 15px;
+        height: 15px;
+    }
+</style>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">簽 核 申 請 單</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <!-- form start -->
+                        <form>
+                            <div class="card-body">
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="OrderNo"></label>
+                                    </div>
+                                    <div class="col-3">
+                                        <input class="myInputStyle1" type="text" disabled value="@Model.OrderNo" />
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="Status"></label>
+                                    </div>
+                                    <div class="col-3">
+                                        <input class="myInputStyle1" type="text" disabled value="@Model.Status" />
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="Department"></label>
+                                    </div>
+                                    <div class="col-3">
+                                        <input class="myInputStyle1" type="text" disabled value="@Model.Department" />
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="SubUnit"></label>
+                                    </div>
+                                    <div class="col-3">
+                                        <input class="myInputStyle1" type="text" disabled value="@Model.SubUnit" />
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="Applicant"></label>
+                                    </div>
+                                    <div class="col-2">
+                                        <input class="myInputStyle1" type="text" disabled value="@Model.Applicant" />
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="JobId"></label>
+                                    </div>
+                                    <div class="col-2">
+                                        <input class="myInputStyle1" type="text" disabled value="@Model.JobId" />
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="Phone"></label>
+                                    </div>
+                                    <div class="col-2">
+                                        <input class="myInputStyle1" type="text" disabled value="@Model.Phone" />
+                                    </div>
+                                </div>
+                                <hr />
+                                <div class="form-group">
+                                    <h5>權限內容</h5>
+                                    <div class="row d-flex align-content-center flex-wrap">
+                                        <label class="col-1 col-form-label">製造</label>
+                                        @{
+                                            int _cnt = 0;
+                                            string _chk = "";
+
+                                            foreach (var item in Model.PermissionList)
+                                            {
+                                                if (item.MESPermissionId <= 10)
+                                                {
+                                                    _chk = item.IsEnable ? "checked" : "";
+                                                    <div class="col-2">
+                                                        <input class="custom-checkbox" type="checkbox" disabled @_chk />
+                                                        <label class="col-form-label">@item.MESPermission</label>
+                                                    </div>
+                                                }
+                                            }
+                                        }
+                                    </div>
+                                    <div class="row d-flex align-content-center flex-wrap">
+                                        <label class="col-1 col-form-label">製造幹部</label>
+                                        @{
+                                            foreach (var item in Model.PermissionList)
+                                            {
+                                                if (item.MESPermissionId > 10 && item.MESPermissionId <= 20)
+                                                {
+                                                    _chk = item.IsEnable ? "checked" : "";
+                                                    <div class="col-2">
+                                                        <input class="custom-checkbox" type="checkbox" disabled @_chk />
+                                                        <label class="col-form-label">@item.MESPermission</label>
+                                                        <br />
+                                                    </div>
+                                                }
+                                            }
+                                        }
+                                    </div>
+                                    <div class="row d-flex align-content-center flex-wrap">
+                                        <label class="col-1 col-form-label">整合</label>
+                                        @{
+                                            foreach (var item in Model.PermissionList)
+                                            {
+                                                if (item.MESPermissionId > 20 && item.MESPermissionId <= 30)
+                                                {
+                                                    _chk = item.IsEnable ? "checked" : "";
+                                                    <div class="col-2">
+                                                        <input class="custom-checkbox" type="checkbox" disabled @_chk />
+                                                        <label class="col-form-label">@item.MESPermission</label>
+                                                    </div>
+                                                }
+                                            }
+                                        }
+                                    </div>
+                                    <div class="row d-flex align-content-center flex-wrap">
+                                        <label class="col-1 col-form-label">工程/製程</label>
+                                        @{
+                                            foreach (var item in Model.PermissionList)
+                                            {
+                                                if (item.MESPermissionId > 30 && item.MESPermissionId <= 40)
+                                                {
+                                                    _chk = item.IsEnable ? "checked" : "";
+                                                    <div class="col-2">
+                                                        <input class="custom-checkbox" type="checkbox" disabled @_chk />
+                                                        <label class="col-form-label">@item.MESPermission</label>
+                                                    </div>
+                                                }
+                                            }
+                                        }
+                                    </div>
+                                    <div class="row d-flex align-content-center flex-wrap">
+                                        <label class="col-1 col-form-label">OQC</label>
+                                        @{
+                                            foreach (var item in Model.PermissionList)
+                                            {
+                                                if (item.MESPermissionId > 40 && item.MESPermissionId <= 50)
+                                                {
+                                                    _chk = item.IsEnable ? "checked" : "";
+                                                    <div class="col-2">
+                                                        <input class="custom-checkbox" type="checkbox" disabled @_chk />
+                                                        <label class="col-form-label">@item.MESPermission</label>
+                                                    </div>
+                                                }
+                                            }
+                                        }
+                                    </div>
+                                    <div class="row d-flex align-content-center flex-wrap">
+                                        <label class="col-1 col-form-label">戰情</label>
+                                        @{
+                                            foreach (var item in Model.PermissionList)
+                                            {
+                                                if (item.MESPermissionId > 50 && item.MESPermissionId <= 60)
+                                                {
+                                                    _chk = item.IsEnable ? "checked" : "";
+                                                    <div class="col-2">
+                                                        <input class="custom-checkbox" type="checkbox" disabled @_chk />
+                                                        <label class="col-form-label">@item.MESPermission</label>
+                                                    </div>
+                                                }
+                                            }
+                                        }
+                                    </div>
+                                    <div class="row d-flex align-content-center flex-wrap">
+                                        <label class="col-1 col-form-label">PC</label>
+                                        @{
+                                            foreach (var item in Model.PermissionList)
+                                            {
+                                                if (item.MESPermissionId > 60 && item.MESPermissionId <= 70)
+                                                {
+                                                    <div class="col-2">
+                                                        <input class="custom-checkbox" type="checkbox" disabled @_chk />
+                                                        <label class="col-form-label">@item.MESPermission</label>
+                                                    </div>
+                                                    _cnt++;
+                                                }
+                                            }
+                                        }
+                                    </div>
+                                    <div class="row d-flex align-content-center flex-wrap">
+                                        <div class="col-lg-2">
+                                            <label class="col-form-label" asp-for="OtherPermission"></label>
+                                        </div>
+                                        <div class="col-lg-5">
+                                            <input class="myInputStyle1" type="text" disabled value="@Model.OtherPermission" />
+                                        </div>
+                                    </div>
+                                    <div class="row d-flex align-content-center flex-wrap">
+                                        <div class="col-lg-2">
+                                            <label class="col-form-label" asp-for="SameEmpName"></label>
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <input type="text" class="myInputStyle1" disabled value="@Model.SameEmpName">
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <label class="col-form-label" asp-for="SameEmpJobId"></label>
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <input type="text" class="myInputStyle1" disabled value="@Model.SameEmpJobId">
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                                <h5>申請名單</h5>
+                                <div id="guestInfoDiv">
+                                    @{
+                                        foreach (var applicant in Model.ApplicantList)
+                                        {
+                                            <div id="guestInfo" class="form-group" style="display:flex">
+                                                <div class="col-2">
+                                                    <label class="col-form-label-sm" asp-for="@applicant.ApplicantName"></label>：
+                                                    <label class="col-form-label-sm">@applicant.ApplicantName</label>
+                                                </div>
+                                                <div class="col-2">
+                                                    <label class="col-form-label-sm" asp-for="@applicant.ApplicantJobId"></label>：
+                                                    <label class="col-form-label-sm">@applicant.ApplicantJobId</label>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                                <hr />
+                                <div class="tab-pane" id="timeline">
+                                    <!-- The timeline -->
+                                    <div class="timeline timeline-inverse">
+                                        <div style="display:flex">
+                                            <i class="fa fa-hourglass-start bg-info"></i>
+                                            <div class="timeline-item" style="background-color: transparent; border-color: transparent;">
+                                                <span style="font-weight:800">簽核歷程</span>
+                                            </div>
+                                        </div>
+                                        @{
+                                            foreach (var history in Model.AuditHistory)
+                                            {
+                                                <div>
+                                                    @{
+                                                        if (history.StatusId == MOD4.Web.Enum.DemandStatusEnum.Signing)
+                                                        {
+                                                            <i class="fas fa-user bg-gray"></i>
+                                                        }
+                                                        else if (history.StatusId == MOD4.Web.Enum.DemandStatusEnum.Rejected)
+                                                        {
+                                                            <i class="fas fa-user bg-danger"></i>
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="fas fa-user bg-info"></i>
+                                                        }
+                                                    }
+                                                    <div class="timeline-item" style="background-color: transparent; border-color: transparent; border-bottom-color: lightgray; border-radius: 0px; ">
+                                                        <div name="historyLine">
+                                                            <div class="col-3">
+                                                                <label asp-for="@history.AuditAccountName"></label>：
+                                                                <label>@history.AuditAccountName</label>
+                                                            </div>
+                                                            <div class="col-2">
+                                                                <label asp-for="@history.Status"></label>：
+                                                                <label>@history.Status</label>
+                                                            </div>
+                                                            <div class="col-3">
+                                                                <label asp-for="@history.ReceivedTimeStr"></label>：
+                                                                <label>@history.ReceivedTimeStr</label>
+                                                            </div>
+                                                            <div class="col-3">
+                                                                <label asp-for="@history.AuditTimeStr"></label>：
+                                                                <label>@history.AuditTimeStr</label>
+                                                            </div>
+                                                            <span class="time"><i class="far fa-clock"></i>@history.Duration hr.</span>
+                                                        </div>
+                                                        <div name="historyLine">
+                                                            <div class="col-10">
+                                                                <label asp-for="@history.AuditRemark"></label>：
+                                                                <label>@history.AuditRemark</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            <div style="display:flex">
+                                                <i class="fa fa-check bg-gray"></i>
+                                                @{
+                                                    if (Model.StatusId == MOD4.Web.Enum.DemandStatusEnum.Setting ||
+                                                        Model.StatusId == MOD4.Web.Enum.DemandStatusEnum.Completed)
+                                                    {
+                                                        <i class="fas fa-user bg-info"></i>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fas fa-user bg-gray"></i>
+                                                    }
+                                                }
+                                                <div class="timeline-item" style="background-color: transparent; border-color: transparent;">
+                                                    <span style="font-weight:800">簽核完成</span>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div>
+                                    @{
+                                        if (Model.StatusId == MOD4.Web.Enum.DemandStatusEnum.Setting)
+                                        {
+                                            <input class="btn" style="background-color:orangered;margin-left:10px;color:white" type="button" data-toggle="modal" data-target="#modal-completed" value="完成" />
+                                        }
+                                        else
+                                        {
+                                            <input class="btn btn-success" type="button" data-toggle="modal" data-target="#modal-approve" value="核准" />
+                                            <input class="btn btn-danger" type="button" data-toggle="modal" data-target="#modal-reject" value="剔退" />
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </form>
+                        <input id="orderSn" type="hidden" value="@Model.OrderSn" />
+                        <div class="modal fade" id="modal-approve">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header" style="padding: 5px">
+                                        <p>確認核准?</p>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div>
+                                            <label class="col-form-label" asp-for="Remark"></label>
+                                        </div>
+                                        <div>
+                                            <textarea id="remark" cols="30" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer justify-content-between">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
+                                        <input type="button" class="btn btn-success" value="確認" onclick="updateClick(@((int)MOD4.Web.Enum.DemandStatusEnum.Approve),'已核准')" />
+                                    </div>
+                                </div>
+                                <!-- /.modal-content -->
+                            </div>
+                        </div>
+                        <div class="modal fade" id="modal-reject">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header" style="padding: 5px">
+                                        <p>確認剔退?</p>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div>
+                                            <label class="col-form-label" asp-for="Remark"></label>
+                                        </div>
+                                        <div>
+                                            <textarea id="remark" cols="30" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer justify-content-between">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
+                                        <input type="button" class="btn btn-danger" value="確認" onclick="updateClick(@((int)MOD4.Web.Enum.DemandStatusEnum.Rejected),'已剔退')" />
+                                    </div>
+                                </div>
+                                <!-- /.modal-content -->
+                            </div>
+                        </div>
+                        <div class="modal fade" id="modal-completed">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header" style="padding: 5px">
+                                        <p>確認完成?</p>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-footer justify-content-between">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
+                                        <input type="button" class="btn btn-info" value="確認" onclick="updateClick(@((int)MOD4.Web.Enum.DemandStatusEnum.Completed),'已完成')" />
+                                    </div>
+                                </div>
+                                <!-- /.modal-content -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+
+    function updateApprove() {
+
+        let _requestModel = {};
+        _requestModel['OrderSn'] = $("#OrderSn").val();
+        _requestModel['StatusId'] = @MOD4.Web.Enum.DemandStatusEnum.Completed;
+        _requestModel['Remark'] = $("#approveRemark").val();
+
+        //e.preventDefault();
+        $.blockUI({
+            message: '請稍等...',
+            css: {
+                border: 'none',
+                padding: '5px',
+                backgroundColor: '#000',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: '.5',
+                color: '#fff',
+                fontSize: '25px',
+                fontFamily: '微軟正黑體',
+                fontWeight: 300,
+            }
+        });
+        $.ajax({
+            url: "../Update",
+            type: "POST",
+            data: { 'approveViewModel': _requestModel },
+            success: function (res) {
+                $.unblockUI();
+                if (res.isSuccess) {
+                    alert('已核准');
+                    location.href = "@Url.ActionLink("Audit", "AccessFab")";
+                }
+                else {
+                    alert(res.msg);
+                    return false;
+                }
+            }
+        });
+    }
+
+    function updateClick(statusId,msg) {
+
+        let _requestModel = {};
+        _requestModel['OrderSn'] = $("#orderSn").val();
+        _requestModel['StatusId'] = statusId;
+        _requestModel['Remark'] = $("#remark").val();
+
+        //e.preventDefault();
+        $.blockUI({
+            message: '請稍等...',
+            css: {
+                border: 'none',
+                padding: '5px',
+                backgroundColor: '#000',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: '.5',
+                color: '#fff',
+                fontSize: '25px',
+                fontFamily: '微軟正黑體',
+                fontWeight: 300,
+            }
+        });
+        $.ajax({
+            url: "../Audit",
+            type: "POST",
+            data: { 'approveViewModel': _requestModel },
+            success: function (res) {
+                $.unblockUI();
+                if (res.isSuccess) {
+                    alert(msg);
+                    location.href = "@Url.ActionLink("MESPermission", "Demand")";
+                }
+                else {
+                    alert(res.msg);
+                    return false;
+                }
+            }
+        });
+    }
+
+    </script>
+}

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using MOD4.Web.DomainService;
 using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
+using MOD4.Web.Helper;
 using MOD4.Web.Models;
 using MOD4.Web.ViewModel;
 using System;
@@ -31,6 +32,8 @@ namespace MOD4.Web.Controllers
             _optionDomainService = optionDomainService;
             _logger = logger;
         }
+
+        #region 需求單
 
         public IActionResult Index()
         {
@@ -274,7 +277,316 @@ namespace MOD4.Web.Controllers
                 return Json(new { IsSuccess = false, msg = ex.Message });
             }
         }
+        #endregion
 
+        #region MES 權限申請
+
+        [HttpGet("[controller]/MES")]
+        public IActionResult MESPermission()
+        {
+            try
+            {
+                UserEntity _userInfo = GetUserInfo();
+                var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.Demand);
+                ViewBag.UserPermission = new UserPermissionViewModel
+                {
+                    AccountSn = _userCurrentPagePermission.AccountSn,
+                    MenuSn = _userCurrentPagePermission.MenuSn,
+                    AccountPermission = _userCurrentPagePermission.AccountPermission
+                };
+                var _response = _demandDomainService.GetMESApplicantList(_userInfo)
+                        .Select(mes => new MESPermissionMainViewModel
+                        {
+                            OrderSn = mes.OrderSn,
+                            OrderNo = mes.OrderNo,
+                            Status = mes.Status,
+                            StatusId = (int)mes.StatusId,
+                            Applicant = mes.Applicant,
+                            JobId = mes.JobId,
+                            ApplicantList = mes.ApplicantName,
+                            AuditPerson = mes.AuditName,
+                            CreateDate = mes.CreateTimeStr,
+                            Department = mes.Department,
+                            Url = mes.Url
+                        }).ToList();
+
+                return View(_response);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpGet("[controller]/MES/Search")]
+        public IActionResult MESPermSearch([FromQuery] string dateStart, string dateEnd, string statusList, string keyWord)
+        {
+            try
+            {
+                UserEntity _userInfo = GetUserInfo();
+                var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.Demand);
+                ViewBag.UserPermission = new UserPermissionViewModel
+                {
+                    AccountSn = _userCurrentPagePermission.AccountSn,
+                    MenuSn = _userCurrentPagePermission.MenuSn,
+                    AccountPermission = _userCurrentPagePermission.AccountPermission
+                };
+                var _response = _demandDomainService.GetMESApplicantList(_userInfo, dateStart: dateStart, dateEnd: dateEnd, statusId: statusList, kw: keyWord)
+                        .Select(mes => new MESPermissionMainViewModel
+                        {
+                            OrderSn = mes.OrderSn,
+                            OrderNo = mes.OrderNo,
+                            Status = mes.Status,
+                            StatusId = (int)mes.StatusId,
+                            Applicant = mes.Applicant,
+                            ApplicantList = mes.ApplicantName,
+                            AuditPerson = mes.AuditName,
+                            CreateDate = mes.CreateTimeStr,
+                            Department = mes.Department,
+                            Url = mes.Url
+                        }).ToList();
+
+                return PartialView("_PartialPermission", _response);
+            }
+            catch (Exception ex)
+            {
+                return Json(new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpGet("[controller]/MES/Create")]
+        public IActionResult MESCreate()
+        {
+            try
+            {
+                var _mesPermission = _optionDomainService.GetMESPermission().CopyAToB<OptionViewModel>();
+
+                List<MESPermissionModel> _mesPermissionList = _mesPermission.Select(s => new MESPermissionModel
+                {
+                    MESPermissionId = s.Id,
+                    MESPermission = s.Value,
+                    IsEnable = false
+                }).ToList();
+
+                return View(new MESPermissionCreateViewModel
+                {
+                    PermissionList = _mesPermissionList,
+                    ApplicantList = new List<MESApplicantModel>()
+                });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpPost("[controller]/MES/Create")]
+        public IActionResult MESCreate([FromForm] MESPermissionCreateViewModel createModel)
+        {
+            try
+            {
+                var _result = _demandDomainService.CreateMESApplicant(new MESPermissionEntity
+                {
+                    Department = createModel.Department,
+                    SubUnit = createModel.SubUnit,
+                    Applicant = createModel.Applicant,
+                    JobId = createModel.JobId,
+                    Phone = createModel.Phone,
+                    PermissionInfo = createModel.PermissionList.Select(per => new MESPermissionDetailEntity
+                    {
+                        MESPermissionId = per.MESPermissionId,
+                        IsEnable = per.IsEnable
+                    }).ToList(),
+                    OtherPermission = createModel.OtherPermission,
+                    SamePermName = createModel.SameEmpName,
+                    SamePermJobId = createModel.SameEmpJobId,
+                    Applicants = createModel.ApplicantList.Select(emp => new MESApplicantEntity
+                    {
+                        ApplicantName = emp.ApplicantName,
+                        ApplicantJobId = emp.ApplicantJobId
+                    }).ToList()
+                },
+                GetUserInfo());
+
+                return Json(new { IsSuccess = _result.Item1, Msg = _result.Item2 });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message);
+            }
+        }
+
+        [HttpGet("[controller]/MES/Detail/{orderSn}")]
+        public IActionResult MESDetail(int orderSn)
+        {
+            try
+            {
+                MESPermissionEntity _result = _demandDomainService.GetDetail(orderSn);
+
+                MESPermissionDetailViewModel _response = new MESPermissionDetailViewModel
+                {
+                    OrderSn = _result.OrderSn,
+                    OrderNo = _result.OrderNo,
+                    StatusId = _result.StatusId,
+                    Status = _result.Status,
+                    Department = _result.Department,
+                    SubUnit = _result.SubUnit,
+                    Applicant = _result.Applicant,
+                    JobId = _result.JobId,
+                    Phone = _result.Phone,
+                    PermissionList = _result.PermissionInfo.CopyAToB<MESPermissionModel>(),
+                    ApplicantList = _result.Applicants.CopyAToB<MESApplicantModel>(),
+                    OtherPermission = _result.OtherPermission,
+                    SameEmpName = _result.SamePermName,
+                    SameEmpJobId = _result.SamePermJobId,
+                    CreateDate = _result.CreateTimeStr,
+                    AuditHistory = _result.MESOrderAuditHistory.CopyAToB<MESPermissionAuditHistoryModel>()
+                };
+
+                return View(_response);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpGet("[controller]/MES/Update/{orderSn}")]
+        public IActionResult MESUpdate(int orderSn)
+        {
+            try
+            {
+                MESPermissionEntity _result = _demandDomainService.GetDetail(orderSn);
+
+                MESPermissionCreateViewModel _response = new MESPermissionCreateViewModel
+                {
+                    OrderSn = _result.OrderSn,
+                    OrderNo = _result.OrderNo,
+                    Department = _result.Department,
+                    SubUnit = _result.SubUnit,
+                    Applicant = _result.Applicant,
+                    JobId = _result.JobId,
+                    Phone = _result.Phone,
+                    PermissionList = _result.PermissionInfo.CopyAToB<MESPermissionModel>(),
+                    ApplicantList = _result.Applicants.CopyAToB<MESApplicantModel>(),
+                    OtherPermission = _result.OtherPermission,
+                    SameEmpName = _result.SamePermName,
+                    SameEmpJobId = _result.SamePermJobId,
+                    CreateDate = _result.CreateTimeStr,
+                };
+
+                return View(_response);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpPost("[controller]/MES/Update")]
+        public IActionResult MESUpdate(MESPermissionCreateViewModel updateModel)
+        {
+            try
+            {
+                var _result = _demandDomainService.UpdateMES(new MESPermissionEntity
+                {
+                    OrderSn = updateModel.OrderSn,
+                    StatusId = updateModel.StatusId,
+                    Department = updateModel.Department,
+                    SubUnit = updateModel.SubUnit,
+                    Applicant = updateModel.Applicant,
+                    JobId = updateModel.JobId,
+                    Phone = updateModel.Phone,
+                    PermissionInfo = updateModel.PermissionList.Select(per => new MESPermissionDetailEntity
+                    {
+                        MESPermissionId = per.MESPermissionId,
+                        IsEnable = per.IsEnable
+                    }).ToList(),
+                    OtherPermission = updateModel.OtherPermission,
+                    SamePermName = updateModel.SameEmpName,
+                    SamePermJobId = updateModel.SameEmpJobId,
+                    Applicants = updateModel.ApplicantList.Select(emp => new MESApplicantEntity
+                    {
+                        ApplicantName = emp.ApplicantName,
+                        ApplicantJobId = emp.ApplicantJobId
+                    }).ToList()
+                }, GetUserInfo());
+
+                return Json(new { IsSuccess = _result.Item1, Msg = _result.Item2 });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { IsSuccess = false, Msg = ex.Message });
+            }
+        }
+
+        [HttpGet("[controller]/MES/Audit/{orderSn}")]
+        public IActionResult MESAudit(int orderSn)
+        {
+            try
+            {
+                MESPermissionEntity _result = _demandDomainService.GetDetail(orderSn);
+
+                MESPermissionDetailViewModel _response = new MESPermissionDetailViewModel
+                {
+                    OrderSn = _result.OrderSn,
+                    OrderNo = _result.OrderNo,
+                    StatusId = _result.StatusId,
+                    Status = _result.Status,
+                    Department = _result.Department,
+                    SubUnit = _result.SubUnit,
+                    Applicant = _result.Applicant,
+                    JobId = _result.JobId,
+                    Phone = _result.Phone,
+                    PermissionList = _result.PermissionInfo.CopyAToB<MESPermissionModel>(),
+                    ApplicantList = _result.Applicants.CopyAToB<MESApplicantModel>(),
+                    OtherPermission = _result.OtherPermission,
+                    SameEmpName = _result.SamePermName,
+                    SameEmpJobId = _result.SamePermJobId,
+                    CreateDate = _result.CreateTimeStr,
+                    AuditHistory = _result.MESOrderAuditHistory.CopyAToB<MESPermissionAuditHistoryModel>()
+                };
+
+                return View(_response);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpPost("[controller]/MES/Audit")]
+        public IActionResult MESAudit([FromForm] MESPermissionDetailViewModel approveViewModel)
+        {
+            try
+            {
+                string _result = _demandDomainService.AuditMES(approveViewModel.OrderSn, approveViewModel.StatusId, approveViewModel.Remark, GetUserInfo());
+
+                if (_result == "")
+                    return Json(new { IsSuccess = true, Msg = "" });
+                else
+                    return Json(new { IsSuccess = false, Msg = _result });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { IsSuccess = false, Msg = ex.Message });
+            }
+        }
+
+        [HttpGet("[controller]/MES/AddInfo")]
+        public IActionResult MESApplicantInfo()
+        {
+            try
+            {
+                return PartialView("_PartialMESEmp", new MESApplicantModel());
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+        #endregion
 
         private (bool, string) Edit(DemanEditViewModel updModel, DemandStatusEnum newStatusId)
         {

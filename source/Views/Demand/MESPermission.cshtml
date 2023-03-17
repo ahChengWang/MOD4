@@ -1,8 +1,8 @@
-﻿@model List<MOD4.Web.ViewModel.DemanMainViewModel>
+﻿@model List<MOD4.Web.ViewModel.MESPermissionMainViewModel>
 @using MOD4.Web.ViewModel
 
 @{
-    ViewBag.Title = "系統需求單";
+    ViewBag.Title = "權限申請單";
 }
 
 
@@ -24,7 +24,7 @@
 
     .my-control {
         display: initial;
-        width: 65%;
+        width: 50%;
         height: calc(2.25rem + 2px);
         padding: 0.375rem 0.75rem;
         font-size: 1rem;
@@ -70,48 +70,38 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">系統需求單</h3>
+                            <h3 class="card-title">權限申請單</h3>
                         </div>
                         <div class="card-body">
                             <fieldset id="searchArea">
                                 <legend id="legend">查詢區塊</legend>
                                 <div id="barDiv1" class="row" style="margin-bottom:5px">
-                                    <div class="col-3">
+                                    <div class="col-lg-3">
                                         <label>申請起日：</label>
                                         <input id="startDTE" class="my-control" type="date" name="name" value="" />
                                     </div>
-                                    <div class="col-3">
+                                    <div class="col-lg-3">
                                         <label>申請訖日：</label>
                                         <input id="endDTE" class="my-control" type="date" name="name" value="" />
                                     </div>
-                                    <div>
-                                        <label>分類：</label>
-                                        <select class="my-select" id="dropCat" multiple="multiple">
-                                            <option value="1">設定</option>
-                                            <option value="2">新增</option>
-                                            <option value="3">其他</option>
-                                        </select>
-                                    </div>
-                                    <div style="margin-left:5px;">
-                                        <label>狀態：</label>
+                                    <div class="col-lg-2">
+                                        <label>狀態:</label>
                                         <select class="my-select" id="dropStatus" multiple="multiple">
                                             <option value="1">待評估</option>
                                             <option value="2">已退件</option>
-                                            <option value="3">進行中</option>
+                                            <option value="7">簽核中</option>
+                                            <option value="9">待設定</option>
                                             <option value="4">已完成</option>
                                         </select>
                                     </div>
-                                </div>
-                                <div class="row" style="display:flex">
-                                    <div class="col-4">
+                                    <div class="col-lg-3">
                                         <label>關鍵字：</label>
-                                        <input class="my-control" id="keyWord" type="text" style="width:70%;text-align:left" />
+                                        <input class="my-control" id="keyWord" type="text" style="width:55%;text-align:left" />
                                     </div>
-                                    <div>
-                                        <input id="btnSearch" type="button" class="btn" name="btn29" style="margin-left:7px" value="查詢" />
+                                    <div class="col-lg-1">
+                                        <input id="btnSearch" type="button" class="btn" name="btn29" value="查詢" />
                                     </div>
                                 </div>
-                                <br />
                             </fieldset>
                             <div class="row">
                                 <div style="float: left;">
@@ -120,16 +110,16 @@
 
                                         if (Convert.ToBoolean(_test.AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Create))
                                         {
-                                            <input id="btnCreate" type="button" class="btn" name="btn30" value="+建立" />
+                                            <input id="btnCreate" type="button" class="btn" name="btn30" value="+申請" />
                                         }
                                     }
                                     @*<input id="btnCreate" type="button" class="btn btn-danger" style="margin-left:7px" name="name" value="建立" />*@
                                 </div>
                             </div>
                             <div id="divMark">
-                                <span style="color:red;font-size:8px">*預設顯示未完成需求單</span>
+                                <span style="color:red;font-size:8px">*預設顯示'簽核中'、'已完成'申請單</span>
                             </div>
-                            <partial name="_PartialTable" model="Model" />
+                            <partial name="_PartialPermission" model="Model" />
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -169,13 +159,13 @@
                 }
                 else {
                     $.ajax({
-                        url: "./Demand/Search?startDate=" + $("#startDTE").val() + "&endDate=" + $("#endDTE").val() + "&category=" + $("#dropCat").val() + "&status=" + $("#dropStatus").val() + "&kw=" + $("#keyWord").val(),
+                        url: "./MES/Search?dateStart=" + $("#startDTE").val() + "&dateEnd=" + $("#endDTE").val() + "&statusList=" + $("#dropStatus").val() + "&keyWord=" + $("#keyWord").val(),
                         type: "GET",
                         dataType: 'html',
                         success: function (result) {
                             if (isJsonString(result)) {
                                 var _res = JSON.parse(result);
-                                alert(_res.msg);
+                                alert(_res.message);
                                 return false;
                             }
                             else {
@@ -183,9 +173,9 @@
                                 $("#divMark").after(result);
 
                                 $(".status:contains('待評估')").css('color', '#088c01');
-                                $(".status:contains('進行中')").css('color', '#145cba');
                                 $(".status:contains('已退件')").css('color', '#b00c0f');
-                                $(".status:contains('待確認')").css('color', '#e0531b');
+                                $(".status:contains('簽核中')").css('color', '#145cba');
+                                $(".status:contains('待設定')").css('color', '#e0531b');
 
                                 $('#table1').DataTable({
                                     "paging": true,
@@ -200,15 +190,15 @@
                 }
             },
             CreateOrder() {
-                location.href = "./Demand/Create";
+                location.href = "./MES/Create";
             }
         }
 
         $(function () {
             $(".status:contains('待評估')").css('color', '#088c01');
-            $(".status:contains('進行中')").css('color', '#145cba');
             $(".status:contains('已退件')").css('color', '#b00c0f');
-            $(".status:contains('待確認')").css('color', '#e0531b');
+            $(".status:contains('簽核中')").css('color', '#145cba');
+            $(".status:contains('待設定')").css('color', '#e0531b');
 
             $('#table1').DataTable({
                 "paging": true,
@@ -222,7 +212,7 @@
                 /*"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]*/
             }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
 
-            $("#dropCat,#dropStatus").multiselect({});
+            $("#dropStatus").multiselect({});
 
             $('#startDTE').attr("max", new Date().toISOString().slice(0, 10));
             $('#endDTE').attr("max", new Date().toISOString().slice(0, 10));
@@ -231,6 +221,16 @@
         $("#btnSearch").click(myFuc.SearchOrder);
 
         $("#btnCreate").click(myFuc.CreateOrder);
+
+
+        function orderNoClick(url) {
+
+            location.href = url;
+            //if (statusId == 4) {
+            //    location.href = "./Demand/MES/Detail/" + sn;
+            //}
+            
+        }
 
         function editClick(id, orderId) {
             location.href = "./Demand/Edit?sn=" + id + "&orderId=" + orderId;

@@ -17,5 +17,14 @@ namespace MOD4.Web.DomainService
 
         (bool, string) UpdateDemand(DemandEntity updEntity, UserEntity userEntity);
 
+        List<MESPermissionEntity> GetMESApplicantList(UserEntity userEntity, int sn = 0, string dateStart = null, string dateEnd = null, string statusId = "1,2,4,7,8,9", string kw = "");
+
+        (bool, string) CreateMESApplicant(MESPermissionEntity mESPermissionEntity, UserEntity userEntity);
+
+        MESPermissionEntity GetDetail(int mesPermissionSn);
+
+        (bool, string) UpdateMES(MESPermissionEntity mesEntity, UserEntity userEntity);
+
+        string AuditMES(int orderSn, DemandStatusEnum statusId, string remark, UserEntity userEntity);
     }
 }

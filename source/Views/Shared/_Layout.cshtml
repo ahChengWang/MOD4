@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="~/img/CarUX_logo_rmb.ico" type="image/x-icon" sizes="16x16" />
+    <link rel="icon" href="~/img/carux_logo_n.ico" type="image/x-icon" sizes="16x16" />
     <title>@ViewData["Title"] - MOD4.Web</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     @*<link rel="stylesheet" href="~/css/site.css" />*@
@@ -33,6 +33,9 @@
     <link rel="stylesheet" href="~/lib/bootstrap-multiselect/css/bootstrap-multiselect.min.css">
     <link rel="stylesheet" href="~/plugins/toastr/toastr.min.css">
     <link rel="stylesheet" href="~/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.css">
+    <!-- customization style -->
+    <link rel="stylesheet" href="~/css/buttonStyleCRUD.css?version=#">
+    <link rel="stylesheet" href="~/css/inputStyle.css?version=#">
 
     <style>
         @@media (min-width: 768px) {
@@ -122,7 +125,7 @@
             border-left: none;
             border-bottom: solid #9e9e9e 1px;
             border-radius: 8px;
-            margin-bottom:5px;
+            margin-bottom: 5px;
         }
 
         #legend {
@@ -177,9 +180,9 @@
     <script src="~/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
     <script src="~/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
     <script src="~/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-    <script src="~/plugins/jszip/jszip.min.js"></script>
+    @*<script src="~/plugins/jszip/jszip.min.js"></script>
     <script src="~/plugins/pdfmake/pdfmake.min.js"></script>
-    <script src="~/plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="~/plugins/pdfmake/vfs_fonts.js"></script>*@
     <script src="~/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
     <script src="~/plugins/datatables-buttons/js/buttons.print.min.js"></script>
     <script src="~/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
@@ -280,11 +283,9 @@
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
             <a href="" class="brand-link" style="height:57px">
-                <img class="mylauoutimg" src="~/img/CarUX.png">
+                <img class="mylauoutimg" src="~/img/CarUX_Logo_n.png">
                 <span class="brand-text font-weight-light">CarUX</span>
             </a>
-
-
 
             <!-- Sidebar -->
             @await Component.InvokeAsync("Navigation")
@@ -395,7 +396,7 @@
         $(document).ready(function () {
             let _pathArray = location.pathname.split('/');
             let _locationPathname = "/" + _pathArray[1] + "/" + _pathArray[2];
-            if (_pathArray.length > 3 && (_pathArray[3] == "Audit" || _pathArray[3] == "Setting" || _pathArray[3] == "Dashboard")) {
+            if (_pathArray.length > 3 && (_pathArray[3] == "Audit" || _pathArray[3] == "Setting" || _pathArray[3] == "Dashboard" || _pathArray[3] == "MES")) {
                 _locationPathname = _locationPathname + "/" + _pathArray[3];
             }
             //$("a[class='nav-link active']").removeClass('active').removeAttr('aria-current');
@@ -403,6 +404,17 @@
             $('a[href="' + _locationPathname + '"]').addClass('active').attr('aria-current', 'page');
             $('a[href="' + _locationPathname + '"]').parent().parent().parent().addClass('menu-is-opening menu-open');
             $('a[href="' + _locationPathname + '"]').parent().parent().parent().children('a:first').addClass('active').attr('aria-current', 'page');
+
+            let links = document.getElementsByTagName('link');
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].getAttribute('rel') == 'stylesheet') {
+                    let href = links[i].getAttribute('href').split('?')[0];
+
+                    let newHref = href + '?version=' + new Date().getMilliseconds();
+
+                    links[i].setAttribute('href', newHref);
+                }
+            }
         });
 
         function isJsonString(str) {

@@ -18,8 +18,8 @@ namespace MOD4.Web.Enum
         Equipment = 9,
         [Description("機況看板")]
         EquipmentDashboard = 10,
-        [Description("系統需求單")]
-        Demand = 11,
+        //[Description("系統需求單")]
+        //Demand = 11,
         [Description("進出申請單")]
         AccessFab = 13,
         [Description("個人簽核單")]
@@ -32,5 +32,9 @@ namespace MOD4.Web.Enum
         SPCReport = 19,
         [Description("SPC參數設定")]
         SPCParaSetting = 20,
+        [Description("系統需求單")]
+        Demand = 21,
+        [Description("權限申請單")]
+        MESPermission = 22,
     }
 }

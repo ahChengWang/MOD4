@@ -1,0 +1,37 @@
+﻿@model List<MOD4.Web.ViewModel.MESPermissionMainViewModel>
+@using MOD4.Web.ViewModel
+
+<table id="table1" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.First().OrderNo)</th>
+            <th>@Html.DisplayNameFor(model => model.First().Applicant)</th>
+            <th>@Html.DisplayNameFor(model => model.First().JobId)</th>
+            <th>@Html.DisplayNameFor(model => model.First().Department)</th>
+            <th>@Html.DisplayNameFor(model => model.First().Status)</th>
+            <th>@Html.DisplayNameFor(model => model.First().ApplicantList)</th>
+            <th>@Html.DisplayNameFor(model => model.First().CreateDate)</th>
+            <th>@Html.DisplayNameFor(model => model.First().AuditPerson)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (var permission in Model)
+            {
+                <tr>
+                    <td style="width: 8%"><a href="#" onclick="orderNoClick('@permission.Url')">@permission.OrderNo</a></td>
+                    <td style="width: 9%">@permission.Applicant</td>
+                    <td style="width: 9%">@permission.JobId</td>
+                    <td style="width: 9%">@permission.Department</td>
+                    <td class="status" style="width: 9%;font-weight:600">@permission.Status</td>
+                    <td style="">@permission.ApplicantList</td>
+                    <td style="width: 10%">@permission.CreateDate</td>
+                    <td style="width: 10%">@permission.AuditPerson</td>
+                    <td style="">
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

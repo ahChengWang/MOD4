@@ -89,7 +89,10 @@ namespace MOD4.Web
             services.AddSingleton<IBookingMeetingRepository, BookingMeetingRepository>();
             services.AddSingleton<ICertifiedAreaMappingRepository, CertifiedAreaMappingRepository>(); 
             services.AddSingleton<ISPCMicroScopeDataRepository, SPCMicroScopeDataRepository>();
-            services.AddSingleton<ISPCChartSettingRepository, SPCChartSettingRepository>();
+            services.AddSingleton<ISPCChartSettingRepository, SPCChartSettingRepository>(); 
+            services.AddSingleton<IMESPermissionRepository, MESPermissionRepository>();
+            services.AddSingleton<IMESPermissionApplicantsRepository, MESPermissionApplicantsRepository>();
+            services.AddSingleton<IMESPermissionAuditHistoryRepository, MESPermissionAuditHistoryRepository>();
 
             services.AddScoped<MenuService>();
             services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));
