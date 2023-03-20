@@ -357,8 +357,11 @@ namespace MOD4.Web.DomainService.Demand
                 DateTime? _dateStart = string.IsNullOrEmpty(dateStart) ? (DateTime?)null : DateTime.Parse(dateStart);
                 DateTime? _dateEnd = string.IsNullOrEmpty(dateEnd) ? (DateTime?)null : DateTime.Parse(dateEnd).AddDays(1).AddSeconds(-1);
 
-                var _mesOrderDaoList = _mesPermissionRepository.SelectByConditions(_dateStart, _dateEnd, sn, statusId?.Split(",") ?? null, kw)
-                        .Where(w => w.applicantAccountSn == userEntity.sn || w.auditAccountSn == userEntity.sn);
+                var _mesOrderDaoList = _mesPermissionRepository.SelectByConditions(_dateStart, _dateEnd, sn, statusId?.Split(",") ?? null, kw);
+
+                if (!userEntity.UserMenuPermissionList.CheckPermission(MenuEnum.MESPermission, PermissionEnum.Management))
+                    _mesOrderDaoList = _mesOrderDaoList.Where(w => w.applicantAccountSn == userEntity.sn || w.auditAccountSn == userEntity.sn).ToList();
+
                 var _mesOrderDetailList = _mesPermissionApplicantsRepository.SelectByConditions(_mesOrderDaoList.Select(mes => mes.orderSn).ToList());
 
                 var _responseEntity = _mesOrderDaoList
@@ -378,9 +381,9 @@ namespace MOD4.Web.DomainService.Demand
                             CreateTimeStr = mes.createTime.ToString("yyyy-MM-dd"),
                             Url = mes.statusId == DemandStatusEnum.Rejected && mes.applicantAccountSn == userEntity.sn
                                     ? $"./MES/Update/{mes.orderSn}"
-                                    : mes.statusId == DemandStatusEnum.Completed || mes.applicantAccountSn == userEntity.sn
-                                        ? $"./MES/Detail/{mes.orderSn}"
-                                        : $"./MES/Audit/{mes.orderSn}"
+                                    : mes.auditAccountSn == userEntity.sn 
+                                        ? $"./MES/Audit/{mes.orderSn}"
+                                        : $"./MES/Detail/{mes.orderSn}"
                         }).ToList();
 
                 // 查詢待簽核人員姓名

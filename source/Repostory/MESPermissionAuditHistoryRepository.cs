@@ -30,6 +30,7 @@ namespace MOD4.Web.Repostory
 ,[auditAccountName]
 ,[statusId]
 ,[receivedTime]
+,[mail]
 ,[isDel])
 VALUES
 (@mesPermissionSn
@@ -38,6 +39,7 @@ VALUES
 ,@auditAccountName
 ,@statusId
 ,@receivedTime
+,@mail
 ,@isDel); ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, insMESPermissionAuditHisList);
