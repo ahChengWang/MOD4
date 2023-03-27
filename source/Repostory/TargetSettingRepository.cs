@@ -60,6 +60,7 @@ namespace MOD4.Web.Repostory
       ,[Time0630] = @Time0630
       ,[UpdateUser] = @UpdateUser
       ,[UpdateTime] = @UpdateTime
+      ,[TimeTarget] = @TimeTarget
  WHERE [Node] = @Node and [lcmProdSn] = @lcmProdSn; ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, updSettingList);

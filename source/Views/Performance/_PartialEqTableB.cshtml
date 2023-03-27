@@ -1,220 +1,341 @@
 ﻿@model List<MOD4.Web.DomainService.Entity.PassQtyEntity>
+@using System.Linq;
 
-<table id="performance" class="table-bordered table-hover">
-    @{
-        foreach (var nodePassQ in Model)
-        {
+@{
+    foreach (var nodePassQ in Model)
+    {
+        <table id="performance" class="table-bordered table-hover">
             <thead>
                 <tr>
-                    <th style="font-weight:800;font-style:italic;font-size:20px" colspan="13">@nodePassQ.Node - @nodePassQ.NodeName</th>
+                    <th style="font-weight:800;font-style:italic;font-size:20px" colspan="38">@nodePassQ.Node - @nodePassQ.NodeName</th>
                 </tr>
             </thead>
             <tbody style="border-bottom:2px double grey">
                 <tr>
                     <td name="tableTTL" width="5%"></td>
-                    <td name="tableTTL">19:30~20:30</td>
-                    <td name="tableTTL">20:30~21:30</td>
-                    <td name="tableTTL">21:30~22:30</td>
-                    <td name="tableTTL">22:30~23:30</td>
-                    <td name="tableTTL">23:30~00:30</td>
-                    <td name="tableTTL">00:30~01:30</td>
-                    <td name="tableTTL">01:30~02:30</td>
-                    <td name="tableTTL">02:30~03:30</td>
-                    <td name="tableTTL">03:30~04:30</td>
-                    <td name="tableTTL">04:30~05:30</td>
-                    <td name="tableTTL">05:30~06:30</td>
-                    <td name="tableTTL">06:30~07:30</td>
-
+                    <td colspan="3" name="tableTTL">19:30~20:30</td>
+                    <td colspan="3" name="tableTTL">20:30~21:30</td>
+                    <td colspan="3" name="tableTTL">21:30~22:30</td>
+                    <td colspan="3" name="tableTTL">22:30~23:30</td>
+                    <td colspan="3" name="tableTTL">23:30~00:30</td>
+                    <td colspan="3" name="tableTTL">00:30~01:30</td>
+                    <td colspan="3" name="tableTTL">01:30~02:30</td>
+                    <td colspan="3" name="tableTTL">02:30~03:30</td>
+                    <td colspan="3" name="tableTTL">03:30~04:30</td>
+                    <td colspan="3" name="tableTTL">04:30~05:30</td>
+                    <td colspan="3" name="tableTTL">05:30~06:30</td>
+                    <td colspan="3" name="tableTTL">06:30~07:30</td>
                     <td name="tableTTL">各班小計</td>
                 </tr>
                 <tr>
                     <td class="td-title">Target</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").Target</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").Target</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").Target</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").Target</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").Target</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").Target</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").Target</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").Target</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").Target</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").Target</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").Target</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").Target</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").Target</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").Target</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").Target</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").Target</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").Target</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").Target</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").Target</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").Target</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").Target</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").Target</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").Target</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").Target</td>
                     <td>@nodePassQ.SubTarget</td>
                 </tr>
                 <tr>
-                    <td class="td-title">投入</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").InQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").InQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").InQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").InQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").InQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").InQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").InQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").InQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").InQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").InQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").InQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").InQty</td>
+                    <td class="td-title">理論產出</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").TheoreticValue</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").TheoreticValue</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").TheoreticValue</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").TheoreticValue</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").TheoreticValue</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").TheoreticValue</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").TheoreticValue</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").TheoreticValue</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").TheoreticValue</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").TheoreticValue</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").TheoreticValue</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").TheoreticValue</td>
+                    <td>@nodePassQ.SubTheoreticValue</td>
+                </tr>
+                <tr>
+                    <td class="td-title">實際產出</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").InQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").InQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").InQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").InQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").InQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").InQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").InQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").InQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").InQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").InQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").InQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").InQty</td>
                     <td>@nodePassQ.SubIn</td>
                 </tr>
                 <tr>
+                    <td class="td-title">差異</td>
+                    <td colspan="3" name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").Diff</td>
+                    <td colspan="3" name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").Diff</td>
+                    <td colspan="3" name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").Diff</td>
+                    <td colspan="3" name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").Diff</td>
+                    <td colspan="3" name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").Diff</td>
+                    <td colspan="3" name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").Diff</td>
+                    <td colspan="3" name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").Diff</td>
+                    <td colspan="3" name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").Diff</td>
+                    <td colspan="3" name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").Diff</td>
+                    <td colspan="3" name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").Diff</td>
+                    <td colspan="3" name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").Diff</td>
+                    <td colspan="3" name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").Diff</td>
+                    <td name="diff">@nodePassQ.SubDiff</td>
+                </tr>
+                <tr>
                     <td class="td-title">OK</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").OKQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").OKQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").OKQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").OKQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").OKQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").OKQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").OKQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").OKQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").OKQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").OKQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").OKQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").OKQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").OKQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").OKQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").OKQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").OKQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").OKQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").OKQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").OKQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").OKQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").OKQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").OKQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").OKQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").OKQty</td>
                     <td>@nodePassQ.SubOK</td>
                 </tr>
                 <tr>
                     <td class="td-title">NG</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").NGQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").NGQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").NGQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").NGQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").NGQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").NGQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").NGQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").NGQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").NGQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").NGQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").NGQty</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").NGQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").NGQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").NGQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").NGQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").NGQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").NGQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").NGQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").NGQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").NGQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").NGQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").NGQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").NGQty</td>
+                    <td colspan="3">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").NGQty</td>
                     <td>@nodePassQ.SubNG</td>
                 </tr>
                 <tr>
                     <td class="td-title">yield</td>
-                    <td name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").Yield</td>
-                    <td name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").Yield</td>
-                    <td name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").Yield</td>
-                    <td name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").Yield</td>
-                    <td name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").Yield</td>
-                    <td name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").Yield</td>
-                    <td name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").Yield</td>
-                    <td name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").Yield</td>
-                    <td name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").Yield</td>
-                    <td name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").Yield</td>
-                    <td name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").Yield</td>
-                    <td name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").Yield</td>
+                    <td colspan="3" name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").Yield</td>
+                    <td colspan="3" name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").Yield</td>
+                    <td colspan="3" name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").Yield</td>
+                    <td colspan="3" name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").Yield</td>
+                    <td colspan="3" name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").Yield</td>
+                    <td colspan="3" name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").Yield</td>
+                    <td colspan="3" name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").Yield</td>
+                    <td colspan="3" name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").Yield</td>
+                    <td colspan="3" name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").Yield</td>
+                    <td colspan="3" name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").Yield</td>
+                    <td colspan="3" name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").Yield</td>
+                    <td colspan="3" name="yield">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").Yield</td>
                     <td name="yield">@nodePassQ.SubYield</td>
                 </tr>
                 <tr>
                     <td class="td-title">不良率</td>
-                    <td name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").DefectRate</td>
-                    <td name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").DefectRate</td>
-                    <td name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").DefectRate</td>
-                    <td name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").DefectRate</td>
-                    <td name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").DefectRate</td>
-                    <td name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").DefectRate</td>
-                    <td name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").DefectRate</td>
-                    <td name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").DefectRate</td>
-                    <td name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").DefectRate</td>
-                    <td name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").DefectRate</td>
-                    <td name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").DefectRate</td>
-                    <td name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").DefectRate</td>
+                    <td colspan="3" name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").DefectRate</td>
+                    <td colspan="3" name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").DefectRate</td>
+                    <td colspan="3" name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").DefectRate</td>
+                    <td colspan="3" name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").DefectRate</td>
+                    <td colspan="3" name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").DefectRate</td>
+                    <td colspan="3" name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").DefectRate</td>
+                    <td colspan="3" name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").DefectRate</td>
+                    <td colspan="3" name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").DefectRate</td>
+                    <td colspan="3" name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").DefectRate</td>
+                    <td colspan="3" name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").DefectRate</td>
+                    <td colspan="3" name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").DefectRate</td>
+                    <td colspan="3" name="defect">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").DefectRate</td>
                     <td name="defect">@nodePassQ.SubDefectRate</td>
                 </tr>
-                <tr>
-                    <td class="td-title">差異</td>
-                    <td name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").Diff</td>
-                    <td name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").Diff</td>
-                    <td name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").Diff</td>
-                    <td name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").Diff</td>
-                    <td name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").Diff</td>
-                    <td name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").Diff</td>
-                    <td name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").Diff</td>
-                    <td name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").Diff</td>
-                    <td name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").Diff</td>
-                    <td name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").Diff</td>
-                    <td name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").Diff</td>
-                    <td name="diff">@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").Diff</td>
-                    <td name="diff">@nodePassQ.SubDiff</td>
-                </tr>
-                <tr>
-                    <td class="td-title">機況 TOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").eqpInfoTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").eqpInfoTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").eqpInfoTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").eqpInfoTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").eqpInfoTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").eqpInfoTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").eqpInfoTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").eqpInfoTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").eqpInfoTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").eqpInfoTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").eqpInfoTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").eqpInfoTOP1</td>
-                </tr>
-                <tr>
-                    <td class="td-title">機況 TOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").eqpInfoTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").eqpInfoTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").eqpInfoTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").eqpInfoTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").eqpInfoTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").eqpInfoTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").eqpInfoTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").eqpInfoTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").eqpInfoTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").eqpInfoTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").eqpInfoTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").eqpInfoTOP2</td>
-                </tr>
-                <tr>
-                    <td class="td-title">機況 TOP3</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").eqpInfoTOP3</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").eqpInfoTOP3</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").eqpInfoTOP3</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").eqpInfoTOP3</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").eqpInfoTOP3</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").eqpInfoTOP3</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").eqpInfoTOP3</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").eqpInfoTOP3</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").eqpInfoTOP3</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").eqpInfoTOP3</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").eqpInfoTOP3</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").eqpInfoTOP3</td>
-                </tr>
+                @{
+
+                    if (!nodePassQ.DetailList.All(a => a.EqHistoryList.Count == 0))
+                    {
+                        <tr>
+                            <td class="td-title"></td>
+                            <td name="hisTitle">狀態</td>
+                            <td name="hisTitle">內容</td>
+                            <td name="hisTitle">時間(min)</td>
+                            <td name="hisTitle">狀態</td>
+                            <td name="hisTitle">內容</td>
+                            <td name="hisTitle">時間(min)</td>
+                            <td name="hisTitle">狀態</td>
+                            <td name="hisTitle">內容</td>
+                            <td name="hisTitle">時間(min)</td>
+                            <td name="hisTitle">狀態</td>
+                            <td name="hisTitle">內容</td>
+                            <td name="hisTitle">時間(min)</td>
+                            <td name="hisTitle">狀態</td>
+                            <td name="hisTitle">內容</td>
+                            <td name="hisTitle">時間(min)</td>
+                            <td name="hisTitle">狀態</td>
+                            <td name="hisTitle">內容</td>
+                            <td name="hisTitle">時間(min)</td>
+                            <td name="hisTitle">狀態</td>
+                            <td name="hisTitle">內容</td>
+                            <td name="hisTitle">時間(min)</td>
+                            <td name="hisTitle">狀態</td>
+                            <td name="hisTitle">內容</td>
+                            <td name="hisTitle">時間(min)</td>
+                            <td name="hisTitle">狀態</td>
+                            <td name="hisTitle">內容</td>
+                            <td name="hisTitle">時間(min)</td>
+                            <td name="hisTitle">狀態</td>
+                            <td name="hisTitle">內容</td>
+                            <td name="hisTitle">時間(min)</td>
+                            <td name="hisTitle">狀態</td>
+                            <td name="hisTitle">內容</td>
+                            <td name="hisTitle">時間(min)</td>
+                            <td name="hisTitle">狀態</td>
+                            <td name="hisTitle">內容</td>
+                            <td name="hisTitle">時間(min)</td>
+                            <td></td>
+                        </tr>
+
+                        var countMAX = nodePassQ.DetailList.Select(s => s.EqHistoryList.Count).Max();
+                        var detailAry1930 = nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").EqHistoryList.ToArray();
+                        var detailAry2030 = nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").EqHistoryList.ToArray();
+                        var detailAry2130 = nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").EqHistoryList.ToArray();
+                        var detailAry2230 = nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").EqHistoryList.ToArray();
+                        var detailAry2330 = nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").EqHistoryList.ToArray();
+                        var detailAry0030 = nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").EqHistoryList.ToArray();
+                        var detailAry0130 = nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").EqHistoryList.ToArray();
+                        var detailAry0230 = nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").EqHistoryList.ToArray();
+                        var detailAry0330 = nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").EqHistoryList.ToArray();
+                        var detailAry0430 = nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").EqHistoryList.ToArray();
+                        var detailAry0530 = nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").EqHistoryList.ToArray();
+                        var detailAry0630 = nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").EqHistoryList.ToArray();
+
+
+                        for (int i = 0; i < countMAX; i++)
+                        {
+                            <tr>
+                                <td class="td-title">機況</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry1930.Length ? detailAry1930[i].Status : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry1930.Length ? detailAry1930[i].Desc : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry1930.Length ? detailAry1930[i].Time : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry2030.Length ? detailAry2030[i].Status : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry2030.Length ? detailAry2030[i].Desc : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry2030.Length ? detailAry2030[i].Time : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry2130.Length ? detailAry2130[i].Status : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry2130.Length ? detailAry2130[i].Desc : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry2130.Length ? detailAry2130[i].Time : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry2230.Length ? detailAry2230[i].Status : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry2230.Length ? detailAry2230[i].Desc : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry2230.Length ? detailAry2230[i].Time : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry2330.Length ? detailAry2330[i].Status : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry2330.Length ? detailAry2330[i].Desc : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry2330.Length ? detailAry2330[i].Time : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0030.Length ? detailAry0030[i].Status : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0030.Length ? detailAry0030[i].Desc : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0030.Length ? detailAry0030[i].Time : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0130.Length ? detailAry0130[i].Status : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0130.Length ? detailAry0130[i].Desc : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0130.Length ? detailAry0130[i].Time : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0230.Length ? detailAry0230[i].Status : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0230.Length ? detailAry0230[i].Desc : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0230.Length ? detailAry0230[i].Time : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0330.Length ? detailAry0330[i].Status : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0330.Length ? detailAry0330[i].Desc : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0330.Length ? detailAry0330[i].Time : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0430.Length ? detailAry0430[i].Status : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0430.Length ? detailAry0430[i].Desc : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0430.Length ? detailAry0430[i].Time : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0530.Length ? detailAry0530[i].Status : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0530.Length ? detailAry0530[i].Desc : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0530.Length ? detailAry0530[i].Time : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0630.Length ? detailAry0630[i].Status : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0630.Length ? detailAry0630[i].Desc : "")</td>
+                                <td name="hisDetail">@(i + 1 <= detailAry0630.Length ? detailAry0630[i].Time : "")</td>
+                                <td></td>
+                            </tr>
+                        }
+                    }
+                }
                 @*<tr>
-                    <td class="td-title">TT TOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").LineTTTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").LineTTTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").LineTTTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").LineTTTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").LineTTTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").LineTTTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").LineTTTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").LineTTTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").LineTTTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").LineTTTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").LineTTTOP1</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").LineTTTOP1</td>
-                </tr>
-                <tr>
-                    <td class="td-title">TT TOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").LineTTTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").LineTTTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").LineTTTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").LineTTTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").LineTTTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").LineTTTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").LineTTTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").LineTTTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").LineTTTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").LineTTTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").LineTTTOP2</td>
-                    <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").LineTTTOP2</td>
-                </tr>*@
+                        <td class="td-title">機況 TOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").eqpInfoTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").eqpInfoTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").eqpInfoTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").eqpInfoTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").eqpInfoTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").eqpInfoTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").eqpInfoTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").eqpInfoTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").eqpInfoTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").eqpInfoTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").eqpInfoTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").eqpInfoTOP1</td>
+                    </tr>
+                    <tr>
+                        <td class="td-title">機況 TOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").eqpInfoTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").eqpInfoTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").eqpInfoTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").eqpInfoTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").eqpInfoTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").eqpInfoTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").eqpInfoTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").eqpInfoTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").eqpInfoTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").eqpInfoTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").eqpInfoTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").eqpInfoTOP2</td>
+                    </tr>
+                    <tr>
+                        <td class="td-title">機況 TOP3</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").eqpInfoTOP3</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").eqpInfoTOP3</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").eqpInfoTOP3</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").eqpInfoTOP3</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").eqpInfoTOP3</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").eqpInfoTOP3</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").eqpInfoTOP3</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").eqpInfoTOP3</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").eqpInfoTOP3</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").eqpInfoTOP3</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").eqpInfoTOP3</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").eqpInfoTOP3</td>
+                    </tr>*@
+                @*<tr>
+                        <td class="td-title">TT TOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").LineTTTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").LineTTTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").LineTTTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").LineTTTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").LineTTTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").LineTTTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").LineTTTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").LineTTTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").LineTTTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").LineTTTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").LineTTTOP1</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").LineTTTOP1</td>
+                    </tr>
+                    <tr>
+                        <td class="td-title">TT TOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "1930").LineTTTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2030").LineTTTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2130").LineTTTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2230").LineTTTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "2330").LineTTTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0030").LineTTTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0130").LineTTTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0230").LineTTTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0330").LineTTTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0430").LineTTTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0530").LineTTTOP2</td>
+                        <td>@nodePassQ.DetailList.FirstOrDefault(w => w.Time == "0630").LineTTTOP2</td>
+                    </tr>*@
             </tbody>
-        }
+        </table>
     }
-</table>
+}

@@ -23,6 +23,8 @@ namespace MOD4.Web.DomainService
 
         MESPermissionEntity GetDetail(int mesPermissionSn);
 
+        MESPermissionEntity GetAudit(int mesPermissionSn, UserEntity userEntity);
+
         (bool, string) UpdateMES(MESPermissionEntity mesEntity, UserEntity userEntity);
 
         string AuditMES(int orderSn, DemandStatusEnum statusId, string remark, UserEntity userEntity);

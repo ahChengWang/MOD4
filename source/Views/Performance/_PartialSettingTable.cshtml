@@ -18,11 +18,17 @@
             <form id="@_formId">
                 <input type="hidden" asp-for="@setting.Node" />
                 <div style="display:flex">
-                    <div class="">
-                        <label class="col-form-label" asp-for="@setting.DownEquipment"></label>
+                    <div class="col-1" style="text-align:right">
+                        <label class="col-form-label" style="text-align:right" asp-for="@setting.DownEquipment"></label>
                     </div>
-                    <div>
+                    <div class="col-1">
                         <input name="downEqInput" type="text" asp-for="@setting.DownEquipment" />
+                    </div>
+                    <div class="col-1" style="text-align:right">
+                        <label class="col-form-label" asp-for="@setting.TimeTarget"></label>
+                    </div>
+                    <div class="col-1">
+                        <input name="downEqInput" type="text" asp-for="@setting.TimeTarget" />
                     </div>
                 </div>
                 <div class="row" style="display:flex">

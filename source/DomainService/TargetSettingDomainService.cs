@@ -46,6 +46,7 @@ namespace MOD4.Web.DomainService
                 _updDao.ForEach(fe =>
                 {
                     fe.lcmProdSn = prodSn;
+                    fe.DownEquipment = string.IsNullOrEmpty(fe.DownEquipment) ? "" : fe.DownEquipment;
                     fe.UpdateTime = DateTime.Now;
                     fe.UpdateUser = userEntity.Name;
                 });

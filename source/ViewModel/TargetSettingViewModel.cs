@@ -16,8 +16,12 @@ namespace MOD4.Web.ViewModel
 
 
         [Display(Name = "敲當 EQ No.")]
-        [Required(ErrorMessage = "*必填")]
+        //[Required(ErrorMessage = "*必填")]
         public string DownEquipment { get; set; }
+
+        [Display(Name = "T.T.")]
+        [Required(ErrorMessage = "*必填")]
+        public int TimeTarget { get; set; }
 
         [Display(Name = "07:30~08:30")]
         [Required(ErrorMessage = "*必填")]

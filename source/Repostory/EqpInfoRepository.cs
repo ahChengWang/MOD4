@@ -1,4 +1,5 @@
 ﻿using MOD4.Web.Repostory.Dao;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -62,21 +63,31 @@ namespace MOD4.Web.Repostory
             return dao;
         }
 
-        public EqpInfoDao SelectEqpinfoByConditions(int sn)
+        public List<EqpInfoDao> SelectEqpinfoByConditions(int sn, List<string> equipmentList = null, DateTime? startTime = null, DateTime? endTime = null, List<int> prodSnList = null)
         {
-            string sql = "select * from eqpinfo where 1=1";
+            string sql = "select * from eqpinfo where Code != '111A' ";
 
             if (sn != 0)
-            {
                 sql += " and sn = @sn ";
-            }
+            if (equipmentList != null && equipmentList.Any())
+                sql += " and Equipment in @Equipment ";
+            if (prodSnList != null && prodSnList.Any())
+                sql += " and prod_sn in @ProdSn ";
+            if (startTime != null)
+                sql += " and Start_Time >= @startTime ";
+            if (endTime != null)
+                sql += " and Start_Time <= @endTime ";
 
             var dao = _dbHelper.ExecuteQuery<EqpInfoDao>(sql, new
             {
-                sn = sn
+                sn = sn,
+                Equipment = equipmentList,
+                ProdSn = prodSnList,
+                startTime = startTime,
+                endTime = endTime
             });
 
-            return dao.FirstOrDefault();
+            return dao;
         }
 
         public List<EquipMappingDao> SelectUnRepaireEqList(string beginDate, string endDate)

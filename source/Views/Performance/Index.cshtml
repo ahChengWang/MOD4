@@ -5,15 +5,13 @@
 
 <style>
     #performance {
-        word-wrap: break-word;
-        word-break: break-all;
         box-shadow: 2px 2px 2px #999;
     }
 
     th, td {
-        padding: 0.25rem;
+        padding: 0.2rem;
         text-align: center;
-        max-width: 80px;
+        max-width: 100px;
     }
 
     .my-control {
@@ -40,11 +38,26 @@
     .td-title {
         font-weight: 700;
         background-color: #abbbc4;
+        word-wrap: break-word;
+        word-break: break-all;
     }
 
     td[name="tableTTL"] {
         font-weight: 500;
         background-color: #93abba;
+        word-wrap: break-word;
+        word-break: break-all;
+    }
+
+    td[name="hisTitle"] {
+        font-size: 10px;
+        background-color: #abbbc4;
+    }
+
+    td[name="hisDetail"] {
+        word-wrap: break-word;
+        word-break: break-all;
+        font-size: 10px;
     }
 
     .dropdown-menu {
@@ -53,9 +66,6 @@
         overflow-x: hidden;
     }
 
-    .multiselect-container {
-        width: 300px;
-    }
 </style>
 
 <div class="content-wrapper">
@@ -134,19 +144,21 @@
                             </fieldset>
                             <h2 id="prodName" style="font-family:Impact">@ViewData["ProdName"]</h2>
                             <br id="brId" />
-                            @{
-                                var _nowTime = DateTime.Now;
-                                TimeSpan _time0730 = new TimeSpan(7, 30, 1);
-                                TimeSpan _time1930 = new TimeSpan(19, 30, 1);
-                                if (_nowTime.TimeOfDay >= _time0730 && _nowTime.TimeOfDay < _time1930)
-                                {
-                                    <partial name="_PartialEqTableA" model="Model" />
+                            <div id="divTable" style=" overflow-x: auto;">
+                                @{
+                                    var _nowTime = DateTime.Now;
+                                    TimeSpan _time0730 = new TimeSpan(7, 30, 1);
+                                    TimeSpan _time1930 = new TimeSpan(19, 30, 1);
+                                    if (_nowTime.TimeOfDay >= _time0730 && _nowTime.TimeOfDay < _time1930)
+                                    {
+                                        <partial name="_PartialEqTableA" model="Model" />
+                                    }
+                                    else
+                                    {
+                                        <partial name="_PartialEqTableB" model="Model" />
+                                    }
                                 }
-                                else
-                                {
-                                    <partial name="_PartialEqTableB" model="Model" />
-                                }
-                            }
+                            </div>
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -208,12 +220,11 @@
                 dataType: 'html',
                 async: true,
                 success: function (result) {
-                    //alert("success");
+                    $.unblockUI();
                     if (isJsonString(result)) {
                         var _res = JSON.parse(result);
                         $("#performance").remove();
                         alert(_res);
-                        $.unblockUI();
                         return false;
                         //if (result == '""') {
                         //    $("#performance").remove();
@@ -228,11 +239,14 @@
                         //}
                     }
                     else {
-                        $("#performance").remove();
-                        $("#brId").after(result);
+                        //$("#performance").remove();
+                        //$("#brId").after(result);
+
+                        $('#divTable').children().remove();
+                        $('#divTable').html(result);
+
                         alarmCSS($("td[name='diff']"));
                         alarmDefectCSS($("td[name='defect']"));
-                        $.unblockUI();
                     }
                 }
             });

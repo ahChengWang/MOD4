@@ -38,5 +38,6 @@ namespace MOD4.Web.Repostory.Dao
         public string tool_name { get; set; }
         public int prod_sn { get; set; }
         public int isManual { get; set; }
+        public string status_desc_ie { get; set; }
     }
 }

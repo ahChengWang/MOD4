@@ -195,7 +195,7 @@ namespace MOD4.Web.DomainService
         {
             try
             {
-                var _r = _eqpInfoRepository.SelectEqpinfoByConditions(sn);
+                var _r = _eqpInfoRepository.SelectEqpinfoByConditions(sn).FirstOrDefault();
 
                 if (_r == null)
                 {
@@ -258,7 +258,7 @@ namespace MOD4.Web.DomainService
         {
             try
             {
-                var _r = _eqpInfoRepository.SelectEqpinfoByConditions(sn);
+                var _r = _eqpInfoRepository.SelectEqpinfoByConditions(sn).FirstOrDefault();
 
                 if (_r == null)
                 {
@@ -327,7 +327,7 @@ namespace MOD4.Web.DomainService
                 if (statusId == 0)
                     return "參數異常";
 
-                var _eqpinfo = _eqpInfoRepository.SelectEqpinfoByConditions(sn);
+                var _eqpinfo = _eqpInfoRepository.SelectEqpinfoByConditions(sn).FirstOrDefault();
 
                 if (statusId == EqIssueStatusEnum.PendingPM && !string.IsNullOrEmpty(_eqpinfo.mnt_user))
                     return "機況已更新, 請重整頁面";
@@ -342,16 +342,17 @@ namespace MOD4.Web.DomainService
             }
         }
 
-        public List<EquipmentEntity> GetEntityHistoryDetail(string mfgDay, List<string> eqpListStr, List<int> prodSnList)
+        public List<EquipmentEntity> GetEntityHistoryDetail(DateTime startTime, DateTime endTime, List<string> eqpListStr, List<int> prodSnList)
         {
             try
             {
-                var _eqpHisList = _eqpInfoRepository.SelectByConditions(mfgDay, eqpListStr, false, false, prodSnList: prodSnList);
+                var _eqpHisList = _eqpInfoRepository.SelectEqpinfoByConditions(0, eqpListStr, startTime: startTime, endTime: endTime, prodSnList: prodSnList);
 
                 return (_eqpHisList.Select(s =>
                 {
                     return new EquipmentEntity
                     {
+                        IEStatusDesc = s.status_desc_ie,
                         ToolId = s.Equipment,
                         ToolStatus = s.Code,
                         StatusCdsc = s.Code_Desc,
@@ -434,7 +435,7 @@ namespace MOD4.Web.DomainService
             try
             {
                 var _updateResponse = "";
-                var oldEqpinfo = _eqpInfoRepository.SelectEqpinfoByConditions(editEntity.sn);
+                var oldEqpinfo = _eqpInfoRepository.SelectEqpinfoByConditions(editEntity.sn).FirstOrDefault();
 
                 if (oldEqpinfo == null)
                     return "查無機況";

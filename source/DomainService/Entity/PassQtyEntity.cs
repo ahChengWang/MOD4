@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 
 namespace MOD4.Web.DomainService.Entity
 {
@@ -19,6 +20,17 @@ namespace MOD4.Web.DomainService.Entity
             set
             {
                 this.SubTarget = 0;
+            }
+        }
+        public int SubTheoreticValue
+        {
+            get
+            {
+                return this.DetailList.Sum(sum => sum.TheoreticValue);
+            }
+            set
+            {
+                this.SubTheoreticValue = 0;
             }
         }
         public int SubIn
@@ -92,7 +104,19 @@ namespace MOD4.Web.DomainService.Entity
     public class PassQtyDetailEntity
     {
         public string Time { get; set; }
+        public int TheoreticValue
+        {
+            get
+            {
+                return this.TimeTarget == 0 ? 0 : Convert.ToInt32(((60 - this.EqHistoryList.Sum(s => Convert.ToDecimal(s.Time))) * 60) / this.TimeTarget);
+            }
+            set
+            {
+                this.TheoreticValue = 0;
+            }
+        }
         public int Target { get; set; }
+        public int TimeTarget { get; set; }
         public int InQty { get; set; }
         public int OKQty { get; set; }
         public int NGQty { get; set; }
@@ -102,8 +126,17 @@ namespace MOD4.Web.DomainService.Entity
         public string eqpInfoTOP1 { get; set; }
         public string eqpInfoTOP2 { get; set; }
         public string eqpInfoTOP3 { get; set; }
+
+        public List<EqHistory> EqHistoryList { get; set; }
         public string LineTTTOP1 { get; set; }
         public string LineTTTOP2 { get; set; }
+    }
+
+    public class EqHistory
+    {
+        public string Status { get; set; }
+        public string Desc { get; set; }
+        public string Time { get; set; }
     }
 
 }

@@ -1,5 +1,6 @@
 ﻿using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
+using System;
 using System.Collections.Generic;
 
 namespace MOD4.Web.DomainService
@@ -24,7 +25,7 @@ namespace MOD4.Web.DomainService
 
         string VerifyEqpStatus(int sn, EqIssueStatusEnum statusId, UserEntity userEntity);
 
-        List<EquipmentEntity> GetEntityHistoryDetail(string mfgDay, List<string> eqpListStr, List<int> prodSnList);
+        List<EquipmentEntity> GetEntityHistoryDetail(DateTime startTime, DateTime endTime, List<string> eqpListStr, List<int> prodSnList);
 
         string Create(EquipmentEditEntity editEntity, UserEntity userEntity);
 

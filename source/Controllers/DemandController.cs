@@ -526,7 +526,7 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                MESPermissionEntity _result = _demandDomainService.GetDetail(orderSn);
+                MESPermissionEntity _result = _demandDomainService.GetAudit(orderSn, GetUserInfo());
 
                 MESPermissionDetailViewModel _response = new MESPermissionDetailViewModel
                 {

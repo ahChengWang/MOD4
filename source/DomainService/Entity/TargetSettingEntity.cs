@@ -34,5 +34,6 @@ namespace MOD4.Web.DomainService.Entity
         public int Time0630 { get; set; }
         public string UpdateUser { get; set; }
         public DateTime UpdateTime { get; set; }
+        public int TimeTarget { get; set; }
     }
 }

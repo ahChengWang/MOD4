@@ -428,6 +428,7 @@ namespace MOD4.Web.DomainService.Demand
                     SamePermName = _mesOrder.samePermName,
                     SamePermJobId = _mesOrder.samePermJobId,
                     CreateTimeStr = _mesOrder.createTime.ToString("yyyy/MM/dd"),
+                    AuditAccountSn = _mesOrder.auditAccountSn,
                     Applicants = _accessOrderDetail.Select(s => new MESApplicantEntity
                     {
                         ApplicantName = s.applicantName,
@@ -447,6 +448,23 @@ namespace MOD4.Web.DomainService.Demand
                             : "0"
                     }).ToList()
                 };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public MESPermissionEntity GetAudit(int mesPermissionSn, UserEntity userEntity)
+        {
+            try
+            {
+                MESPermissionEntity _audirDetail = GetDetail(mesPermissionSn);
+
+                if (_audirDetail.AuditAccountSn != userEntity.sn)
+                    throw new Exception("申請單狀態已變更, 請重新查詢");
+                else
+                    return _audirDetail;
             }
             catch (Exception ex)
             {
@@ -734,7 +752,7 @@ namespace MOD4.Web.DomainService.Demand
                         Subject = "MES 權限申請單 - 退件通知",
                         Content = "<br /> Dear Sir <br /><br />" +
                         "您有<a style='text-decoration:underline'>待重送</a><a style='font-weight:900'>MES 權限申請單</a>， <br /><br />" +
-                        $"單號連結：<a href='http://10.54.215.210/CarUX/MES/Audit/{_mesOrder.orderSn}' target='_blank'>" + _mesOrder.orderNo + "</a>"
+                        $"單號連結：<a href='http://10.54.215.210/CarUX/Demand/MES/Update/{_mesOrder.orderSn}' target='_blank'>" + _mesOrder.orderNo + "</a>"
                     });
                 }
                 // 發送待簽核 mail
@@ -745,7 +763,7 @@ namespace MOD4.Web.DomainService.Demand
                         Subject = $"MES 權限申請單 - 待簽核通知 (申請人:{_mesOrder.applicant})",
                         Content = "<br /> Dear Sir <br /><br />" +
                         "您有<a style='text-decoration:underline'>待簽核</a><a style='font-weight:900'>MES 權限申請單</a>， <br /><br />" +
-                        $"單號連結：<a href='http://10.54.215.210/CarUX/MES/Audit/{_mesOrder.orderSn}' target='_blank'>" + _mesOrder.orderNo + "</a>"
+                        $"單號連結：<a href='http://10.54.215.210/CarUX/Demand/MES/Audit/{_mesOrder.orderSn}' target='_blank'>" + _mesOrder.orderNo + "</a>"
                     });
                 else if (_updMESOrder.statusId == DemandStatusEnum.Setting)
                 {
@@ -756,7 +774,7 @@ namespace MOD4.Web.DomainService.Demand
                         Subject = $"MES 權限申請單 - 簽核完成",
                         Content = "<br /> Dear Sir <br /><br />" +
                         "您有<a style='text-decoration:underline'>已簽核完成</a><a style='font-weight:900'>MES 權限申請單</a>， <br /><br />" +
-                        $"單號連結：<a href='http://10.54.215.210/CarUX/MES/Detail/{_mesOrder.orderSn}' target='_blank'>" + _mesOrder.orderNo + "</a>"
+                        $"單號連結：<a href='http://10.54.215.210/CarUX/Demand/MES/Detail/{_mesOrder.orderSn}' target='_blank'>" + _mesOrder.orderNo + "</a>"
                     });
                 }
                 else if (_updMESOrder.statusId == DemandStatusEnum.Completed)
@@ -768,7 +786,7 @@ namespace MOD4.Web.DomainService.Demand
                         Subject = $"MES 權限申請單 - 設定完成",
                         Content = "<br /> Dear Sir <br /><br />" +
                         "您有<a style='text-decoration:underline'>已完成</a><a style='font-weight:900'>MES 權限申請單</a>， <br /><br />" +
-                        $"單號連結：<a href='http://10.54.215.210/CarUX/MES/Detail/{_mesOrder.orderSn}' target='_blank'>" + _mesOrder.orderNo + "</a>"
+                        $"單號連結：<a href='http://10.54.215.210/CarUX/Demand/MES/Detail/{_mesOrder.orderSn}' target='_blank'>" + _mesOrder.orderNo + "</a>"
                     });
                 }
 

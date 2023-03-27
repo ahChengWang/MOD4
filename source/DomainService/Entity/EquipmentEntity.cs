@@ -31,5 +31,6 @@ namespace MOD4.Web.DomainService.Entity
         public bool IsPMProcess { get; set; }
         public bool IsEngineerProcess { get; set; }
         public EqIssueStatusEnum StatusId { get; set; }
+        public string IEStatusDesc { get; set; }
     }
 }
