@@ -6,8 +6,10 @@
 *.log
 *.txt
 #*.xml
-source/.vs/SpareManagement/v16/.suo
+source/Product/.vs/SpareManagement/v16/.suo
 *.v2
 source/.vs/
-source/bin/
 source/obj/
+source/Product/.vs/
+source/Product/bin/
+source/Product/obj/
