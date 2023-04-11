@@ -36,5 +36,9 @@ namespace MOD4.Web.Enum
         Demand = 21,
         [Description("權限申請單")]
         MESPermission = 22,
+        [Description("MTD Dashboard")]
+        MTDDashboard = 24,
+        [Description("生產排程上傳")]
+        Manufacture = 25,
     }
 }

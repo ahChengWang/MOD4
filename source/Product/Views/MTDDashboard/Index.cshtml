@@ -1,0 +1,341 @@
+﻿@model List<MOD4.Web.ViewModel.MTDDashboardViewModel>
+
+@{
+    ViewBag.Title = "MTD";
+}
+
+<style>
+    .card-title {
+        font-size: 30px;
+        font-weight: 900;
+    }
+
+    table {
+        box-shadow: #999;
+        border-collapse: collapse;
+    }
+
+        table td, table th {
+            padding: 0.3rem;
+            text-align: center;
+            vertical-align: middle !important;
+            font-size: 13px;
+            border: 1px solid #787878;
+        }
+
+    tbody td {
+        background-color: #97dbd8;
+    }
+
+    td[name='tdNum'] {
+        text-align: right;
+        font-family: "Microsoft JhengHei";
+        font-weight: 600;
+        font-style: italic;
+    }
+
+    .card {
+        box-shadow: 2px 2px 2px #999;
+        background-color: #c3cadb;
+    }
+
+    .my-control {
+        display: initial;
+        width: 70%;
+        height: calc(2.25rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        box-shadow: inset 0 0 0 transparent;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+</style>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">2F 各製程段生產狀況(DAILY & MTD)</h3>
+                        </div>
+                        <div class="card-body">
+                            <fieldset id="searchArea">
+                                <legend id="legend">查詢區塊</legend>
+                                <div class="form-group d-flex align-content-center flex-wrap">
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">查詢日期：</label>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        @*<input id="dateRange" class="form-control" name="datepicker" value="" />*@
+                                        <input id="datePick" class="my-control" type="date" min="2020/01/01" />
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">查詢時間：</label>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <select id="timeRang" class="my-control">
+                                            <option value=0.5>07:30-08:00</option>
+                                            <option value=1>07:30-08:30</option>
+                                            <option value=1.5>07:30-09:00</option>
+                                            <option value=2>07:30-09:30</option>
+                                            <option value=2.5>07:30-10:00</option>
+                                            <option value=3>07:30-10:30</option>
+                                            <option value=3.5>07:30-11:00</option>
+                                            <option value=4>07:30-11:30</option>
+                                            <option value=4.5>07:30-12:00</option>
+                                            <option value=5>07:30-12:30</option>
+                                            <option value=5.5>07:30-13:00</option>
+                                            <option value=6>07:30-13:30</option>
+                                            <option value=6.5>07:30-14:00</option>
+                                            <option value=7>07:30-14:30</option>
+                                            <option value=7.5>07:30-15:00</option>
+                                            <option value=8>07:30-15:30</option>
+                                            <option value=8.5>07:30-16:00</option>
+                                            <option value=9>07:30-16:30</option>
+                                            <option value=9.5>07:30-17:00</option>
+                                            <option value=10>07:30-17:30</option>
+                                            <option value=10.5>07:30-18:00</option>
+                                            <option value=11>07:30-18:30</option>
+                                            <option value=11.5>07:30-19:00</option>
+                                            <option value=12>07:30-19:30</option>
+                                            <option value=12.5>07:30-20:00</option>
+                                            <option value=13>07:30-20:30</option>
+                                            <option value=13.5>07:30-21:00</option>
+                                            <option value=14>07:30-21:30</option>
+                                            <option value=14.5>07:30-22:00</option>
+                                            <option value=15>07:30-22:30</option>
+                                            <option value=15.5>07:30-23:00</option>
+                                            <option value=16>07:30-23:30</option>
+                                            <option value=16.5>07:30-00:00</option>
+                                            <option value=17>07:30-00:30</option>
+                                            <option value=17.5>07:30-01:00</option>
+                                            <option value=18>07:30-01:30</option>
+                                            <option value=18.5>07:30-02:00</option>
+                                            <option value=19>07:30-02:30</option>
+                                            <option value=19.5>07:30-03:00</option>
+                                            <option value=20>07:30-03:30</option>
+                                            <option value=20.5>07:30-04:00</option>
+                                            <option value=21>07:30-04:30</option>
+                                            <option value=21.5>07:30-05:00</option>
+                                            <option value=22>07:30-05:30</option>
+                                            <option value=22.5>07:30-06:00</option>
+                                            <option value=23>07:30-06:30</option>
+                                            <option value=23.5>07:30-07:00</option>
+                                            <option value=24 selected>07:30-07:30</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <input class="btn btn-info" type="button" name="btn29" value="查詢" onclick="btnClickSearch()" />
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <div>
+                                <div id="dashDiv">
+                                    @{
+                                        foreach (var process in Model)
+                                        {
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th colspan="3" style="color: white; background-color: #002eab">@process.Process</th>
+                                                        <th colspan="3" style="background-color: #17e670">PLAN & ACTUAL</th>
+                                                        <th id="h_plan" colspan="2" style="background-color: #17e670">@Html.DisplayNameFor(model => model.First().Plan) = @process.Plan</th>
+                                                        <th colspan="2" style="background-color: #17e670">@Html.DisplayNameFor(model => model.First().Actual) = @process.Actual</th>
+                                                        <th id="h_diff" colspan="2" style="background-color: #17e670">@Html.DisplayNameFor(model => model.First().Diff) = @process.Diff</th>
+                                                        <th colspan="9">主機台機況</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th rowspan="2">@Html.DisplayNameFor(data => data.First().MTDDetail.First().Date)</th>
+                                                        <th rowspan="2">@Html.DisplayNameFor(data => data.First().MTDDetail.First().Equipment)</th>
+                                                        <th rowspan="2">@Html.DisplayNameFor(data => data.First().MTDDetail.First().BigProduct)</th>
+                                                        <th rowspan="2">@Html.DisplayNameFor(data => data.First().MTDDetail.First().PlanProduct)</th>
+                                                        <th rowspan="2">@Html.DisplayNameFor(data => data.First().MTDDetail.First().Output)</th>
+                                                        <th rowspan="2">@Html.DisplayNameFor(data => data.First().MTDDetail.First().DayPlan)</th>
+                                                        <th rowspan="2">@Html.DisplayNameFor(data => data.First().MTDDetail.First().RangPlan)</th>
+                                                        <th rowspan="2">@Html.DisplayNameFor(data => data.First().MTDDetail.First().RangDiff)</th>
+                                                        <th colspan="4">MTD 狀況</th>
+                                                        <th colspan="6">EQ STATUS</th>
+                                                        <th colspan="3">DOWN 超過60分鐘 以上機況</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>@Html.DisplayNameFor(data => data.First().MTDDetail.First().MonthPlan)</th>
+                                                        <th>@Html.DisplayNameFor(data => data.First().MTDDetail.First().MTDPlan)</th>
+                                                        <th>@Html.DisplayNameFor(data => data.First().MTDDetail.First().MTDActual)</th>
+                                                        <th>@Html.DisplayNameFor(data => data.First().MTDDetail.First().MTDDiff)</th>
+                                                        <th>@Html.DisplayNameFor(data => data.First().DownTime)</th>
+                                                        <th>@Html.DisplayNameFor(data => data.First().DownPercent)</th>
+                                                        <th>@Html.DisplayNameFor(data => data.First().UPPercent)</th>
+                                                        <th>@Html.DisplayNameFor(data => data.First().RUNPercent)</th>
+                                                        <th>@Html.DisplayNameFor(data => data.First().UPHPercent)</th>
+                                                        <th>@Html.DisplayNameFor(data => data.First().OEEPercent)</th>
+                                                        <th>@Html.DisplayNameFor(data => data.First().MTDDetail.First().EqAbnormal)</th>
+                                                        <th>@Html.DisplayNameFor(data => data.First().MTDDetail.First().RepaireTime)</th>
+                                                        <th>@Html.DisplayNameFor(data => data.First().MTDDetail.First().Status)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @{
+                                                        bool firstCnt = true;
+                                                        int spanCnt = process.MTDDetail.Count;
+
+                                                        foreach (var detail in process.MTDDetail)
+                                                        {
+                                                            <tr>
+                                                                @if (firstCnt)
+                                                                {
+                                                                    <td rowspan="@spanCnt">@detail.Date</td>
+                                                                    <td rowspan="@spanCnt">@detail.Equipment</td>
+                                                                }
+                                                                <td>@detail.BigProduct</td>
+                                                                <td>@detail.PlanProduct</td>
+                                                                <td name="tdNum">@detail.Output</td>
+                                                                <td name="tdNum">@detail.DayPlan</td>
+                                                                <td id="rangPlan" name="tdNum">@detail.RangPlan</td>
+                                                                <td id="rangDiff" name="tdNum">@detail.RangDiff</td>
+                                                                <td name="tdNum">@detail.MonthPlan</td>
+                                                                <td name="tdNum">@detail.MTDPlan</td>
+                                                                <td name="tdNum">@detail.MTDActual</td>
+                                                                <td name="tdNum">@detail.MTDDiff</td>
+                                                                @if (firstCnt)
+                                                                {
+                                                                    <td name="tdNum" rowspan="@spanCnt">@process.DownTime</td>
+                                                                    <td name="tdNum" rowspan="@spanCnt">@process.DownPercent</td>
+                                                                    <td name="tdNum" rowspan="@spanCnt">@process.UPPercent</td>
+                                                                    <td name="tdNum" rowspan="@spanCnt">@process.RUNPercent</td>
+                                                                    <td name="tdNum" rowspan="@spanCnt">@process.UPHPercent</td>
+                                                                    <td name="tdNum" rowspan="@spanCnt">@process.OEEPercent</td>
+                                                                    firstCnt = false;
+                                                                }
+                                                                <td>@detail.EqAbnormal</td>
+                                                                <td name="tdNum">@detail.RepaireTime</td>
+                                                                <td>@detail.Status</td>
+                                                            </tr>
+                                                        }
+
+                                                    }
+                                                </tbody>
+                                            </table>
+
+                                            <br />
+                                        }
+                                    }
+                                    @*<partial name="_PartialTable" model="Model" />*@
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+                <!-- /.col -->
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+</div>
+
+
+@section scripts{
+    <script type="text/javascript">
+
+        $(function () {
+
+            $('#datePick').attr('max', new Date().toISOString().split("T")[0]);
+
+            $('table thead').find('tr').each(function (idx, tr) {
+                if (tr.children[0].innerHTML == 'BOND') {
+                    tr.parentElement.children[1].style.background = '#e8c78e';
+                    tr.parentElement.children[2].style.background = '#e8c78e';
+                }
+                else if (tr.children[0].innerHTML == 'FOG') {
+                    tr.parentElement.children[1].style.background = '#b0b0b0';
+                    tr.parentElement.children[2].style.background = '#b0b0b0';
+                }
+                else if (tr.children[0].innerHTML == 'LAM') {
+                    tr.parentElement.children[1].style.background = '#64aded';
+                    tr.parentElement.children[2].style.background = '#64aded';
+                }
+                else if (tr.children[0].innerHTML == 'ASSY') {
+                    tr.parentElement.children[1].style.background = '#a563cf';
+                    tr.parentElement.children[2].style.background = '#a563cf';
+                }
+                else if (tr.children[0].innerHTML == 'CDP') {
+                    tr.parentElement.children[1].style.background = '#63cf8c';
+                    tr.parentElement.children[2].style.background = '#63cf8c';
+                }
+            });
+        });
+
+        let myFuc = {
+            Search() {
+
+                $.blockUI({
+                    message: '<img src="./img/Pac_Man.gif" />',
+                    css: {
+                        borderWidth: '0px',
+                        backgroundColor: 'transparent'
+                    }
+                });
+
+                $.ajax({
+                    url: "./MTDDashboard/Search?date=" + $("#datePick").val() + "&time=" + $("#timeRang").val(),
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (result) {
+                        $.unblockUI();
+                        if (isJsonString(result)) {
+                            var _res = JSON.parse(result);
+                            if (result == '""') {
+                                alert('查無資料');
+                            }
+                            if ('isException' in _res) {
+                                alert(_res.msg);
+                                return false;
+                            }
+                        }
+                        else {
+                            $('#dashDiv').children().empty();
+
+                            $('table thead').find('tr').each(function (idx, tr) {
+                                if (tr.children[0].innerHTML == 'BOND') {
+                                    tr.parentElement.children[1].style.background = '#e8c78e';
+                                    tr.parentElement.children[2].style.background = '#e8c78e';
+                                }
+                                else if (tr.children[0].innerHTML == 'FOG') {
+                                    tr.parentElement.children[1].style.background = '#b0b0b0';
+                                    tr.parentElement.children[2].style.background = '#b0b0b0';
+                                }
+                                else if (tr.children[0].innerHTML == 'LAM') {
+                                    tr.parentElement.children[1].style.background = '#64aded';
+                                    tr.parentElement.children[2].style.background = '#64aded';
+                                }
+                                else if (tr.children[0].innerHTML == 'ASSY') {
+                                    tr.parentElement.children[1].style.background = '#a563cf';
+                                    tr.parentElement.children[2].style.background = '#a563cf';
+                                }
+                                else if (tr.children[0].innerHTML == 'CDP') {
+                                    tr.parentElement.children[1].style.background = '#63cf8c';
+                                    tr.parentElement.children[2].style.background = '#63cf8c';
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        }
+
+        function btnClickSearch() {
+            myFuc.Search();
+        }
+
+    </script>
+}

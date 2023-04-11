@@ -1,0 +1,340 @@
+﻿@model List<MOD4.Web.ViewModel.ManufactureViewModel>
+
+@{
+    ViewBag.Title = "生產排線";
+}
+
+<style>
+    .card-title {
+        font-size: 30px;
+        font-weight: 900;
+    }
+
+    table {
+        box-shadow: #999;
+    }
+
+    .table td, .table th {
+        padding: 0.3rem;
+    }
+
+    .card {
+        box-shadow: 2px 2px 2px #999;
+        background-color: #c3cadb;
+    }
+
+    .lock-header {
+        overflow: auto;
+        max-height: 700px;
+        width: 100%;
+        padding: 0;
+    }
+
+    .sticky-th-date {
+        background-color: #3b80c4; /*rgba(240,240,240,1);*/
+        z-index: 0;
+        position: sticky;
+        top: 0;
+    }
+
+    .sticky-th1, .sticky-th2, .sticky-th3, .sticky-th4 {
+        position: sticky;
+        z-index: 2;
+        background: #3e7bb8;
+        top: 0;
+    }
+
+    .sticky-th1 {
+        left: 0;
+    }
+
+    .sticky-th2 {
+        left: 63px;
+    }
+
+    .sticky-th3 {
+        left: 104px;
+    }
+
+    .sticky-th4 {
+        left: 146px;
+    }
+
+    .sticky-column1, .sticky-column2, .sticky-column3, .sticky-column4 {
+        position: sticky;
+        position: -webkit-sticky;
+        z-index: 1;
+        background: rgba(240,240,240,0.9);
+    }
+
+    .sticky-column1 {
+        left: 0;
+    }
+
+    .sticky-column2 {
+        left: 63px;
+    }
+
+    .sticky-column3 {
+        left: 104px;
+    }
+
+    .sticky-column4 {
+        left: 146px;
+    }
+
+    .my-control {
+        display: initial;
+        width: 50%;
+        height: calc(2.25rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        box-shadow: inset 0 0 0 transparent;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+
+    .unit {
+        font-size: 8px;
+        color: darkred;
+    }
+</style>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">生產排線(不含實驗)</h3>
+                        </div>
+                        <div class="card-body">
+                            <span style="font-size:8px;font-weight:700" class="text-danger">*預設顯示當月及上月排程</span>
+                            <fieldset id="searchArea">
+                                <legend id="legend">查詢區塊</legend>
+                                <div class="form-group d-flex align-content-center flex-wrap">
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">查詢區間：</label>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <input id="dateRange" class="form-control" name="datepicker" value="" />
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <input class="btn btn-info" type="button" name="btn29" value="查詢" onclick="btnClickSearch()" />
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <div>
+                                <div class="lock-header">
+                                    <partial name="_PartialTable" model="Model" />
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.card-body -->
+                        <hr />
+                        <div class="form-group d-flex align-content-center flex-wrap">
+                            <div class="col-lg-2">
+                                <label class="col-form-label">MTD 排程、驗證 上傳</label>
+                                @*<span style="font-size:8px;font-weight:700" class="text-danger">*</span>*@
+                                @*<span asp-validation-for="File" style="font-size:10px;font-weight:700" class="text-danger"></span>*@
+                                <div>
+                                    <span class="unit">(允許 xlsx)</span>
+                                    <br />
+                                    <span class="unit">單檔最大2MB</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 custom-file">
+                                <input id="updFile" type="file" class="custom-file-input" onchange="verifyFile(this)">
+                                <label class="custom-file-label">Choose file</label>
+                            </div>
+                            <br />
+                            <div class="col-lg-2">
+                                <input id="btnUpload" type="button" class="btn btn-primary" value="上傳" style="float:right" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.col -->
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+
+        $(function () {
+            bsCustomFileInput.init();
+
+            $('input[name="datepicker"]').daterangepicker({
+                timePicker: false,
+                startDate: moment().startOf('month').add(-1, 'month'),
+                endDate: moment().startOf('month').add(1, 'month').add(-1, 'day'),
+                locale: {
+                    format: 'yyyy/MM/DD'
+                }
+            });
+
+            $('table tbody').find('tr').each(function (idx, tr) {
+                if (tr.children[0].innerHTML == 'BOND') {
+                    tr.children[0].style.background = '#eba963';
+                    tr.children[3].style.background = '#eba963';
+                }
+                else if (tr.children[0].innerHTML == 'FOG') {
+                    tr.children[0].style.background = '#b0b0b0';
+                    tr.children[3].style.background = '#b0b0b0';
+                }
+                else if (tr.children[0].innerHTML == 'LAM') {
+                    tr.children[0].style.background = '#64aded';
+                    tr.children[3].style.background = '#64aded';
+                }
+                else if (tr.children[0].innerHTML == 'ASSY') {
+                    tr.children[0].style.background = '#a563cf';
+                    tr.children[3].style.background = '#a563cf';
+                }
+                else if (tr.children[0].innerHTML == 'CDP') {
+                    tr.children[0].style.background = '#63cf8c';
+                    tr.children[3].style.background = '#63cf8c';
+                }
+            });
+
+            //let _date = new Date();
+            //let _month = _date.getMonth() + 1;
+            //let _day = (new Date()).getDate();
+            //let _todayStr = _month + '/' + _day;
+
+            //$('table thead').find('th').each(function (idx, th) {
+            //    if (th.innerHTML == _todayStr) {
+            //        th.style.backgroundColor = '#cf0202';
+            //    }
+            //});
+
+        });
+
+        let myFuc = {
+            Search() {
+
+                $.blockUI({
+                    message: '<img src="./img/Pac_Man.gif" />',
+                    css: {
+                        borderWidth: '0px',
+                        backgroundColor: 'transparent'
+                    }
+                });
+
+                $.ajax({
+                    url: "./Manufacture/Search?dateRange=" + $("#dateRange").val(),
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (result) {
+                        $.unblockUI();
+                        if (isJsonString(result)) {
+                            var _res = JSON.parse(result);
+                            if (result == '""') {
+                                alert('查無資料');
+                            }
+                            if ('isException' in _res) {
+                                alert(_res.msg);
+                                return false;
+                            }
+                        }
+                        else {
+                            $(".lock-header").children().empty();
+                            $(".lock-header").html(result);
+
+                            $('table tbody').find('tr').each(function (idx, tr) {
+                                if (tr.children[0].innerHTML == 'BOND') {
+                                    tr.children[0].style.background = '#eba963';
+                                    tr.children[3].style.background = '#eba963';
+                                }
+                                else if (tr.children[0].innerHTML == 'FOG') {
+                                    tr.children[0].style.background = '#b0b0b0';
+                                    tr.children[3].style.background = '#b0b0b0';
+                                }
+                                else if (tr.children[0].innerHTML == 'LAM') {
+                                    tr.children[0].style.background = '#64aded';
+                                    tr.children[3].style.background = '#64aded';
+                                }
+                                else if (tr.children[0].innerHTML == 'ASSY') {
+                                    tr.children[0].style.background = '#a563cf';
+                                    tr.children[3].style.background = '#a563cf';
+                                }
+                                else if (tr.children[0].innerHTML == 'CDP') {
+                                    tr.children[0].style.background = '#63cf8c';
+                                    tr.children[3].style.background = '#63cf8c';
+                                }
+                            });
+                        }
+                    }
+                });
+            },
+            Upload() {
+
+                if ($("#updFile")[0].files.length == 0) {
+                    alert("請選擇檔案");
+                    return false;
+                }
+                $.blockUI({
+                    message: '<img src="../img/Pac_Man.gif" />',
+                    css: {
+                        borderWidth: '0px',
+                        backgroundColor: 'transparent'
+                    }
+                });
+
+                var formData = new FormData();
+                var uploadFiles = document.getElementById('updFile').files;
+                formData.append('updFile', uploadFiles[0]);
+
+                $.ajax({
+                    url: "./Manufacture/Upload",
+                    type: "POST",
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                    success: function (result) {
+                        $.unblockUI();
+                        if (result == '') {
+                            alert('更新成功');
+                            location.href = "@Url.Action("Manufacture", "MTDDashboard")";
+                        }
+                        else {
+                            alert(result);
+                            return false;
+                        }
+                    }
+                });
+            }
+        }
+
+        function btnClickSearch() {
+            myFuc.Search();
+        }
+
+        $('#btnUpload').on('click', function (e) {
+            myFuc.Upload();
+        });
+
+        function verifyFile(e) {
+            var validExtensions = ['xlsx'];
+            var rg1 = /[^0-9a-zA-Z ._-\u4e00-\u9fa5]/;
+            let fileEx = e.files[0].name.replace(/^.*\./, '');
+
+            if ($.inArray(fileEx, validExtensions) == -1) {
+                alert("無效檔案類型");
+                e.value = "";
+            }
+        }
+    </script>
+}

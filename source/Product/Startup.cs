@@ -70,6 +70,7 @@ namespace MOD4.Web
             services.AddSingleton<IBookingMeetingDomainService, BookingMeetingDomainService>();
             services.AddSingleton<IExtensionDomainService, ExtensionDomainService>();
             services.AddSingleton<ISPCReportDomainService, SPCReportDomainService>();
+            services.AddSingleton<IMTDDashboardDomainService, MTDDashboardDomainService>();
 
             services.AddSingleton<IAlarmXmlRepository, AlarmXmlRepository>();
             services.AddSingleton<IEqpInfoRepository, EqpInfoRepository>();
@@ -87,12 +88,13 @@ namespace MOD4.Web
             services.AddSingleton<IAccessFabOrderAuditHistoryRepository, AccessFabOrderAuditHistoryRepository>();
             services.AddSingleton<ILcmProductRepository, LcmProductRepository>();
             services.AddSingleton<IBookingMeetingRepository, BookingMeetingRepository>();
-            services.AddSingleton<ICertifiedAreaMappingRepository, CertifiedAreaMappingRepository>(); 
+            services.AddSingleton<ICertifiedAreaMappingRepository, CertifiedAreaMappingRepository>();
             services.AddSingleton<ISPCMicroScopeDataRepository, SPCMicroScopeDataRepository>();
-            services.AddSingleton<ISPCChartSettingRepository, SPCChartSettingRepository>(); 
+            services.AddSingleton<ISPCChartSettingRepository, SPCChartSettingRepository>();
             services.AddSingleton<IMESPermissionRepository, MESPermissionRepository>();
             services.AddSingleton<IMESPermissionApplicantsRepository, MESPermissionApplicantsRepository>();
             services.AddSingleton<IMESPermissionAuditHistoryRepository, MESPermissionAuditHistoryRepository>();
+            services.AddSingleton<IMTDProductionScheduleRepository, MTDProductionScheduleRepository>();
 
             services.AddScoped<MenuService>();
             services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));

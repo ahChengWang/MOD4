@@ -6,6 +6,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Utility\**" />
+	  <Content Remove="Utility\**" />
+	  <EmbeddedResource Remove="Utility\**" />
+	  <None Remove="Utility\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Compile Remove="Helper\CatchHelper.cs" />
 	  <Compile Remove="Helper\ConvertHelper.cs" />
 	  <Compile Remove="Helper\DatetimeHelper.cs" />
@@ -21,6 +28,7 @@
 		<PackageReference Include="FluentScheduler" Version="5.5.1" />
 		<PackageReference Include="jQuery.BlockUI" Version="2.70.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="NPOI" Version="2.6.0" />
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
 	</ItemGroup>
 

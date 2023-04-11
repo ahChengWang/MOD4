@@ -254,7 +254,7 @@ where sn = @sn ; ";
 
         public int DeleteAccountPermission(int accountSn)
         {
-            string sql = "DELETE [dbo].[account_menu_info] WHERE account_sn = @account_sn; ";
+            string sql = "DELETE [dbo].[account_menu_info] WHERE account_sn = @account_sn and menu_sn != 15; ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, new 
             {

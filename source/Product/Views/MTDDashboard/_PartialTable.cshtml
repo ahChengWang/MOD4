@@ -1,0 +1,55 @@
+﻿@model List<MOD4.Web.ViewModel.ManufactureViewModel>
+
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            @{
+                <th class="sticky-th1">@Html.DisplayNameFor(model => model.First().Process)</th>
+                <th class="sticky-th2">@Html.DisplayNameFor(model => model.First().Category)</th>
+                <th class="sticky-th3">@Html.DisplayNameFor(model => model.First().MonthPlan)</th>
+                <th class="sticky-th4">@Html.DisplayNameFor(model => model.First().ProductName)</th>
+
+                foreach (var firstPlan in Model.FirstOrDefault().PlanDetail)
+                {
+                    if (firstPlan.IsToday)
+                    {
+                        <th class="sticky-th-date" style="background-color: #cf0202">@firstPlan.Date</th>
+                    }
+                    else
+                    {
+                        <th class="sticky-th-date">@firstPlan.Date</th>
+                    }
+                }
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (var plan in Model)
+            {
+                <tr>
+                    @{
+                        <td class="sticky-column1">@plan.Process</td>
+                        <td class="sticky-column2">@plan.Category</td>
+                        <td class="sticky-column3" style="text-align:center">@plan.MonthPlan</td>
+                        <td class="sticky-column4">@plan.ProductName</td>
+
+                        foreach (var detail in plan.PlanDetail)
+                        {
+                            if (@detail.Quantity > 0)
+                            {
+                                <td style="background-color: #3ecf3e;text-align:center">@detail.Quantity</td>
+                            }
+                            else
+                            {
+                                <td style="text-align:center">@detail.Quantity</td>
+                            }
+                        }
+                    }
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+

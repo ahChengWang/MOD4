@@ -6,15 +6,12 @@ using Microsoft.Extensions.Logging;
 using MOD4.Web.DomainService;
 using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
-using Utility.Helper;
 using MOD4.Web.Models;
 using MOD4.Web.ViewModel;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
+using Utility.Helper;
 
 namespace MOD4.Web.Controllers
 {

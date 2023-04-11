@@ -181,8 +181,8 @@
     <script src="~/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
     <script src="~/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
     @*<script src="~/plugins/jszip/jszip.min.js"></script>
-    <script src="~/plugins/pdfmake/pdfmake.min.js"></script>
-    <script src="~/plugins/pdfmake/vfs_fonts.js"></script>*@
+        <script src="~/plugins/pdfmake/pdfmake.min.js"></script>
+        <script src="~/plugins/pdfmake/vfs_fonts.js"></script>*@
     <script src="~/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
     <script src="~/plugins/datatables-buttons/js/buttons.print.min.js"></script>
     <script src="~/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
@@ -394,9 +394,12 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
+
+            let _menuLoc = ['Audit', 'Setting', 'Dashboard', 'MES', 'Manufacture'];
+
             let _pathArray = location.pathname.split('/');
             let _locationPathname = "/" + _pathArray[1] + "/" + _pathArray[2];
-            if (_pathArray.length > 3 && (_pathArray[3] == "Audit" || _pathArray[3] == "Setting" || _pathArray[3] == "Dashboard" || _pathArray[3] == "MES")) {
+            if (_pathArray.length > 3 && $.inArray(_pathArray[3], _menuLoc)) {
                 _locationPathname = _locationPathname + "/" + _pathArray[3];
             }
             //$("a[class='nav-link active']").removeClass('active').removeAttr('aria-current');
