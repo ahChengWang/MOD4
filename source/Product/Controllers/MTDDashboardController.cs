@@ -3,11 +3,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MOD4.Web.DomainService;
+using MOD4.Web.DomainService.Entity;
+using MOD4.Web.Enum;
 using MOD4.Web.Models;
 using MOD4.Web.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Utility.Helper;
 
 namespace MOD4.Web.Controllers
 {
@@ -34,180 +37,41 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                return View(new List<MTDDashboardViewModel>
+                var _resilt = _mtdDashboardDomainService.DashboardSearch();
+
+                List<MTDDashboardViewModel> _response = _resilt.Select(mtd => new MTDDashboardViewModel
                 {
-                    new MTDDashboardViewModel
+                    Process = mtd.Process,
+                    Plan = mtd.Plan,
+                    Actual = mtd.Actual,
+                    Diff = mtd.Diff,
+                    DownTime = mtd.DownTime,
+                    DownPercent = mtd.DownPercent,
+                    UPPercent = mtd.UPPercent,
+                    RUNPercent = mtd.RUNPercent,
+                    UPHPercent = mtd.UPHPercent,
+                    OEEPercent = mtd.OEEPercent,
+                    MTDDetail = mtd.MTDDetail.Select(detail => new MTDDashboardDetailViewModel
                     {
-                        Process = "BOND",
-                        Plan = 1200,
-                        Actual = 999,
-                        DownTime = "237.2",
-                        DownPercent = "16.5%",
-                        UPPercent = "83.5%",
-                        RUNPercent = "95.1%",
-                        UPHPercent = "99.4%",
-                        OEEPercent = "79.0%",
-                        MTDDetail = new List<MTDDashboardDetailViewModel>
-                        {
-                            new MTDDashboardDetailViewModel
-                            {
-                                Date = "4/10",
-                                Equipment = "AOLB2010",
-                                BigProduct = "VCS",
-                                PlanProduct = "GDD340IA0090S",
-                                Output = "150",
-                                DayPlan = "330",
-                                RangPlan = "70",
-                                RangDiff = "80",
-                                MonthPlan = "4,999",
-                                MTDPlan = "2,234",
-                                MTDActual = "4,012",
-                                MTDDiff = "1,778",
-                                EqAbnormal = "DOWN SHOOTING 123",
-                                RepaireTime = "66",
-                                Status = "已排除"
-                            },
-                            new MTDDashboardDetailViewModel
-                            {
-                                Date = "4/10",
-                                Equipment = "AOLB2010",
-                                BigProduct = "PADI",
-                                PlanProduct = "GDD313BZ0200S",
-                                Output = "150",
-                                DayPlan = "330",
-                                RangPlan = "70",
-                                RangDiff = "80",
-                                MonthPlan = "4,999",
-                                MTDPlan = "2,234",
-                                MTDActual = "4,012",
-                                MTDDiff = "1,778",
-                                EqAbnormal = "DOWN SHOOTING 123",
-                                RepaireTime = "66",
-                                Status = "已排除"
-                            },
-                            new MTDDashboardDetailViewModel
-                            {
-                                Date = "4/10",
-                                Equipment = "AOLB2010",
-                                BigProduct = "PADI",
-                                PlanProduct = "GDD313IA0010S",
-                                Output = "150",
-                                DayPlan = "330",
-                                RangPlan = "70",
-                                RangDiff = "80",
-                                MonthPlan = "4,999",
-                                MTDPlan = "2,234",
-                                MTDActual = "4,012",
-                                MTDDiff = "1,778",
-                                EqAbnormal = "test",
-                                RepaireTime = "99",
-                                Status = "ING"
-                            }
-                        }
-                    },
-                    new MTDDashboardViewModel
-                    {
-                        Process = "FOG",
-                        Plan = 1100,
-                        Actual = 600,
-                        DownTime = "211.2",
-                        DownPercent = "16.5%",
-                        UPPercent = "73.5%",
-                        RUNPercent = "75.1%",
-                        UPHPercent = "79.4%",
-                        OEEPercent = "69.0%",
-                        MTDDetail = new List<MTDDashboardDetailViewModel>
-                        {
-                            new MTDDashboardDetailViewModel
-                            {
-                                Date = "4/10",
-                                Equipment = "AFOG2010",
-                                BigProduct = "VCS",
-                                PlanProduct = "GDD340IA0090S",
-                                Output = "150",
-                                DayPlan = "330",
-                                RangPlan = "70",
-                                RangDiff = "80",
-                                MonthPlan = "4,999",
-                                MTDPlan = "2,234",
-                                MTDActual = "4,012",
-                                MTDDiff = "1,778",
-                                EqAbnormal = "",
-                                RepaireTime = "",
-                                Status = ""
-                            }
-                        }
-                    },
-                    new MTDDashboardViewModel
-                    {
-                        Process = "LAM",
-                        Plan = 1900,
-                        Actual = 1000,
-                        DownTime = "100.2",
-                        DownPercent = "56.5%",
-                        UPPercent = "80.5%",
-                        RUNPercent = "91.1%",
-                        UPHPercent = "90.4%",
-                        OEEPercent = "66.0%",
-                        MTDDetail = new List<MTDDashboardDetailViewModel>
-                        {
-                            new MTDDashboardDetailViewModel
-                            {
-                                Date = "4/10",
-                                Equipment = "CLAM2010",
-                                BigProduct = "VCS",
-                                PlanProduct = "GDD340IA0090S",
-                                Output = "700",
-                                DayPlan = "800",
-                                RangPlan = "90",
-                                RangDiff = "0",
-                                MonthPlan = "4,000",
-                                MTDPlan = "1,000",
-                                MTDActual = "1,000",
-                                MTDDiff = "1,008",
-                                EqAbnormal = "",
-                                RepaireTime = "",
-                                Status = ""
-                            },
-                            new MTDDashboardDetailViewModel
-                            {
-                                Date = "4/10",
-                                Equipment = "CLAM2010",
-                                BigProduct = "VCS",
-                                PlanProduct = "5306M3340160M",
-                                Output = "200",
-                                DayPlan = "400",
-                                RangPlan = "111",
-                                RangDiff = "99",
-                                MonthPlan = "3,001",
-                                MTDPlan = "1,001",
-                                MTDActual = "1,100",
-                                MTDDiff = "1,408",
-                                EqAbnormal = "",
-                                RepaireTime = "",
-                                Status = ""
-                            },
-                            new MTDDashboardDetailViewModel
-                            {
-                                Date = "4/10",
-                                Equipment = "CLAM2010",
-                                BigProduct = "PADI",
-                                PlanProduct = "GDD313IA0010S",
-                                Output = "1000",
-                                DayPlan = "600",
-                                RangPlan = "300",
-                                RangDiff = "200",
-                                MonthPlan = "999",
-                                MTDPlan = "1,999",
-                                MTDActual = "1,111",
-                                MTDDiff = "1,789",
-                                EqAbnormal = "",
-                                RepaireTime = "",
-                                Status = ""
-                            }
-                        }
-                    }
-                });
+                        Date = detail.Date,
+                        Equipment = detail.Equipment,
+                        BigProduct = detail.BigProduct,
+                        PlanProduct = detail.PlanProduct,
+                        Output = detail.Output,
+                        DayPlan = detail.DayPlan,
+                        RangPlan = detail.RangPlan,
+                        RangDiff = detail.RangDiff,
+                        MonthPlan = detail.MonthPlan,
+                        MTDPlan = detail.MTDPlan,
+                        MTDActual = detail.MTDActual,
+                        MTDDiff = detail.MTDDiff,
+                        EqAbnormal = "",
+                        RepaireTime = "",
+                        Status = ""
+                    }).ToList()
+                }).ToList();
+
+                return View(_response);
             }
             catch (Exception ex)
             {
@@ -219,12 +83,45 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Search([FromQuery] string date, decimal time)
+        public IActionResult Search([FromQuery] string date, decimal time, int floor)
         {
             try
             {
+                var _resilt = _mtdDashboardDomainService.DashboardSearch(floor, date, time);
 
-                return Json("");
+                List<MTDDashboardViewModel> _response = _resilt.Select(mtd => new MTDDashboardViewModel
+                {
+                    Process = mtd.Process,
+                    Plan = mtd.Plan,
+                    Actual = mtd.Actual,
+                    Diff = mtd.Diff,
+                    DownTime = mtd.DownTime,
+                    DownPercent = mtd.DownPercent,
+                    UPPercent = mtd.UPPercent,
+                    RUNPercent = mtd.RUNPercent,
+                    UPHPercent = mtd.UPHPercent,
+                    OEEPercent = mtd.OEEPercent,
+                    MTDDetail = mtd.MTDDetail.Select(detail => new MTDDashboardDetailViewModel
+                    {
+                        Date = detail.Date,
+                        Equipment = detail.Equipment,
+                        BigProduct = detail.BigProduct,
+                        PlanProduct = detail.PlanProduct,
+                        Output = detail.Output,
+                        DayPlan = detail.DayPlan,
+                        RangPlan = detail.RangPlan,
+                        RangDiff = detail.RangDiff,
+                        MonthPlan = detail.MonthPlan,
+                        MTDPlan = detail.MTDPlan,
+                        MTDActual = detail.MTDActual,
+                        MTDDiff = detail.MTDDiff,
+                        EqAbnormal = detail.EqAbnormal,
+                        RepaireTime = detail.RepaireTime,
+                        Status = detail.Status
+                    }).ToList()
+                }).ToList();
+
+                return PartialView("_PartialDashboard", _response);
             }
             catch (Exception ex)
             {
@@ -239,11 +136,24 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                var _response = _mtdDashboardDomainService.Search();
+                var _result = _mtdDashboardDomainService.Search();
+
+                ViewBag.UpdateInfo = _result.latestUpdInfo;
+
+                UserEntity _userInfo = GetUserInfo();
+                var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.Manufacture);
+                ViewBag.UserPermission = new UserPermissionViewModel
+                {
+                    AccountSn = _userCurrentPagePermission.AccountSn,
+                    MenuSn = _userCurrentPagePermission.MenuSn,
+                    AccountPermission = _userCurrentPagePermission.AccountPermission
+                };
+
+                ViewBag.UpdateInfo = _result.latestUpdInfo;
 
                 List<ManufactureViewModel> _reponse = new List<ManufactureViewModel>();
 
-                _response.ForEach(mtd =>
+                _result.manufactureSchedules.ForEach(mtd =>
                 {
                     _reponse.Add(new ManufactureViewModel
                     {
@@ -270,15 +180,24 @@ namespace MOD4.Web.Controllers
 
 
         [HttpGet("[controller]/Manufacture/Search")]
-        public IActionResult ManufactureSearch([FromQuery] string dateRange)
+        public IActionResult ManufactureSearch([FromQuery] string dateRange, int floor)
         {
             try
             {
-                var _result = _mtdDashboardDomainService.Search(dateRange);
+                var _result = _mtdDashboardDomainService.Search(dateRange, floor);
+
+                UserEntity _userInfo = GetUserInfo();
+                var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.Manufacture);
+                ViewBag.UserPermission = new UserPermissionViewModel
+                {
+                    AccountSn = _userCurrentPagePermission.AccountSn,
+                    MenuSn = _userCurrentPagePermission.MenuSn,
+                    AccountPermission = _userCurrentPagePermission.AccountPermission
+                };
 
                 List<ManufactureViewModel> _response = new List<ManufactureViewModel>();
 
-                _result.ForEach(mtd =>
+                _result.manufactureSchedules.ForEach(mtd =>
                 {
                     _response.Add(new ManufactureViewModel
                     {
@@ -295,20 +214,28 @@ namespace MOD4.Web.Controllers
                     });
                 });
 
-                return PartialView("_PartialTable", _response);
+                if (_response.Any())
+                {
+                    ViewBag.UpdateInfo = _result.latestUpdInfo;
+
+                    return PartialView("_PartialTable", _response);
+                }
+                else
+                    return Json(new { message = "查無排程" });
+
             }
             catch (Exception ex)
             {
-                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+                return Json(new { message = ex.Message });
             }
         }
 
         [HttpPost("[controller]/Manufacture/Upload")]
-        public IActionResult ManufactureUpload([FromForm] IFormFile updFile)
+        public IActionResult ManufactureUpload([FromForm] IFormFile updFile, int floor)
         {
             try
             {
-                var _result = _mtdDashboardDomainService.Upload(updFile, GetUserInfo());
+                var _result = _mtdDashboardDomainService.Upload(updFile, floor, GetUserInfo());
 
                 return Json(_result);
             }
@@ -317,6 +244,7 @@ namespace MOD4.Web.Controllers
                 return Json($"錯誤：{ex.Message}");
             }
         }
+
         #endregion
     }
 }

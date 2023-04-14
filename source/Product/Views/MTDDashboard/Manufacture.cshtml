@@ -1,4 +1,5 @@
 ﻿@model List<MOD4.Web.ViewModel.ManufactureViewModel>
+@using MOD4.Web.ViewModel
 
 @{
     ViewBag.Title = "生產排線";
@@ -49,15 +50,15 @@
     }
 
     .sticky-th2 {
-        left: 63px;
+        left: 67px;
     }
 
     .sticky-th3 {
-        left: 104px;
+        left: 118px;
     }
 
     .sticky-th4 {
-        left: 146px;
+        left: 164px;
     }
 
     .sticky-column1, .sticky-column2, .sticky-column3, .sticky-column4 {
@@ -72,15 +73,15 @@
     }
 
     .sticky-column2 {
-        left: 63px;
+        left: 67px;
     }
 
     .sticky-column3 {
-        left: 104px;
+        left: 118px;
     }
 
     .sticky-column4 {
-        left: 146px;
+        left: 164px;
     }
 
     .my-control {
@@ -127,10 +128,22 @@
                                         <input id="dateRange" class="form-control" name="datepicker" value="" />
                                     </div>
                                     <div class="col-lg-1">
+                                        <label class="col-form-label">樓層：</label>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <select id="selFloor" class="my-control" value="">
+                                            <option selected value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-1">
                                         <input class="btn btn-info" type="button" name="btn29" value="查詢" onclick="btnClickSearch()" />
                                     </div>
                                 </div>
                             </fieldset>
+                            <div style="text-align: right; font-size: 10px; font-family: 'Microsoft JhengHei'; font-weight: 700; font-style: italic; ">
+                                <p id="latestInfo">最後更新 @ViewBag.UpdateInfo</p>
+                            </div>
                             <div>
                                 <div class="lock-header">
                                     <partial name="_PartialTable" model="Model" />
@@ -138,27 +151,66 @@
                             </div>
                         </div>
                         <!-- /.card-body -->
-                        <hr />
-                        <div class="form-group d-flex align-content-center flex-wrap">
-                            <div class="col-lg-2">
-                                <label class="col-form-label">MTD 排程、驗證 上傳</label>
-                                @*<span style="font-size:8px;font-weight:700" class="text-danger">*</span>*@
-                                @*<span asp-validation-for="File" style="font-size:10px;font-weight:700" class="text-danger"></span>*@
-                                <div>
-                                    <span class="unit">(允許 xlsx)</span>
-                                    <br />
-                                    <span class="unit">單檔最大2MB</span>
+
+                        @{
+                            UserPermissionViewModel _test = (UserPermissionViewModel)ViewBag.UserPermission;
+
+                            if (Convert.ToBoolean(_test.AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management))
+                            {
+                                <hr />
+                                <div class="form-group d-flex align-content-center flex-wrap">
+                                    <div class="col-lg-2">
+                                        <label class="col-form-label">MTD 排程、驗證 上傳</label>
+                                        @*<span style="font-size:8px;font-weight:700" class="text-danger">*</span>*@
+                                        @*<span asp-validation-for="File" style="font-size:10px;font-weight:700" class="text-danger"></span>*@
+                                        <div>
+                                            <span class="unit">(允許 xlsx)</span>
+                                            <br />
+                                            <span class="unit">單檔最大2MB</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 custom-file">
+                                        <input id="updFile" type="file" class="custom-file-input" onchange="verifyFile(this)">
+                                        <label class="custom-file-label">Choose file</label>
+                                    </div>
+                                    <div class="col-lg-1"></div>
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">匯入樓層：</label>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <select id="uplFloor" class="my-control" value="">
+                                            <option selected value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <input id="btnUpload" type="button" class="btn btn-primary" style="float:right" data-toggle="modal" data-target="#modal-sm-verify" value="上傳" />
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-lg-4 custom-file">
-                                <input id="updFile" type="file" class="custom-file-input" onchange="verifyFile(this)">
-                                <label class="custom-file-label">Choose file</label>
-                            </div>
-                            <br />
-                            <div class="col-lg-2">
-                                <input id="btnUpload" type="button" class="btn btn-primary" value="上傳" style="float:right" />
-                            </div>
-                        </div>
+
+                                <div class="modal fade" id="modal-sm-verify">
+                                    <div class="modal-dialog modal-sm">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p id="modalDesc"></p>
+                                            </div>
+                                            <div class="modal-footer justify-content-between">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
+                                                <input type="button" class="btn btn-primary" value="確認" onclick="btnUploadClick()" />
+                                            </div>
+                                        </div>
+                                        <!-- /.modal-content -->
+                                    </div>
+                                    <!-- /.modal-dialog -->
+                                </div>
+                            }
+                        }
+
                     </div>
                 </div>
                 <!-- /.col -->
@@ -233,22 +285,19 @@
                 });
 
                 $.ajax({
-                    url: "./Manufacture/Search?dateRange=" + $("#dateRange").val(),
+                    url: "./Manufacture/Search?dateRange=" + $("#dateRange").val() + "&floor=" + $("#selFloor").val(),
                     type: "GET",
                     dataType: 'html',
                     success: function (result) {
                         $.unblockUI();
                         if (isJsonString(result)) {
+                            $(".lock-header").children().empty();
+                            $("#latestInfo").html("");
                             var _res = JSON.parse(result);
-                            if (result == '""') {
-                                alert('查無資料');
-                            }
-                            if ('isException' in _res) {
-                                alert(_res.msg);
-                                return false;
-                            }
+                            alert(_res.message);
                         }
                         else {
+                            $("#latestInfo").html("最後更新 @((string)ViewBag.UpdateInfo)");
                             $(".lock-header").children().empty();
                             $(".lock-header").html(result);
 
@@ -295,6 +344,7 @@
                 var formData = new FormData();
                 var uploadFiles = document.getElementById('updFile').files;
                 formData.append('updFile', uploadFiles[0]);
+                formData.append('floor', $("#selFloor").val());
 
                 $.ajax({
                     url: "./Manufacture/Upload",
@@ -322,8 +372,16 @@
             myFuc.Search();
         }
 
-        $('#btnUpload').on('click', function (e) {
+        function btnUploadClick() {
             myFuc.Upload();
+        }
+
+        $('#btnUpload').on('click', function () {
+            if ($("#updFile")[0].files.length == 0) {
+                alert("請選擇檔案");
+                return false;
+            }
+            $('#modalDesc').html("確認匯入" + $("#uplFloor option:selected").val() + "樓 MTD 排程?");
         });
 
         function verifyFile(e) {

@@ -1,0 +1,99 @@
+﻿@model List<MOD4.Web.ViewModel.MTDDashboardViewModel>
+
+@{
+    foreach (var process in Model)
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="3" style="color: white; background-color: #002eab">@process.Process</th>
+                    <th colspan="3" style="background-color: #17e670">PLAN & ACTUAL</th>
+                    <th id="h_plan" colspan="2" style="background-color: #17e670">@Html.DisplayNameFor(model => model.First().Plan) = @process.Plan</th>
+                    <th colspan="2" style="background-color: #17e670">@Html.DisplayNameFor(model => model.First().Actual) = @process.Actual</th>
+                    @{
+                        if (Convert.ToInt32(@process.Diff) < 0)
+                        {
+                            <th id="h_diff" colspan="2" style="background-color: #17e670; color: #cf0202 ">@Html.DisplayNameFor(model => model.First().Diff) = @process.Diff</th>
+                        }
+                        else
+                        {
+                            <th id="h_diff" colspan="2" style="background-color: #17e670">@Html.DisplayNameFor(model => model.First().Diff) = @process.Diff</th>
+                        }
+                    }
+                    <th colspan="9">主機台機況</th>
+                </tr>
+                <tr>
+                    <th rowspan="2">@Html.DisplayNameFor(data => data.First().MTDDetail.First().Date)</th>
+                    <th rowspan="2">@Html.DisplayNameFor(data => data.First().MTDDetail.First().Equipment)</th>
+                    <th rowspan="2">@Html.DisplayNameFor(data => data.First().MTDDetail.First().BigProduct)</th>
+                    <th rowspan="2">@Html.DisplayNameFor(data => data.First().MTDDetail.First().PlanProduct)</th>
+                    <th rowspan="2">@Html.DisplayNameFor(data => data.First().MTDDetail.First().Output)</th>
+                    <th rowspan="2">@Html.DisplayNameFor(data => data.First().MTDDetail.First().DayPlan)</th>
+                    <th rowspan="2">@Html.DisplayNameFor(data => data.First().MTDDetail.First().RangPlan)</th>
+                    <th rowspan="2">@Html.DisplayNameFor(data => data.First().MTDDetail.First().RangDiff)</th>
+                    <th colspan="4">MTD 狀況</th>
+                    <th colspan="6">EQ STATUS</th>
+                    <th colspan="3">DOWN 超過60分鐘 以上機況</th>
+                </tr>
+                <tr>
+                    <th>@Html.DisplayNameFor(data => data.First().MTDDetail.First().MonthPlan)</th>
+                    <th>@Html.DisplayNameFor(data => data.First().MTDDetail.First().MTDPlan)</th>
+                    <th>@Html.DisplayNameFor(data => data.First().MTDDetail.First().MTDActual)</th>
+                    <th>@Html.DisplayNameFor(data => data.First().MTDDetail.First().MTDDiff)</th>
+                    <th>@Html.DisplayNameFor(data => data.First().DownTime)</th>
+                    <th>@Html.DisplayNameFor(data => data.First().DownPercent)</th>
+                    <th>@Html.DisplayNameFor(data => data.First().UPPercent)</th>
+                    <th>@Html.DisplayNameFor(data => data.First().RUNPercent)</th>
+                    <th>@Html.DisplayNameFor(data => data.First().UPHPercent)</th>
+                    <th>@Html.DisplayNameFor(data => data.First().OEEPercent)</th>
+                    <th>@Html.DisplayNameFor(data => data.First().MTDDetail.First().EqAbnormal)</th>
+                    <th>@Html.DisplayNameFor(data => data.First().MTDDetail.First().RepaireTime)</th>
+                    <th>@Html.DisplayNameFor(data => data.First().MTDDetail.First().Status)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    bool firstCnt = true;
+                    int spanCnt = process.MTDDetail.Count;
+
+                    foreach (var detail in process.MTDDetail)
+                    {
+                        <tr>
+                            @if (firstCnt)
+                            {
+                                <td rowspan="@spanCnt">@detail.Date</td>
+                                <td rowspan="@spanCnt">@detail.Equipment</td>
+                            }
+                            <td>@detail.BigProduct</td>
+                            <td>@detail.PlanProduct</td>
+                            <td name="tdNum">@detail.Output</td>
+                            <td name="tdNum">@detail.DayPlan</td>
+                            <td id="rangPlan" name="tdNum">@detail.RangPlan</td>
+                            <td id="rangDiff" name="tdNum">@detail.RangDiff</td>
+                            <td name="tdNum">@detail.MonthPlan</td>
+                            <td name="tdNum">@detail.MTDPlan</td>
+                            <td name="tdNum">@detail.MTDActual</td>
+                            <td name="tdNum">@detail.MTDDiff</td>
+                            @if (firstCnt)
+                            {
+                                <td name="tdNum" rowspan="@spanCnt">@process.DownTime</td>
+                                <td name="tdPercent" rowspan="@spanCnt">@process.DownPercent</td>
+                                <td name="tdPercent" rowspan="@spanCnt">@process.UPPercent</td>
+                                <td name="tdPercent" rowspan="@spanCnt">@process.RUNPercent</td>
+                                <td name="tdPercent" rowspan="@spanCnt">@process.UPHPercent</td>
+                                <td name="tdOEE" rowspan="@spanCnt">@process.OEEPercent</td>
+                                firstCnt = false;
+                            }
+                            <td>@detail.EqAbnormal</td>
+                            <td name="tdNum">@detail.RepaireTime</td>
+                            <td>@detail.Status</td>
+                        </tr>
+                    }
+
+                }
+            </tbody>
+        </table>
+
+        <br />
+    }
+}

@@ -6,11 +6,13 @@ namespace MOD4.Web.Repostory
 {
     public interface IMTDProductionScheduleRepository
     {
-        List<MTDProductionScheduleDao> SelectByConditions(DateTime? dateStart, DateTime? dateEnd);
+        List<MTDProductionScheduleDao> SelectByConditions(int floor, DateTime? dateStart, DateTime? dateEnd);
 
-        List<MTDProductionScheduleDao> SelectMonthPlanQty(string year, string month);
+        List<MTDProductionScheduleDao> SelectMonthPlanQty(string year, string month, int floor);
 
         MTDProductionScheduleDao SelectNewOrderSn(string orderNo);
+
+        MTDScheduleUpdateHistoryDao SelectHistory(int floor);
 
         int InsertSchedule(List<MTDProductionScheduleDao> insMTDSchedule);
 

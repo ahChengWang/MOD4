@@ -8,42 +8,59 @@ namespace MOD4.Web.DomainService.Entity
     {
         public string Process { get; set; }
 
-        public int Plan
+        private int _plan = 0;
+        public string Plan
         {
             get
             {
-                return 0;
+                _plan = this.MTDDetail.Sum(sum => Convert.ToInt32(sum.RangPlan.Replace(",", "")));
+                return _plan.ToString("#,0");
             }
             set
             {
-                value = this.Detail.Sum(sum => Convert.ToInt32(sum.RangPlan));
+                value = _plan.ToString("#,0");
             }
         }
 
-        public int Actual
+        private int _actual = 0;
+        public string Actual
         {
             get
             {
-                return 0;
+                _actual = this.MTDDetail.Sum(sum => Convert.ToInt32(sum.Output.Replace(",", "")));
+                return _actual.ToString("#,0");
             }
             set
             {
-                value = this.Detail.Sum(sum => Convert.ToInt32(sum.Output));
+                value = _actual.ToString("#,0");
             }
         }
 
-        public int Diff 
+        private int _diff = 0;
+        public string Diff
         {
             get
             {
-                return 0;
+                _diff = _actual - _plan;
+                return _diff.ToString("#,0");
             }
             set
             {
-                value = this.Actual - this.Plan;
+                value = _diff.ToString("#,0");
             }
         }
 
-        public List<MTDDashboardDetailEntity> Detail { get; set; }
+        public string DownTime { get; set; }
+
+        public string DownPercent { get; set; }
+
+        public string UPPercent { get; set; }
+
+        public string RUNPercent { get; set; }
+
+        public string UPHPercent { get; set; }
+
+        public string OEEPercent { get; set; }
+        public List<MTDDashboardDetailEntity> MTDDetail { get; set; }
     }
 }

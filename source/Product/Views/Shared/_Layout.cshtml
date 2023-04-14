@@ -34,8 +34,8 @@
     <link rel="stylesheet" href="~/plugins/toastr/toastr.min.css">
     <link rel="stylesheet" href="~/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.css">
     <!-- customization style -->
-    <link rel="stylesheet" href="~/css/buttonStyleCRUD.css?version=#">
-    <link rel="stylesheet" href="~/css/inputStyle.css?version=#">
+    <link id="custStyle" rel="stylesheet" href="~/css/buttonStyleCRUD.css?version=#">
+    <link id="custStyle" rel="stylesheet" href="~/css/inputStyle.css?version=#">
 
     <style>
         @@media (min-width: 768px) {
@@ -410,7 +410,7 @@
 
             let links = document.getElementsByTagName('link');
             for (let i = 0; i < links.length; i++) {
-                if (links[i].getAttribute('rel') == 'stylesheet') {
+                if (links[i].getAttribute('id') == 'custStyle') {
                     let href = links[i].getAttribute('href').split('?')[0];
 
                     let newHref = href + '?version=' + new Date().getMilliseconds();
@@ -419,6 +419,19 @@
                 }
             }
         });
+
+        let globalFuc = {
+            LoadingPic() {
+                let _pathArray = location.pathname.split('/');
+                $.blockUI({
+                    message: '<img src="/' + _pathArray[1] + '/img/Pac_Man.gif" />',
+                    css: {
+                        borderWidth: '0px',
+                        backgroundColor: 'transparent'
+                    }
+                });
+            }
+        }
 
         function isJsonString(str) {
             try {
@@ -429,15 +442,17 @@
             }
         }
 
+        function unicodeConvert(str) {
+            return unescape(result.replace(/\\u/g, '%u')).replace('"', '');
+        }
+
         $('a[href="/CarUX/Performance"]').click(function () {
-            $.blockUI({
-                message: '<img src="./img/Pac_Man.gif" />',
-                css: {
-                    borderWidth: '0px',
-                    backgroundColor: 'transparent'
-                }
-            });
+            globalFuc.LoadingPic();
         });
+        $('a[href="/CarUX/MTDDashboard"]').click(function () {
+            globalFuc.LoadingPic();
+        });
+
     </script>
 
     @RenderSection("scripts", required: false)

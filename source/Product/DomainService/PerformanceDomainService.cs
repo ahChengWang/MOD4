@@ -146,9 +146,9 @@ namespace MOD4.Web.DomainService
                     foreach (var eq in prodEq.Value)
                     {
                         string _qStr = $"Shop=MOD4&G_FAC=6&StrSql_w=+and+prod_nbr+in+('{prodEq.Key}')+and+lcm_owner+in+('QTAP','LCME','PRDG','PROD','RES0')&StrSql_w4=&col0=&col1=&row0={prodEq.Key}" +
-                                    $"&row2={eq}&row3={shift}&row1={node.Key}&sql_m=+and+acct_date+>=+'{mfgDTE}'+and+acct_date+<=+'{mfgDTE}'" +
-                                    $"&sql_m1=+and+trans_date+>=+'{mfgDTE}+07:30:00.000000'+and+trans_date+<=+'{_mfgDteEnd}+07:30:00.000000'" +
-                                    $"&sqlbu2=+and+shift_id='{shift}'&vdate_s=&vdate_e=";
+                                        $"&row2={eq}&row3={shift}&row1={node.Key}&sql_m=+and+acct_date+>=+'{mfgDTE}'+and+acct_date+<=+'{mfgDTE}'" +
+                                        $"&sql_m1=+and+trans_date+>=+'{mfgDTE}+07:30:00.000000'+and+trans_date+<=+'{_mfgDteEnd}+07:30:00.000000'" +
+                                        $"&sqlbu2=+and+shift_id='{shift}'&vdate_s=&vdate_e=";
 
                         var data = new StringContent(_qStr, Encoding.UTF8, "application/x-www-form-urlencodedn");
 
@@ -156,10 +156,10 @@ namespace MOD4.Web.DomainService
 
                         using (var client = new HttpClient())
                         {
-                            //var response = client.PostAsync(url, data);
-                            var response = client.PostAsync(url + _qStr, data).Result;
-                            //var response = client.GetAsync(url);
-                            response.Content.Headers.ContentType.CharSet = "Big5";
+                                //var response = client.PostAsync(url, data);
+                                var response = client.PostAsync(url + _qStr, data).Result;
+                                //var response = client.GetAsync(url);
+                                response.Content.Headers.ContentType.CharSet = "Big5";
 
                             string result = response.Content.ReadAsStringAsync().Result;
 
@@ -169,11 +169,11 @@ namespace MOD4.Web.DomainService
 
                         }
 
-                        //string text = File.ReadAllText("D:\\response.txt");
+                            //string text = File.ReadAllText("D:\\response.txt");
 
-                        //array = text.Split("<SCRIPT LANGUAGE=vbscript >");
+                            //array = text.Split("<SCRIPT LANGUAGE=vbscript >");
 
-                        var cnt = (array.Count() - 3) / 14;
+                            var cnt = (array.Count() - 3) / 14;
 
                         for (int i = 0; i < cnt; i++)
                         {
@@ -181,8 +181,9 @@ namespace MOD4.Web.DomainService
                         }
                     }
 
-                    //}
-                });
+                        //}
+
+                    });
 
                 //foreach (var prodEq in _prodEqDic)
                 //{
@@ -347,6 +348,13 @@ namespace MOD4.Web.DomainService
 
             string[] _tempArray;
             string _tempStr;
+
+            if (detailStr[3].Split("=")[2].Split("\r\n")[0].Replace("\"", "") == "MVIN")
+                return _entity;
+
+            _tempArray = detailStr[3].Split("=");
+            _tempArray = _tempArray[2].Split("\r\n");
+            _tempStr = _tempArray[0].Replace("\"", "");
 
             for (int i = 0; i < 15; i++)
             {

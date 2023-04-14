@@ -10,15 +10,18 @@
                 <th class="sticky-th3">@Html.DisplayNameFor(model => model.First().MonthPlan)</th>
                 <th class="sticky-th4">@Html.DisplayNameFor(model => model.First().ProductName)</th>
 
-                foreach (var firstPlan in Model.FirstOrDefault().PlanDetail)
+                if (Model.Any())
                 {
-                    if (firstPlan.IsToday)
+                    foreach (var firstPlan in Model.FirstOrDefault().PlanDetail)
                     {
-                        <th class="sticky-th-date" style="background-color: #cf0202">@firstPlan.Date</th>
-                    }
-                    else
-                    {
-                        <th class="sticky-th-date">@firstPlan.Date</th>
+                        if (firstPlan.IsToday)
+                        {
+                            <th class="sticky-th-date" style="background-color: #cf0202">@firstPlan.Date</th>
+                        }
+                        else
+                        {
+                            <th class="sticky-th-date">@firstPlan.Date</th>
+                        }
                     }
                 }
             }
@@ -26,28 +29,31 @@
     </thead>
     <tbody>
         @{
-            foreach (var plan in Model)
+            if (Model.Any())
             {
-                <tr>
-                    @{
-                        <td class="sticky-column1">@plan.Process</td>
-                        <td class="sticky-column2">@plan.Category</td>
-                        <td class="sticky-column3" style="text-align:center">@plan.MonthPlan</td>
-                        <td class="sticky-column4">@plan.ProductName</td>
+                foreach (var plan in Model)
+                {
+                    <tr>
+                        @{
+                            <td class="sticky-column1">@plan.Process</td>
+                            <td class="sticky-column2">@plan.Category</td>
+                            <td class="sticky-column3" style="text-align:center">@plan.MonthPlan</td>
+                            <td class="sticky-column4">@plan.ProductName</td>
 
-                        foreach (var detail in plan.PlanDetail)
-                        {
-                            if (@detail.Quantity > 0)
+                            foreach (var detail in plan.PlanDetail)
                             {
-                                <td style="background-color: #3ecf3e;text-align:center">@detail.Quantity</td>
-                            }
-                            else
-                            {
-                                <td style="text-align:center">@detail.Quantity</td>
+                                if (@detail.Quantity > 0)
+                                {
+                                    <td style="background-color: #3ecf3e;text-align:center">@detail.Quantity</td>
+                                }
+                                else
+                                {
+                                    <td style="text-align:center">@detail.Quantity</td>
+                                }
                             }
                         }
-                    }
-                </tr>
+                    </tr>
+                }
             }
         }
     </tbody>

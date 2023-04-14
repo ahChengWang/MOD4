@@ -8,22 +8,13 @@ namespace MOD4.Web.ViewModel
         public string Process { get; set; }
 
         [DisplayName("PLAN")]
-        public int Plan { get; set; }
+        public string Plan { get; set; }
 
         [DisplayName("ACTUAL")]
-        public int Actual { get; set; }
+        public string Actual { get; set; }
 
         [DisplayName("DIFF")]
-        public int Diff {
-            get
-            {
-                return 0;
-            } 
-            set 
-            {
-                value = this.Plan - this.Actual;
-            } 
-        }
+        public string Diff { get; set; }
 
         [DisplayName("DOWN TIME")]
         public string DownTime { get; set; }

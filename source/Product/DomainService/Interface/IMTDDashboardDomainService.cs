@@ -6,8 +6,10 @@ namespace MOD4.Web.DomainService
 {
     public interface IMTDDashboardDomainService
     {
-        List<ManufactureScheduleEntity> Search(string dateRange = "");
+        List<MTDDashboardEntity> DashboardSearch(int floor = 2, string date = "", decimal time = 24);
 
-        string Upload(IFormFile formFile, UserEntity userEntity);
+        (List<ManufactureScheduleEntity> manufactureSchedules, string latestUpdInfo) Search(string dateRange = "", int floor = 2);
+
+        string Upload(IFormFile formFile, int floor, UserEntity userEntity);
     }
 }

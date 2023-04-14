@@ -15,8 +15,11 @@ namespace MOD4.Web.Repostory.Dao
         public DateTime MFG_Day { get; set; }
         public int MFG_HR { get; set; }
         public DateTime post_time { get; set; }
-        public DateTime end_time { get; set; }
+        public DateTime? end_time { get; set; }
         public string remark4 { get; set; }
         public string remark5 { get; set; }
+        public string prod_id { get; set; }
+        public string prod_sn { get; set; }
+        public int spend_time { get; set; }
     }
 }
