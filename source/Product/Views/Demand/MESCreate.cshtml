@@ -79,6 +79,17 @@
                                 </div>
                                 <div class="row d-flex align-content-center flex-wrap">
                                     <div class="col-lg-2">
+                                        <input type="text" class="myInputStyle1" asp-for="JobId" value="">
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <label class="col-form-label" asp-for="Phone"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="Phone" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <input type="text" class="myInputStyle1" asp-for="Phone" value="">
+                                    </div>
+                                    <div class="col-lg-2">
                                         <label class="col-form-label" asp-for="Applicant"></label>
                                         <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                         <span asp-validation-for="Applicant" style="font-size:10px;font-weight:700" class="text-danger"></span>
@@ -90,17 +101,6 @@
                                         <label class="col-form-label" asp-for="JobId"></label>
                                         <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                         <span asp-validation-for="JobId" style="font-size:10px;font-weight:700" class="text-danger"></span>
-                                    </div>
-                                    <div class="col-lg-2">
-                                        <input type="text" class="myInputStyle1" asp-for="JobId" value="">
-                                    </div>
-                                    <div class="col-lg-2">
-                                        <label class="col-form-label" asp-for="Phone"></label>
-                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                        <span asp-validation-for="Phone" style="font-size:10px;font-weight:700" class="text-danger"></span>
-                                    </div>
-                                    <div class="col-lg-2">
-                                        <input type="text" class="myInputStyle1" asp-for="Phone" value="">
                                     </div>
                                 </div>
                                 <hr />
@@ -238,16 +238,16 @@
                                     </div>
                                     <div class="row d-flex align-content-center flex-wrap">
                                         <div class="col-lg-2">
-                                            <label class="col-form-label" asp-for="SameEmpName"></label>
-                                        </div>
-                                        <div class="col-lg-2">
-                                            <input type="text" class="myInputStyle1" asp-for="SameEmpName" value="">
-                                        </div>
-                                        <div class="col-lg-2">
                                             <label class="col-form-label" asp-for="SameEmpJobId"></label>
                                         </div>
                                         <div class="col-lg-2">
                                             <input type="text" class="myInputStyle1" asp-for="SameEmpJobId" value="">
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <label class="col-form-label" asp-for="SameEmpName"></label>
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <input type="text" class="myInputStyle1" asp-for="SameEmpName" value="">
                                         </div>
                                     </div>
                                 </div>
@@ -256,20 +256,20 @@
                                 <div id="divApplicants">
                                     <div class="row d-flex align-content-center flex-wrap">
                                         <div class="col-lg-2">
-                                            <label class="col-form-label" asp-for="ApplicantList.FirstOrDefault().ApplicantName"></label>
-                                            <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                            <span asp-validation-for="ApplicantList.FirstOrDefault().ApplicantName" style="font-size:10px;font-weight:700" class="text-danger"></span>
-                                        </div>
-                                        <div class="col-lg-2">
-                                            <input type="text" class="myInputStyle1" asp-for="ApplicantList.FirstOrDefault().ApplicantName" value="">
-                                        </div>
-                                        <div class="col-lg-2">
                                             <label class="col-form-label" asp-for="ApplicantList.FirstOrDefault().ApplicantJobId"></label>
                                             <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                             <span asp-validation-for="ApplicantList.FirstOrDefault().ApplicantJobId" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                         </div>
                                         <div class="col-lg-2">
                                             <input type="text" class="myInputStyle1" asp-for="ApplicantList.FirstOrDefault().ApplicantJobId" value="">
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <label class="col-form-label" asp-for="ApplicantList.FirstOrDefault().ApplicantName"></label>
+                                            <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                            <span asp-validation-for="ApplicantList.FirstOrDefault().ApplicantName" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <input type="text" class="myInputStyle1" asp-for="ApplicantList.FirstOrDefault().ApplicantName" value="">
                                         </div>
                                     </div>
                                 </div>
