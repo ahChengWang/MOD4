@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using System.Transactions;
 
 namespace MOD4.Web.DomainService
@@ -27,6 +28,9 @@ namespace MOD4.Web.DomainService
             {"1460", "ASSY2010"},
             {"1700", "ACKE2010"}
         };
+        private readonly string _zipsum106Url = "http://zipsum/modreport/Report/SHOPMOD/OperPerfDataSet.asp?";
+        private readonly string _zipsum108Url = "http://zipsum/modreport/Report/SHOPMOD/EquUtilizationDataSet.asp";
+        private readonly string _zipsum109Url = "http://zipsum/modreport/Report/SHOPMOD/EntityStaSumDataSet.asp";
 
         public MTDDashboardDomainService(IMTDProductionScheduleRepository mtdProductionScheduleRepository,
             IUploadDomainService uploadDomainService,
@@ -37,43 +41,80 @@ namespace MOD4.Web.DomainService
             _alarmXmlRepository = alarmXmlRepository;
         }
 
+        /// <summary>
+        /// MTD 儀表板查詢
+        /// </summary>
+        /// <param name="floor">default 2F</param>
+        /// <param name="date">default 昨日</param>
+        /// <param name="time">default 24h</param>
+        /// <returns></returns>
         public List<MTDDashboardEntity> DashboardSearch(int floor = 2, string date = "", decimal time = 24)
         {
             DateTime _nowTime = DateTime.Now.AddDays(-1).Date;
             DateTime _srchDate = _nowTime;
-            var url = "http://zipsum/modreport/Report/SHOPMOD/OperPerfDataSet.asp?";
 
+            // 是否有選擇日期
             if (DateTime.TryParseExact(date, "yyyy-MM-dd", null, DateTimeStyles.None, out _))
                 DateTime.TryParseExact(date, "yyyy-MM-dd", null, DateTimeStyles.None, out _srchDate);
 
+            // initial
             List<MTDDashboardEntity> _mtdDashboardList = new List<MTDDashboardEntity>();
             List<MTDPerformanceEntity> _mtdPerformanceDay = new List<MTDPerformanceEntity>();
             List<MTDPerformanceEntity> _mtdPerformanceMonth = new List<MTDPerformanceEntity>();
             Dictionary<string, decimal> _processDownDic = new Dictionary<string, decimal>();
             Dictionary<string, string> _process109Dic = new Dictionary<string, string>();
 
-            List<MTDProductionScheduleDao> _mtdScheduleDataList = _mtdProductionScheduleRepository.SelectByConditions(floor, _srchDate, _srchDate).Where(w => w.Value != 0).ToList();
-            List<MTDProductionScheduleDao> _mtdMonthPlanList = _mtdProductionScheduleRepository.SelectMonthPlanQty(_nowTime.Year.ToString(), _nowTime.Month.ToString(), floor);
-
-            _mtdScheduleDataList.GroupBy(gb => gb.ProductName).Select(s => new MTDProductionScheduleDao
+            // 取得MTD排程所有機種
+            List<MTDProductionScheduleDao> _mtdScheduleDataList = _mtdProductionScheduleRepository.SelectByConditions(floor, _srchDate, _srchDate).ToList();
+            // gorup MTD排程所有機種 for report 查詢
+            List<MTDProductionScheduleDao> _mtdScheduleGroupByProd = _mtdScheduleDataList.GroupBy(gb => gb.ProductName).Select(s => new MTDProductionScheduleDao
             {
                 ProductName = s.Key,
                 Node = string.Join(",", s.Select(node => node.Node))
-            }).ToList().ForEach(mtd =>
+            }).ToList();
+            // 取得MTD排程所有機種月計畫
+            List<MTDProductionScheduleDao> _mtdMonthPlanList = _mtdProductionScheduleRepository.SelectMonthPlanQty(_nowTime.Year.ToString(), _nowTime.Month.ToString(), floor);
+
+            // call zipsum 1.06 report 查詢 & 解析
+            Parallel.ForEach(_mtdScheduleDataList.GroupBy(gb => gb.ProductName).Select(s => new MTDProductionScheduleDao
             {
-                GetZipsum106Today(_srchDate.ToString("yyyy-MM-dd"), _srchDate.ToString("yyyy-MM-dd"), mtd.ProductName, mtd.Node, url, ref _mtdPerformanceDay);
-                GetZipsum106Month($"{_srchDate.ToString("yyyy-MM")}-01", _srchDate.ToString("yyyy-MM-dd"), mtd.ProductName, mtd.Node, url, ref _mtdPerformanceMonth);
+                ProductName = s.Key,
+                Node = string.Join(",", s.Select(node => node.Node))
+            }), (prod) =>
+            {
+                GetZipsum106Today(_srchDate.ToString("yyyy-MM-dd"), _srchDate.ToString("yyyy-MM-dd"), prod.ProductName, prod.Node, ref _mtdPerformanceDay);
+                GetZipsum106Month($"{_srchDate:yyyy-MM}-01", _srchDate.ToString("yyyy-MM-dd"), prod.ProductName, prod.Node, ref _mtdPerformanceMonth);
             });
 
-            _mtdScheduleDataList.GroupBy(gb => gb.Node).ToList().ForEach(s =>
+            //_mtdScheduleDataList.GroupBy(gb => gb.ProductName).Select(s => new MTDProductionScheduleDao
+            //{
+            //    ProductName = s.Key,
+            //    Node = string.Join(",", s.Select(node => node.Node))
+            //}).ToList().ForEach(mtd =>
+            //{
+            //    GetZipsum106Today(_srchDate.ToString("yyyy-MM-dd"), _srchDate.ToString("yyyy-MM-dd"), mtd.ProductName, mtd.Node, url, ref _mtdPerformanceDay);
+            //    GetZipsum106Month($"{_srchDate.ToString("yyyy-MM")}-01", _srchDate.ToString("yyyy-MM-dd"), mtd.ProductName, mtd.Node, url, ref _mtdPerformanceMonth);
+            //});
+
+            // call zipsum 1.08 1.09 report 查詢 & 解析
+            Parallel.ForEach(_mtdScheduleDataList.GroupBy(gb => gb.Node), (node) =>
             {
-                GetZipsum108Today(_srchDate.ToString("yyyy-MM-dd"), _processEqDic[s.Key], s.Key, "http://zipsum/modreport/Report/SHOPMOD/EquUtilizationDataSet.asp", ref _processDownDic);
-                GetZipsum109Today(_srchDate.ToString("yyyy-MM-dd"), _processEqDic[s.Key], s.Key, "http://zipsum/modreport/Report/SHOPMOD/EntityStaSumDataSet.asp", ref _process109Dic);
+                GetZipsum108Today(_srchDate.ToString("yyyy-MM-dd"), _processEqDic[node.Key], node.Key, ref _processDownDic);
+                GetZipsum109Today(_srchDate.ToString("yyyy-MM-dd"), _processEqDic[node.Key], node.Key, ref _process109Dic);
             });
 
+
+            //_mtdScheduleDataList.GroupBy(gb => gb.Node).ToList().ForEach(s =>
+            //{
+            //    GetZipsum108Today(_srchDate.ToString("yyyy-MM-dd"), _processEqDic[s.Key], s.Key, ref _processDownDic);
+            //    GetZipsum109Today(_srchDate.ToString("yyyy-MM-dd"), _processEqDic[s.Key], s.Key, ref _process109Dic);
+            //});
+
+            // 取得機況 (未處理、已處理)
             List<AlarmXmlDao> _alarmOverList = _alarmXmlRepository.SelectForMTD(_srchDate, _processEqDic.Select(s => s.Value).ToList(), _mtdScheduleDataList.Select(s => s.ProductName).Distinct().ToList());
 
-            _mtdDashboardList = _mtdScheduleDataList.GroupBy(g => g.Process).Select(detail =>
+            // 資料合併
+            Parallel.ForEach(_mtdScheduleDataList.GroupBy(g => g.Process), (detail) =>
             {
                 List<MTDDashboardDetailEntity> _tempDetailList = detail.Select(s =>
                 {
@@ -106,57 +147,30 @@ namespace MOD4.Web.DomainService
 
                 var _currDownTime = _processDownDic[detail.FirstOrDefault().Node];
 
-                MTDDashboardEntity _tmpEntity = new MTDDashboardEntity
+                _mtdDashboardList.Add(new MTDDashboardEntity
                 {
+                    Sn = detail.FirstOrDefault().Sn,
                     Process = detail.Key,
                     DownTime = _currDownTime.ToString(),
-                    DownPercent = $"{(_currDownTime / 1440 * 100).ToString("0.00")}%",
+                    DownPercent = $"{_currDownTime / 1440 * 100:0.00}%",
                     UPPercent = _process109Dic[$"{detail.FirstOrDefault().Node}-UP"],
                     RUNPercent = _process109Dic[$"{detail.FirstOrDefault().Node}-RUN"],
                     UPHPercent = _process109Dic[$"{detail.FirstOrDefault().Node}-UPH"],
                     OEEPercent = _process109Dic[$"{detail.FirstOrDefault().Node}-OEE"],
                     MTDDetail = _tempDetailList
-                };
+                });
+            });
 
-                return _tmpEntity;
-
-            }).ToList();
-
-            //_mtdDashboardList = _mtdScheduleDataList.GroupBy(g => new { g.Date, g.Node, g.Process, g.Model, g.ProductName })
-            //    .Select(s =>
-            //    {
-            //        var _currData = s.FirstOrDefault(f => f.Node == s.Key.Node && f.ProductName == s.Key.ProductName);
-            //        var _currMonth = _mtdMonthPlanList.Where(w => w.Node == s.Key.Node && w.ProductName == s.Key.ProductName);
-            //        var _currActualMonth = _mtdPerformanceMonth.Where(w => w.Node == s.Key.Node && w.Product == s.Key.ProductName);
-
-            //        MTDDashboardEntity _tmpEntity = new MTDDashboardEntity
-            //        {
-            //            Process = s.Key.Process,
-            //            MTDDetail = s.Select(detail => new MTDDashboardDetailEntity
-            //            {
-            //                Date = s.Key.Date.ToString("MM/dd"),
-            //                Equipment = _processEqDic[s.Key.Node],
-            //                BigProduct = s.Key.Model,
-            //                PlanProduct = s.Key.ProductName,
-            //                Output = _mtdPerformanceDay.FirstOrDefault(f => f.Node == s.Key.Node && f.Product == s.Key.ProductName)?.Qty.ToString("#,0") ?? "0",
-            //                DayPlan = _currData.Value.ToString("#,0"),
-            //                RangPlan = (_currData.Value / 24 * time).ToString("#,0"),
-            //                RangDiff = ((_mtdPerformanceDay.FirstOrDefault(f => f.Node == s.Key.Node && f.Product == s.Key.ProductName)?.Qty ?? 0) - (_currData.Value / 24 * time)).ToString("#,0"),
-            //                MonthPlan = _currMonth.Where(mon => mon.Date <= _srchDate).Sum(sum => sum.Value).ToString("#,0"),
-            //                MTDPlan = _currMonth.Sum(sum => sum.Value).ToString("#,0"),
-            //                MTDActual = _currActualMonth.Sum(sum => sum.Qty).ToString("#,0"),
-            //                MTDDiff = (_currActualMonth.Sum(sum => sum.Qty) - _currMonth.Sum(sum => sum.Value)).ToString("#,0")
-            //            }).ToList()
-            //        };
-
-            //        return _tmpEntity;
-
-            //    }).ToList();
+            _mtdDashboardList = _mtdDashboardList.Select(data =>
+            {
+                data.MTDDetail = data.MTDDetail.Where(detail => detail.Output != "0" || detail.DayPlan != "0").ToList();
+                return data;
+            }).OrderBy(ob => ob.Sn).ToList();
 
             return _mtdDashboardList;
         }
 
-        private void GetZipsum106Today(string startDate, string endDate, string prod, string node, string url, ref List<MTDPerformanceEntity> mtdPerformancesList)
+        private void GetZipsum106Today(string startDate, string endDate, string prod, string node, ref List<MTDPerformanceEntity> mtdPerformancesList)
         {
             string _qStr = $"Calendar1={startDate}&calendar2={endDate}&shift=&rwktype=ALL&floor=&prod_type=ALL&source_fab=1=1&wo_type=1=1&WO_NBR=&psize=&message=" +
                 $"&prod_size={prod.Substring(2, 3)}&big_prod={prod.Substring(0, 9)}&Shop=MOD4&G_FAC=6&lcm_owner=('QTAP','LCME','PRDG','PROD','RES0')&calendar_1={startDate}" +
@@ -168,8 +182,7 @@ namespace MOD4.Web.DomainService
 
             using (var client = new HttpClient())
             {
-                //var response = client.PostAsync(url, data);
-                var response = client.PostAsync(url + _qStr, data).Result;
+                var response = client.PostAsync(_zipsum106Url + _qStr, data).Result;
                 response.Content.Headers.ContentType.CharSet = "Big5";
                 string result = response.Content.ReadAsStringAsync().Result;
 
@@ -178,10 +191,13 @@ namespace MOD4.Web.DomainService
                 array = result.Split("<script language= \"VBScript\">");
             }
 
-            Process(array, node, prod, ref mtdPerformancesList);
+            lock (this)
+            {
+                Process(array, node, prod, ref mtdPerformancesList);
+            }
         }
 
-        private void GetZipsum106Month(string startDate, string endDate, string prod, string node, string url, ref List<MTDPerformanceEntity> mtdPerformancesList)
+        private void GetZipsum106Month(string startDate, string endDate, string prod, string node, ref List<MTDPerformanceEntity> mtdPerformancesList)
         {
             string _qStr = $"Calendar1={startDate}&calendar2={endDate}&shift=&rwktype=ALL&floor=&prod_type=ALL&source_fab=1=1&wo_type=1=1&WO_NBR=&psize=&message=" +
                 $"&prod_size={prod.Substring(2, 3)}&big_prod={prod.Substring(0, 9)}&Shop=MOD4&G_FAC=6&lcm_owner=('QTAP','LCME','PRDG','PROD','RES0')&calendar_1={startDate}" +
@@ -193,8 +209,7 @@ namespace MOD4.Web.DomainService
 
             using (var client = new HttpClient())
             {
-                //var response = client.PostAsync(url, data);
-                var response = client.PostAsync(url + _qStr, data).Result;
+                var response = client.PostAsync(_zipsum106Url + _qStr, data).Result;
                 response.Content.Headers.ContentType.CharSet = "Big5";
 
                 string result = response.Content.ReadAsStringAsync().Result;
@@ -205,7 +220,10 @@ namespace MOD4.Web.DomainService
 
             }
 
-            Process(array, node, prod, ref mtdPerformancesList);
+            lock (this)
+            {
+                Process(array, node, prod, ref mtdPerformancesList);
+            }
 
         }
 
@@ -215,9 +233,33 @@ namespace MOD4.Web.DomainService
             string[] _tempArray;
             int _tempInt = 0;
             detailStr = detailStr.Skip(1).ToArray();
+            //List<MTDPerformanceEntity> _tempResult = new List<MTDPerformanceEntity>();
 
-            if (detailStr[0].Contains("No Data For Your Query"))
-                return;
+            //if (detailStr.Length < 2 || detailStr[0].Contains("No Data For Your Query"))
+            //    return;
+
+            //Parallel.ForEach(detailStr, (output) =>
+            //{
+            //    _temp = output.Replace("\r\n\t\t", "").Split("ReportGrid1.TextMatrix");
+
+            //    if (node.Contains(_temp[2].Split("=")[1].Replace("\"", "").Substring(0, 4)))
+            //    {
+            //        _tempArray = _temp[3].Split("=");
+            //        _tempInt = int.Parse(_tempArray[1].Replace("\"", ""));
+
+            //        _tempResult.Add(new MTDPerformanceEntity
+            //        {
+            //            Node = _temp[2].Split("=")[1].Replace("\"", "").Substring(0, 4),
+            //            Product = prod,
+            //            Qty = int.Parse(_tempArray[1].Replace("\"", ""))
+            //        });
+            //    }
+            //});
+
+            //lock (mtdPerformancesList)
+            //{
+            //    mtdPerformancesList.AddRange(_tempResult);
+            //}
 
             foreach (var output in detailStr)
             {
@@ -238,7 +280,7 @@ namespace MOD4.Web.DomainService
             }
         }
 
-        private void GetZipsum108Today(string date, string passEq, string process, string url, ref Dictionary<string, decimal> processDic)
+        private void GetZipsum108Today(string date, string passEq, string process, ref Dictionary<string, decimal> processDic)
         {
             FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent(new[]
             {
@@ -261,8 +303,7 @@ namespace MOD4.Web.DomainService
 
             using (var client = new HttpClient())
             {
-                //var response = client.PostAsync(url, data);
-                var response = client.PostAsync(url, formUrlEncodedContent).Result;
+                var response = client.PostAsync(_zipsum108Url, formUrlEncodedContent).Result;
                 response.Content.Headers.ContentType.CharSet = "Big5";
                 string result = response.Content.ReadAsStringAsync().Result;
 
@@ -275,10 +316,13 @@ namespace MOD4.Web.DomainService
 
             var _downSum = (array[4].Replace(" ", "").Replace("\"", "").Split("="))[1];
 
-            processDic.Add(process, Convert.ToDecimal(_downSum));
+            lock (this)
+            {
+                processDic.Add(process, Convert.ToDecimal(_downSum));
+            }
         }
 
-        private void GetZipsum109Today(string date, string passEq, string process, string url, ref Dictionary<string, string> process109Dic)
+        private void GetZipsum109Today(string date, string passEq, string process, ref Dictionary<string, string> process109Dic)
         {
             FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent(new[]
             {
@@ -300,8 +344,7 @@ namespace MOD4.Web.DomainService
 
             using (var client = new HttpClient())
             {
-                //var response = client.PostAsync(url, data);
-                var response = client.PostAsync(url, formUrlEncodedContent).Result;
+                var response = client.PostAsync(_zipsum109Url, formUrlEncodedContent).Result;
                 response.Content.Headers.ContentType.CharSet = "Big5";
                 string result = response.Content.ReadAsStringAsync().Result;
 
@@ -315,9 +358,9 @@ namespace MOD4.Web.DomainService
             string _uphStr = (array[27].Split("formatnumber(")[1]).Split(",")[0];
             string _oeeStr = (array[31].Split("formatnumber(")[1]).Split(",")[0];
             process109Dic.Add($"{process}-UP", $"{(_upStr.Length > 5 ? _upStr.Substring(0, 5) : _upStr)}%");
-            process109Dic.Add($"{process}-RUN", $"{(_runStr.Length > 5 ? _upStr.Substring(0, 5) : _runStr)}%");
-            process109Dic.Add($"{process}-UPH", $"{(_uphStr.Length > 5 ? _upStr.Substring(0, 5) : _uphStr)}%");
-            process109Dic.Add($"{process}-OEE", $"{(_oeeStr.Length > 5 ? _upStr.Substring(0, 5) : _oeeStr)}%");
+            process109Dic.Add($"{process}-RUN", $"{(_runStr.Length > 5 ? _runStr.Substring(0, 5) : _runStr)}%");
+            process109Dic.Add($"{process}-UPH", $"{(_uphStr.Length > 5 ? _uphStr.Substring(0, 5) : _uphStr)}%");
+            process109Dic.Add($"{process}-OEE", $"{(_oeeStr.Length > 5 ? _oeeStr.Substring(0, 5) : _oeeStr)}%");
         }
 
         #region ======== schedule ========
@@ -327,7 +370,7 @@ namespace MOD4.Web.DomainService
             try
             {
                 DateTime _nowTime = DateTime.Now;
-                DateTime _startDate = DateTime.Parse($"{_nowTime.AddMonths(-1).ToString("yyyy/MM")}/01");
+                DateTime _startDate = DateTime.Parse($"{_nowTime.ToString("yyyy/MM")}/01").AddDays(-10);
                 DateTime _endDate = DateTime.Parse($"{_nowTime.AddMonths(1).ToString("yyyy/MM")}/01").AddDays(-1);
 
                 if (!string.IsNullOrEmpty(dateRange))
@@ -363,7 +406,7 @@ namespace MOD4.Web.DomainService
                         }).ToList()
                     }).ToList();
 
-                return (_manufactureSchedules, $@"{(_manufactureSchedules.Any() && _mtdScheduleHis != null 
+                return (_manufactureSchedules, $@"{(_manufactureSchedules.Any() && _mtdScheduleHis != null
                         ? _mtdScheduleHis.UpdateTime.ToString("yyyy/MM/dd HH:mm") + "- by " + _mtdScheduleHis.UpdateUser : "")}");
             }
             catch (Exception ex)
@@ -402,7 +445,7 @@ namespace MOD4.Web.DomainService
                     // 讀取 Excel裡面的工作表（跟以前 MVC 5完全相同）
                     #region
                     XSSFSheet _scheduleSheet = (XSSFSheet)workbook.GetSheetAt(0); // 生產排線 sheet
-                    XSSFSheet _verifySheet = (XSSFSheet)workbook.GetSheetAt(1); // 驗證 sheet
+                    //XSSFSheet _verifySheet = (XSSFSheet)workbook.GetSheetAt(1); // 驗證 sheet
 
                     StringBuilder SB = new StringBuilder(); // System.Text命名空間
 

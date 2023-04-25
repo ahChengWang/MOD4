@@ -29,6 +29,7 @@
         border-radius: 0.25rem;
         box-shadow: inset 0 0 0 transparent;
         transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        width: 70px;
     }
 
     .dropdown-menu {
@@ -37,12 +38,25 @@
         overflow-x: hidden;
     }
 
-    input[name='downEqInput'] {
+    input[name='downEqInput'], input[name='setting.TimeTarget'] {
         width: 100px;
         border-style: none;
         border-bottom: 2px solid black;
         outline: none;
     }
+
+    .col-form-label {
+        word-break: break-all;
+    }
+
+    .flex-wrap {
+        border-right: 2px solid lightgray;
+    }
+
+        .flex-wrap > div {
+            width: 50%;
+            text-align: center;
+        }
 </style>
 
 <head>
@@ -108,201 +122,6 @@
 
                         <partial name="_PartialSettingTable" model="Model" />
 
-                        @*@{
-                                foreach (var setting in Model.SettingDetailList)
-                                {
-
-                                    var _tabId = "node" + @setting.Node;
-                                    var _formId = "form" + @setting.Node;
-                                    var _sumId = "sumTT" + @setting.Node;
-                                    var _inputNameId = "input" + @setting.Node;
-                                    var _classA = "A" + @setting.Node;
-                                    var _classB = "B" + @setting.Node;
-
-                                <div class="tab-pane" id="@_tabId">
-                                    <form id="@_formId">
-                                        <input type="hidden" asp-for="@setting.Node" />
-                                        <div style="display:flex">
-                                            <div class="">
-                                                <label class="col-form-label" asp-for="@setting.DownEquipment"></label>
-                                            </div>
-                                            <div>
-                                                <input class="form-control" name="downEqInput" type="text" asp-for="@setting.DownEquipment" />
-                                            </div>
-                                        </div>
-                                        <div class="row" style="display:flex">
-                                            <div>
-                                                <p>日班合計：</p>
-                                            </div>
-                                            <div>
-                                                <p id="A@_sumId" style="font-weight:600"></p>
-                                            </div>
-                                        </div>
-                                        <div style="display: flex; border-bottom: 2px solid lightgray;">
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time0730"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classA" name="Time0730@_inputNameId" type="number" min="0" asp-for="@setting.Time0730" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time0830"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classA" name="Time0830@_inputNameId" type="number" min="0" asp-for="@setting.Time0830" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time0830"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classA" name="Time0930@_inputNameId" type="number" min="0" asp-for="@setting.Time0930" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time1030"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classA" name="Time1030@_inputNameId" type="number" min="0" asp-for="@setting.Time1030" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time1130"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classA" name="Time1130@_inputNameId" type="number" min="0" asp-for="@setting.Time1130" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time1230"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classA" name="Time1230@_inputNameId" type="number" min="0" asp-for="@setting.Time1230" />
-                                            </div>
-                                        </div>
-                                        <div style="display: flex; border-bottom: 2px solid lightgray;">
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time1330"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classA" name="Time1330@_inputNameId" type="number" min="0" asp-for="@setting.Time1330" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time1430"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classA" name="Time1430@_inputNameId" type="number" min="0" asp-for="@setting.Time1430" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time1530"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classA" name="Time1530@_inputNameId" type="number" min="0" asp-for="@setting.Time1530" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time1630"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classA" name="Time1630@_inputNameId" type="number" min="0" asp-for="@setting.Time1630" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time1730"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classA" name="Time1730@_inputNameId" type="number" min="0" asp-for="@setting.Time1730" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time1830"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classA" name="Time1830@_inputNameId" type="number" min="0" asp-for="@setting.Time1830" />
-                                            </div>
-                                        </div>
-                                        <hr />
-                                        <div class="row" style="display:flex">
-                                            <div>
-                                                <p>夜班合計：</p>
-                                            </div>
-                                            <div>
-                                                <p id="B@_sumId" style="font-weight:600"></p>
-                                            </div>
-                                        </div>
-                                        <div style="display: flex; border-bottom: 2px solid lightgray;">
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time1930"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classB" name="Time1930@_inputNameId" type="number" min="0" asp-for="@setting.Time1930" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time2030"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classB" name="Time2030@_inputNameId" type="number" min="0" asp-for="@setting.Time2030" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time2130"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classB" name="Time2130@_inputNameId" type="number" min="0" asp-for="@setting.Time2130" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time2230"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classB" name="Time2230@_inputNameId" type="number" min="0" asp-for="@setting.Time2230" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time2330"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classB" name="Time2330@_inputNameId" type="number" min="0" asp-for="@setting.Time2330" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time0030"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classB" name="Time0030@_inputNameId" type="number" min="0" asp-for="@setting.Time0030" />
-                                            </div>
-                                        </div>
-                                        <div style="display: flex; border-bottom: 2px solid lightgray;">
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time0130"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classB" name="Time0130@_inputNameId" type="number" min="0" asp-for="@setting.Time0130" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time0230"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classB" name="Time0230@_inputNameId" type="number" min="0" asp-for="@setting.Time0230" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time0330"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classB" name="Time0330@_inputNameId" type="number" min="0" asp-for="@setting.Time0330" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time0430"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classB" name="Time0430@_inputNameId" type="number" min="0" asp-for="@setting.Time0430" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time0530"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classB" name="Time0530@_inputNameId" type="number" min="0" asp-for="@setting.Time0530" />
-                                            </div>
-                                            <div>
-                                                <label class="col-form-label" asp-for="@setting.Time0630"></label>
-                                            </div>
-                                            <div style="border-right: 2px solid lightgray;">
-                                                <input class="@_classB" name="Time0630@_inputNameId" type="number" min="0" asp-for="@setting.Time0630" />
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                                }
-                            }*@
                     </div>
                 </div>
                 <!-- /.card -->
@@ -325,6 +144,7 @@
         $(document).ready(
             function setDefault() {
                 $("input[name='downEqInput']").attr('disabled', true);
+                $("input[name='setting.TimeTarget']").attr('disabled', true);
                 $("input[type='number']").attr('disabled', true).css('background-color', '#e9ecef');
                 $("input[name='submit']").attr('disabled', true).addClass("btn-outline-primary");
 
@@ -397,6 +217,7 @@
                 },
                 complete: function () {
                     $("input[name='downEqInput']").attr('disabled', true);
+                    $("input[name='setting.TimeTarget']").attr('disabled', true);
                     $("input[type='number']").attr('disabled', true).css('background-color', '#e9ecef');
                     $("input[name='edit']").removeAttr('disabled').removeClass("btn-outline-danger").addClass("btn-danger");
                     $("input[name='submit']").attr('disabled', true).removeClass("btn-primary").addClass("btn-outline-primary");
@@ -408,6 +229,7 @@
 
         function editClick(e) {
             $("input[name='downEqInput']").removeAttr('disabled');
+            $("input[name='setting.TimeTarget']").removeAttr('disabled');
             $("input[type='number']").removeAttr('disabled').css('background-color', 'white');
             $("input[name='edit']").attr('disabled', true).removeClass("btn-danger").addClass("btn-outline-danger");
             $("input[name='submit']").removeAttr('disabled').removeClass("btn-outline-primary").addClass("btn-primary");
@@ -475,6 +297,7 @@
             });
 
             $("input[name='downEqInput']").attr('disabled', true);
+            $("input[name='setting.TimeTarget']").attr('disabled', true);
             $("input[type='number']").attr('disabled', true).css('background-color', '#e9ecef');
             $("input[name='edit']").removeAttr('disabled').removeClass("btn-outline-danger").addClass("btn-danger");
             $("input[name='submit']").attr('disabled', true).removeClass("btn-primary").addClass("btn-outline-primary");
@@ -495,19 +318,10 @@
             return returnArray;
         }
 
-        $("input").change(function (e) {
-            var sumTT = 0;
-            var _subClassName = e.currentTarget.className.substring(0, 5);
-            $("input[class*=" + _subClassName + "]").each(function (idx, td) {
-            if (td.value == '') {
-                td.value = "0";
-                sumTT += 0;
-            }
-            else {
-                sumTT += parseInt(td.value);
-            }
-            });
-            //$("input[class='" + _subClassName + " valid']").each(function (idx, td) {
+        //$("input[name^='Time']").change(function (e) {
+        //    var sumTT = 0;
+        //    var _subClassName = e.currentTarget.className.substring(0, 5);
+        //    $("input[class*=" + _subClassName + "]").each(function (idx, td) {
         //    if (td.value == '') {
         //        td.value = "0";
         //        sumTT += 0;
@@ -515,18 +329,62 @@
         //    else {
         //        sumTT += parseInt(td.value);
         //    }
-        //});
-        //$("input[class='" + _subClassName + " input-validation-error']").each(function (idx, td) {
-        //    if (td.value == '') {
-        //        td.value = "0";
-        //        sumTT += 0;
-        //    }
-        //    else {
-        //        sumTT += parseInt(td.value);
-        //    }
+        //    });
+
+        //    $("#" + e.currentTarget.className.substring(0, 1) + "sumTT" + e.currentTarget.className.substring(1, 5)).html(sumTT.toString());
         //});
 
-            $("#" + e.currentTarget.className.substring(0, 1) + "sumTT" + e.currentTarget.className.substring(1, 5)).html(sumTT.toString());
-        });
+        function targetChange(e) {
+            var sumTT = 0;
+            var _subClassName = e.className.substring(0, 5);
+            $("input[class*=" + _subClassName + "]").each(function (idx, td) {
+                if (td.value == '') {
+                    td.value = "0";
+                    sumTT += 0;
+                }
+                else {
+                    sumTT += parseInt(td.value);
+                }
+            });
+
+            $("#" + e.className.substring(0, 1) + "sumTT" + e.className.substring(1, 5)).html(sumTT.toString());
+        }
+
+
+        function timeTargetChange(e) {
+
+            let _settingDetail = e.parentElement.parentElement.parentElement;
+            let _value = Math.round(60 * 60 * 0.83 / e.value);
+            let _sumDayValue = e.parentElement.parentElement.children;
+            let _sumNightValue = e.parentElement.parentElement.parentElement.children[5].children[1].children[0];
+            _sumDayValue[1].children[0].innerText = _value * 12;
+            _sumNightValue.innerText = _value * 12;
+
+            _settingDetail[3].value = _value;
+            _settingDetail[4].value = _value;
+            _settingDetail[5].value = _value;
+            _settingDetail[6].value = _value;
+            _settingDetail[7].value = _value;
+            _settingDetail[8].value = _value;
+            _settingDetail[9].value = _value;
+            _settingDetail[10].value = _value;
+            _settingDetail[11].value = _value;
+            _settingDetail[12].value = _value;
+            _settingDetail[13].value = _value;
+            _settingDetail[14].value = _value;
+            _settingDetail[15].value = _value;
+            _settingDetail[16].value = _value;
+            _settingDetail[17].value = _value;
+            _settingDetail[18].value = _value;
+            _settingDetail[19].value = _value;
+            _settingDetail[20].value = _value;
+            _settingDetail[21].value = _value;
+            _settingDetail[22].value = _value;
+            _settingDetail[23].value = _value;
+            _settingDetail[24].value = _value;
+            _settingDetail[25].value = _value;
+            _settingDetail[26].value = _value;
+        }
+
     </script>
 }

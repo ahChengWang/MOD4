@@ -7,7 +7,7 @@
         margin-top: 15px;
     }
 
-    .card {
+    /*.card {
         box-shadow: 1px 2px 2px 2px #999;
     }
 
@@ -23,7 +23,7 @@
         font-size: 20px;
         color: white;
         font-weight: 700;
-    }
+    }*/
 
     #reamrk {
         padding: 0.375rem 0.75rem;
@@ -58,7 +58,7 @@
         <div class="container-fluid">
             <div class="row">
                 <!-- left column -->
-                <div class="col-md-10">
+                <div class="col-md-11">
                     <!-- jquery validation -->
                     <div class="card">
                         <div class="card-header">
@@ -109,12 +109,12 @@
                                 </div>
                                 <div class="row" style="display: flex; margin-top: 7px;">
                                     <div class="col-2">
-                                        <label class="col-form-label" asp-for="EqGroup"></label>
+                                        <label class="col-form-label" asp-for="Node"></label>
                                         <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                        <span asp-validation-for="EqGroup" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                        <span asp-validation-for="Node" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-2">
-                                        <select class="form-control select2bs4" asp-for="EqGroup">
+                                        <select class="form-control select2bs4" asp-for="Node">
                                             <option></option>
                                         </select>
                                         @*<input class="form-control" type="text" asp-for="ToolId" />*@
@@ -154,6 +154,17 @@
                                     </div>
                                     <div class="col-2">
                                         <input class="form-control" type="text" asp-for="Codedesc" />
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="DownType"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="DownType" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-2">
+                                        <select class="form-control" asp-for="DownType">
+                                            <option id="DOWN">DOWN</option>
+                                            <option id="IDLE">IDLE</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="row" style="display: flex; margin-top: 7px; ">
@@ -346,10 +357,10 @@
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="MntMinutes"></label>
                                         <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                        <span asp-validation-for="MntMinutes" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                        <span asp-validation-for="EqUnitPartId" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-10">
-                                        <textarea class="form-control pmEdit" asp-for="MntMinutes" rows="5" cols="75"></textarea>
+                                        <textarea class="form-control pmEdit" asp-for="EqUnitPartId" rows="5" cols="75"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -382,10 +393,10 @@
 
             _eqIpMapping.reduce(function (item, option)
             {
-                if (item[option['equiP_GROUP']] == null) {
-                    $("<option></option>").attr("value", option['equiP_GROUP']).text(option['equiP_GROUP']).appendTo($('#EqGroup'));
+                if (item[option['operation']] == null) {
+                    $("<option></option>").attr("value", option['operation']).text(option['operation']).appendTo($('#Node'));
                 }
-                (item[option['equiP_GROUP']] = item[option['equiP_GROUP']] || []).push(option);
+                (item[option['operation']] = item[option['operation']] || []).push(option);
                 return item;
             }, {});
         });
@@ -465,14 +476,14 @@
             $.unblockUI();
         });
 
-        $("#EqGroup").change(function (e) {
+        $("#Node").change(function (e) {
 
-            let _eqGroupSelected = $("#EqGroup").find(":selected").val();
+            let _eqGroupSelected = $("#Node").find(":selected").val();
             $("#ToolId").empty();
 
             $("<option></option>").appendTo($('#ToolId'));
             _filterOptions = _eqIpMapping.filter(function (eqMapping) {
-                return eqMapping.equiP_GROUP == _eqGroupSelected;
+                return eqMapping.operation == _eqGroupSelected;
             });
 
             _filterOptions.reduce(function (item, option) {
@@ -483,6 +494,10 @@
                 //(item[option['unitId']] = item[option['unitId']] || []).push(option);
                 //return item;
             }, {});
+        });
+
+        $('#DownType').change(function (e) {
+
         });
 
         $("#ProcessId").change(function (e) {

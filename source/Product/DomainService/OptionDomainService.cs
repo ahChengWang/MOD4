@@ -413,7 +413,7 @@ namespace MOD4.Web.DomainService
 
         public List<EqMappingEntity> GetEqIDAreaList()
         {
-            return _equipMappingRepository.SelectEqByConditions(2).OrderBy(o => o.EQUIP_GROUP).CopyAToB<EqMappingEntity>();
+            return _equipMappingRepository.SelectEqByConditions(2).OrderBy(o => o.OPERATION).CopyAToB<EqMappingEntity>();
         }
 
         public List<CertifiedAreaMappingEntity> GetCertifiedAreaOptions()

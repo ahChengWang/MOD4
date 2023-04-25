@@ -32,6 +32,7 @@ namespace MOD4.Web.DomainService
             {"1720",("D2",9) },
             {"1700",("D KEN",10) }
         };
+        private readonly string[] _passTransType = new string[] { "MVOT", "MRWK" };
         #region time block
         private TimeSpan _time0730 = new TimeSpan(7, 30, 0);
         private TimeSpan _time0830 = new TimeSpan(8, 30, 0);
@@ -185,47 +186,6 @@ namespace MOD4.Web.DomainService
 
                     });
 
-                //foreach (var prodEq in _prodEqDic)
-                //{
-                //    foreach (var eq in prodEq.Value)
-                //    {
-                //        string _qStr = $"Shop=MOD4&G_FAC=6&StrSql_w=+and+prod_nbr+in+('{prodEq.Key}')+and+lcm_owner+in+('QTAP','LCME','PRDG','PROD','RES0')&StrSql_w4=&col0=&col1=&row0={prodEq.Key}" +
-                //                    $"&row2={eq}&row3={shift}&row1={node.Key}&sql_m=+and+acct_date+>=+'{mfgDTE}'+and+acct_date+<=+'{mfgDTE}'" +
-                //                    $"&sql_m1=+and+trans_date+>=+'{mfgDTE}+07:30:00.000000'+and+trans_date+<=+'{_mfgDteEnd}+07:30:00.000000'" +
-                //                    $"&sqlbu2=+and+shift_id='{shift}'&vdate_s=&vdate_e=";
-
-                //        var data = new StringContent(_qStr, Encoding.UTF8, "application/x-www-form-urlencodedn");
-
-                //        string[] array;
-
-                //        using (var client = new HttpClient())
-                //        {
-                //            //var response = client.PostAsync(url, data);
-                //            var response = client.PostAsync(url + _qStr, data).Result;
-                //            //var response = client.GetAsync(url);
-                //            response.Content.Headers.ContentType.CharSet = "Big5";
-
-                //            string result = response.Content.ReadAsStringAsync().Result;
-
-                //            result = result.Remove(0, 12200);
-
-                //            array = result.Split("<SCRIPT LANGUAGE=vbscript >");
-
-                //        }
-
-                //        //string text = File.ReadAllText("D:\\response.txt");
-
-                //        //array = text.Split("<SCRIPT LANGUAGE=vbscript >");
-
-                //        var cnt = (array.Count() - 3) / 14;
-
-                //        for (int i = 0; i < cnt; i++)
-                //        {
-                //            _performanceDetail.Add(Process(array.Skip((i * 14) + 1).Take(14).ToArray(), node.Key, node.Value.Item2));
-                //        }
-                //    }
-                //}
-
 
                 PassQtyEntity _tResponse = new PassQtyEntity();
 
@@ -349,49 +309,49 @@ namespace MOD4.Web.DomainService
             string[] _tempArray;
             string _tempStr;
 
-            if (detailStr[3].Split("=")[2].Split("\r\n")[0].Replace("\"", "") == "MVIN")
-                return _entity;
-
-            _tempArray = detailStr[3].Split("=");
-            _tempArray = _tempArray[2].Split("\r\n");
-            _tempStr = _tempArray[0].Replace("\"", "");
-
-            for (int i = 0; i < 15; i++)
+            if (_passTransType.Contains(detailStr[3].Split("=")[2].Split("\r\n")[0].Replace("\"", "")))
             {
-                switch (i)
-                {
-                    case 0:
-                        _tempArray = detailStr[i].Split("=");
-                        _tempArray = _tempArray[2].Split("\r\n");
-                        _tempStr = _tempArray[0].Replace("\"", "");
-                        _entity.Prod = _tempStr;
-                        break;
-                    case 2:
-                        _tempArray = detailStr[i].Split("=");
-                        _tempArray = _tempArray[2].Split("\r\n");
-                        _tempStr = _tempArray[0].Replace("\"", "");
-                        DateTime _outTime;
-                        DateTime.TryParse(_tempStr, out _outTime);
-                        _entity.Time = _outTime;
-                        break;
-                    case 4:
-                        _tempArray = detailStr[i].Split("=");
-                        _tempArray = _tempArray[2].Split("\r\n");
-                        _tempStr = _tempArray[0].Replace("\"", "");
-                        _entity.Equipment = _tempStr;
-                        break;
-                    case 12:
-                        _tempArray = detailStr[i].Split("=");
-                        _tempArray = _tempArray[2].Split("\r\n");
-                        _tempStr = _tempArray[0].Replace("\"", "");
-                        _entity.NG = _tempStr == "_" ? 0 : 1;
-                        break;
-                }
-            }
+                _tempArray = detailStr[3].Split("=");
+                _tempArray = _tempArray[2].Split("\r\n");
+                _tempStr = _tempArray[0].Replace("\"", "");
 
-            _entity.Qty = 1;
-            _entity.Node = nodeStr;
-            _entity.NodeNo = nodeNo;
+                for (int i = 0; i < 15; i++)
+                {
+                    switch (i)
+                    {
+                        case 0:
+                            _tempArray = detailStr[i].Split("=");
+                            _tempArray = _tempArray[2].Split("\r\n");
+                            _tempStr = _tempArray[0].Replace("\"", "");
+                            _entity.Prod = _tempStr;
+                            break;
+                        case 2:
+                            _tempArray = detailStr[i].Split("=");
+                            _tempArray = _tempArray[2].Split("\r\n");
+                            _tempStr = _tempArray[0].Replace("\"", "");
+                            DateTime _outTime;
+                            DateTime.TryParse(_tempStr, out _outTime);
+                            _entity.Time = _outTime;
+                            break;
+                        case 4:
+                            _tempArray = detailStr[i].Split("=");
+                            _tempArray = _tempArray[2].Split("\r\n");
+                            _tempStr = _tempArray[0].Replace("\"", "");
+                            _entity.Equipment = _tempStr;
+                            break;
+                        case 12:
+                            _tempArray = detailStr[i].Split("=");
+                            _tempArray = _tempArray[2].Split("\r\n");
+                            _tempStr = _tempArray[0].Replace("\"", "");
+                            _entity.NG = _tempStr == "_" ? 0 : 1;
+                            break;
+                    }
+                }
+
+                _entity.Qty = 1;
+                _entity.Node = nodeStr;
+                _entity.NodeNo = nodeNo;
+            }
 
             return _entity;
         }

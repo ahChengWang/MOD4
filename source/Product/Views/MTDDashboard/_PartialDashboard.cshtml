@@ -11,7 +11,7 @@
                     <th id="h_plan" colspan="2" style="background-color: #17e670">@Html.DisplayNameFor(model => model.First().Plan) = @process.Plan</th>
                     <th colspan="2" style="background-color: #17e670">@Html.DisplayNameFor(model => model.First().Actual) = @process.Actual</th>
                     @{
-                        if (Convert.ToInt32(@process.Diff) < 0)
+                        if (Convert.ToInt32(@process.Diff.Replace(",", "")) < 0)
                         {
                             <th id="h_diff" colspan="2" style="background-color: #17e670; color: #cf0202 ">@Html.DisplayNameFor(model => model.First().Diff) = @process.Diff</th>
                         }

@@ -362,6 +362,8 @@ namespace MOD4.Web.DomainService.Demand
 
                 if (!userEntity.UserMenuPermissionList.CheckPermission(MenuEnum.MESPermission, PermissionEnum.Management))
                     _mesOrderDaoList = _mesOrderDaoList.Where(w => w.applicantAccountSn == userEntity.sn || w.auditAccountSn == userEntity.sn).ToList();
+                else
+                    _mesOrderDaoList = _mesOrderDaoList.Where(w => w.statusId != DemandStatusEnum.Completed).ToList();
 
                 var _mesOrderDetailList = _mesPermissionApplicantsRepository.SelectByConditions(_mesOrderDaoList.Select(mes => mes.orderSn).ToList());
 

@@ -131,7 +131,7 @@ select b.EQUIP_NBR, b.AREA
             return dao;
         }
 
-        public int Insert(EqpInfoDao eqpinfo)
+        public int Insert(List<EqpInfoDao> eqpInfoList)
         {
             string sql = @"INSERT INTO [dbo].[eqpinfo]
 ([Equipment]
@@ -188,7 +188,7 @@ VALUES
 ,@prod_sn
 ,@isManual); ";
 
-            var dao = _dbHelper.ExecuteNonQuery(sql, eqpinfo);
+            var dao = _dbHelper.ExecuteNonQuery(sql, eqpInfoList);
 
             return dao;
         }

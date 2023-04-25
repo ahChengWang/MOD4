@@ -2,20 +2,20 @@
 
 <div class="row d-flex align-content-center flex-wrap" style="margin-left:5px;">
     <div class="col-lg-2">
-        <label class="col-form-label" asp-for="ApplicantName"></label>
-        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
-        <span asp-validation-for="ApplicantName" style="font-size:10px;font-weight:700" class="text-danger"></span>
-    </div>
-    <div class="col-lg-2">
-        <input type="text" class="myInputStyle1" asp-for="ApplicantName">
-    </div>
-    <div class="col-lg-2">
         <label class="col-form-label" asp-for="ApplicantJobId"></label>
         <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
         <span asp-validation-for="ApplicantJobId" style="font-size:10px;font-weight:700" class="text-danger"></span>
     </div>
     <div class="col-lg-2">
         <input type="text" class="myInputStyle1" asp-for="ApplicantJobId">
+    </div>
+    <div class="col-lg-2">
+        <label class="col-form-label" asp-for="ApplicantName"></label>
+        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+        <span asp-validation-for="ApplicantName" style="font-size:10px;font-weight:700" class="text-danger"></span>
+    </div>
+    <div class="col-lg-2">
+        <input type="text" class="myInputStyle1" asp-for="ApplicantName">
     </div>
     <div class="col-2">
         <input type="button" class="btn btn-sm btn-outline-secondary" value="刪除" onclick="btnDelApplcant(this)" />

@@ -17,188 +17,236 @@
         <div class="tab-pane" id="@_tabId">
             <form id="@_formId">
                 <input type="hidden" asp-for="@setting.Node" />
-                <div style="display:flex">
-                    <div class="col-1" style="text-align:right">
+                <div class="col-md-9 form-group d-flex align-content-center flex-wrap">
+                    <div class="col-md-2">
+                        <p class="col-form-label" style="text-align: center">日班合計：</p>
+                    </div>
+                    <div class="col-md-1">
+                        <p class="col-form-label" id="A@_sumId" style="font-weight:600"></p>
+                    </div>
+                    <div class="col-md-2" style="text-align:center">
                         <label class="col-form-label" style="text-align:right" asp-for="@setting.DownEquipment"></label>
                     </div>
-                    <div class="col-1">
+                    <div class="col-md-3">
                         <input name="downEqInput" type="text" asp-for="@setting.DownEquipment" />
                     </div>
-                    <div class="col-1" style="text-align:right">
+                    <div class="col-md-2" style="text-align: center">
                         <label class="col-form-label" asp-for="@setting.TimeTarget"></label>
                     </div>
-                    <div class="col-1">
-                        <input name="downEqInput" type="text" asp-for="@setting.TimeTarget" />
+                    <div class="col-md-2">
+                        <input type="text" asp-for="@setting.TimeTarget" onchange="timeTargetChange(this)"/>
                     </div>
                 </div>
-                <div class="row" style="display:flex">
-                    <div>
-                        <p>日班合計：</p>
+                <div class="form-group d-flex align-content-center flex-wrap" style="border-bottom: 2px solid lightgray;">
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time0730"></label>
+                        </div>
+                        <div>
+                            <input class="@_classA" name="Time0730@_inputNameId" type="number" min="0" asp-for="@setting.Time0730" onchange="targetChange(this)" />
+                        </div>
                     </div>
-                    <div>
-                        <p id="A@_sumId" style="font-weight:600"></p>
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time0830"></label>
+                        </div>
+                        <div>
+                            <input class="@_classA" name="Time0830@_inputNameId" type="number" min="0" asp-for="@setting.Time0830" onchange="targetChange(this)" />
+                        </div>
                     </div>
-                </div>
-
-                <div style="display: flex; border-bottom: 2px solid lightgray;">
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time0730"></label>
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time0930"></label>
+                        </div>
+                        <div>
+                            <input class="@_classA" name="Time0930@_inputNameId" type="number" min="0" asp-for="@setting.Time0930" onchange="targetChange(this)" />
+                        </div>
                     </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classA" name="Time0730@_inputNameId" type="number" min="0" asp-for="@setting.Time0730" />
-                    </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time0830"></label>
-                    </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classA" name="Time0830@_inputNameId" type="number" min="0" asp-for="@setting.Time0830" />
-                    </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time0830"></label>
-                    </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classA" name="Time0930@_inputNameId" type="number" min="0" asp-for="@setting.Time0930" />
-                    </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time1030"></label>
-                    </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classA" name="Time1030@_inputNameId" type="number" min="0" asp-for="@setting.Time1030" />
-                    </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time1130"></label>
-                    </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classA" name="Time1130@_inputNameId" type="number" min="0" asp-for="@setting.Time1130" />
-                    </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time1230"></label>
-                    </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classA" name="Time1230@_inputNameId" type="number" min="0" asp-for="@setting.Time1230" />
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time1030"></label>
+                        </div>
+                        <div>
+                            <input class="@_classA" name="Time1030@_inputNameId" type="number" min="0" asp-for="@setting.Time1030" onchange="targetChange(this)" />
+                        </div>
                     </div>
                 </div>
-                <div style="display: flex; border-bottom: 2px solid lightgray;">
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time1330"></label>
+                <div class="form-group d-flex align-content-center flex-wrap" style="border-bottom: 2px solid lightgray;">
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time1130"></label>
+                        </div>
+                        <div>
+                            <input class="@_classA" name="Time1130@_inputNameId" type="number" min="0" asp-for="@setting.Time1130" onchange="targetChange(this)" />
+                        </div>
                     </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classA" name="Time1330@_inputNameId" type="number" min="0" asp-for="@setting.Time1330" />
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time1230"></label>
+                        </div>
+                        <div>
+                            <input class="@_classA" name="Time1230@_inputNameId" type="number" min="0" asp-for="@setting.Time1230" onchange="targetChange(this)" />
+                        </div>
                     </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time1430"></label>
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time1330"></label>
+                        </div>
+                        <div>
+                            <input class="@_classA" name="Time1330@_inputNameId" type="number" min="0" asp-for="@setting.Time1330" onchange="targetChange(this)" />
+                        </div>
                     </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classA" name="Time1430@_inputNameId" type="number" min="0" asp-for="@setting.Time1430" />
-                    </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time1530"></label>
-                    </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classA" name="Time1530@_inputNameId" type="number" min="0" asp-for="@setting.Time1530" />
-                    </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time1630"></label>
-                    </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classA" name="Time1630@_inputNameId" type="number" min="0" asp-for="@setting.Time1630" />
-                    </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time1730"></label>
-                    </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classA" name="Time1730@_inputNameId" type="number" min="0" asp-for="@setting.Time1730" />
-                    </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time1830"></label>
-                    </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classA" name="Time1830@_inputNameId" type="number" min="0" asp-for="@setting.Time1830" />
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time1430"></label>
+                        </div>
+                        <div>
+                            <input class="@_classA" name="Time1430@_inputNameId" type="number" min="0" asp-for="@setting.Time1430" onchange="targetChange(this)" />
+                        </div>
                     </div>
                 </div>
-                <hr />
-                <div class="row" style="display:flex">
-                    <div>
-                        <p>夜班合計：</p>
+                <div class="form-group d-flex align-content-center flex-wrap" style="border-bottom: 2px solid #8d939e;">
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time1530"></label>
+                        </div>
+                        <div>
+                            <input class="@_classA" name="Time1530@_inputNameId" type="number" min="0" asp-for="@setting.Time1530" onchange="targetChange(this)" />
+                        </div>
                     </div>
-                    <div>
-                        <p id="B@_sumId" style="font-weight:600"></p>
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time1630"></label>
+                        </div>
+                        <div>
+                            <input class="@_classA" name="Time1630@_inputNameId" type="number" min="0" asp-for="@setting.Time1630" onchange="targetChange(this)" />
+                        </div>
                     </div>
-                </div>
-                <div style="display: flex; border-bottom: 2px solid lightgray;">
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time1930"></label>
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time1730"></label>
+                        </div>
+                        <div>
+                            <input class="@_classA" name="Time1730@_inputNameId" type="number" min="0" asp-for="@setting.Time1730" onchange="targetChange(this)" />
+                        </div>
                     </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classB" name="Time1930@_inputNameId" type="number" min="0" asp-for="@setting.Time1930" />
-                    </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time2030"></label>
-                    </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classB" name="Time2030@_inputNameId" type="number" min="0" asp-for="@setting.Time2030" />
-                    </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time2130"></label>
-                    </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classB" name="Time2130@_inputNameId" type="number" min="0" asp-for="@setting.Time2130" />
-                    </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time2230"></label>
-                    </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classB" name="Time2230@_inputNameId" type="number" min="0" asp-for="@setting.Time2230" />
-                    </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time2330"></label>
-                    </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classB" name="Time2330@_inputNameId" type="number" min="0" asp-for="@setting.Time2330" />
-                    </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time0030"></label>
-                    </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classB" name="Time0030@_inputNameId" type="number" min="0" asp-for="@setting.Time0030" />
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time1830"></label>
+                        </div>
+                        <div>
+                            <input class="@_classA" name="Time1830@_inputNameId" type="number" min="0" asp-for="@setting.Time1830" onchange="targetChange(this)" />
+                        </div>
                     </div>
                 </div>
-                <div style="display: flex; border-bottom: 2px solid lightgray;">
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time0130"></label>
+                <div class="col-md-9 form-group d-flex align-content-center flex-wrap">
+                    <div class="col-md-2">
+                        <p class="col-form-label" style="text-align: center">夜班合計：</p>
                     </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classB" name="Time0130@_inputNameId" type="number" min="0" asp-for="@setting.Time0130" />
+                    <div class="col-md-3">
+                        <p class="col-form-label" id="B@_sumId" style="font-weight:600"></p>
                     </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time0230"></label>
+                </div>
+                <div class="form-group d-flex align-content-center flex-wrap" style="border-bottom: 2px solid lightgray;">
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time1930"></label>
+                        </div>
+                        <div>
+                            <input class="@_classB" name="Time1930@_inputNameId" type="number" min="0" asp-for="@setting.Time1930" onchange="targetChange(this)" />
+                        </div>
                     </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classB" name="Time0230@_inputNameId" type="number" min="0" asp-for="@setting.Time0230" />
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time2030"></label>
+                        </div>
+                        <div>
+                            <input class="@_classB" name="Time2030@_inputNameId" type="number" min="0" asp-for="@setting.Time2030" onchange="targetChange(this)" />
+                        </div>
                     </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time0330"></label>
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time2130"></label>
+                        </div>
+                        <div>
+                            <input class="@_classB" name="Time2130@_inputNameId" type="number" min="0" asp-for="@setting.Time2130" onchange="targetChange(this)" />
+                        </div>
                     </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classB" name="Time0330@_inputNameId" type="number" min="0" asp-for="@setting.Time0330" />
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time2130"></label>
+                        </div>
+                        <div>
+                            <input class="@_classB" name="Time2230@_inputNameId" type="number" min="0" asp-for="@setting.Time2130" onchange="targetChange(this)" />
+                        </div>
                     </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time0430"></label>
+                </div>
+                <div class="form-group d-flex align-content-center flex-wrap" style="border-bottom: 2px solid lightgray;">
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time2330"></label>
+                        </div>
+                        <div>
+                            <input class="@_classB" name="Time2330@_inputNameId" type="number" min="0" asp-for="@setting.Time2330" onchange="targetChange(this)" />
+                        </div>
                     </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classB" name="Time0430@_inputNameId" type="number" min="0" asp-for="@setting.Time0430" />
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time0030"></label>
+                        </div>
+                        <div>
+                            <input class="@_classB" name="Time0030@_inputNameId" type="number" min="0" asp-for="@setting.Time0030" onchange="targetChange(this)" />
+                        </div>
                     </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time0530"></label>
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time0130"></label>
+                        </div>
+                        <div>
+                            <input class="@_classB" name="Time0130@_inputNameId" type="number" min="0" asp-for="@setting.Time0130" onchange="targetChange(this)" />
+                        </div>
                     </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classB" name="Time0530@_inputNameId" type="number" min="0" asp-for="@setting.Time0530" />
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time0230"></label>
+                        </div>
+                        <div>
+                            <input class="@_classB" name="Time0230@_inputNameId" type="number" min="0" asp-for="@setting.Time0230" onchange="targetChange(this)" />
+                        </div>
                     </div>
-                    <div>
-                        <label class="col-form-label" asp-for="@setting.Time0630"></label>
+                </div>
+                <div class="form-group d-flex align-content-center flex-wrap" style="border-bottom: 2px solid #8d939e;">
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time0330"></label>
+                        </div>
+                        <div>
+                            <input class="@_classB" name="Time0330@_inputNameId" type="number" min="0" asp-for="@setting.Time0330" onchange="targetChange(this)" />
+                        </div>
                     </div>
-                    <div style="border-right: 2px solid lightgray;">
-                        <input class="@_classB" name="Time0630@_inputNameId" type="number" min="0" asp-for="@setting.Time0630" />
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time0430"></label>
+                        </div>
+                        <div>
+                            <input class="@_classB" name="Time0430@_inputNameId" type="number" min="0" asp-for="@setting.Time0430" onchange="targetChange(this)" />
+                        </div>
+                    </div>
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time0530"></label>
+                        </div>
+                        <div>
+                            <input class="@_classB" name="Time0530@_inputNameId" type="number" min="0" asp-for="@setting.Time0530" onchange="targetChange(this)" />
+                        </div>
+                    </div>
+                    <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
+                        <div>
+                            <label class="col-form-label" asp-for="@setting.Time0630"></label>
+                        </div>
+                        <div>
+                            <input class="@_classB" name="Time0630@_inputNameId" type="number" min="0" asp-for="@setting.Time0630" onchange="targetChange(this)" />
+                        </div>
                     </div>
                 </div>
             </form>

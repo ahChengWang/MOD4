@@ -11,7 +11,7 @@ namespace MOD4.Web.Repostory
         List<EqpInfoDao> SelectEqpinfoByConditions(int sn, List<string> equipmentList = null, DateTime? startTime = null, DateTime? endTime = null, List<int> prodSnList = null);
         List<EquipMappingDao> SelectUnRepaireEqList(string beginDate, string endDate);
         List<EquipMappingDao> SelectRepairedEqList(string beginDate, string endDate);
-        int Insert(EqpInfoDao eqpinfo);
+        int Insert(List<EqpInfoDao> eqpInfoList);
         int UpdateEqpinfoByPM(EqpInfoDao updDao);
         int UpdateEqpinfoByENG(EqpInfoDao updDao);
     }

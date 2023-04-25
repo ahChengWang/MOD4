@@ -134,13 +134,30 @@
             font-weight: 600;
             color: #787878;
         }
+
+        .card {
+            box-shadow: 1px 2px 2px 2px #999;
+            margin-top: 5px;
+        }
+
+        .card-header, .card-body, .card-footer {
+            background-color: #c3cadb;
+        }
+
+        .card-title {
+            font-family: "Microsoft JhengHei";
+            font-weight: 900;
+            font-style: italic;
+            font-size: 30px;
+        }
+
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 
     <script src="~/js/dashboard.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/plugins/popper/popper_v3.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
@@ -395,11 +412,11 @@
     <script type="text/javascript">
         $(document).ready(function () {
 
-            let _menuLoc = ['Audit', 'Setting', 'Dashboard', 'MES', 'Manufacture'];
+            let _menuLoc = ['Audit', 'Setting', 'Equipment', 'Dashboard', 'MES', 'Manufacture'];
 
             let _pathArray = location.pathname.split('/');
             let _locationPathname = "/" + _pathArray[1] + "/" + _pathArray[2];
-            if (_pathArray.length > 3 && $.inArray(_pathArray[3], _menuLoc)) {
+            if (_pathArray.length > 3 && $.inArray(_pathArray[3], _menuLoc) > -1) {
                 _locationPathname = _locationPathname + "/" + _pathArray[3];
             }
             //$("a[class='nav-link active']").removeClass('active').removeAttr('aria-current');

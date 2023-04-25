@@ -61,6 +61,9 @@ namespace MOD4.Web.DomainService.Entity
         public string UPHPercent { get; set; }
 
         public string OEEPercent { get; set; }
+
+        public int Sn { get; set; }
+
         public List<MTDDashboardDetailEntity> MTDDetail { get; set; }
     }
 }

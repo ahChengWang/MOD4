@@ -20,9 +20,9 @@ namespace MOD4.Web.ViewModel
         [Required(ErrorMessage = "必填")]
         public int ProductId { get; set; }
 
-        [Display(Name = "Equipment Group")]
+        [Display(Name = "站點")]
         [Required(ErrorMessage = "必填")]
-        public string EqGroup { get; set; }
+        public string Node { get; set; }
 
         [Display(Name = "線體")]
         [Required(ErrorMessage = "必填")]
@@ -36,9 +36,13 @@ namespace MOD4.Web.ViewModel
         [Required(ErrorMessage = "必填")]
         public string Code { get; set; }
 
-        [Display(Name = "狀態描述")]
+        [Display(Name = "狀態簡述")]
         [Required(ErrorMessage = "必填")]
         public string Codedesc { get; set; }
+
+        [Display(Name = "Down Type")]
+        [Required(ErrorMessage = "必填")]
+        public string DownType { get; set; }
 
         [Display(Name = "人員")]
         [Required(ErrorMessage = "必填")]

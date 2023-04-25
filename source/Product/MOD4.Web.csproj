@@ -2,14 +2,18 @@
 
 	<PropertyGroup>
 		<TargetFramework>netcoreapp3.1</TargetFramework>
-		<Version>1.12.1.0</Version>
+		<Version>1.12.2.0</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
 	  <Compile Remove="Utility\**" />
+	  <Compile Remove="wwwroot\plugins\bootstrap\**" />
 	  <Content Remove="Utility\**" />
+	  <Content Remove="wwwroot\plugins\bootstrap\**" />
 	  <EmbeddedResource Remove="Utility\**" />
+	  <EmbeddedResource Remove="wwwroot\plugins\bootstrap\**" />
 	  <None Remove="Utility\**" />
+	  <None Remove="wwwroot\plugins\bootstrap\**" />
 	</ItemGroup>
 
 	<ItemGroup>

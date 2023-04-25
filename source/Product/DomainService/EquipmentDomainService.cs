@@ -111,26 +111,15 @@ namespace MOD4.Web.DomainService
                         date == null,
                         showAuto);
 
+                var _eqpDic = _eqpInfoList.GroupBy(g => g.statusId).ToDictionary(dic => dic.Key, dic => dic.ToList());
+
                 if (!string.IsNullOrEmpty(statusIdList))
                 {
-                    List<int> _statusIdList = !string.IsNullOrEmpty(statusIdList) ? statusIdList.Split(',').Select(s => Convert.ToInt32(s)).ToList() : new List<int>();
+                    List<EqIssueStatusEnum> _statusIdList = statusIdList.Split(',').Select(s => (EqIssueStatusEnum)Convert.ToInt32(s)).ToList();
 
                     _statusIdList.ForEach(fe =>
                     {
-                        switch (fe)
-                        {
-                            case 1:
-                                _resEquipmentList.AddRange(_eqpInfoList.Where(w => w.statusId == EqIssueStatusEnum.PendingPM).ToList());
-                                break;
-                            case 2:
-                                _resEquipmentList.AddRange(_eqpInfoList.Where(w => w.statusId == EqIssueStatusEnum.PendingENG).ToList());
-                                break;
-                            case 3:
-                                _resEquipmentList.AddRange(_eqpInfoList.Where(w => w.statusId == EqIssueStatusEnum.Complete).ToList());
-                                break;
-                            default:
-                                break;
-                        }
+                        _resEquipmentList.AddRange(_eqpDic[fe]);
                     });
                 }
                 else
@@ -369,14 +358,24 @@ namespace MOD4.Web.DomainService
             }
         }
 
+        /// <summary>
+        /// 新增機況
+        /// </summary>
+        /// <param name="editEntity"></param>
+        /// <param name="userEntity"></param>
+        /// <returns></returns>
         public string Create(EquipmentEditEntity editEntity, UserEntity userEntity)
         {
             try
             {
                 var _updateResponse = "";
+                DateTime _updTime = DateTime.Now;
+
+                List<EqpInfoDao> _insEqpinfoList = new List<EqpInfoDao>();
 
                 var _prodDesc = (_optionDomainService.GetLcmProdOptions().SelectMany(s => s.Item2).FirstOrDefault(f => f.Item1 == editEntity.ProductId).Item2).Split("-")[0] ?? "";
 
+                // 帶入 key in 機況
                 EqpInfoDao _updEqpinfo = new EqpInfoDao
                 {
                     Start_Time = editEntity.StartTime,
@@ -399,7 +398,7 @@ namespace MOD4.Web.DomainService
                     xId = editEntity.XId,
                     subXId = editEntity.SubXId,
                     rId = editEntity.RId,
-                    Update_Time = DateTime.Now,
+                    Update_Time = _updTime,
                     prod_id = _prodDesc,
                     prod_sn = editEntity.ProductId,
                     statusId = EqIssueStatusEnum.PendingENG,
@@ -407,11 +406,123 @@ namespace MOD4.Web.DomainService
                     isManual = 1
                 };
 
+                decimal _firstRepairTime = 0;
+
+                // 依機況維修時間分配至分時
+                // 起始時間在 0~30分
+                if (_updEqpinfo.Start_Time.Minute < 30)
+                {
+                    var _culTime = _updEqpinfo.Start_Time.Minute + decimal.Parse(_updEqpinfo.Repair_Time);
+                    decimal _culRecord = _culTime / 30;// 分時起始都是.30分
+
+                    if (_culRecord > 0)
+                    {
+                        _firstRepairTime = Convert.ToDecimal(new TimeSpan(new DateTime(_updEqpinfo.Start_Time.Year, _updEqpinfo.Start_Time.Month, _updEqpinfo.Start_Time.Day, _updEqpinfo.Start_Time.Hour, 30, 0).Ticks
+                                - _updEqpinfo.Start_Time.Ticks).TotalMinutes);
+
+                        for (int i = 1; i < _culRecord;)
+                        {
+                            DateTime _newStartTime = new DateTime(_updEqpinfo.Start_Time.Year, _updEqpinfo.Start_Time.Month, _updEqpinfo.Start_Time.Day, _updEqpinfo.Start_Time.Hour, 30, 0);
+
+                            _insEqpinfoList.Add(new EqpInfoDao
+                            {
+                                Equipment = _updEqpinfo.Equipment,
+                                Operator = _updEqpinfo.Operator,
+                                Code = _updEqpinfo.Code,
+                                Code_Desc = _updEqpinfo.Code_Desc,
+                                Comments = _updEqpinfo.Comments,
+                                Start_Time = _newStartTime.AddMinutes(30 * (i - 1)),
+                                Repair_Time = Convert.ToDecimal(_updEqpinfo.Repair_Time) - _firstRepairTime - (30 * (i - 1)) > 60
+                                    ? "60"
+                                    : (Convert.ToDecimal(_updEqpinfo.Repair_Time) - _firstRepairTime - (30 * (i - 1))).ToString(),
+                                prod_id = _updEqpinfo.prod_id,
+                                statusId = EqIssueStatusEnum.PendingPM,
+                                tool_name = _updEqpinfo.tool_name,
+                                prod_sn = _updEqpinfo.prod_sn,
+                                status_desc_ie = _updEqpinfo.status_desc_ie,
+                                Update_Time = _updTime,
+                                processId = editEntity.ProcessId,
+                                eq_unitId = editEntity.EqUnitId,
+                                eq_unit_partId = editEntity.EqUnitPartId,
+                                shift = editEntity.Shift,
+                                defect_qty = editEntity.DefectQty,
+                                defect_rate = editEntity.DefectRate,
+                                mnt_user = userEntity.Name,
+                                mnt_minutes = editEntity.MntMinutes,
+                                typeId = editEntity.TypeId,
+                                yId = editEntity.YId,
+                                subYId = editEntity.SubYId,
+                                xId = editEntity.XId,
+                                subXId = editEntity.SubXId,
+                                rId = editEntity.RId
+                            });
+
+                            i += 2;
+                        }
+
+                        _updEqpinfo.Repair_Time = _firstRepairTime.ToString();
+                    }
+                }
+                // 起始時間在 30~60分
+                else
+                {
+                    decimal _culRecord = decimal.Parse(_updEqpinfo.Repair_Time) / 60;
+
+                    if (_culRecord > 0)
+                    {
+                        _firstRepairTime = Convert.ToDecimal(new TimeSpan(new DateTime(_updEqpinfo.Start_Time.Year, _updEqpinfo.Start_Time.Month, _updEqpinfo.Start_Time.Day, _updEqpinfo.Start_Time.Hour + 1, 30, 0).Ticks
+                                - _updEqpinfo.Start_Time.Ticks).TotalMinutes);
+
+                        for (int i = 0; i < _culRecord - 1; i++)
+                        {
+                            DateTime _newStartTime = new DateTime(_updEqpinfo.Start_Time.Year, _updEqpinfo.Start_Time.Month, _updEqpinfo.Start_Time.Day, _updEqpinfo.Start_Time.Hour, 30, 0);
+
+                            _insEqpinfoList.Add(new EqpInfoDao
+                            {
+                                Equipment = _updEqpinfo.Equipment,
+                                Operator = _updEqpinfo.Operator,
+                                Code = _updEqpinfo.Code,
+                                Code_Desc = _updEqpinfo.Code_Desc,
+                                Comments = _updEqpinfo.Comments,
+                                Start_Time = _newStartTime.AddHours(i + 1),
+                                Repair_Time = Convert.ToDecimal(_updEqpinfo.Repair_Time) - _firstRepairTime - (60 * i) > 60
+                                    ? "60"
+                                    : (Convert.ToDecimal(_updEqpinfo.Repair_Time) - _firstRepairTime - (60 * i)).ToString(),
+                                prod_id = _updEqpinfo.prod_id,
+                                statusId = EqIssueStatusEnum.PendingPM,
+                                tool_name = _updEqpinfo.tool_name,
+                                prod_sn = _updEqpinfo.prod_sn,
+                                status_desc_ie = _updEqpinfo.status_desc_ie,
+                                Update_Time = _updTime,
+                                processId = editEntity.ProcessId,
+                                eq_unitId = editEntity.EqUnitId,
+                                eq_unit_partId = editEntity.EqUnitPartId,
+                                shift = editEntity.Shift,
+                                defect_qty = editEntity.DefectQty,
+                                defect_rate = editEntity.DefectRate,
+                                mnt_user = userEntity.Name,
+                                mnt_minutes = editEntity.MntMinutes,
+                                typeId = editEntity.TypeId,
+                                yId = editEntity.YId,
+                                subYId = editEntity.SubYId,
+                                xId = editEntity.XId,
+                                subXId = editEntity.SubXId,
+                                rId = editEntity.RId
+                            });
+                        }
+                    }
+
+                }
+
+                _updEqpinfo.Repair_Time = _firstRepairTime.ToString();
+                _insEqpinfoList.Add(_updEqpinfo);
+
+
                 using (var scope = new TransactionScope())
                 {
                     var _uprdResult = false;
 
-                    _uprdResult = _eqpInfoRepository.Insert(_updEqpinfo) == 1;
+                    _uprdResult = _eqpInfoRepository.Insert(_insEqpinfoList) == _insEqpinfoList.Count;
 
                     if (_uprdResult)
                     {

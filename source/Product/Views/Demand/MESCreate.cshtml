@@ -7,7 +7,7 @@
 
 <style>
 
-    .card {
+    /*.card {
         box-shadow: 1px 2px 2px 2px #999;
         margin-top: 5px;
     }
@@ -21,7 +21,7 @@
         font-weight: 900;
         font-style: italic;
         font-size: 30px;
-    }
+    }*/
 
     h5 {
         font-family: "Microsoft JhengHei";
@@ -38,6 +38,10 @@
     #addDiv {
         margin-top: 3px;
         margin-bottom: 5px;
+    }
+
+    input {
+        text-align: center;
     }
 
     .align-content-center {
@@ -79,7 +83,20 @@
                                 </div>
                                 <div class="row d-flex align-content-center flex-wrap">
                                     <div class="col-lg-2">
-                                        <input type="text" class="myInputStyle1" asp-for="JobId" value="">
+                                        <label class="col-form-label" asp-for="JobId"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="JobId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <input type="text" class="myInputStyle1" asp-for="JobId" value="@ViewBag.JobId">
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <label class="col-form-label" asp-for="Applicant"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="Applicant" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <input type="text" class="myInputStyle1" asp-for="Applicant" value="@ViewBag.AccountName">
                                     </div>
                                     <div class="col-lg-2">
                                         <label class="col-form-label" asp-for="Phone"></label>
@@ -88,19 +105,6 @@
                                     </div>
                                     <div class="col-lg-2">
                                         <input type="text" class="myInputStyle1" asp-for="Phone" value="">
-                                    </div>
-                                    <div class="col-lg-2">
-                                        <label class="col-form-label" asp-for="Applicant"></label>
-                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                        <span asp-validation-for="Applicant" style="font-size:10px;font-weight:700" class="text-danger"></span>
-                                    </div>
-                                    <div class="col-lg-2">
-                                        <input type="text" class="myInputStyle1" asp-for="Applicant" value="">
-                                    </div>
-                                    <div class="col-lg-2">
-                                        <label class="col-form-label" asp-for="JobId"></label>
-                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                        <span asp-validation-for="JobId" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                 </div>
                                 <hr />

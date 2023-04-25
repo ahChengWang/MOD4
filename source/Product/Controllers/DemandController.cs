@@ -287,7 +287,7 @@ namespace MOD4.Web.Controllers
             try
             {
                 UserEntity _userInfo = GetUserInfo();
-                var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.Demand);
+                var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.MESPermission);
                 ViewBag.UserPermission = new UserPermissionViewModel
                 {
                     AccountSn = _userCurrentPagePermission.AccountSn,
@@ -360,6 +360,11 @@ namespace MOD4.Web.Controllers
             try
             {
                 var _mesPermission = _optionDomainService.GetMESPermission().CopyAToB<OptionViewModel>();
+
+                UserEntity _userEntity = GetUserInfo();
+                                
+                ViewBag.AccountName = _userEntity.Name;
+                ViewBag.JobId = _userEntity.JobId;
 
                 List<MESPermissionModel> _mesPermissionList = _mesPermission.Select(s => new MESPermissionModel
                 {

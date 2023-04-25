@@ -352,7 +352,7 @@ namespace MOD4.Web.Controllers
             }
             catch (Exception ex)
             {
-                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+                return Json(ex.Message);
             }
         }
 

@@ -7,7 +7,7 @@
 
 <style>
 
-    .card {
+    /*.card {
         box-shadow: 1px 2px 2px 2px #999;
         margin-top: 5px;
     }
@@ -21,7 +21,7 @@
         font-weight: 900;
         font-style: italic;
         font-size: 30px;
-    }
+    }*/
 
     h5 {
         font-family: "Microsoft JhengHei";
@@ -259,20 +259,20 @@
                                         {
                                             <div class="row d-flex align-content-center flex-wrap">
                                                 <div class="col-lg-2">
-                                                    <label class="col-form-label" asp-for="ApplicantList[i].ApplicantName"></label>
-                                                    <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                                    <span asp-validation-for="ApplicantList[i].ApplicantName" style="font-size:10px;font-weight:700" class="text-danger"></span>
-                                                </div>
-                                                <div class="col-lg-2">
-                                                    <input type="text" class="myInputStyle1" asp-for="ApplicantList.FirstOrDefault().ApplicantName" value="@Model.ApplicantList[i].ApplicantName">
-                                                </div>
-                                                <div class="col-lg-2">
                                                     <label class="col-form-label" asp-for="ApplicantList[i].ApplicantJobId"></label>
                                                     <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                                     <span asp-validation-for="ApplicantList[i].ApplicantJobId" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                                 </div>
                                                 <div class="col-lg-2">
                                                     <input type="text" class="myInputStyle1" asp-for="ApplicantList.FirstOrDefault().ApplicantJobId" value="@Model.ApplicantList[i].ApplicantJobId">
+                                                </div>
+                                                <div class="col-lg-2">
+                                                    <label class="col-form-label" asp-for="ApplicantList[i].ApplicantName"></label>
+                                                    <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                                    <span asp-validation-for="ApplicantList[i].ApplicantName" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                                </div>
+                                                <div class="col-lg-2">
+                                                    <input type="text" class="myInputStyle1" asp-for="ApplicantList.FirstOrDefault().ApplicantName" value="@Model.ApplicantList[i].ApplicantName">
                                                 </div>
                                                 @if (i != 0)
                                                 {
