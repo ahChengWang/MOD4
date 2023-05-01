@@ -4,13 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MOD4.Web.DomainService;
 using MOD4.Web.DomainService.Entity;
-using Utility.Helper;
 using MOD4.Web.ViewModel;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -43,57 +40,25 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                // hTrmiPySURWvdNvKfCxpkA==
-                //var _Pw = Decrypt("hTrmiPySURWvdNvKfCxpkA==", _shaKey);
-
-                AccountInfoEntity _currentUser = new AccountInfoEntity();
-                List<AccountInfoEntity> _accountList = new List<AccountInfoEntity>();
-                // 密碼加密
-                var _encryptPw = Encrypt(loginViewMode.Password, _shaKey);
-
-                // 驗證
-                if (_innxVerify)
+                var _verifyResult = _accountDomainService.DoUserVerify(new LoginEntity
                 {
-                    // call InxSSO 確認帳密
-                    if (!_accountDomainService.VerifyInxSSO(loginViewMode.Account, loginViewMode.Password))
-                        return Json("帳號密碼錯誤");
+                    Account = loginViewMode.Account,
+                    Password = loginViewMode.Password,
+                    Token = loginViewMode.Token
+                }, _shaKey, _innxVerify);
 
-                    _accountDomainService.InsertUpdateAccountInfo(loginViewMode.Account, _encryptPw);
-                }
-                // 資料庫驗證
-                else
-                {
-                    _accountList = _accountDomainService.GetAllAccountInfo();
-                    if (!_accountList.Any(a => a.Account.ToLower() == loginViewMode.Account.ToLower() && a.Password == _encryptPw))
-                        return Json("帳號密碼錯誤");
-                }
-
-                var _catchAccInfo = CatchHelper.Get($"accInfo");
-
-                // catch 查詢
-                if (_catchAccInfo == null)
-                {
-                    var _allAccInfo = _innxVerify ? _accountDomainService.GetAllAccountInfo() : _accountList;
-                    CatchHelper.Set("accInfo", JsonConvert.SerializeObject(_allAccInfo), 432000);
-                    _currentUser = _allAccInfo.FirstOrDefault(f => f.Account.ToLower() == loginViewMode.Account.ToLower() && f.Password == _encryptPw);
-                }
-                else
-                {
-                    _currentUser = JsonConvert.DeserializeObject<List<AccountInfoEntity>>(_catchAccInfo)
-                        .FirstOrDefault(f => f.Account.ToLower() == loginViewMode.Account.ToLower() && f.Password == _encryptPw);
-                }
 
                 var claims = new List<Claim>()
                 {
-                    new Claim(ClaimTypes.NameIdentifier, Convert.ToString(_currentUser.Account)),
-                    new Claim("sn", Convert.ToString(_currentUser.sn)),
-                    new Claim("Account", _currentUser.Account),
-                    new Claim("Name", _currentUser.Name),
-                    new Claim("Role", Convert.ToString((int)_currentUser.RoleId)),
-                    new Claim("LevelId", Convert.ToString((int)_currentUser.Level_id)),
-                    new Claim("DeptSn", Convert.ToString((int)_currentUser.DeptSn)),
-                    new Claim("JobId", _currentUser.JobId),
-                    new Claim("Mail", _currentUser.Mail)
+                    new Claim(ClaimTypes.NameIdentifier, Convert.ToString(_verifyResult.Item2.Account.ToLower())),
+                    new Claim("sn", Convert.ToString(_verifyResult.Item2.sn)),
+                    new Claim("Account", _verifyResult.Item2.Account.ToLower()),
+                    new Claim("Name", _verifyResult.Item2.Name),
+                    new Claim("Role", Convert.ToString((int)_verifyResult.Item2.RoleId)),
+                    new Claim("LevelId", Convert.ToString((int)_verifyResult.Item2.Level_id)),
+                    new Claim("DeptSn", Convert.ToString((int)_verifyResult.Item2.DeptSn)),
+                    new Claim("JobId", _verifyResult.Item2.JobId),
+                    new Claim("Mail", _verifyResult.Item2.Mail)
                 };
 
                 //Initialize a new instance of the ClaimsIdentity with the claims and authentication scheme    
@@ -103,14 +68,51 @@ namespace MOD4.Web.Controllers
                 //SignInAsync is a Extension method for Sign in a principal for the specified scheme.    
                 HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties()
                 {
-                    ExpiresUtc = DateTime.UtcNow.AddDays(3),
+                    ExpiresUtc = DateTime.UtcNow.AddDays(2),
                     IsPersistent = loginViewMode.RememberMe //IsPersistent = false：瀏覽器關閉立馬登出；IsPersistent = true 就變成常見的Remember Me功能
                 }).Wait();
 
                 //紀錄Session
                 //HttpContext.Session.Set("CurrentAccount", ByteConvertHelper.Object2Bytes(_result.sn));
 
-                return Json("");
+                return Json(new { IsSuccess = true, InnxSSO = _innxVerify, Data = _verifyResult.Item2 });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { IsSuccess = false, Data = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult GetToken([FromForm] LoginViewModel loginViewMode)
+        {
+            try
+            {
+                return Json(new
+                {
+                    ssoVerify = _innxVerify,
+                    token = _accountDomainService.GetToken(loginViewMode.Account, loginViewMode.Password)
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        public IActionResult VerifyToken(InxSSOViewModel inxSSOVM)
+        {
+            try
+            {
+                return Json(_accountDomainService.VerifyToken(new InxSSOEntity
+                {
+                    Token = inxSSOVM.Token,
+                    IsCheckIP = false,
+                    SysID = null,
+                    RemoteIP = "",
+                    SSOTicket4 = inxSSOVM.SSOTicket4
+                }));
             }
             catch (Exception ex)
             {

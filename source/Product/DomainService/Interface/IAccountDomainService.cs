@@ -21,12 +21,17 @@ namespace MOD4.Web.DomainService
         List<AccountDeptEntity> GetAccountDepartmentList();
 
         AccountEditEntity GetAccountAndMenuInfo(int accountSn);
+        string GetToken(string account, string password);
+
+        string VerifyToken(InxSSOEntity inxSSOEntity);
+
+        (bool, AccountInfoEntity) DoUserVerify(LoginEntity loginEntity, string shaKey, bool requiredVerify);
 
         string Create(AccountCreateEntity createEntity);
 
         string Update(AccountCreateEntity updateEntity);
 
-        void InsertUpdateAccountInfo(string account, string password);
+        //void InsertUpdateAccountInfo(AccountInfoEntity accInfoEntity);
 
         bool VerifyInxSSO(string account, string password);
     }

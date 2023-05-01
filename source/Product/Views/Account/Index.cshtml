@@ -51,6 +51,8 @@
     <script src="~/lib/jquery-blockUI/dist/jquery.blockUI.js"></script>
     <script src="~/plugins/toastr/toastr.min.js"></script>
     <script src="~/plugins/sweetalert2/sweetalert2.min.js"></script>
+    <script src="~/plugins/InxSSO/InxSSOv4.js"></script>
+    <script src="~/plugins/jsCookie/js.cookie.js"></script>
     <script>
         $(function () {
             $('input').iCheck({
@@ -96,6 +98,7 @@
                     </div>
                     <!-- /.col -->
                 </div>
+                <input type="hidden" asp-for="Token" />
             </form>
         </div>
         <!-- /.login-box-body -->
@@ -107,6 +110,18 @@
 </html>
 
 <script type="text/javascript">
+
+    let _userInfo = {
+        MemID: '',
+        MemName: '',
+        MemType: 'Employee',
+        AD: '',
+        SSOToken: '',
+        RemoteIP: '',
+        RealUser: '',
+        SYSID: '',
+        SsoTicket4: ''
+    }
 
     let myFuc = {
         login() {
@@ -126,26 +141,71 @@
                         backgroundColor: 'transparent'
                     }
                 });
+
+                // 頁面跳轉, 使用者資訊寫入
                 $.ajax({
                     type: "POST",
                     url: "./Account/Login",
                     dataType: 'json',
                     data: $("#form").serialize(),
                     success: function (result) {
-                        if (result != '') {
-                            //alert(result);
-                            Toast.fire({
-                                icon: 'error',
-                                title: result
-                            })
+                        if (result.isSuccess) {
+
+                            if (result.innxSSO) {
+                                let _res = result.data.tokenTicket.split('|');
+                                window.history.pushState({}, 0, location.origin + location.pathname + '?Token=' + _res[0]);
+                                _userInfo.SSOToken = _res[0];
+                                _userInfo.SsoTicket4 = _res[1];
+                                Cookies.set('SSOToken', _res[0]);
+                                Cookies.set('SsoTicket4', _res[1]);
+                            }
+
+                            Cookies.set('Name', result.data.name);
+
+                            //$("#Token").val(_res[0]);
+
+                            location.href = "./Home";
                         }
                         else {
-                            //alert('登錄成功');
-                            location.href = "./Home";
+                            Toast.fire({
+                                icon: 'error',
+                                title: result.data
+                            })
                         }
                     }
                 });
             }
+
+            //_userInfo.AD = $("#Account").val();
+
+            //if ($("#form").valid()) {
+            //    $.blockUI({
+            //        message: '<img src="./img/Loading.gif" />',
+            //        css: {
+            //            borderWidth: '0px',
+            //            backgroundColor: 'transparent'
+            //        }
+            //    });
+            //    $.ajax({
+            //        type: "POST",
+            //        url: "./Account/Login",
+            //        dataType: 'json',
+            //        data: $("#form").serialize(),
+            //        success: function (result) {
+            //            if (result != '') {
+            //                //alert(result);
+            //                Toast.fire({
+            //                    icon: 'error',
+            //                    title: result
+            //                })
+            //            }
+            //            else {
+            //                //alert('登錄成功');
+            //                location.href = "./Home";
+            //            }
+            //        }
+            //    });
+            //}
             $.unblockUI();
         }
     }
@@ -170,5 +230,53 @@
             $("#RememberMe").val('false');
         }
     });
+
+    function setUserInfo(userInfo) {
+        gMain.UserInfo = userInfo;
+        console.log('gMain.Userinfo', gMain.UserInfo);
+        var s = "<br/><strong>" + JSON.stringify(gMain.UserInfo) + "</strong>";
+        $("#divMain").append(s);
+    }
+
+    function LoginAPI() {
+
+        var sysID = InxSSO.QueryStringCase('SysID');
+
+        var data = JSON.stringify({
+            UserID: $("#Account").val(),
+            Password: $('#Password').val(),
+            UserType: "Auto",
+            SysID: null,
+            URL: null
+        });
+
+        $.ajax({
+            type: "POST",
+            url: "http://pcuxsamv4athetn.cminl.oa/api/SSO/Login",
+            Headers: {
+                'Access-Control-Allow-Origin': '*'
+            },
+            data: '"{"UserID":"towns.wang","Password":"T2wns05160405","UserType":"Auto","SysID":null,"URL":null}"',
+            async: true,
+            contentType: "application/json",
+            success: function (Token) {
+                if (url != null) {
+                    let redirectUrl = url + (url.indexOf("?") != -1 ? '&' : '?') + "Token=" + encodeURIComponent(Token)
+                    if (window.console)
+                        console.log("redirect:" + redirectUrl);
+                    InxSSO.ssLog('92 Logon.html:API Login 成功，取得 token ,Redirect url=' + redirectUrl, sysID);
+                    location.replace(redirectUrl);
+                }
+                else {
+                    InxSSO.ssLog('92 Logon.html:API Login 成功，取得 token ,無 url，顯示 LogonSuccess.html', sysID);
+                    location.replace("LogonSuccess.html" + location.search);
+                }
+            },
+            error: function (e) {
+                //InxSSO.ssLog('92 Logon.html:API Login 失敗，message=' + e.responseText, sysID);
+                alert(e.responseText);
+            }
+        });
+    }
 
 </script>

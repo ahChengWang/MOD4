@@ -16,5 +16,7 @@ namespace MOD4.Web.ViewModel
 
         [DisplayName("記住我")]
         public bool RememberMe { get; set; }
+
+        public string Token { get; set; }
     }
 }

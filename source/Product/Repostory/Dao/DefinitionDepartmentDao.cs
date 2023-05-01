@@ -7,5 +7,6 @@
         public string DepartmentName { get; set; }
         public int LevelId { get; set; }
         public int IsDel { get; set; }
+        public string DeptId { get; set; }
     }
 }

@@ -14,6 +14,9 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Transactions;
+using System.Web;
+using System.Xml.Serialization;
+using System.Xml;
 
 namespace MOD4.Web.DomainService
 {
@@ -225,11 +228,153 @@ namespace MOD4.Web.DomainService
             return _response;
         }
 
+        public string GetToken(string account, string password)
+        {
+            try
+            {
+                string url = "http://pcuxsamv4athetn.cminl.oa/api/SSO/Login";
+                string _responseStr = "";
+                string _token = "";
+                string _ssoTicket4 = "";
+
+                var _payload = JsonConvert.SerializeObject(new
+                {
+                    Password = password,
+                    SysID = (string)null,
+                    URL = (string)null,
+                    UserID = account,
+                    UserType = "Auto"
+                });
+
+                using (var client = new HttpClient())
+                {
+                    HttpContent ttcontent = new StringContent(_payload);
+                    ttcontent.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    var response = client.PostAsync(url, ttcontent).Result;
+
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        _token = response.Content.ReadAsStringAsync().Result;
+                        _ssoTicket4 = response.Headers.FirstOrDefault(f => f.Key == "Set-Cookie").Value?.FirstOrDefault(sf => sf.Contains("SsoTicket4")).Split(";")[0].Split("=")[1] ?? "";
+                        _responseStr = $"{_token}|{_ssoTicket4}";
+                    }
+                }
+
+                return _responseStr;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public string VerifyToken(InxSSOEntity inxSSOEntity)
+        {
+            try
+            {
+                string url = "http://pcuxsamv4athetn.cminl.oa/api/SSO/VerifyToken";
+                string _token = "";
+
+                var _payload = JsonConvert.SerializeObject(inxSSOEntity);
+
+                using (var client = new HttpClient())
+                {
+                    HttpContent ttcontent = new StringContent(_payload);
+                    ttcontent.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    ttcontent.Headers.Add("Cookie", $"SSOToken={inxSSOEntity.Token}");
+                    ttcontent.Headers.Add("Cookie", $"SsoTicket4={inxSSOEntity.SSOTicket4}");
+                    ttcontent.Headers.Add("Cookie", $"Name=TOWNS.WANG");
+                    var response = client.PostAsync(url, ttcontent).Result;
+
+                    _token = response.Content.ReadAsStringAsync().Result;
+                }
+
+                return _token;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public bool VerifyInxSSO(string account, string password)
         {
             string _ssoCookies = "";
+            string _enCrypAccount = "";
+            string _enCrypPsw = "";
 
-            var url = "http://inlcnws.cminl.oa/InxSSO/Logon.aspx";
+            var _cryptoUrl = "http://inlcnws/PublicWebService/SSO/Crypto.asmx";
+
+            // 加密
+
+            FormUrlEncodedContent _cryptoPayload = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("EnCryptoStr", account)
+            });
+
+            using (var client = new HttpClient())
+            {
+                //var response = client.PostAsync(url, data);
+                var response = client.PostAsync($"{_cryptoUrl}/getEnCrypto", _cryptoPayload).Result;
+                //var response = client.GetAsync(url);
+
+                string[] result = response.Content.ReadAsStringAsync().Result.Split("\">");
+
+                //var _test = HttpUtility.HtmlDecode(result).Trim();
+
+                //var _settings = new XmlReaderSettings { ConformanceLevel = ConformanceLevel.Fragment, IgnoreWhitespace = true, IgnoreComments = true };
+                //var reader = XmlReader.Create(new StringReader(_test), _settings);
+
+                //XmlRootAttribute xRoot = new XmlRootAttribute();
+                //xRoot.ElementName = "testele";
+                //xRoot.IsNullable = true;
+                //var _htmlSerializer = new XmlSerializer(typeof(TestEntity), xRoot);
+
+                //var instance = (TestEntity)_htmlSerializer.Deserialize(reader);
+                _enCrypAccount = result[1].Split("</")[0];
+            }
+
+            _cryptoPayload = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("EnCryptoStr", password)
+            });
+
+            using (var client = new HttpClient())
+            {
+                var response = client.PostAsync($"{_cryptoUrl}/getEnCrypto", _cryptoPayload).Result;
+
+                string[] result = response.Content.ReadAsStringAsync().Result.Split("\">");
+
+                _enCrypPsw = result[1].Split("</")[0];
+            }
+
+            string soapAction = "Public.WebService/checkIdentities";
+            List<string[]> _string = new List<string[]>();
+            _string.Add(new string[] { "towns.wang" });
+            _string.Add(new string[] { "T@wns05160405" });
+            var _userAndPasswd = JsonConvert.SerializeObject(_string.ToArray());
+
+            List<KeyValuePair<string, string>> _bodyProper = new List<KeyValuePair<string, string>>();
+
+            _bodyProper.Add(new KeyValuePair<string, string>("userAndPasswd[][]", _userAndPasswd));
+            //_bodyProper.Add(new KeyValuePair<string, string>("", "T@wns05160405"));
+
+            _cryptoPayload = new FormUrlEncodedContent(_bodyProper.ToArray());
+            _cryptoPayload.Headers.Add("SOAPAction", soapAction);
+            _cryptoPayload.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("text/xml");
+
+            using (var client = new HttpClient())
+            {
+                var response = client.PostAsync("http://inlcnws/PublicWebService/SSO/Authentication.asmx", _cryptoPayload).Result;
+                //var response = client.GetAsync(url);
+
+                string result = response.Content.ReadAsStringAsync().Result;
+
+            }
+
+
+
+
+            string url = "http://inlcnws.cminl.oa/InxSSO/Logon.aspx";
 
             FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent(new[]
             {
@@ -270,25 +415,140 @@ namespace MOD4.Web.DomainService
             return true;
         }
 
-        public void InsertUpdateAccountInfo(string account, string password)
+        public (bool, AccountInfoEntity) DoUserVerify(LoginEntity loginEntity, string shaKey, bool requiredVerify)
         {
             try
             {
-                bool _alreadyAcc = _accountInfoRepository.SelectByConditions(account, password).Count == 1;
-                bool _updPwAcc = _accountInfoRepository.SelectByConditions(account).Count == 1;
+                AccountInfoEntity _accInfoEntity = new AccountInfoEntity();
+                List<AccountInfoEntity> _accInfoList = new List<AccountInfoEntity>();
 
-                if (!_alreadyAcc && !_updPwAcc)
+                // 密碼加密
+                string _encryptPw = Encrypt(loginEntity.Password, shaKey);
+
+                loginEntity.EncryptPw = _encryptPw;
+
+                if (requiredVerify)
                 {
-                    InsertUserAndPermission(account, password);
-                    CatchHelper.Delete(new string[] { $"accInfo" });
-                    CatchHelper.Set("accInfo", JsonConvert.SerializeObject(GetAllAccountInfo()), 604800);
+                    _accInfoEntity = DoInxSSOVerify(loginEntity);
                 }
-                else if (!_alreadyAcc && _updPwAcc)
+                else
                 {
-                    UpdateUserPw(account, password);
-                    CatchHelper.Delete(new string[] { $"accInfo" });
-                    CatchHelper.Set("accInfo", JsonConvert.SerializeObject(GetAllAccountInfo()), 604800);
+                    // 查詢 DB資料
+                    _accInfoList = GetAllAccountInfo();
+                    if (!_accInfoList.Any(a => a.Account.ToLower() == loginEntity.Account.ToLower() && a.Password == _encryptPw))
+                        return (false, null);
+
+                    _accInfoEntity = _accInfoList.FirstOrDefault(f => f.Account.ToLower() == loginEntity.Account.ToLower() && f.Password == _encryptPw);
                 }
+
+                CatchHelper.Delete(new string[] { $"accInfo" });
+                CatchHelper.Set("accInfo", JsonConvert.SerializeObject(_accInfoList.Any() ? _accInfoList : GetAllAccountInfo()), 604800);
+
+                return (true, _accInfoEntity);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private AccountInfoEntity DoInxSSOVerify(LoginEntity loginEntity)
+        {
+            loginEntity.Account = loginEntity.Account.ToLower();
+
+            Dictionary<string, string> _loginInfoDic = new Dictionary<string, string>()
+            {
+                { "account",loginEntity.Account},
+                { "pasword",loginEntity.Password }
+            };
+            Dictionary<string, string> _enCryDic = new Dictionary<string, string>();
+
+            string _cryptoUrl = "http://inlcnws/PublicWebService/SSO/Crypto.asmx";
+            string _certificateUrl = "http://inlcnws/PublicWebService/SSO/Authentication.asmx/getCertificate";
+
+            AccountInfoEntity _insAccInfoEntity = new AccountInfoEntity();
+            string[] _certificateRes;
+
+            _insAccInfoEntity.TokenTicket = GetToken(loginEntity.Account, loginEntity.Password);
+            if (string.IsNullOrEmpty(_insAccInfoEntity.TokenTicket))
+                throw new Exception("帳密錯誤 (無法取得Token)");
+
+            // 加密
+            foreach (KeyValuePair<string, string> item in _loginInfoDic)
+            {
+                FormUrlEncodedContent _cryptoPayload = new FormUrlEncodedContent(new[]
+                {
+                    new KeyValuePair<string, string>("EnCryptoStr", item.Value)
+                });
+
+                using (var client = new HttpClient())
+                {
+                    var response = client.PostAsync($"{_cryptoUrl}/getEnCrypto", _cryptoPayload).Result;
+
+                    string[] result = response.Content.ReadAsStringAsync().Result.Split("\">");
+
+                    _enCryDic.Add(item.Key, result[1].Split("</")[0]);
+                }
+            }
+
+            FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("userID", _enCryDic["account"]),
+                new KeyValuePair<string, string>("password", _enCryDic["pasword"]),
+                new KeyValuePair<string, string>("ipAddress", ""),
+                new KeyValuePair<string, string>("certificate", "")
+            });
+
+            using (var client = new HttpClient())
+            {
+                var response = client.PostAsync(_certificateUrl, formUrlEncodedContent).Result;
+
+                _certificateRes = response.Content.ReadAsStringAsync().Result.Split("<string>");
+            }
+
+            _insAccInfoEntity.Account = loginEntity.Account;
+            _insAccInfoEntity.Password = loginEntity.EncryptPw;
+            _insAccInfoEntity.JobId = _certificateRes[1].Split("</string")[0];
+            _insAccInfoEntity.Name = _certificateRes[4].Split("</string")[0];
+            _insAccInfoEntity.Mail = _certificateRes[6].Split("</string")[0];
+            _insAccInfoEntity.RoleId = RoleEnum.User;
+            _insAccInfoEntity.Level_id = JobLevelEnum.Employee;
+
+            _insAccInfoEntity.sn = InsertUpdateAccountInfo(_insAccInfoEntity, _certificateRes[8].Split("</string")[0]);
+
+            return _insAccInfoEntity;
+        }
+
+        public int InsertUpdateAccountInfo(AccountInfoEntity accInfoEntity, string departmentId)
+        {
+            try
+            {
+                var _catchDeptInfo = CatchHelper.Get($"deptList");
+
+                List<OptionEntity> _deptOptionList = new List<OptionEntity>();
+                List<DefinitionDepartmentDao> _allDepartmentList = new List<DefinitionDepartmentDao>();
+
+                if (_catchDeptInfo == null)
+                {
+                    _allDepartmentList = _accountInfoRepository.SelectDefinitionDepartment();
+                    CatchHelper.Set("deptList", JsonConvert.SerializeObject(_allDepartmentList), 604800);
+                }
+                else
+                    _allDepartmentList = JsonConvert.DeserializeObject<List<DefinitionDepartmentDao>>(_catchDeptInfo);
+
+                accInfoEntity.DeptSn = _allDepartmentList.FirstOrDefault(f => f.DeptId == departmentId && f.LevelId == 3)?.DeptSn ?? 0;
+
+                AccountInfoDao _alreadyAcc = _accountInfoRepository.SelectByConditions(accInfoEntity.Account, accInfoEntity.Password).FirstOrDefault();
+                AccountInfoDao _updPwAcc = _accountInfoRepository.SelectByConditions(accInfoEntity.Account, jobId: accInfoEntity.JobId).FirstOrDefault();
+
+                // 新用戶, DB無資料
+                if (_alreadyAcc == null && _updPwAcc == null)
+                    return InsertUserAndPermission(accInfoEntity);
+                // 既有用戶, 密碼變更
+                else if (_alreadyAcc != null && _updPwAcc == null)
+                    UpdateUserPw(accInfoEntity.Account, accInfoEntity.Password);
+
+                return _alreadyAcc.sn;
             }
             catch (Exception ex)
             {
@@ -432,7 +692,9 @@ namespace MOD4.Web.DomainService
                     _updateRes = "";
             }
 
-            CatchHelper.Delete(new string[] { $"accInfo" });
+            CatchHelper.Delete(new string[] { "accInfo" });
+            CatchHelper.Delete(new string[] { "userMenuInfo" });
+            CatchHelper.Delete(new string[] { $"userInfo_{updateEntity.sn}" });
 
             return _updateRes;
         }
@@ -441,56 +703,76 @@ namespace MOD4.Web.DomainService
 
         #region Private
 
-        private string InsertUserAndPermission(string acc, string pw)
+        private int InsertUserAndPermission(AccountInfoEntity accountInfoEntity)
         {
             try
             {
+                int _accountSn = 0;
+
                 using (var scope = new TransactionScope())
                 {
                     _accountInfoRepository.InsertUserAccount(new AccountInfoDao
                     {
-                        account = acc,
-                        password = pw,
-                        name = acc,
-                        role = RoleEnum.User,
-                        level_id = JobLevelEnum.Employee,
-                        mail = "test@INNOLUX.COM",
-                        jobId = "",
+                        account = accountInfoEntity.Account,
+                        password = accountInfoEntity.Password,
+                        name = accountInfoEntity.Name,
+                        role = accountInfoEntity.RoleId,
+                        level_id = accountInfoEntity.Level_id,
+                        mail = accountInfoEntity.Mail,
+                        jobId = accountInfoEntity.JobId,
+                        apiKey = "",
+                        deptSn = accountInfoEntity.DeptSn
                     });
 
-                    var _data = _accountInfoRepository.SelectByConditions(acc).FirstOrDefault();
+                    var _data = _accountInfoRepository.SelectByConditions(accountInfoEntity.Account, jobId: accountInfoEntity.JobId).FirstOrDefault();
 
                     if (_data == null)
-                        return "使用者新增失敗";
+                        return 0;
+
+                    _accountSn = _data.sn;
 
                     _accountInfoRepository.InsertUserPermission(new List<AccountMenuInfoDao>
-                {
-                    new AccountMenuInfoDao
                     {
-                        account_sn = _data.sn,
-                        menu_sn = (int)MenuEnum.Demand,
-                        menu_group_sn = 0,
-                        account_permission = 3
-                    },
-                    new AccountMenuInfoDao
-                    {
-                        account_sn = _data.sn,
-                        menu_sn = 12,
-                        menu_group_sn = 0,
-                        account_permission = 0
-                    },
-                    new AccountMenuInfoDao
-                    {
-                        account_sn = _data.sn,
-                        menu_sn = (int)MenuEnum.AccessFab,
-                        menu_group_sn = 0,
-                        account_permission = 0
-                    }
-                });
+                        new AccountMenuInfoDao
+                        {
+                            account_sn = _data.sn,
+                            menu_sn = 11,
+                            menu_group_sn = 0,
+                            account_permission = 0
+                        },
+                        new AccountMenuInfoDao
+                        {
+                            account_sn = _data.sn,
+                            menu_sn = (int)MenuEnum.Demand,
+                            menu_group_sn = 0,
+                            account_permission = 3
+                        },
+                        new AccountMenuInfoDao
+                        {
+                            account_sn = _data.sn,
+                            menu_sn = (int)MenuEnum.MESPermission,
+                            menu_group_sn = 0,
+                            account_permission = 3
+                        },
+                        new AccountMenuInfoDao
+                        {
+                            account_sn = _data.sn,
+                            menu_sn = 12,
+                            menu_group_sn = 0,
+                            account_permission = 0
+                        },
+                        new AccountMenuInfoDao
+                        {
+                            account_sn = _data.sn,
+                            menu_sn = (int)MenuEnum.AccessFab,
+                            menu_group_sn = 0,
+                            account_permission = 3
+                        }
+                    });
                     scope.Complete();
                 }
 
-                return "";
+                return _accountSn;
             }
             catch (Exception ex)
             {

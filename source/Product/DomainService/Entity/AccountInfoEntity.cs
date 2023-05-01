@@ -14,5 +14,6 @@ namespace MOD4.Web.DomainService.Entity
         public string ApiKey { get; set; }
         public int DeptSn { get; set; }
         public string Mail { get; set; }
+        public string TokenTicket { get; set; }
     }
 }

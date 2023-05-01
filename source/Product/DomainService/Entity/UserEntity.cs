@@ -14,5 +14,6 @@ namespace MOD4.Web.DomainService.Entity
         public string Mail { get; set; }
         public string JobId { get; set; }
         public List<AccountMenuInfoEntity> UserMenuPermissionList { get; set; }
+        public List<MenuEntity> UserMenuList { get; set; }
     }
 }
