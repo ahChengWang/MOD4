@@ -7,19 +7,14 @@
 #*.xml
 source/Product/.vs/SpareManagement/v16/.suo
 *.v2
+source/Fundation/Utility/bin/
+*.editorconfig
+source/Product/*.csproj.user
+source/Product/Properties/PublishProfiles/*.pubxml.user
 source/.vs/
 source/obj/
 source/Product/.vs/
 source/Product/bin/
 source/Product/obj/
 
-source/Fundation/Utility/bin/
-
-source/Fundation/Utility/obj/Debug/netcoreapp3.1/Utility.GeneratedMSBuildEditorConfig.editorconfig
-
-source/Fundation/Utility/obj/Release/netcoreapp3.1/Utility.GeneratedMSBuildEditorConfig.editorconfig
-
-source/Product/*.csproj.user
-
-source/Product/Properties/PublishProfiles/*.pubxml.user
 
