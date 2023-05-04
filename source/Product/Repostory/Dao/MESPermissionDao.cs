@@ -24,5 +24,7 @@ namespace MOD4.Web.Repostory.Dao
         public string updateUser { get; set; }
         public DateTime updateTime { get; set; }
         public bool isCancel { get; set; }
+        public MESOrderTypeEnum mesOrderTypeId { get; set; }
+        public string applicantReason { get; set; }
     }
 }

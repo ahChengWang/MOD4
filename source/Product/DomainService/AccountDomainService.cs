@@ -466,11 +466,10 @@ namespace MOD4.Web.DomainService
             string _cryptoUrl = "http://inlcnws/PublicWebService/SSO/Crypto.asmx";
             string _certificateUrl = "http://inlcnws/PublicWebService/SSO/Authentication.asmx/getCertificate";
 
-            AccountInfoEntity _insAccInfoEntity = new AccountInfoEntity();
             string[] _certificateRes;
 
-            _insAccInfoEntity.TokenTicket = GetToken(loginEntity.Account, loginEntity.Password);
-            if (string.IsNullOrEmpty(_insAccInfoEntity.TokenTicket))
+            string _tokenTicket = GetToken(loginEntity.Account, loginEntity.Password);
+            if (string.IsNullOrEmpty(_tokenTicket))
                 throw new Exception("帳密錯誤 (無法取得Token)");
 
             // 加密
@@ -506,20 +505,13 @@ namespace MOD4.Web.DomainService
                 _certificateRes = response.Content.ReadAsStringAsync().Result.Split("<string>");
             }
 
-            _insAccInfoEntity.Account = loginEntity.Account;
-            _insAccInfoEntity.Password = loginEntity.EncryptPw;
-            _insAccInfoEntity.JobId = _certificateRes[1].Split("</string")[0];
-            _insAccInfoEntity.Name = _certificateRes[4].Split("</string")[0];
-            _insAccInfoEntity.Mail = _certificateRes[6].Split("</string")[0];
-            _insAccInfoEntity.RoleId = RoleEnum.User;
-            _insAccInfoEntity.Level_id = JobLevelEnum.Employee;
+            AccountInfoEntity _responseAccInfoEntity = InsertUpdateAccountInfo(loginEntity, _certificateRes);
+            _responseAccInfoEntity.TokenTicket = _tokenTicket;
 
-            _insAccInfoEntity.sn = InsertUpdateAccountInfo(_insAccInfoEntity, _certificateRes[8].Split("</string")[0]);
-
-            return _insAccInfoEntity;
+            return _responseAccInfoEntity;
         }
 
-        public int InsertUpdateAccountInfo(AccountInfoEntity accInfoEntity, string departmentId)
+        private AccountInfoEntity InsertUpdateAccountInfo(LoginEntity loginEntity, string[] certificateResult)
         {
             try
             {
@@ -527,6 +519,11 @@ namespace MOD4.Web.DomainService
 
                 List<OptionEntity> _deptOptionList = new List<OptionEntity>();
                 List<DefinitionDepartmentDao> _allDepartmentList = new List<DefinitionDepartmentDao>();
+                AccountInfoEntity _accountInfoEntity = new AccountInfoEntity()
+                {
+                    Account = loginEntity.Account,
+                    Password = loginEntity.EncryptPw
+                };
 
                 if (_catchDeptInfo == null)
                 {
@@ -536,19 +533,46 @@ namespace MOD4.Web.DomainService
                 else
                     _allDepartmentList = JsonConvert.DeserializeObject<List<DefinitionDepartmentDao>>(_catchDeptInfo);
 
-                accInfoEntity.DeptSn = _allDepartmentList.FirstOrDefault(f => f.DeptId == departmentId && f.LevelId == 3)?.DeptSn ?? 0;
 
-                AccountInfoDao _alreadyAcc = _accountInfoRepository.SelectByConditions(accInfoEntity.Account, accInfoEntity.Password).FirstOrDefault();
-                AccountInfoDao _updPwAcc = _accountInfoRepository.SelectByConditions(accInfoEntity.Account, jobId: accInfoEntity.JobId).FirstOrDefault();
+                AccountInfoDao _alreadyAcc = _accountInfoRepository.SelectByConditions(loginEntity.Account).FirstOrDefault();
+                AccountInfoDao _updPwAcc = _accountInfoRepository.SelectByConditions(loginEntity.Account, loginEntity.EncryptPw).FirstOrDefault();
 
                 // 新用戶, DB無資料
                 if (_alreadyAcc == null && _updPwAcc == null)
-                    return InsertUserAndPermission(accInfoEntity);
+                {
+                    _accountInfoEntity.JobId = certificateResult[1].Split("</string")[0];
+                    _accountInfoEntity.Name = certificateResult[4].Split("</string")[0];
+                    _accountInfoEntity.Mail = certificateResult[6].Split("</string")[0];
+                    _accountInfoEntity.RoleId = RoleEnum.User;
+                    _accountInfoEntity.Level_id = JobLevelEnum.Employee;
+                    _accountInfoEntity.DeptSn = _allDepartmentList.FirstOrDefault(f => f.DeptId == certificateResult[8].Split("</string")[0] && f.LevelId == 3)?.DeptSn ?? 0;
+                    _accountInfoEntity.sn = InsertUserAndPermission(_accountInfoEntity);
+                }
                 // 既有用戶, 密碼變更
                 else if (_alreadyAcc != null && _updPwAcc == null)
-                    UpdateUserPw(accInfoEntity.Account, accInfoEntity.Password);
+                {
+                    UpdateUserPw(_accountInfoEntity.Account, _accountInfoEntity.Password);
 
-                return _alreadyAcc.sn;
+                    _accountInfoEntity.sn = _alreadyAcc.sn;
+                    _accountInfoEntity.JobId = _alreadyAcc.jobId;
+                    _accountInfoEntity.Name = _alreadyAcc.name;
+                    _accountInfoEntity.Mail = _alreadyAcc.mail;
+                    _accountInfoEntity.RoleId = _alreadyAcc.role;
+                    _accountInfoEntity.Level_id = _alreadyAcc.level_id;
+                    _accountInfoEntity.DeptSn = _alreadyAcc.deptSn;
+                }
+                else
+                {
+                    _accountInfoEntity.sn = _alreadyAcc.sn;
+                    _accountInfoEntity.JobId = _alreadyAcc.jobId;
+                    _accountInfoEntity.Name = _alreadyAcc.name;
+                    _accountInfoEntity.Mail = _alreadyAcc.mail;
+                    _accountInfoEntity.RoleId = _alreadyAcc.role;
+                    _accountInfoEntity.Level_id = _alreadyAcc.level_id;
+                    _accountInfoEntity.DeptSn = _alreadyAcc.deptSn;
+                }
+
+                return _accountInfoEntity;
             }
             catch (Exception ex)
             {

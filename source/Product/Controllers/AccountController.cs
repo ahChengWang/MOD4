@@ -47,35 +47,40 @@ namespace MOD4.Web.Controllers
                     Token = loginViewMode.Token
                 }, _shaKey, _innxVerify);
 
-
-                var claims = new List<Claim>()
+                if (_verifyResult.Item1)
                 {
-                    new Claim(ClaimTypes.NameIdentifier, Convert.ToString(_verifyResult.Item2.Account.ToLower())),
-                    new Claim("sn", Convert.ToString(_verifyResult.Item2.sn)),
-                    new Claim("Account", _verifyResult.Item2.Account.ToLower()),
-                    new Claim("Name", _verifyResult.Item2.Name),
-                    new Claim("Role", Convert.ToString((int)_verifyResult.Item2.RoleId)),
-                    new Claim("LevelId", Convert.ToString((int)_verifyResult.Item2.Level_id)),
-                    new Claim("DeptSn", Convert.ToString((int)_verifyResult.Item2.DeptSn)),
-                    new Claim("JobId", _verifyResult.Item2.JobId),
-                    new Claim("Mail", _verifyResult.Item2.Mail)
-                };
+                    var claims = new List<Claim>()
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, Convert.ToString(_verifyResult.Item2.Account.ToLower())),
+                        new Claim("sn", Convert.ToString(_verifyResult.Item2.sn)),
+                        new Claim("Account", _verifyResult.Item2.Account.ToLower()),
+                        new Claim("Name", _verifyResult.Item2.Name),
+                        new Claim("Role", Convert.ToString((int)_verifyResult.Item2.RoleId)),
+                        new Claim("LevelId", Convert.ToString((int)_verifyResult.Item2.Level_id)),
+                        new Claim("DeptSn", Convert.ToString((int)_verifyResult.Item2.DeptSn)),
+                        new Claim("JobId", _verifyResult.Item2.JobId),
+                        new Claim("Mail", _verifyResult.Item2.Mail)
+                    };
 
-                //Initialize a new instance of the ClaimsIdentity with the claims and authentication scheme    
-                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                //Initialize a new instance of the ClaimsPrincipal with ClaimsIdentity    
-                var principal = new ClaimsPrincipal(identity);
-                //SignInAsync is a Extension method for Sign in a principal for the specified scheme.    
-                HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties()
-                {
-                    ExpiresUtc = DateTime.UtcNow.AddDays(2),
-                    IsPersistent = loginViewMode.RememberMe //IsPersistent = false：瀏覽器關閉立馬登出；IsPersistent = true 就變成常見的Remember Me功能
-                }).Wait();
+                    //Initialize a new instance of the ClaimsIdentity with the claims and authentication scheme    
+                    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    //Initialize a new instance of the ClaimsPrincipal with ClaimsIdentity    
+                    var principal = new ClaimsPrincipal(identity);
+                    //SignInAsync is a Extension method for Sign in a principal for the specified scheme.    
+                    HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties()
+                    {
+                        ExpiresUtc = DateTime.UtcNow.AddDays(2),
+                        IsPersistent = loginViewMode.RememberMe //IsPersistent = false：瀏覽器關閉立馬登出；IsPersistent = true 就變成常見的Remember Me功能
+                    }).Wait();
 
-                //紀錄Session
-                //HttpContext.Session.Set("CurrentAccount", ByteConvertHelper.Object2Bytes(_result.sn));
+                    //紀錄Session
+                    //HttpContext.Session.Set("CurrentAccount", ByteConvertHelper.Object2Bytes(_result.sn));
 
-                return Json(new { IsSuccess = true, InnxSSO = _innxVerify, Data = _verifyResult.Item2 });
+                    return Json(new { IsSuccess = true, InnxSSO = _innxVerify, Data = _verifyResult.Item2 });
+                }
+                else
+                    return Json(new { IsSuccess = false, InnxSSO = _innxVerify, Data = "帳密有誤" });
+
             }
             catch (Exception ex)
             {

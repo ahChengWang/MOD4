@@ -21,6 +21,9 @@ namespace MOD4.Web.ViewModel
         [Display(Name = "單位")]
         public string SubUnit { get; set; }
 
+        [Display(Name = "類別")]
+        public string MESOrderType { get; set; }
+
         [Display(Name = "申請人")]
         public string Applicant { get; set; }
 
@@ -29,6 +32,9 @@ namespace MOD4.Web.ViewModel
 
         [Display(Name = "電話")]
         public string Phone { get; set; }
+
+        [Display(Name = "申請原因")]
+        public string ApplicantReason { get; set; }
 
         [Display(Name = "申請名單")]
         public List<MESApplicantModel> ApplicantList { get; set; }

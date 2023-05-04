@@ -331,6 +331,7 @@ namespace MOD4.Web.Controllers
                     Equipment = createVM.ToolId,
                     Code = createVM.Code,
                     CodeDesc = createVM.Codedesc,
+                    DownType = createVM.DownType,
                     Comments = createVM.Comment,
                     ProcessId = createVM.ProcessId,
                     EqUnitId = createVM.EqUnitId,
@@ -345,7 +346,7 @@ namespace MOD4.Web.Controllers
                     SubYId = createVM.SubYId,
                     XId = createVM.XId,
                     SubXId = createVM.SubXId,
-                    RId = createVM.RId
+                    RId = createVM.RId,
                 }, GetUserInfo());
 
                 return Json("");

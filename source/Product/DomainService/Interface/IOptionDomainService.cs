@@ -43,9 +43,10 @@ namespace MOD4.Web.DomainService
 
         List<(string, List<OptionEntity>)> GetSPCChartCategoryOptions();
 
-
         List<SPCChartSettingEntity> GetSPCMainChartOptions(int floor, string chartgrade);
 
         List<OptionEntity> GetMESPermission();
+
+        List<OptionEntity> GetMESType();
     }
 }

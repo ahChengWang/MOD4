@@ -372,6 +372,7 @@ namespace MOD4.Web.DomainService
                 DateTime _updTime = DateTime.Now;
 
                 List<EqpInfoDao> _insEqpinfoList = new List<EqpInfoDao>();
+                string _pKey = Guid.NewGuid().ToString("N");
 
                 var _prodDesc = (_optionDomainService.GetLcmProdOptions().SelectMany(s => s.Item2).FirstOrDefault(f => f.Item1 == editEntity.ProductId).Item2).Split("-")[0] ?? "";
 
@@ -398,15 +399,18 @@ namespace MOD4.Web.DomainService
                     xId = editEntity.XId,
                     subXId = editEntity.SubXId,
                     rId = editEntity.RId,
+                    memo = editEntity.Memo,
                     Update_Time = _updTime,
                     prod_id = _prodDesc,
                     prod_sn = editEntity.ProductId,
                     statusId = EqIssueStatusEnum.PendingENG,
                     Operator = userEntity.JobId,
-                    isManual = 1
+                    isManual = 1,
+                    status_desc_ie = editEntity.DownType,
+                    P_key = _pKey
                 };
 
-                decimal _firstRepairTime = 0;
+                decimal _firstRepairTime = Convert.ToDecimal(_updEqpinfo.Repair_Time);
 
                 // 依機況維修時間分配至分時
                 // 起始時間在 0~30分
@@ -415,7 +419,7 @@ namespace MOD4.Web.DomainService
                     var _culTime = _updEqpinfo.Start_Time.Minute + decimal.Parse(_updEqpinfo.Repair_Time);
                     decimal _culRecord = _culTime / 30;// 分時起始都是.30分
 
-                    if (_culRecord > 0)
+                    if (_culRecord >= 1)
                     {
                         _firstRepairTime = Convert.ToDecimal(new TimeSpan(new DateTime(_updEqpinfo.Start_Time.Year, _updEqpinfo.Start_Time.Month, _updEqpinfo.Start_Time.Day, _updEqpinfo.Start_Time.Hour, 30, 0).Ticks
                                 - _updEqpinfo.Start_Time.Ticks).TotalMinutes);
@@ -454,7 +458,9 @@ namespace MOD4.Web.DomainService
                                 subYId = editEntity.SubYId,
                                 xId = editEntity.XId,
                                 subXId = editEntity.SubXId,
-                                rId = editEntity.RId
+                                rId = editEntity.RId,
+                                memo = editEntity.Memo,
+                                P_key = _pKey
                             });
 
                             i += 2;
@@ -468,7 +474,7 @@ namespace MOD4.Web.DomainService
                 {
                     decimal _culRecord = decimal.Parse(_updEqpinfo.Repair_Time) / 60;
 
-                    if (_culRecord > 0)
+                    if (_culRecord >= 1)
                     {
                         _firstRepairTime = Convert.ToDecimal(new TimeSpan(new DateTime(_updEqpinfo.Start_Time.Year, _updEqpinfo.Start_Time.Month, _updEqpinfo.Start_Time.Day, _updEqpinfo.Start_Time.Hour + 1, 30, 0).Ticks
                                 - _updEqpinfo.Start_Time.Ticks).TotalMinutes);
@@ -507,7 +513,9 @@ namespace MOD4.Web.DomainService
                                 subYId = editEntity.SubYId,
                                 xId = editEntity.XId,
                                 subXId = editEntity.SubXId,
-                                rId = editEntity.RId
+                                rId = editEntity.RId,
+                                memo = editEntity.Memo,
+                                P_key = _pKey
                             });
                         }
                     }

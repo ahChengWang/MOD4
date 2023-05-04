@@ -147,6 +147,7 @@ select b.EQUIP_NBR, b.AREA
 ,[defect_qty]
 ,[defect_rate]
 ,[engineer]
+,[memo]
 ,[mnt_minutes]
 ,[prod_id]
 ,[typeId]
@@ -159,7 +160,9 @@ select b.EQUIP_NBR, b.AREA
 ,[eq_unit_partId]
 ,[statusId]
 ,[prod_sn]
-,[isManual])
+,[isManual]
+,[status_desc_ie]
+,[P_key])
 VALUES
 (@Equipment
 ,@Operator
@@ -174,6 +177,7 @@ VALUES
 ,@defect_qty
 ,@defect_rate
 ,@engineer
+,@memo
 ,@mnt_minutes
 ,@prod_id
 ,@typeId
@@ -186,7 +190,9 @@ VALUES
 ,@eq_unit_partId
 ,@statusId
 ,@prod_sn
-,@isManual); ";
+,@isManual
+,@status_desc_ie
+,@P_key); ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, eqpInfoList);
 

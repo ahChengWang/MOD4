@@ -8,11 +8,11 @@
             <th>@Html.DisplayNameFor(model => model.First().Applicant)</th>
             <th>@Html.DisplayNameFor(model => model.First().JobId)</th>
             <th>@Html.DisplayNameFor(model => model.First().Department)</th>
+            <th>@Html.DisplayNameFor(model => model.First().MESOrderType)</th>
             <th>@Html.DisplayNameFor(model => model.First().Status)</th>
             <th>@Html.DisplayNameFor(model => model.First().ApplicantList)</th>
             <th>@Html.DisplayNameFor(model => model.First().CreateDate)</th>
             <th>@Html.DisplayNameFor(model => model.First().AuditPerson)</th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -24,12 +24,11 @@
                     <td style="width: 9%">@permission.Applicant</td>
                     <td style="width: 9%">@permission.JobId</td>
                     <td style="width: 9%">@permission.Department</td>
+                    <td style="width: 9%">@permission.MESOrderType</td>
                     <td class="status" style="width: 9%;font-weight:600">@permission.Status</td>
                     <td style="">@permission.ApplicantList</td>
                     <td style="width: 10%">@permission.CreateDate</td>
                     <td style="width: 10%">@permission.AuditPerson</td>
-                    <td style="">
-                    </td>
                 </tr>
             }
         }

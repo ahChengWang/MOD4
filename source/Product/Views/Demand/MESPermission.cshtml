@@ -75,7 +75,7 @@
                         <div class="card-body">
                             <fieldset id="searchArea">
                                 <legend id="legend">查詢區塊</legend>
-                                <div id="barDiv1" class="row" style="margin-bottom:5px">
+                                <div class="row" style="margin-bottom:5px">
                                     <div class="col-lg-3">
                                         <label>申請起日：</label>
                                         <input id="startDTE" class="my-control" type="date" name="name" value="" />
@@ -84,14 +84,23 @@
                                         <label>申請訖日：</label>
                                         <input id="endDTE" class="my-control" type="date" name="name" value="" />
                                     </div>
-                                    <div class="col-lg-2">
-                                        <label>狀態:</label>
-                                        <select class="my-select" id="dropStatus" multiple="multiple">
+                                    <div class="col-lg-3">
+                                        <label>狀態：</label>
+                                        <select class="form-control" id="dropStatus" multiple="multiple">
                                             <option value="1">待評估</option>
                                             <option value="2">已退件</option>
                                             <option value="7">簽核中</option>
                                             <option value="9">待設定</option>
                                             <option value="4">已完成</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="barDiv1" class="row" style="margin-bottom:5px">
+                                    <div class="col-lg-3">
+                                        <label>類別：</label>
+                                        <select class="form-control" id="dropType" multiple="multiple">
+                                            <option value="1">新人</option>
+                                            <option value="2">變更</option>
                                         </select>
                                     </div>
                                     <div class="col-lg-3">
@@ -159,7 +168,7 @@
                 }
                 else {
                     $.ajax({
-                        url: "./MES/Search?dateStart=" + $("#startDTE").val() + "&dateEnd=" + $("#endDTE").val() + "&statusList=" + $("#dropStatus").val() + "&keyWord=" + $("#keyWord").val(),
+                        url: "./MES/Search?dateStart=" + $("#startDTE").val() + "&dateEnd=" + $("#endDTE").val() + "&statusList=" + $("#dropStatus").val() + "&keyWord=" + $("#keyWord").val() + "&orderType=" + $("#dropType").val(),
                         type: "GET",
                         dataType: 'html',
                         success: function (result) {
@@ -212,7 +221,7 @@
                 /*"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]*/
             }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
 
-            $("#dropStatus").multiselect({});
+            $("#dropStatus, #dropType").multiselect({});
 
             $('#startDTE').attr("max", new Date().toISOString().slice(0, 10));
             $('#endDTE').attr("max", new Date().toISOString().slice(0, 10));

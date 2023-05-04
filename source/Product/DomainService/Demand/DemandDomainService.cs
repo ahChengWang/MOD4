@@ -76,7 +76,7 @@ namespace MOD4.Web.DomainService.Demand
                         UpdateUser = s.updateUser,
                         UpdateTime = s.updateTime,
                         UserEditable = s.createUser == userEntity.Account &&
-                            (s.statusId == DemandStatusEnum.Rejected || s.statusId == DemandStatusEnum.Verify) && 
+                            (s.statusId == DemandStatusEnum.Rejected || s.statusId == DemandStatusEnum.Verify) &&
                             userEntity.UserMenuPermissionList.CheckPermission(MenuEnum.Demand, PermissionEnum.Update)
                     }).OrderByDescending(ob => ob.CreateTime).ToList();
             }
@@ -91,7 +91,7 @@ namespace MOD4.Web.DomainService.Demand
             DemandsDao _demandDao = _demandsRepository.SelectDetail(sn, orderId);
 
             if (userEntity != null &&
-                (_demandDao.statusId == DemandStatusEnum.Pending || _demandDao.statusId == DemandStatusEnum.Processing || _demandDao.statusId == DemandStatusEnum.Completed) && 
+                (_demandDao.statusId == DemandStatusEnum.Pending || _demandDao.statusId == DemandStatusEnum.Processing || _demandDao.statusId == DemandStatusEnum.Completed) &&
                 !userEntity.UserMenuPermissionList.CheckPermission(MenuEnum.Demand, PermissionEnum.Management))
                 throw new Exception("您的申請單已更新, 請回主頁確認");
 
@@ -350,7 +350,7 @@ namespace MOD4.Web.DomainService.Demand
         #region MES Permission
 
         public List<MESPermissionEntity> GetMESApplicantList(UserEntity userEntity,
-            int sn = 0, string dateStart = null, string dateEnd = null, string statusId = "1,2,4,7,8,9", string kw = "")
+            int sn = 0, string dateStart = null, string dateEnd = null, string statusId = "1,2,7,8,9", string kw = "",string orderType = "1,2")
         {
             try
             {
@@ -358,12 +358,12 @@ namespace MOD4.Web.DomainService.Demand
                 DateTime? _dateStart = string.IsNullOrEmpty(dateStart) ? (DateTime?)null : DateTime.Parse(dateStart);
                 DateTime? _dateEnd = string.IsNullOrEmpty(dateEnd) ? (DateTime?)null : DateTime.Parse(dateEnd).AddDays(1).AddSeconds(-1);
 
-                var _mesOrderDaoList = _mesPermissionRepository.SelectByConditions(_dateStart, _dateEnd, sn, statusId?.Split(",") ?? null, kw);
+                var _mesOrderDaoList = _mesPermissionRepository.SelectByConditions(_dateStart, _dateEnd, sn, statusId?.Split(",") ?? null, orderType?.Split(",") ?? null, kw);
 
                 if (!userEntity.UserMenuPermissionList.CheckPermission(MenuEnum.MESPermission, PermissionEnum.Management))
                     _mesOrderDaoList = _mesOrderDaoList.Where(w => w.applicantAccountSn == userEntity.sn || w.auditAccountSn == userEntity.sn).ToList();
-                else
-                    _mesOrderDaoList = _mesOrderDaoList.Where(w => w.statusId != DemandStatusEnum.Completed).ToList();
+                //else
+                //    _mesOrderDaoList = _mesOrderDaoList.Where(w => w.statusId != DemandStatusEnum.Completed).ToList();
 
                 var _mesOrderDetailList = _mesPermissionApplicantsRepository.SelectByConditions(_mesOrderDaoList.Select(mes => mes.orderSn).ToList());
 
@@ -376,6 +376,8 @@ namespace MOD4.Web.DomainService.Demand
                             StatusId = mes.statusId,
                             Department = mes.department,
                             SubUnit = mes.subUnit,
+                            MESOrderTypeId = mes.mesOrderTypeId,
+                            MESOrderType = mes.mesOrderTypeId.GetDescription(),
                             Applicant = mes.applicant,
                             JobId = mes.jobId,
                             Phone = mes.phone,
@@ -384,7 +386,7 @@ namespace MOD4.Web.DomainService.Demand
                             CreateTimeStr = mes.createTime.ToString("yyyy-MM-dd"),
                             Url = mes.statusId == DemandStatusEnum.Rejected && mes.applicantAccountSn == userEntity.sn
                                     ? $"./MES/Update/{mes.orderSn}"
-                                    : mes.auditAccountSn == userEntity.sn 
+                                    : mes.auditAccountSn == userEntity.sn
                                         ? $"./MES/Audit/{mes.orderSn}"
                                         : $"./MES/Detail/{mes.orderSn}"
                         }).ToList();
@@ -423,9 +425,12 @@ namespace MOD4.Web.DomainService.Demand
                     Status = _mesOrder.statusId.GetDescription(),
                     Department = _mesOrder.department,
                     SubUnit = _mesOrder.subUnit,
+                    MESOrderTypeId = _mesOrder.mesOrderTypeId,
+                    MESOrderType = _mesOrder.mesOrderTypeId.GetDescription(),
                     Applicant = _mesOrder.applicant,
                     JobId = _mesOrder.jobId,
                     Phone = _mesOrder.phone,
+                    ApplicantReason = _mesOrder.applicantReason,
                     PermissionInfo = _permissionList,
                     OtherPermission = _mesOrder.otherPermission,
                     SamePermName = _mesOrder.samePermName,
@@ -503,6 +508,8 @@ namespace MOD4.Web.DomainService.Demand
                     samePermJobId = mESPermissionEntity.SamePermJobId,
                     createUser = userEntity.Name,
                     createTime = _nowTime,
+                    mesOrderTypeId = mESPermissionEntity.MESOrderTypeId,
+                    applicantReason = mESPermissionEntity.ApplicantReason
                 };
 
                 List<MESPermissionApplicantsDao> _mesOrderDetails = mESPermissionEntity.Applicants.Select(detail =>
@@ -669,7 +676,7 @@ namespace MOD4.Web.DomainService.Demand
         }
 
 
-        public string AuditMES(int orderSn, DemandStatusEnum statusId, string remark, UserEntity userEntity)
+        public string AuditMES(int orderSn, DemandStatusEnum statusId, string remark, string applicatReason, UserEntity userEntity)
         {
             try
             {
@@ -689,8 +696,13 @@ namespace MOD4.Web.DomainService.Demand
                     statusId = _mesOrder.statusId,
                     auditAccountSn = 0,
                     updateUser = userEntity.Name,
+                    applicantReason = _mesOrder.applicantReason,
                     updateTime = _nowTime
                 };
+                if (Convert.ToBoolean(userEntity.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.MESPermission).AccountPermission & (int)PermissionEnum.Management) &&
+                    !string.IsNullOrEmpty(applicatReason))
+                    _updMESOrder.applicantReason = applicatReason;
+
                 List<MESPermissionAuditHistoryDao> _updMESPermAuditHis = new List<MESPermissionAuditHistoryDao>();
                 MESPermissionAuditHistoryDao _currentRecord = _accessOrderAuditHisList.FirstOrDefault(f => f.auditAccountSn == userEntity.sn && f.auditTime == null);
                 MESPermissionAuditHistoryDao _nextRecord = _accessOrderAuditHisList.FirstOrDefault(f => f.receivedTime == null);

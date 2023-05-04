@@ -451,12 +451,19 @@ namespace MOD4.Web.DomainService
 
         public List<OptionEntity> GetMESPermission()
         {
-            var _test = EnumHelper.GetEnumValue<MESPermissionEnum>();
-
             return EnumHelper.GetEnumValue<MESPermissionEnum>().Select(per => new OptionEntity
             {
                 Id = (int)per,
                 Value = per.GetDescription()
+            }).ToList();
+        }
+
+        public List<OptionEntity> GetMESType()
+        {
+            return EnumHelper.GetEnumValue<MESOrderTypeEnum>().Select(type => new OptionEntity
+            {
+                Id = (int)type,
+                Value = type.GetDescription()
             }).ToList();
         }
 

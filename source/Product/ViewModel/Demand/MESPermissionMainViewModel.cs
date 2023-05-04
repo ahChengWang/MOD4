@@ -18,6 +18,9 @@ namespace MOD4.Web.ViewModel
         [Display(Name = "部門")]
         public string Department { get; set; }
 
+        [Display(Name = "類別")]
+        public string MESOrderType { get; set; }
+
         [Display(Name = "狀態")]
         public string Status { get; set; }
 

@@ -13,6 +13,7 @@ namespace MOD4.Web.DomainService.Entity
         public string Product { get; set; }
         public string ProductName { get; set; }
         public string Operator { get; set; }
+        public string DownType { get; set; }
         public string Comments { get; set; }
         public string MFGDay { get; set; }
         public string MFGHr { get; set; }

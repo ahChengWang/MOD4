@@ -7,22 +7,6 @@
 
 <style>
 
-    /*.card {
-        box-shadow: 1px 2px 2px 2px #999;
-        margin-top: 5px;
-    }
-
-    .card-header, .card-body, .card-footer {
-        background-color: #c3cadb;
-    }
-
-    .card-title {
-        font-family: "Microsoft JhengHei";
-        font-weight: 900;
-        font-style: italic;
-        font-size: 30px;
-    }*/
-
     h5 {
         font-family: "Microsoft JhengHei";
         font-weight: 600;
@@ -64,7 +48,7 @@
                         <form id="mesForm">
                             <div class="card-body">
                                 <div class="row d-flex align-content-center flex-wrap">
-                                    <div class="col-lg-2">
+                                    <div class="col-lg-1">
                                         <label class="col-form-label" asp-for="Department"></label>
                                         <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                         <span asp-validation-for="Department" style="font-size:10px;font-weight:700" class="text-danger"></span>
@@ -72,7 +56,7 @@
                                     <div class="col-lg-2">
                                         <input class="myInputStyle1" type="text" asp-for="Department" />
                                     </div>
-                                    <div class="col-lg-2">
+                                    <div class="col-lg-1" style="text-align:center">
                                         <label class="col-form-label" asp-for="SubUnit"></label>
                                         <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                         <span asp-validation-for="SubUnit" style="font-size:10px;font-weight:700" class="text-danger"></span>
@@ -80,9 +64,20 @@
                                     <div class="col-lg-2">
                                         <input type="text" class="myInputStyle1" asp-for="SubUnit">
                                     </div>
+                                    <div class="col-lg-1" style="text-align: center">
+                                        <label class="col-form-label" asp-for="MESOrderTypeId"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                        <span asp-validation-for="MESOrderTypeId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <select asp-for="MESOrderTypeId" class="myInputStyle1" asp-items="@ViewBag.MESOrderType">
+                                            <option value=""></option>
+                                        </select>
+                                        @*<input type="text" class="myInputStyle1" asp-for="MESOrderType">*@
+                                    </div>
                                 </div>
                                 <div class="row d-flex align-content-center flex-wrap">
-                                    <div class="col-lg-2">
+                                    <div class="col-lg-1">
                                         <label class="col-form-label" asp-for="JobId"></label>
                                         <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                         <span asp-validation-for="JobId" style="font-size:10px;font-weight:700" class="text-danger"></span>
@@ -90,7 +85,7 @@
                                     <div class="col-lg-2">
                                         <input type="text" class="myInputStyle1" asp-for="JobId" value="@ViewBag.JobId">
                                     </div>
-                                    <div class="col-lg-2">
+                                    <div class="col-lg-1" style="text-align: center">
                                         <label class="col-form-label" asp-for="Applicant"></label>
                                         <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                         <span asp-validation-for="Applicant" style="font-size:10px;font-weight:700" class="text-danger"></span>
@@ -98,13 +93,23 @@
                                     <div class="col-lg-2">
                                         <input type="text" class="myInputStyle1" asp-for="Applicant" value="@ViewBag.AccountName">
                                     </div>
-                                    <div class="col-lg-2">
+                                    <div class="col-lg-1" style="text-align: center">
                                         <label class="col-form-label" asp-for="Phone"></label>
                                         <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                         <span asp-validation-for="Phone" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-lg-2">
                                         <input type="text" class="myInputStyle1" asp-for="Phone" value="">
+                                    </div>
+                                </div>
+
+                                <div class="row d-flex align-content-center flex-wrap">
+                                    <div class="col-1">
+                                        <label class="col-form-label" asp-for="ApplicantReason"></label>
+                                        <span asp-validation-for="ApplicantReason" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-lg-5">
+                                        <textarea class="form-control" style="background-color: transparent;border: 1px solid black;" rows="3" asp-for="ApplicantReason"></textarea>
                                     </div>
                                 </div>
                                 <hr />

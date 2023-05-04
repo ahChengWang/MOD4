@@ -11,6 +11,7 @@ using MOD4.Web.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace MOD4.Web.Controllers
 {
@@ -302,6 +303,7 @@ namespace MOD4.Web.Controllers
                             Status = mes.Status,
                             StatusId = (int)mes.StatusId,
                             Applicant = mes.Applicant,
+                            MESOrderType = mes.MESOrderType,
                             JobId = mes.JobId,
                             ApplicantList = mes.ApplicantName,
                             AuditPerson = mes.AuditName,
@@ -319,7 +321,7 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpGet("[controller]/MES/Search")]
-        public IActionResult MESPermSearch([FromQuery] string dateStart, string dateEnd, string statusList, string keyWord)
+        public IActionResult MESPermSearch([FromQuery] string dateStart, string dateEnd, string statusList, string keyWord, string orderType)
         {
             try
             {
@@ -331,7 +333,7 @@ namespace MOD4.Web.Controllers
                     MenuSn = _userCurrentPagePermission.MenuSn,
                     AccountPermission = _userCurrentPagePermission.AccountPermission
                 };
-                var _response = _demandDomainService.GetMESApplicantList(_userInfo, dateStart: dateStart, dateEnd: dateEnd, statusId: statusList, kw: keyWord)
+                var _response = _demandDomainService.GetMESApplicantList(_userInfo, dateStart: dateStart, dateEnd: dateEnd, statusId: statusList, kw: keyWord, orderType: orderType)
                         .Select(mes => new MESPermissionMainViewModel
                         {
                             OrderSn = mes.OrderSn,
@@ -339,6 +341,8 @@ namespace MOD4.Web.Controllers
                             Status = mes.Status,
                             StatusId = (int)mes.StatusId,
                             Applicant = mes.Applicant,
+                            MESOrderType = mes.MESOrderType,
+                            JobId = mes.JobId,
                             ApplicantList = mes.ApplicantName,
                             AuditPerson = mes.AuditName,
                             CreateDate = mes.CreateTimeStr,
@@ -362,9 +366,10 @@ namespace MOD4.Web.Controllers
                 var _mesPermission = _optionDomainService.GetMESPermission().CopyAToB<OptionViewModel>();
 
                 UserEntity _userEntity = GetUserInfo();
-                                
+
                 ViewBag.AccountName = _userEntity.Name;
                 ViewBag.JobId = _userEntity.JobId;
+                ViewBag.MESOrderType = new SelectList(_optionDomainService.GetMESType(), "Id", "Value");
 
                 List<MESPermissionModel> _mesPermissionList = _mesPermission.Select(s => new MESPermissionModel
                 {
@@ -396,7 +401,9 @@ namespace MOD4.Web.Controllers
                     SubUnit = createModel.SubUnit,
                     Applicant = createModel.Applicant,
                     JobId = createModel.JobId,
+                    MESOrderTypeId = createModel.MESOrderTypeId,
                     Phone = createModel.Phone,
+                    ApplicantReason = createModel.ApplicantReason,
                     PermissionInfo = createModel.PermissionList.Select(per => new MESPermissionDetailEntity
                     {
                         MESPermissionId = per.MESPermissionId,
@@ -437,9 +444,11 @@ namespace MOD4.Web.Controllers
                     Status = _result.Status,
                     Department = _result.Department,
                     SubUnit = _result.SubUnit,
+                    MESOrderType = _result.MESOrderType,
                     Applicant = _result.Applicant,
                     JobId = _result.JobId,
                     Phone = _result.Phone,
+                    ApplicantReason = _result.ApplicantReason,
                     PermissionList = _result.PermissionInfo.CopyAToB<MESPermissionModel>(),
                     ApplicantList = _result.Applicants.CopyAToB<MESApplicantModel>(),
                     OtherPermission = _result.OtherPermission,
@@ -472,7 +481,9 @@ namespace MOD4.Web.Controllers
                     SubUnit = _result.SubUnit,
                     Applicant = _result.Applicant,
                     JobId = _result.JobId,
+                    MESOrderTypeId = _result.MESOrderTypeId,
                     Phone = _result.Phone,
+                    ApplicantReason = _result.ApplicantReason,
                     PermissionList = _result.PermissionInfo.CopyAToB<MESPermissionModel>(),
                     ApplicantList = _result.Applicants.CopyAToB<MESApplicantModel>(),
                     OtherPermission = _result.OtherPermission,
@@ -500,9 +511,11 @@ namespace MOD4.Web.Controllers
                     StatusId = updateModel.StatusId,
                     Department = updateModel.Department,
                     SubUnit = updateModel.SubUnit,
+                    MESOrderTypeId = updateModel.MESOrderTypeId,
                     Applicant = updateModel.Applicant,
                     JobId = updateModel.JobId,
                     Phone = updateModel.Phone,
+                    ApplicantReason = updateModel.ApplicantReason,
                     PermissionInfo = updateModel.PermissionList.Select(per => new MESPermissionDetailEntity
                     {
                         MESPermissionId = per.MESPermissionId,
@@ -531,7 +544,16 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                MESPermissionEntity _result = _demandDomainService.GetAudit(orderSn, GetUserInfo());
+                UserEntity _userInfo = GetUserInfo();
+                var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.MESPermission);
+                ViewBag.UserPermission = new UserPermissionViewModel
+                {
+                    AccountSn = _userCurrentPagePermission.AccountSn,
+                    MenuSn = _userCurrentPagePermission.MenuSn,
+                    AccountPermission = _userCurrentPagePermission.AccountPermission
+                };
+
+                MESPermissionEntity _result = _demandDomainService.GetAudit(orderSn, _userInfo);
 
                 MESPermissionDetailViewModel _response = new MESPermissionDetailViewModel
                 {
@@ -541,9 +563,11 @@ namespace MOD4.Web.Controllers
                     Status = _result.Status,
                     Department = _result.Department,
                     SubUnit = _result.SubUnit,
+                    MESOrderType = _result.MESOrderType,
                     Applicant = _result.Applicant,
                     JobId = _result.JobId,
                     Phone = _result.Phone,
+                    ApplicantReason = _result.ApplicantReason,
                     PermissionList = _result.PermissionInfo.CopyAToB<MESPermissionModel>(),
                     ApplicantList = _result.Applicants.CopyAToB<MESApplicantModel>(),
                     OtherPermission = _result.OtherPermission,
@@ -566,7 +590,7 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                string _result = _demandDomainService.AuditMES(approveViewModel.OrderSn, approveViewModel.StatusId, approveViewModel.Remark, GetUserInfo());
+                string _result = _demandDomainService.AuditMES(approveViewModel.OrderSn, approveViewModel.StatusId, approveViewModel.Remark, approveViewModel.ApplicantReason, GetUserInfo());
 
                 if (_result == "")
                     return Json(new { IsSuccess = true, Msg = "" });

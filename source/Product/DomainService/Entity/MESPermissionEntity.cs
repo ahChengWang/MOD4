@@ -13,16 +13,19 @@ namespace MOD4.Web.DomainService.Entity
         public DemandStatusEnum StatusId { get; set; }
         public string Department { get; set; }
         public string SubUnit { get; set; }
+        public MESOrderTypeEnum MESOrderTypeId { get; set; }
+        public string MESOrderType { get; set; }
         public string Applicant { get; set; }
         public string JobId { get; set; }
         public string Phone { get; set; }
         public string ApplicantName { get; set; }
         public string ApplicantJobId { get; set; }
+        public int AuditAccountSn { get; set; }
         public string SamePermName { get; set; }
         public string SamePermJobId { get; set; }
         public string PermissionList { get; set; }
         public string OtherPermission { get; set; }
-        public int AuditAccountSn { get; set; }
+        public string ApplicantReason { get; set; }
         public string AuditName { get; set; }
         public int ApplicantAccountSn { get; set; }
         public string CreateUser { get; set; }

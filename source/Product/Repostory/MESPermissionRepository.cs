@@ -13,6 +13,7 @@ namespace MOD4.Web.Repostory
             , DateTime? dateEnd
             , int orderSn = 0
             , string[] statusArray = null
+            , string[] ordeyTypeAry = null
             , string kw = "")
         {
             string sql = "select * from mes_permission where isCancel = 0 ";
@@ -29,6 +30,9 @@ namespace MOD4.Web.Repostory
             if (statusArray != null)
                 sql += " and statusId in @statusId ";
 
+            if (ordeyTypeAry != null)
+                sql += " and mesOrderTypeId in @mesOrderTypeId ";
+
             if (!string.IsNullOrEmpty(kw))
                 sql += $" and (applicant like '%{kw}%' or jobId like '%{kw}%') ";
 
@@ -37,7 +41,8 @@ namespace MOD4.Web.Repostory
                 dateStart = dateStart,
                 dateEnd = dateEnd,
                 orderSn = orderSn,
-                statusId = statusArray
+                statusId = statusArray,
+                mesOrderTypeId = ordeyTypeAry
             });
 
             return dao;
@@ -74,7 +79,9 @@ namespace MOD4.Web.Repostory
 ,[applicantAccountSn]
 ,[createUser]
 ,[createTime]
-,[isCancel])
+,[isCancel]
+,[mesOrderTypeId]
+,[applicantReason])
 VALUES
 (@orderNo
 ,@statusId
@@ -91,7 +98,9 @@ VALUES
 ,@applicantAccountSn
 ,@createUser
 ,@createTime
-,@isCancel); ";
+,@isCancel
+,@mesOrderTypeId
+,@applicantReason); ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, insMESPerm);
 
@@ -105,6 +114,7 @@ VALUES
       ,[auditAccountSn] = @auditAccountSn
       ,[updateUser] = @updateUser
       ,[updateTime] = @updateTime
+      ,[applicantReason] = @applicantReason
  WHERE orderSn=@orderSn ;";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, updDao);

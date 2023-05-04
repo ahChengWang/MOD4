@@ -1,4 +1,5 @@
 ﻿@model MOD4.Web.ViewModel.MESPermissionDetailViewModel
+@using MOD4.Web.ViewModel;
 
 @{
     ViewBag.Title = "簽核權限申請單";
@@ -6,21 +7,6 @@
 
 
 <style>
-    /*.card {
-        box-shadow: 1px 2px 2px 2px #999;
-        margin-top: 5px;
-    }
-
-    .card-header, .card-body, .card-footer {
-        background-color: #c3cadb;
-    }
-
-    .card-title {
-        font-family: "Microsoft JhengHei";
-        font-weight: 900;
-        font-style: italic;
-        font-size: 30px;
-    }*/
 
     h5 {
         font-family: "Microsoft JhengHei";
@@ -74,14 +60,20 @@
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="Department"></label>
                                     </div>
-                                    <div class="col-3">
+                                    <div class="col-2">
                                         <input class="myInputStyle1" type="text" disabled value="@Model.Department" />
                                     </div>
-                                    <div class="col-2">
+                                    <div class="col-2" style="text-align:center">
                                         <label class="col-form-label" asp-for="SubUnit"></label>
                                     </div>
-                                    <div class="col-3">
+                                    <div class="col-2">
                                         <input class="myInputStyle1" type="text" disabled value="@Model.SubUnit" />
+                                    </div>
+                                    <div class="col-2" style="text-align:center">
+                                        <label class="col-form-label" asp-for="MESOrderType"></label>
+                                    </div>
+                                    <div class="col-2">
+                                        <input class="myInputStyle1" type="text" disabled value="@Model.MESOrderType" />
                                     </div>
                                 </div>
                                 <div class="form-group" style="display:flex">
@@ -91,18 +83,37 @@
                                     <div class="col-2">
                                         <input class="myInputStyle1" type="text" disabled value="@Model.Applicant" />
                                     </div>
-                                    <div class="col-2">
+                                    <div class="col-2" style="text-align:center">
                                         <label class="col-form-label" asp-for="JobId"></label>
                                     </div>
                                     <div class="col-2">
                                         <input class="myInputStyle1" type="text" disabled value="@Model.JobId" />
                                     </div>
-                                    <div class="col-2">
+                                    <div class="col-2" style="text-align:center">
                                         <label class="col-form-label" asp-for="Phone"></label>
                                     </div>
                                     <div class="col-2">
                                         <input class="myInputStyle1" type="text" disabled value="@Model.Phone" />
                                     </div>
+                                </div>
+                                <div class="form-group" style="display:flex">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="ApplicantReason"></label>
+                                    </div>
+                                    @{
+                                        if (Convert.ToBoolean(((UserPermissionViewModel)ViewBag.UserPermission).AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management))
+                                        {
+                                            <div class="col-lg-5">
+                                                <textarea class="form-control" style="background-color: transparent;border: 1px solid black;" rows="3" asp-for="ApplicantReason"></textarea>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="col-lg-5">
+                                                <textarea class="form-control" style="background-color: transparent;border: 1px solid black;" disabled rows="3" asp-for="ApplicantReason"></textarea>
+                                            </div>
+                                        }
+                                    }
                                 </div>
                                 <hr />
                                 <div class="form-group">
@@ -442,6 +453,7 @@
         _requestModel['OrderSn'] = $("#OrderSn").val();
         _requestModel['StatusId'] = @MOD4.Web.Enum.DemandStatusEnum.Completed;
         _requestModel['Remark'] = $("#approveRemark").val();
+        _requestModel['ApplicantReason'] = $("#ApplicantReason").val();
 
         //e.preventDefault();
         $.blockUI({
@@ -483,6 +495,7 @@
         _requestModel['OrderSn'] = $("#orderSn").val();
         _requestModel['StatusId'] = statusId;
         _requestModel['Remark'] = $("#remark").val();
+        _requestModel['ApplicantReason'] = $("#ApplicantReason").val();
 
         //e.preventDefault();
         $.blockUI({
