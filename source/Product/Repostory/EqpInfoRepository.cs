@@ -109,7 +109,7 @@ select b.EQUIP_NBR, b.AREA
             return dao;
         }
 
-        public List<EquipMappingDao> SelectRepairedEqList(string beginDate,string endDate)
+        public List<EquipMappingDao> SelectRepairedEqList(string beginDate, string endDate)
         {
             string sql = @"WITH CTE AS
 (
@@ -124,6 +124,23 @@ select b.EQUIP_NBR, b.AREA
 
             var dao = _dbHelper.ExecuteQuery<EquipMappingDao>(sql, new
             {
+                BeginDate = beginDate,
+                EndDate = endDate
+            });
+
+            return dao;
+        }
+
+        public List<EqpInfoDao> SelectForMTBFMTTR(DateTime beginDate, DateTime endDate, string equipment)
+        {
+            string sql = @"select Equipment,Operator,Code,Code_Desc,Comments,MIN(Start_Time)'Start_Time',SUM(Convert(decimal,Repair_Time))'Repair_Time' 
+                                , DATEADD(MINUTE,SUM(Convert(decimal,Repair_Time)),MIN(Start_Time))'End_Time' 
+  from eqpinfo where Code not in ('111A','121A') and Start_Time > @BeginDate and Start_Time < @EndDate and Equipment = @Equipment
+ group by Equipment,Operator,Code,Code_Desc,Comments,P_key order by Start_Time asc; ";
+
+            var dao = _dbHelper.ExecuteQuery<EqpInfoDao>(sql, new
+            {
+                Equipment = equipment,
                 BeginDate = beginDate,
                 EndDate = endDate
             });

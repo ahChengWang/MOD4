@@ -12,6 +12,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using Utility.Helper;
 
 namespace MOD4.Web.DomainService
 {
@@ -20,6 +21,8 @@ namespace MOD4.Web.DomainService
         private readonly IMTDProductionScheduleRepository _mtdProductionScheduleRepository;
         private readonly IUploadDomainService _uploadDomainService;
         private readonly IAlarmXmlRepository _alarmXmlRepository;
+        private readonly IEqpInfoRepository _eqpInfoRepository;
+        private readonly IEquipMappingRepository _equipMappingRepository;
         private readonly Dictionary<string, string> _processEqDic = new Dictionary<string, string>
         {
             {"1300", "AOLB2010"},
@@ -34,11 +37,15 @@ namespace MOD4.Web.DomainService
 
         public MTDDashboardDomainService(IMTDProductionScheduleRepository mtdProductionScheduleRepository,
             IUploadDomainService uploadDomainService,
-            IAlarmXmlRepository alarmXmlRepository)
+            IAlarmXmlRepository alarmXmlRepository,
+            IEqpInfoRepository eqpInfoRepository,
+            IEquipMappingRepository equipMappingRepository)
         {
             _mtdProductionScheduleRepository = mtdProductionScheduleRepository;
             _uploadDomainService = uploadDomainService;
             _alarmXmlRepository = alarmXmlRepository;
+            _eqpInfoRepository = eqpInfoRepository;
+            _equipMappingRepository = equipMappingRepository;
         }
 
         /// <summary>
@@ -573,6 +580,88 @@ namespace MOD4.Web.DomainService
             }
         }
 
+        #endregion
+
+        #region === MTBF、MTTR ===
+        public MTBFMTTRDashboardEntity GetMTBFMTTRList(string beginDate, string endDate, string equipment)
+        {
+            DateTime _now = DateTime.Now.Date;
+            DateTime _beginDate = _now;
+            DateTime _endDate = DateTime.Parse($"{_now.AddDays(1).AddSeconds(-1)}");
+
+            if (DateTime.TryParse(beginDate, out _) && DateTime.TryParse(endDate, out _))
+            {
+                _beginDate = DateTime.Parse(beginDate);
+                _endDate = DateTime.Parse(endDate).AddDays(1).AddSeconds(-1);
+            }
+
+            var _eqpinfoList = _eqpInfoRepository.SelectForMTBFMTTR(_beginDate, _endDate, equipment);
+
+            if (!_eqpinfoList.Any())
+                return null;
+
+            double _sumWorkTime = 0;
+            // 計算 MTBF actual
+            for (int i = 1; i < _eqpinfoList.Count; i++)
+            {
+                _sumWorkTime += _eqpinfoList[i].End_Time.Subtract(_eqpinfoList[i - 1].Start_Time).TotalSeconds / 60;
+            }
+
+            MTBFMTTRDashboardEntity _dashboardEntity = new MTBFMTTRDashboardEntity
+            {
+                MTBFTarget = "250",
+                MTBFActual = (_sumWorkTime / _eqpinfoList.Count).ToString("0.00"),
+                MTTRTarget = "25",
+                MTTRActual = (_eqpinfoList.Sum(sum => Convert.ToDecimal(sum.Repair_Time)) / _eqpinfoList.Count).ToString("0.00"),
+                MTTRDetail = _eqpinfoList.GroupBy(g => g.Code).Select(s => new MTTRDetailEntity
+                {
+                    DownCode = s.Key,
+                    AvgTime = (s.Select(ss => Convert.ToDecimal(ss.Repair_Time)).Sum() / s.Count())
+                }).ToList(),
+                EqpInfoDetail = _eqpinfoList.Select(eqDao => new EquipmentEntity
+                {
+                    ToolStatus = eqDao.Code,
+                    StatusCdsc = eqDao.Code_Desc,
+                    Comment = eqDao.Comments,
+                    UserId = eqDao.Operator,
+                    LmTime = eqDao.Start_Time,
+                    RepairTime = eqDao.Repair_Time
+                }).ToList()
+            };
+
+            return _dashboardEntity;
+        }
+
+        public string UpdateMTBFMTTRSetting(EqMappingEntity updateEntity, UserEntity userEntity)
+        {
+            try
+            {
+                string _updRes = "";
+
+                using (var scope = new TransactionScope())
+                {
+                    if (_equipMappingRepository.UpdateTarget(new EquipMappingDao
+                    {
+                        EQUIP_NBR = updateEntity.EQUIP_NBR,
+                        MTBFTarget = updateEntity.MTBFTarget,
+                        MTTRTarget = updateEntity.MTTRTarget,
+                        UpdateTime = DateTime.Now,
+                        UpdateUser = userEntity.Name
+                    }) == 1)
+                    {
+                        scope.Complete();
+                    }
+                    else
+                        _updRes = "更新失敗";
+                }
+
+                return _updRes;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
     }
 }

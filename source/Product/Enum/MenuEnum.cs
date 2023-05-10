@@ -40,5 +40,7 @@ namespace MOD4.Web.Enum
         MTDDashboard = 24,
         [Description("生產排程上傳")]
         Manufacture = 25,
+        [Description("MTBF / MTTR")]
+        MTBFMTTR = 26,
     }
 }

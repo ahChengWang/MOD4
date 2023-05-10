@@ -413,7 +413,20 @@ namespace MOD4.Web.DomainService
 
         public List<EqMappingEntity> GetEqIDAreaList()
         {
-            return _equipMappingRepository.SelectEqByConditions(2).OrderBy(o => o.OPERATION).CopyAToB<EqMappingEntity>();
+            return _equipMappingRepository.SelectEqByConditions(2).OrderBy(o => o.OPERATION).Select(defEq => new EqMappingEntity
+            {
+              EQUIP_NBR = defEq.EQUIP_NBR,
+              EQUIP_DESC = defEq.EQUIP_DESC,
+              EQUIP_GROUP = defEq.EQUIP_GROUP,
+              OPERATION = defEq.OPERATION,
+              EQUIP_NBR_M = defEq.EQUIP_NBR_M,
+              AREA = defEq.AREA,
+              ENABLE = defEq.ENABLE,
+              MTBFTarget = defEq.MTBFTarget,
+              MTTRTarget = defEq.MTTRTarget,
+              UpdateTime = defEq.UpdateTime.ToString("yyyy/MM/dd HH:mm:ss"),
+              UpdateUser = defEq.UpdateUser
+            }).ToList();
         }
 
         public List<CertifiedAreaMappingEntity> GetCertifiedAreaOptions()

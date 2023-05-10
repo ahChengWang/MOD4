@@ -178,7 +178,6 @@ namespace MOD4.Web.Controllers
             }
         }
 
-
         [HttpGet("[controller]/Manufacture/Search")]
         public IActionResult ManufactureSearch([FromQuery] string dateRange, int floor)
         {
@@ -245,6 +244,114 @@ namespace MOD4.Web.Controllers
             }
         }
 
+        #endregion
+
+        #region === MTBF 、 MTTR ===
+
+        [HttpGet("[controller]/MTBFMTTR")]
+        public IActionResult MTBFMTTR()
+        {
+            try
+            {
+                ViewBag.EqIDMappingOption = _optionDomainService.GetEqIDAreaList();
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpGet("[controller]/MTBFMTTR/Search")]
+        public IActionResult MTBFMTTRSearch([FromQuery] string beginDate, string endDate, string equipment)
+        {
+            try
+            {
+                var _resultList = _mtdDashboardDomainService.GetMTBFMTTRList(beginDate, endDate, equipment);
+
+                if (_resultList == null)
+                    return Json(new { IsSuccess = false, Msg = "No Data" });
+
+                MTBFMTTRDashboardViewModel _response = new MTBFMTTRDashboardViewModel
+                {
+                    MTBFTarget = _resultList.MTBFTarget,
+                    MTBFActual = _resultList.MTBFActual,
+                    MTTRTarget = _resultList.MTTRTarget,
+                    MTTRActual = _resultList.MTTRActual,
+                    MTTRDetail = _resultList.MTTRDetail.Select(mttr => new MTTRDetailViewModel
+                    {
+                        DownCode = mttr.DownCode,
+                        AvgTime = mttr.AvgTime
+                    }).ToList(),
+                    EqpInfoDetail = _resultList.EqpInfoDetail.Select(eq => new MTBFMTTREqInfoViewModel
+                    {
+                        Code = eq.ToolStatus,
+                        CodeDesc = eq.StatusCdsc,
+                        Comments = eq.Comment,
+                        Operator = eq.UserId,
+                        StartTime = eq.LmTime.ToString("yyyy/MM/dd HH:mm:ss"),
+                        RepairTime = eq.RepairTime
+                    }).CopyAToB<MTBFMTTREqInfoViewModel>()
+                };
+
+                return Json(new { IsSuccess = true, Data = _response });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { IsSuccess = false, Msg = ex.Message });
+            }
+        }
+
+        [HttpGet("[controller]/MTBFMTTR/Setting")]
+        public IActionResult MTBFMTTRSetting()
+        {
+            try
+            {
+                ViewBag.EqIDMappingOption = _optionDomainService.GetEqIDAreaList();
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpPost("[controller]/MTBFMTTR/Setting")]
+        public IActionResult MTBFMTTRSetting([FromForm] MTBFMTTRTargetSettingViewModel settingVM)
+        {
+            try
+            {
+                var _result = _mtdDashboardDomainService.UpdateMTBFMTTRSetting(new EqMappingEntity
+                {
+                    EQUIP_NBR = settingVM.EquipNo,
+                    MTBFTarget = Convert.ToDecimal(settingVM.MTBFTarget),
+                    MTTRTarget = Convert.ToDecimal(settingVM.MTTRTarget)
+                }, GetUserInfo());
+
+                if (_result != "")
+                    return Json(new ResponseViewModel 
+                    {
+                        IsSuccess = false,
+                        Msg = _result
+                    });
+                else
+                    return Json(new ResponseViewModel
+                    {
+                        IsSuccess = true,
+                        Data = _result
+                    });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
+            }
+        }
         #endregion
     }
 }

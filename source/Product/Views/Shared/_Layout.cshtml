@@ -144,13 +144,16 @@
             background-color: #c3cadb;
         }
 
+        /*.card-body {
+            background-color: #9fa5b3;
+        }*/
+
         .card-title {
             font-family: "Microsoft JhengHei";
             font-weight: 900;
             font-style: italic;
             font-size: 30px;
         }
-
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -412,7 +415,7 @@
     <script type="text/javascript">
         $(document).ready(function () {
 
-            let _menuLoc = ['Audit', 'Setting', 'Equipment', 'Dashboard', 'MES', 'Manufacture'];
+            let _menuLoc = ['Audit', 'Setting', 'Equipment', 'Dashboard', 'MES', 'Manufacture', 'MTBFMTTR'];
 
             let _pathArray = location.pathname.split('/');
             let _locationPathname = "/" + _pathArray[1] + "/" + _pathArray[2];
@@ -441,7 +444,7 @@
             LoadingPic() {
                 let _pathArray = location.pathname.split('/');
                 $.blockUI({
-                    message: '<img src="/' + _pathArray[1] + '/img/Pac_Man.gif" />',
+                    message: '<img src="/' + _pathArray[1] + '/img/rock.gif" />',
                     css: {
                         borderWidth: '0px',
                         backgroundColor: 'transparent'

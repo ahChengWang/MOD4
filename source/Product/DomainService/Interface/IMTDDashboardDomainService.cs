@@ -11,5 +11,9 @@ namespace MOD4.Web.DomainService
         (List<ManufactureScheduleEntity> manufactureSchedules, string latestUpdInfo) Search(string dateRange = "", int floor = 2);
 
         string Upload(IFormFile formFile, int floor, UserEntity userEntity);
+
+        MTBFMTTRDashboardEntity GetMTBFMTTRList(string beginDate, string endDate, string equipment);
+
+        string UpdateMTBFMTTRSetting(EqMappingEntity updateEntity, UserEntity userEntity);
     }
 }

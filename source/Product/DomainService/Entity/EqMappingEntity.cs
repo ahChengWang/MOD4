@@ -9,5 +9,9 @@
         public string EQUIP_NBR_M { get; set; }
         public string AREA { get; set; }
         public int ENABLE { get; set; }
+        public decimal MTBFTarget { get; set; }
+        public decimal MTTRTarget { get; set; }
+        public string UpdateTime { get; set; }
+        public string UpdateUser { get; set; }
     }
 }

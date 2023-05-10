@@ -249,56 +249,41 @@
 
 @section scripts {
     <script type="text/javascript">
-
         let myFuc = {
             SearchUnrepairedEq() {
-
-            $.blockUI({
-                message: '<img src="./img/Pac_Man.gif" />',
-                css: {
-                    borderWidth: '0px',
-                    backgroundColor: 'transparent'
-                }
-            });
-
-            $.ajax({
-                url: "./Equipment/SearchUnrepairedEq?date=" + $("#srcDate").val() + "&toolIdList=" + $("#selLoc").val(),
-                type: "GET",
-                dataType: 'html',
-                success: function (result) {
-                    $.unblockUI();
-                    if (isJsonString(result)) {
-                        var _res = JSON.parse(result);
-                        if (result == '""') {
-                            alert('查無資料');
+                globalFuc.LoadingPic();
+                $.ajax({
+                    url: "./Equipment/SearchUnrepairedEq?date=" + $("#srcDate").val() + "&toolIdList=" + $("#selLoc").val(),
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (result) {
+                        $.unblockUI();
+                        if (isJsonString(result)) {
+                            var _res = JSON.parse(result);
+                            if (result == '""') {
+                                alert('查無資料');
+                            }
+                            if ('isException' in _res) {
+                                alert(_res.msg);
+                                return false;
+                            }
                         }
-                        if ('isException' in _res) {
-                            alert(_res.msg);
-                            return false;
+                        else {
+                            $("#example1_wrapper").remove();
+                            $("#barDiv1").after(result);
+                            $('#example1').DataTable({
+                                "responsive": true
+                                , "lengthChange": false
+                                , "autoWidth": false
+                                , "order": [[5, "asc"]]
+                                , "buttons": ["excel", "colvis"]
+                            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
                         }
-                    }
-                    else {
-                        $("#example1_wrapper").remove();
-                        $("#barDiv1").after(result);
-                        $('#example1').DataTable({
-                            "responsive": true
-                            , "lengthChange": false
-                            , "autoWidth": false
-                            , "order": [[5, "asc"]]
-                            , "buttons": ["excel", "colvis"]
-                        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-                    }
-                }
-            });
-            },
-            SearchEqHis() {
-                $.blockUI({
-                    message: '<img src="./img/Pac_Man.gif" />',
-                    css: {
-                        borderWidth: '0px',
-                        backgroundColor: 'transparent'
                     }
                 });
+            },
+            SearchEqHis() {
+                globalFuc.LoadingPic();
                 $.ajax({
                     url: "./Equipment/SearchRepairedEqHistory?date=" + $("#srcHisDate").val() + "&toolIdList=" + $("#selTool").val() + "&statusIdList=" + $("#selStatus").val() + "&showAuto=" + $("#autoChk").val(),
                     type: "GET",

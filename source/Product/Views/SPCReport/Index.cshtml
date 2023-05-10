@@ -171,14 +171,7 @@
                     alert(validaMsg);
                     return false;
                 }
-
-                $.blockUI({
-                    message: '<img src="./img/Pac_Man.gif" />',
-                    css: {
-                        borderWidth: '0px',
-                        backgroundColor: 'transparent'
-                    }
-                });
+                globalFuc.LoadingPic();
 
                 $.ajax({
                     url: "./SPCReport/Search?floor=" + $("#selFloor").val() + "&chartgrade=" + $("#selCG").val() + "&dateRange=" + $("#dateRange").val() + "&eqpId=" + $("#selEQ").val() + "&prodId=" + $("#selProd").val() + "&dataGroup=" + $("#selGroup").val(),

@@ -8,5 +8,7 @@ namespace MOD4.Web.Repostory
         List<EquipMappingDao> SelectAll();
 
         List<EquipMappingDao> SelectEqByConditions(int floor);
+
+        int UpdateTarget(EquipMappingDao updDao);
     }
 }

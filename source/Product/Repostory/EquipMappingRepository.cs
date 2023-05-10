@@ -26,5 +26,19 @@ namespace MOD4.Web.Repostory
 
             return dao;
         }
+
+        public int UpdateTarget(EquipMappingDao updDao)
+        {
+            string sql = @"UPDATE [dbo].[equip_mapping]
+   SET mtbfTarget = @mtbfTarget
+      ,mttrTarget = @mttrTarget
+      ,UpdateTime = @UpdateTime
+      ,UpdateUser = @UpdateUser
+  WHERE EQUIP_NBR = @EQUIP_NBR; ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, updDao);
+
+            return dao;
+        }
     }
 }

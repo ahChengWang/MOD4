@@ -1,0 +1,319 @@
+﻿@model MOD4.Web.ViewModel.MTBFMTTRDashboardViewModel
+
+@{
+    ViewBag.Title = "MTBF/MTTR";
+}
+<style>
+
+    h2 {
+        font-family: "Microsoft JhengHei";
+        font-weight: 900;
+        font-style: italic;
+    }
+
+    .my-control {
+        display: initial;
+        width: 70%;
+        height: calc(2.25rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        box-shadow: inset 0 0 0 transparent;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+</style>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">MTBF / MTTR</h3>
+                        </div>
+                        <div class="card-body">
+                            <button class="btn btn-sm" type="button" name="btn30" value="" style="margin-bottom:3px;" onclick="btnClickSetting()">
+                                @*<img class="eqimg" src="~/img/icons/pencil-2-128.gif" />*@
+                                @*<span>Target 設定</span>*@
+                                <i class="fa fa-wrench"> Target 設定</i>
+                            </button>
+                            @*<input class="btn btn-sm btn-outline-danger" name="btn30" type="button" value="Target 設定" style="margin-bottom:3px;" onclick="btnClickSetting()" />*@
+                            <fieldset id="searchArea">
+                                <legend id="legend">查詢區塊</legend>
+                                <span style="color: #b00202; font-size: 5px ">*查詢選項必選</span>
+                                <div class="form-group d-flex align-content-center flex-wrap">
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">From：</label>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <input id="datePickFrom" class="my-control" type="date" min="2020/01/01" />
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">To：</label>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <input id="datePickTo" class="my-control" type="date" min="2020/01/01" />
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">站點</label>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <select class="form-control select2bs4" id="Node">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">機台</label>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <select class="form-control select2bs4" id="ToolId">
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <input class="btn btn-info" type="button" name="btn29" value="查詢" onclick="btnClickSearch()" />
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <div>
+                                <h3 id="EqTitle"></h3>
+                                <table id="infoTable" class="table table-bordered table-striped table-hover" hidden style="width:50%">
+                                    <tbody>
+                                        <tr>
+                                            <td>MTBF 目標</td>
+                                            <td id="mtbfTarget"></td>
+                                            <td>MTBF 實際</td>
+                                            <td id="mtbfActual"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>MTTR 目標</td>
+                                            <td id="mttrTarget"></td>
+                                            <td>MTTR 實際</td>
+                                            <td id="mttrActual"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div id="barChart1" style="margin-bottom:5px"></div>
+                                <br />
+                                <table id="eqTable" hidden class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>@Html.DisplayNameFor(model => model.EqpInfoDetail.First().Operator)</th>
+                                            <th>@Html.DisplayNameFor(model => model.EqpInfoDetail.First().Code)</th>
+                                            <th>@Html.DisplayNameFor(model => model.EqpInfoDetail.First().CodeDesc)</th>
+                                            <th>@Html.DisplayNameFor(model => model.EqpInfoDetail.First().Comments)</th>
+                                            <th>@Html.DisplayNameFor(model => model.EqpInfoDetail.First().StartTime)</th>
+                                            <th>@Html.DisplayNameFor(model => model.EqpInfoDetail.First().RepairTime)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="eqtbody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+                <!-- /.col -->
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+</div>
+
+
+@section scripts{
+    <script src="~/lib/echarts/echarts.js"></script>
+    <script type="text/javascript">
+
+        var _eqIpMapping = [];
+
+        let myfuc = {
+            Search() {
+
+                if (($("#datePickFrom").val() == "" || $("#datePickFrom").val() == null) ||
+                    ($("#datePickTo").val() == "" || $("#datePickTo").val() == null) ||
+                    ($("#ToolId").val() == "" || $("#ToolId").val() == null)) {
+                    alert('日期區間、機台EQ必選');
+                    return false;
+                }
+
+                $.ajax({
+                    url: "./MTBFMTTR/Search?beginDate=" + $('#datePickFrom').val() + "&endDate=" + $('#datePickTo').val() + "&equipment=" + $('#ToolId').val(),
+                    type: "GET",
+                    datatype: "json",
+                    success: function (result) {
+                        $('#EqTitle').html('');
+                        $('#eqtbody').empty();
+                        $('#eqTable').attr('hidden', true);
+                        $('#barChart1').empty();
+                        $('#barChart1').removeAttr("style", false);
+                        $('#barChart1').removeAttr("_echarts_instance_", false);
+                        if (result.isSuccess) {
+                            $('#EqTitle').html($('#ToolId').val());
+                            $('#infoTable').removeAttr('hidden', false);
+                            $('#mtbfTarget').html(result.data.mtbfTarget);
+                            $('#mtbfActual').html(result.data.mtbfActual);
+                            $('#mttrTarget').html(result.data.mttrTarget);
+                            $('#mttrActual').html(result.data.mttrActual);
+                            myfuc.SetChart(result.data);
+                            $('#eqTable').removeAttr('hidden', false);
+                            $.each(result.data.eqpInfoDetail, function (index, eq) {
+                                $('#eqtbody').append('<tr><td>' + eq.operator + '</td><td>' + eq.code + '</td><td>' + eq.codeDesc + '</td><td>' + eq.comments + '</td><td>' + eq.startTime + '</td><td>' + eq.repairTime + '</td></tr>');
+                            });
+                        }
+                        else {
+                            $('#infoTable').attr('hidden', true);
+                            alert(result.msg);
+                        }
+                    }
+                });
+            },
+            SetChart(data) {
+                $("#barChart1").css("min-height", "400px");
+                $("#barChart1").css("max-width", "90%");
+                $("#barChart1").css("background-color", "#7a8591");
+                var chartDom1 = document.getElementById('barChart1');
+                var dtxEchar1 = echarts.init(chartDom1);
+                var _xAxisCode = [];
+                var _avgTime = [];
+                var _target = [];
+                var _mttrTarget = data.mttrTarget;
+
+                $.each(data.mttrDetail, function (index, item) {
+                    _xAxisCode.push(item.downCode);
+                    _avgTime.push(item.avgTime);
+                    _target.push(_mttrTarget);
+                });
+
+                var dtxOption1 = {
+                    title: {
+                        text: 'MTTR',
+                        textStyle: {
+                            color: "black",
+                            fontWeight: 600,
+                            fontSize: 25,
+                            textAlign: 'center'
+                        }
+                    },
+                    tooltip: {},
+                    legend: {
+                        right: '0%',
+                        icon: 'circle',
+                        data: ['Target'],
+                        textStyle: { color: "black" }
+                    },
+                    xAxis: {
+                        data: _xAxisCode,
+                        axisLabel: { color: "black" }
+                    },
+                    yAxis: {
+                        name: "",
+                        nameTextStyle: {
+                            color: "black"
+                        },
+                        axisLabel: {
+                            color: "black"
+                        }
+                    },
+                    series: [
+                        {
+                            name: 'Target',
+                            type: 'line',
+                            data: _target,
+                            //itemStyle: {
+                            //    normal: {
+                            //        color: '#c90e27',
+                            //        lineStyle: {
+                            //            width: 3,
+                            //            type: 'dotted', //'dotted'虚线 'solid'实线
+                            //            color: '#c90e27'
+                            //        }
+                            //    }
+                            //},
+                            lineStyle: {
+                                width: 2,
+                                color: '#0236a3'
+                            }
+                        },
+                        {
+                            name: 'avgTime',
+                            type: 'bar',
+                            data: _avgTime,
+                            barWidth: 30,
+                            itemStyle:
+                            {
+                                color: function (data) {
+                                    if (data.value < _mttrTarget) {
+                                        return '#01661c';
+                                    }
+                                    else {
+                                        return '#b50b0b';
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                };
+
+                dtxEchar1.setOption(dtxOption1);
+
+                window.addEventListener('resize', function () {
+                    dtxEchar1.resize();
+                });
+            }
+        }
+
+        $(function () {
+            _eqIpMapping = @Json.Serialize(@ViewBag.EqIDMappingOption);
+            //myfuc.SetChart();
+
+            _eqIpMapping.reduce(function (item, option) {
+                if (item[option['operation']] == null) {
+                    $("<option></option>").attr("value", option['operation']).text(option['operation']).appendTo($('#Node'));
+                }
+                (item[option['operation']] = item[option['operation']] || []).push(option);
+                return item;
+            }, {});
+        });
+
+        $("#Node").change(function (e) {
+
+            let _eqGroupSelected = $("#Node").find(":selected").val();
+            $("#ToolId").empty();
+
+            $("<option></option>").appendTo($('#ToolId'));
+            _filterOptions = _eqIpMapping.filter(function (eqMapping) {
+                return eqMapping.operation == _eqGroupSelected;
+            });
+
+            _filterOptions.reduce(function (item, option) {
+                return optionReduce(item, option, 'equiP_NBR', 'equiP_NBR', '#ToolId');
+            }, {});
+        });
+
+        function optionReduce(item, option, propId, propName, optionId) {
+            if (item[option[propId]] == null) {
+                $("<option></option>").attr("value", option[propId]).text(option[propName]).appendTo($(optionId));
+            }
+            (item[option[propId]] = item[option[propId]] || []).push(option);
+            return item;
+        }
+
+        function btnClickSearch() {
+            myfuc.Search();
+        }
+
+        function btnClickSetting() {
+            location.href = "./MTBFMTTR/Setting";
+        }
+    </script>
+}

@@ -210,15 +210,7 @@
 
         let myFuc = {
             Search() {
-
-                $.blockUI({
-                    message: '<img src="./img/Pac_Man.gif" />',
-                    css: {
-                        borderWidth: '0px',
-                        backgroundColor: 'transparent'
-                    }
-                });
-
+                globalFuc.LoadingPic();
                 $.ajax({
                     url: "./MTDDashboard/Search?date=" + $("#datePick").val() + "&time=" + $("#timeRang").val() + "&floor=" + $("#selFloor").val(),
                     type: "GET",

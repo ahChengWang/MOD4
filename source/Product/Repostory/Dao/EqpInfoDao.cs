@@ -40,5 +40,8 @@ namespace MOD4.Web.Repostory.Dao
         public int isManual { get; set; }
         public string status_desc_ie { get; set; }
         public string P_key { get; set; }
+
+        // for MTBF MTTR page
+        public DateTime End_Time { get; set; }
     }
 }

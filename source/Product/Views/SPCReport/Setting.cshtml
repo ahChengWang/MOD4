@@ -133,14 +133,7 @@
                     alert('樓層、chartgrade 必選');
                     return false;
                 }
-
-                $.blockUI({
-                    message: '<img src="./img/Pac_Man.gif" />',
-                    css: {
-                        borderWidth: '0px',
-                        backgroundColor: 'transparent'
-                    }
-                });
+                globalFuc.LoadingPic();
 
                 $.ajax({
                     url: "./Setting/Search?floor=" + $("#selFloor").val() + "&chartgrade=" + $("#selCG").val() + "&prodId=" + $("#selProd").val(),
@@ -210,13 +203,7 @@
             },
             Edit(sn) {
 
-                $.blockUI({
-                    message: '<img src="./img/Pac_Man.gif" />',
-                    css: {
-                        borderWidth: '0px',
-                        backgroundColor: 'transparent'
-                    }
-                });
+                globalFuc.LoadingPic();
 
                 $.ajax({
                     url: "./Edit?sn=" + sn,
@@ -275,13 +262,7 @@
 
                 var _form = $("#editForm");
 
-                $.blockUI({
-                    message: '<img src="./img/Pac_Man.gif" />',
-                    css: {
-                        borderWidth: '0px',
-                        backgroundColor: 'transparent'
-                    }
-                });
+                globalFuc.LoadingPic();
 
                 $.ajax({
                     url: "./Edit",
