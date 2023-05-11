@@ -131,21 +131,39 @@ select b.EQUIP_NBR, b.AREA
             return dao;
         }
 
-        public List<EqpInfoDao> SelectForMTBFMTTR(DateTime beginDate, DateTime endDate, string equipment)
+        public List<EqpInfoDao> SelectForMTBFMTTR(DateTime beginDate, DateTime endDate, string equipment,int floor)
         {
-            string sql = @"select Equipment,Operator,Code,Code_Desc,Comments,MIN(Start_Time)'Start_Time',SUM(Convert(decimal,Repair_Time))'Repair_Time' 
-                                , DATEADD(MINUTE,SUM(Convert(decimal,Repair_Time)),MIN(Start_Time))'End_Time' 
-  from eqpinfo where Code not in ('111A','121A') and Start_Time > @BeginDate and Start_Time < @EndDate and Equipment = @Equipment
- group by Equipment,Operator,Code,Code_Desc,Comments,P_key order by Start_Time asc; ";
-
-            var dao = _dbHelper.ExecuteQuery<EqpInfoDao>(sql, new
+            try
             {
-                Equipment = equipment,
-                BeginDate = beginDate,
-                EndDate = endDate
-            });
+                string sql = "";
+                if (floor == 2)
+                {
+                    sql = @"select Equipment,Operator,Code,Code_Desc,Comments,MIN(Start_Time)'Start_Time',SUM(Convert(decimal,Repair_Time))'Repair_Time' 
+                                , DATEADD(MINUTE,SUM(Convert(decimal,Repair_Time)),MIN(Start_Time))'End_Time' 
+  from eqpinfo where Code not in ('111A','121A') and Code not like '2%' and Start_Time > @BeginDate and Start_Time < @EndDate and Equipment = @Equipment
+ group by Equipment,Operator,Code,Code_Desc,Comments,P_key order by Start_Time asc; ";
+                }
+                else
+                {
+                    sql = @"select Equipment,Operator,Code,Code_Desc,Comments,MIN(Start_Time)'Start_Time',SUM(Convert(decimal,Repair_Time))'Repair_Time' 
+                                , DATEADD(MINUTE,SUM(Convert(decimal,Repair_Time)),MIN(Start_Time))'End_Time' 
+  from MOD4_ENG.dbo.eqpinfo where Code not in ('111A','121A') and Code not like '2%' and Start_Time > @BeginDate and Start_Time < @EndDate and Equipment = @Equipment
+ group by Equipment,Operator,Code,Code_Desc,Comments,P_key order by Start_Time asc; ";
+                }
 
-            return dao;
+                var dao = _dbHelper.ExecuteQuery<EqpInfoDao>(sql, new
+                {
+                    Equipment = equipment,
+                    BeginDate = beginDate,
+                    EndDate = endDate
+                });
+
+                return dao;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public int Insert(List<EqpInfoDao> eqpInfoList)

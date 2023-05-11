@@ -12,7 +12,7 @@ namespace MOD4.Web.DomainService
 
         string Upload(IFormFile formFile, int floor, UserEntity userEntity);
 
-        MTBFMTTRDashboardEntity GetMTBFMTTRList(string beginDate, string endDate, string equipment);
+        MTBFMTTRDashboardEntity GetMTBFMTTRList(string beginDate, string endDate, string equipment, int floor);
 
         string UpdateMTBFMTTRSetting(EqMappingEntity updateEntity, UserEntity userEntity);
     }

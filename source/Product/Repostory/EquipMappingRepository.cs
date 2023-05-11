@@ -15,13 +15,27 @@ namespace MOD4.Web.Repostory
             return dao;
         }
 
-        public List<EquipMappingDao> SelectEqByConditions(int floor)
+        public List<EquipMappingDao> SelectEqByConditions(int floor = 0, string equipNo = "", string operation = "")
         {
-            string sql = "select * from equip_mapping where AREA is not null and FLOOR = @FLOOR; ";
+            string sql = @"
+select * from 
+(select * from equip_mapping where Floor = 2
+union
+select * from MOD4_ENG.dbo.equip_mapping where Floor = 3) em
+where 1=1 ";
 
-            var dao = _dbHelper.ExecuteQuery<EquipMappingDao>(sql, new 
+            if (floor != 0)
+                sql += " and em.FLOOR = @FLOOR ";
+            if (!string.IsNullOrEmpty(equipNo))
+                sql += " and em.EQUIP_NBR = @EQUIP_NBR ";
+            if (!string.IsNullOrEmpty(operation))
+                sql += " and em.OPERATION = @OPERATION ";
+
+            var dao = _dbHelper.ExecuteQuery<EquipMappingDao>(sql, new
             {
-                FLOOR = floor
+                FLOOR = floor,
+                EQUIP_NBR = equipNo,
+                OPERATION = operation
             });
 
             return dao;
@@ -29,7 +43,7 @@ namespace MOD4.Web.Repostory
 
         public int UpdateTarget(EquipMappingDao updDao)
         {
-            string sql = @"UPDATE [dbo].[equip_mapping]
+            string sql = $@"UPDATE [{(updDao.Floor == 3 ? "MOD4_ENG" : "carUX_2f")}].[dbo].[equip_mapping]
    SET mtbfTarget = @mtbfTarget
       ,mttrTarget = @mttrTarget
       ,UpdateTime = @UpdateTime

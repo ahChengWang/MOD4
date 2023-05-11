@@ -48,9 +48,22 @@
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">MTBF / MTTR Target 設定</h3>
+                            <ol class="breadcrumb float-sm-right" style="background-color: #c3cadb;">
+                                <li class="breadcrumb-item" style="background-color: #c3cadb;"><a href="../MTBFMTTR">∠ Back</a></li>
+                            </ol>
                         </div>
                         <div class="card-body">
                             <div class="form-group d-flex align-content-center flex-wrap">
+                                <div class="col-lg-1">
+                                    <label class="col-form-label">樓層</label>
+                                </div>
+                                <div class="col-lg-1">
+                                    <select class="form-control select2bs4" id="selFloor">
+                                        <option value="0"></option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                    </select>
+                                </div>
                                 <div class="col-lg-1">
                                     <label class="col-form-label">站點</label>
                                 </div>
@@ -93,6 +106,7 @@
                                             <input class="btn btn-info" type="button" name="btn29" value="更新" onclick="btnClickUpdate()" />
                                         </div>
                                     </div>
+                                    <input type="hidden" asp-for="Floor" />
                                 </form>
                             </fieldset>
                             <br />
@@ -129,21 +143,34 @@
     <script type="text/javascript">
 
         var _eqIpMapping = [];
+        var _filterOptions = [];
         $(function () {
             _eqIpMapping = @Json.Serialize(@ViewBag.EqIDMappingOption);
+        });
 
-            _eqIpMapping.reduce(function (item, option) {
-                if (item[option['operation']] == null) {
-                    $("<option></option>").attr("value", option['operation']).text(option['operation']).appendTo($('#Node'));
-                }
-                (item[option['operation']] = item[option['operation']] || []).push(option);
-                return item;
+        $("#selFloor").change(function (e) {
+
+            let _eqFloorSelected = $("#selFloor").find(":selected").val();
+            $("#Node").empty();
+            $("#ToolId").empty();
+            $('#eqtbody').empty();
+            $('#MTBFTarget').val('');
+            $('#MTTRTarget').val('');
+
+            $("<option></option>").appendTo($('#Node'));
+            _filterOptions = _eqIpMapping.filter(function (eqMapping) {
+                return eqMapping.floor == _eqFloorSelected;
+            });
+
+            _filterOptions.reduce(function (item, option) {
+                return optionReduce(item, option, 'operation', 'operation', '#Node');
             }, {});
         });
 
         $("#Node").change(function (e) {
 
             let _eqGroupSelected = $("#Node").find(":selected").val();
+            let _eqFloorSelected = $("#selFloor").find(":selected").val();
             $("#ToolId").empty();
             $('#eqtbody').empty();
             $('#MTBFTarget').val('');
@@ -151,7 +178,7 @@
 
             $("<option></option>").appendTo($('#ToolId'));
             _filterOptions = _eqIpMapping.filter(function (eqMapping) {
-                return eqMapping.operation == _eqGroupSelected;
+                return eqMapping.floor == _eqFloorSelected && eqMapping.operation == _eqGroupSelected;
             });
             $('#eqTable').removeAttr('hidden', false);
             _filterOptions.reduce(function (item, option) {
@@ -180,6 +207,7 @@
 
         function btnClickUpdate() {
             globalFuc.LoadingPic();
+            $("#Floor").val($("#selFloor").find(":selected").val());
             $.ajax({
                 url: "./Setting",
                 type: "POST",

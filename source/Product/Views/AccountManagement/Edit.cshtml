@@ -350,15 +350,8 @@
         $("#btnUpdate").click(function (e) {
 
             if ($("#updateForm").valid()) {
-
                 e.preventDefault();
-                $.blockUI({
-                    message: '<img src="./img/Loading.gif" />',
-                    css: {
-                        borderWidth: '0px',
-                        backgroundColor: 'transparent'
-                    }
-                });
+                globalFuc.LoadingPic();
                 $.ajax({
                     url: "./Edit",
                     type: "POST",

@@ -583,53 +583,61 @@ namespace MOD4.Web.DomainService
         #endregion
 
         #region === MTBF、MTTR ===
-        public MTBFMTTRDashboardEntity GetMTBFMTTRList(string beginDate, string endDate, string equipment)
+        public MTBFMTTRDashboardEntity GetMTBFMTTRList(string beginDate, string endDate, string equipment, int floor)
         {
-            DateTime _now = DateTime.Now.Date;
-            DateTime _beginDate = _now;
-            DateTime _endDate = DateTime.Parse($"{_now.AddDays(1).AddSeconds(-1)}");
-
-            if (DateTime.TryParse(beginDate, out _) && DateTime.TryParse(endDate, out _))
+            try
             {
-                _beginDate = DateTime.Parse(beginDate);
-                _endDate = DateTime.Parse(endDate).AddDays(1).AddSeconds(-1);
-            }
+                DateTime _now = DateTime.Now.Date;
+                DateTime _beginDate = _now;
+                DateTime _endDate = DateTime.Parse($"{_now.AddDays(1).AddSeconds(-1)}");
 
-            var _eqpinfoList = _eqpInfoRepository.SelectForMTBFMTTR(_beginDate, _endDate, equipment);
-
-            if (!_eqpinfoList.Any())
-                return null;
-
-            double _sumWorkTime = 0;
-            // 計算 MTBF actual
-            for (int i = 1; i < _eqpinfoList.Count; i++)
-            {
-                _sumWorkTime += _eqpinfoList[i].End_Time.Subtract(_eqpinfoList[i - 1].Start_Time).TotalSeconds / 60;
-            }
-
-            MTBFMTTRDashboardEntity _dashboardEntity = new MTBFMTTRDashboardEntity
-            {
-                MTBFTarget = "250",
-                MTBFActual = (_sumWorkTime / _eqpinfoList.Count).ToString("0.00"),
-                MTTRTarget = "25",
-                MTTRActual = (_eqpinfoList.Sum(sum => Convert.ToDecimal(sum.Repair_Time)) / _eqpinfoList.Count).ToString("0.00"),
-                MTTRDetail = _eqpinfoList.GroupBy(g => g.Code).Select(s => new MTTRDetailEntity
+                if (DateTime.TryParse(beginDate, out _) && DateTime.TryParse(endDate, out _))
                 {
-                    DownCode = s.Key,
-                    AvgTime = (s.Select(ss => Convert.ToDecimal(ss.Repair_Time)).Sum() / s.Count())
-                }).ToList(),
-                EqpInfoDetail = _eqpinfoList.Select(eqDao => new EquipmentEntity
-                {
-                    ToolStatus = eqDao.Code,
-                    StatusCdsc = eqDao.Code_Desc,
-                    Comment = eqDao.Comments,
-                    UserId = eqDao.Operator,
-                    LmTime = eqDao.Start_Time,
-                    RepairTime = eqDao.Repair_Time
-                }).ToList()
-            };
+                    _beginDate = DateTime.Parse(beginDate);
+                    _endDate = DateTime.Parse(endDate).AddDays(1).AddSeconds(-1);
+                }
 
-            return _dashboardEntity;
+                var _eqpinfoSetting = _equipMappingRepository.SelectEqByConditions(floor, equipNo: equipment);
+                var _eqpinfoList = _eqpInfoRepository.SelectForMTBFMTTR(_beginDate, _endDate, equipment, floor);
+
+                if (!_eqpinfoList.Any())
+                    return null;
+
+                double _sumWorkTime = 0;
+                // 計算 MTBF actual
+                for (int i = 1; i < _eqpinfoList.Count; i++)
+                {
+                    _sumWorkTime += _eqpinfoList[i].End_Time.Subtract(_eqpinfoList[i - 1].Start_Time).TotalSeconds / 60;
+                }
+
+                MTBFMTTRDashboardEntity _dashboardEntity = new MTBFMTTRDashboardEntity
+                {
+                    MTBFTarget = "250",
+                    MTBFActual = (_sumWorkTime / _eqpinfoList.Count).ToString("0.00"),
+                    MTTRTarget = "25",
+                    MTTRActual = (_eqpinfoList.Sum(sum => Convert.ToDecimal(sum.Repair_Time)) / _eqpinfoList.Count).ToString("0.00"),
+                    MTTRDetail = _eqpinfoList.GroupBy(g => g.Code).Select(s => new MTTRDetailEntity
+                    {
+                        DownCode = s.Key,
+                        AvgTime = (s.Select(ss => Convert.ToDecimal(ss.Repair_Time)).Sum() / s.Count())
+                    }).ToList(),
+                    EqpInfoDetail = _eqpinfoList.Select(eqDao => new EquipmentEntity
+                    {
+                        ToolStatus = eqDao.Code,
+                        StatusCdsc = eqDao.Code_Desc,
+                        Comment = eqDao.Comments,
+                        UserId = eqDao.Operator,
+                        LmTime = eqDao.Start_Time,
+                        RepairTime = eqDao.Repair_Time
+                    }).ToList()
+                };
+
+                return _dashboardEntity;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public string UpdateMTBFMTTRSetting(EqMappingEntity updateEntity, UserEntity userEntity)
@@ -645,6 +653,7 @@ namespace MOD4.Web.DomainService
                         EQUIP_NBR = updateEntity.EQUIP_NBR,
                         MTBFTarget = updateEntity.MTBFTarget,
                         MTTRTarget = updateEntity.MTTRTarget,
+                        Floor = updateEntity.Floor,
                         UpdateTime = DateTime.Now,
                         UpdateUser = userEntity.Name
                     }) == 1)

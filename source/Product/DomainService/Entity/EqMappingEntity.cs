@@ -11,6 +11,7 @@
         public int ENABLE { get; set; }
         public decimal MTBFTarget { get; set; }
         public decimal MTTRTarget { get; set; }
+        public int Floor { get; set; }
         public string UpdateTime { get; set; }
         public string UpdateUser { get; set; }
     }

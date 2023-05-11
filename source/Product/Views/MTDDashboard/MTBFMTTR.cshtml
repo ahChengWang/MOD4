@@ -62,6 +62,16 @@
                                         <input id="datePickTo" class="my-control" type="date" min="2020/01/01" />
                                     </div>
                                     <div class="col-lg-1">
+                                        <label class="col-form-label">樓層</label>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <select class="form-control select2bs4" id="Floor">
+                                            <option value="0"></option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-1">
                                         <label class="col-form-label">站點</label>
                                     </div>
                                     <div class="col-lg-1">
@@ -69,6 +79,8 @@
                                             <option></option>
                                         </select>
                                     </div>
+                                </div>
+                                <div class="form-group d-flex align-content-center flex-wrap">
                                     <div class="col-lg-1">
                                         <label class="col-form-label">機台</label>
                                     </div>
@@ -77,7 +89,7 @@
                                         </select>
                                     </div>
                                     <div class="col-lg-1">
-                                        <input class="btn btn-info" type="button" name="btn29" value="查詢" onclick="btnClickSearch()" />
+                                        <input class="btn btn-info" type="button" style="float:right" name="btn29" value="查詢" onclick="btnClickSearch()" />
                                     </div>
                                 </div>
                             </fieldset>
@@ -135,6 +147,7 @@
     <script type="text/javascript">
 
         var _eqIpMapping = [];
+        var _filterOptions = [];
 
         let myfuc = {
             Search() {
@@ -146,11 +159,14 @@
                     return false;
                 }
 
+                globalFuc.LoadingPic();
+
                 $.ajax({
-                    url: "./MTBFMTTR/Search?beginDate=" + $('#datePickFrom').val() + "&endDate=" + $('#datePickTo').val() + "&equipment=" + $('#ToolId').val(),
+                    url: "./MTBFMTTR/Search?beginDate=" + $('#datePickFrom').val() + "&endDate=" + $('#datePickTo').val() + "&equipment=" + $('#ToolId').val() + "&floor=" + $('#Floor').val(),
                     type: "GET",
                     datatype: "json",
                     success: function (result) {
+                        $.unblockUI();
                         $('#EqTitle').html('');
                         $('#eqtbody').empty();
                         $('#eqTable').attr('hidden', true);
@@ -276,23 +292,40 @@
             _eqIpMapping = @Json.Serialize(@ViewBag.EqIDMappingOption);
             //myfuc.SetChart();
 
-            _eqIpMapping.reduce(function (item, option) {
-                if (item[option['operation']] == null) {
-                    $("<option></option>").attr("value", option['operation']).text(option['operation']).appendTo($('#Node'));
-                }
-                (item[option['operation']] = item[option['operation']] || []).push(option);
-                return item;
+            //_eqIpMapping.reduce(function (item, option) {
+            //    if (item[option['operation']] == null) {
+            //        $("<option></option>").attr("value", option['operation']).text(option['operation']).appendTo($('#Node'));
+            //    }
+            //    (item[option['operation']] = item[option['operation']] || []).push(option);
+            //    return item;
+            //}, {});
+        });
+
+        $("#Floor").change(function (e) {
+
+            let _eqFloorSelected = $("#Floor").find(":selected").val();
+            $("#Node").empty();
+            $("#ToolId").empty();
+
+            $("<option></option>").appendTo($('#Node'));
+            _filterOptions = _eqIpMapping.filter(function (eqMapping) {
+                return eqMapping.floor == _eqFloorSelected;
+            });
+
+            _filterOptions.reduce(function (item, option) {
+                return optionReduce(item, option, 'operation', 'operation', '#Node');
             }, {});
         });
 
         $("#Node").change(function (e) {
 
             let _eqGroupSelected = $("#Node").find(":selected").val();
+            let _eqFloorSelected = $("#Floor").find(":selected").val();
             $("#ToolId").empty();
 
             $("<option></option>").appendTo($('#ToolId'));
             _filterOptions = _eqIpMapping.filter(function (eqMapping) {
-                return eqMapping.operation == _eqGroupSelected;
+                return eqMapping.floor == _eqFloorSelected && eqMapping.operation == _eqGroupSelected;
             });
 
             _filterOptions.reduce(function (item, option) {

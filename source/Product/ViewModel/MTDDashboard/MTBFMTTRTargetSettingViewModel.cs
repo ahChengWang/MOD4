@@ -18,5 +18,7 @@ namespace MOD4.Web.ViewModel
 
         [DisplayName("更新人員")]
         public string UpdateUser { get; set; }
+
+        public int Floor { get; set; }
     }
 }

@@ -264,11 +264,11 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpGet("[controller]/MTBFMTTR/Search")]
-        public IActionResult MTBFMTTRSearch([FromQuery] string beginDate, string endDate, string equipment)
+        public IActionResult MTBFMTTRSearch([FromQuery] string beginDate, string endDate, string equipment,int floor)
         {
             try
             {
-                var _resultList = _mtdDashboardDomainService.GetMTBFMTTRList(beginDate, endDate, equipment);
+                var _resultList = _mtdDashboardDomainService.GetMTBFMTTRList(beginDate, endDate, equipment, floor);
 
                 if (_resultList == null)
                     return Json(new { IsSuccess = false, Msg = "No Data" });
@@ -327,7 +327,8 @@ namespace MOD4.Web.Controllers
                 {
                     EQUIP_NBR = settingVM.EquipNo,
                     MTBFTarget = Convert.ToDecimal(settingVM.MTBFTarget),
-                    MTTRTarget = Convert.ToDecimal(settingVM.MTTRTarget)
+                    MTTRTarget = Convert.ToDecimal(settingVM.MTTRTarget),
+                    Floor = settingVM.Floor
                 }, GetUserInfo());
 
                 if (_result != "")
