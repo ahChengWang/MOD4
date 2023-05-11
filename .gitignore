@@ -15,7 +15,12 @@ source/Fundation/Utility/obj/
 source/Fundation/Utility/obj/project.assets.json
 source/Fundation/Utility/obj/Utility.csproj.nuget.dgspec.json
 source/Fundation/Utility/obj/Utility.csproj.nuget.g.props
+source/Fundation/Utility/obj/Debug/
+source/Fundation/Utility/obj/Debug/project.assets.json
+source/Fundation/Utility/obj/Debug/Utility.csproj.nuget.dgspec.json
+source/Fundation/Utility/obj/Debug/Utility.csproj.nuget.g.props
 source/Fundation/Utility/obj/Debug/netcoreapp3.1/
+source/Fundation/Utility/obj/Debug/netcoreapp3.1/Utility.GeneratedMSBuildEditorConfig.editorconfig
 source/Fundation/Utility/obj/Release/netcoreapp3.1/
 
 *.editorconfig
