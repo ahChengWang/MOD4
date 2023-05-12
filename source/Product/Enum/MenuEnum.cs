@@ -42,5 +42,7 @@ namespace MOD4.Web.Enum
         Manufacture = 25,
         [Description("MTBF / MTTR")]
         MTBFMTTR = 26,
+        [Description("MPS ⇅")]
+        MPS = 27,
     }
 }

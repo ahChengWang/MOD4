@@ -264,7 +264,7 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpGet("[controller]/MTBFMTTR/Search")]
-        public IActionResult MTBFMTTRSearch([FromQuery] string beginDate, string endDate, string equipment,int floor)
+        public IActionResult MTBFMTTRSearch([FromQuery] string beginDate, string endDate, string equipment, int floor)
         {
             try
             {
@@ -332,7 +332,7 @@ namespace MOD4.Web.Controllers
                 }, GetUserInfo());
 
                 if (_result != "")
-                    return Json(new ResponseViewModel 
+                    return Json(new ResponseViewModel
                     {
                         IsSuccess = false,
                         Msg = _result

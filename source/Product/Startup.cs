@@ -95,6 +95,7 @@ namespace MOD4.Web
             services.AddSingleton<IMESPermissionApplicantsRepository, MESPermissionApplicantsRepository>();
             services.AddSingleton<IMESPermissionAuditHistoryRepository, MESPermissionAuditHistoryRepository>();
             services.AddSingleton<IMTDProductionScheduleRepository, MTDProductionScheduleRepository>();
+            services.AddSingleton<IMPSUploadHistoryRepository, MPSUploadHistoryRepository>();
 
             services.AddScoped<MenuService>();
             services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));
