@@ -87,6 +87,14 @@ namespace MOD4.Web.Controllers
         [HttpGet("[controller]/MPS")]
         public IActionResult MPS()
         {
+            var _userCurrentPagePermission = GetUserInfo().UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.MPS);
+            ViewBag.UserPermission = new UserPermissionViewModel
+            {
+                AccountSn = _userCurrentPagePermission.AccountSn,
+                MenuSn = _userCurrentPagePermission.MenuSn,
+                AccountPermission = _userCurrentPagePermission.AccountPermission
+            };
+
             ViewBag.ApplyAreaOption = _optionDomainService.GetCertifiedAreaOptions().Select(s => new
             {
                 Area = s.AreaId.GetDescription(),

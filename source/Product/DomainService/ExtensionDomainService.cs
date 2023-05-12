@@ -99,7 +99,7 @@ namespace MOD4.Web.DomainService
         {
             try
             {
-                var serverIP = "ftp://10.132.133.171/FTP_MPS";
+                var serverIP = "ftp://10.132.133.171/FTP_MPS/";
                 var userID = "FTP_MOD4User";
                 var userPW = "MOD4e123";
 
