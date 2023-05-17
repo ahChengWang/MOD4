@@ -6,7 +6,7 @@ namespace MOD4.Web.Enum
     {
         [Description("首頁")]
         Home = 1,
-        [Description("會議室預約")]
+        [Description("CIM 測機排程")]
         BookingMeeting = 3,
         [Description("分時產出")]
         Performance = 5,

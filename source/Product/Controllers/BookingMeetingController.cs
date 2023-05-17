@@ -8,6 +8,7 @@ using MOD4.Web.Enum;
 using MOD4.Web.ViewModel;
 using System.Collections.Generic;
 using System.Linq;
+using Utility.Helper;
 
 namespace MOD4.Web.Controllers
 {
@@ -38,13 +39,17 @@ namespace MOD4.Web.Controllers
                 AccountPermission = _userCurrentPagePermission.AccountPermission
             };
 
-            List<MeetingCreateViewModel> _response = _bookingMeetingDomainService.GetList().Select(data => new MeetingCreateViewModel
+            List<CIMTestBookingViewModel> _response = _bookingMeetingDomainService.GetList().Select(data => new CIMTestBookingViewModel
             {
                 Sn = data.Sn,
-                MeetingRoomId = data.MeetingRoomId,
-                MeetingRoom = data.MeetingRoom,
                 Name = data.Name,
+                JobId = data.JobId,
                 Subject = data.Subject,
+                CIMTestTypeId = data.CIMTestTypeId,
+                CIMTestType = data.CIMTestTypeId.GetDescription(),
+                CIMTestDayTypeId = data.CIMTestDayTypeId,
+                CIMTestDayType = data.CIMTestDayTypeId.GetDescription(),
+                FloorId = data.Floor,
                 StartYear = data.StartTime.Year,
                 StartMonth = data.StartTime.Month,
                 StartDay = data.StartTime.Day,
@@ -72,16 +77,17 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromForm] MeetingCreateViewModel createViewModel)
+        public IActionResult Create([FromForm] CIMTestBookingViewModel createViewModel)
         {
-            var _result = _bookingMeetingDomainService.Create(new BookingRoomEntity
+            var _result = _bookingMeetingDomainService.Create(new CIMTestBookingEntity
             {
-                MeetingRoomId = createViewModel.MeetingRoomId,
                 Date = createViewModel.Date,
-                Time = createViewModel.TimeStart,
+                CIMTestDayTypeId = createViewModel.CIMTestDayTypeId,
+                CIMTestTypeId = createViewModel.CIMTestTypeId,
+                Floor = createViewModel.FloorId,
                 Name = createViewModel.Name,
+                JobId = createViewModel.JobId,
                 Subject = createViewModel.Subject,
-                RepeatWeekly = createViewModel.RepeatWeekly
             });
 
             if (_result != "")
@@ -93,13 +99,18 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Update([FromForm] MeetingCreateViewModel updateViewModel)
+        public IActionResult Update([FromForm] CIMTestBookingViewModel updateViewModel)
         {
-            var _result = _bookingMeetingDomainService.Update(new BookingRoomEntity
+            var _result = _bookingMeetingDomainService.Update(new CIMTestBookingEntity
             {
                 Sn = updateViewModel.Sn,
-                StartTime = updateViewModel.ResizeStartTime,
-                EndTime = updateViewModel.ResizeEndTime
+                Date = updateViewModel.Date,
+                CIMTestTypeId = updateViewModel.CIMTestTypeId,
+                Floor = updateViewModel.FloorId,
+                Name = updateViewModel.Name,
+                JobId = updateViewModel.JobId,
+                Subject = updateViewModel.Subject,
+                CIMTestDayTypeId = updateViewModel.CIMTestDayTypeId,
             });
 
             if (_result != "")

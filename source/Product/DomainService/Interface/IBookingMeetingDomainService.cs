@@ -7,13 +7,13 @@ namespace MOD4.Web.DomainService
 {
     public interface IBookingMeetingDomainService
     {
-        List<BookingRoomEntity> GetList();
+        List<CIMTestBookingEntity> GetList();
 
         string GetFreeTimeRoom(MeetingRoomEnum roomId, string date);
 
-        string Create(BookingRoomEntity bookingEntity);
+        string Create(CIMTestBookingEntity cimBookingEntity);
 
-        string Update(BookingRoomEntity updBookingEntity);
+        string Update(CIMTestBookingEntity updBookingEntity);
 
         string Delete(int meetingSn);
     }

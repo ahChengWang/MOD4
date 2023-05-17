@@ -1,4 +1,4 @@
-﻿@model List<MOD4.Web.ViewModel.MeetingCreateViewModel>
+﻿@model List<MOD4.Web.ViewModel.CIMTestBookingViewModel>
 @using MOD4.Web.ViewModel
 
 @{
@@ -8,17 +8,24 @@
 <head>
     <link rel="stylesheet" href="~/plugins/fullcalendar/main.min.css">
     <link rel="stylesheet" href="~/plugins/daterangepicker/daterangepicker.css">
+    <link rel="stylesheet" href="~/css/bootstrap-calendar-darkly.css">
+    @*<link rel="stylesheet" href="https://bootswatch.com/5/darkly/bootstrap.min.css">*@
 </head>
 
 <style>
-    #imgMap {
+    /*    #imgMap {
         width: 100%;
         height: auto;
-    }
+    }*/
 
-    #divBooking, #divSrcFreeRoom, #calendar {
+    /*#calendar, .fc-scrollgrid-sync-inner {
+        background-color: #808080;
+    }*/
+
+    /*
+    #divBooking, #divSrcFreeRoom {
         background-color: #c3cadb;
-    }
+    }*/
 
     .card-title {
         font-size: 20px;
@@ -26,183 +33,178 @@
         font-weight: 900;
         font-style: italic;
     }
+
+    select[class='myInputStyle1'] {
+        background-color: #303030;
+    }
+
+    .col-form-label {
+        color: black;
+    }
 </style>
 
 <div class="content-wrapper">
     <section class="content">
-        <div class="container-fluid">
-            <div id="app" class="row">
-                <div class="col-md-4">
-                    <div class="card">
-                        <div style="background-color: #c3cadb ">
-                            <div>
-                                <img id="imgMap" src="~/img/meetingRoomMap.png" />
-                            </div>
-                            <div id="divSrcFreeRoom" class="card">
-                                <div class="card-body">
-                                    <form id="bookingForm">
-                                        <div class="row">
-                                            <p style="font-weight:600">閒置時段查詢</p>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-3">
-                                                <label class="col-form-label-sm" asp-for="@Model.FirstOrDefault().MeetingRoomId"></label>
-                                            </div>
-                                            <div class="col-7">
-                                                <select id="srcRoom" class="form-control-sm">
-                                                    <option value="1" style="color:black;background-color: #01803B ">R201</option>
-                                                    <option value="2" style="color:black;background-color: #F1E515">R202</option>
-                                                    <option value="4" style="color:black;background-color: #C50C0C">R204</option>
-                                                    @*<option value="5" style="color:black;background-color: #3F48CC">中控室</option>*@
-                                                    <option value="6" style="color:black;background-color: #A349A4">D</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="row" style="margin-top:3px">
-                                            <div class="col-3">
-                                                <label class="col-form-label-sm" asp-for="@Model.FirstOrDefault().Date"></label>
-                                                <span asp-validation-for="@Model.FirstOrDefault().Date" style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                            </div>
-                                            <div class="col-7">
-                                                <input id="srcDTE" type="date" class="form-control-sm"/>
-                                            </div>
-                                        </div>
-                                        <div class="row" style="margin-top:2px">
-                                            <input id="btnSearch" class="btn btn-sm btn-info" type="button" value="查詢" v-on:click="freeTimeSearch" />
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                            <div id="divBooking" class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">我要預約</h3>
-                                </div>
-                                <div class="card-body">
-                                    <form id="bookingForm">
-                                        <div class="row">
-                                            <div class="col-3">
-                                                <label class="col-form-label" asp-for="@Model.FirstOrDefault().MeetingRoomId"></label>
-                                            </div>
-                                            <div class="col-7">
-                                                <select class="form-control" name="MeetingRoomId" v-model="_model.meetingRoomId">
-                                                    <option value="1" style="color:black;background-color: #01803B ">R201</option>
-                                                    <option value="2" style="color:black;background-color: #F1E515">R202</option>
-                                                    <option value="4" style="color:black;background-color: #C50C0C">R204</option>
-                                                    @*<option value="5" style="color:black;background-color: #3F48CC">中控室</option>*@
-                                                    <option value="6" style="color:black;background-color: #A349A4">D</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="row" style="margin-top:3px">
-                                            <div class="col-3">
-                                                <label class="col-form-label" asp-for="@Model.FirstOrDefault().Name"></label>
-                                                <span asp-validation-for="@Model.FirstOrDefault().Name" style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                            </div>
-                                            <div class="col-7">
-                                                <input type="text" class="form-control" name="Name" v-model="_model.name" />
-                                            </div>
-                                        </div>
-                                        <div class="row" style="margin-top:2px">
-                                            <div class="col-3">
-                                                <label class="col-form-label" asp-for="@Model.FirstOrDefault().Subject"></label>
-                                                <span asp-validation-for="@Model.FirstOrDefault().Subject" style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                            </div>
-                                            <div class="col-7">
-                                                <input type="text" class="form-control" name="Subject" v-model="_model.subject" />
-                                            </div>
-                                        </div>
-                                        <div class="row" style="margin-top:3px">
-                                            <div class="col-3">
-                                                <label class="col-form-label" asp-for="@Model.FirstOrDefault().Date"></label>
-                                                <span asp-validation-for="@Model.FirstOrDefault().Date" style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                            </div>
-                                            <div class="col-7">
-                                                <input type="date" class="form-control" name="Date" v-model="_model.date" />
-                                            </div>
-                                        </div>
-                                        <div class="row" style="margin-top:3px">
-                                            <div class="col-3">
-                                                <label class="col-form-label" asp-for="@Model.FirstOrDefault().TimeStart"></label>
-                                                <span asp-validation-for="@Model.FirstOrDefault().TimeStart" style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                            </div>
-                                            <div class="col-7">
-                                                <input type="text" class="datepicker example form-control" name="TimeStart" v-model="_model.timeStart" />
-                                            </div>
-                                        </div>
-                                        <div class="row" style="margin-top:2px">
-                                            <label class="col-form-label" style="margin-right:20px" asp-for="@Model.FirstOrDefault().RepeatWeekly"></label>
-                                            @{
-                                                if (Convert.ToBoolean(((UserPermissionViewModel)ViewBag.UserPermission).AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management))
-                                                {
-                                                    <input type="checkbox" class="custom-checkbox" name="RepeatWeekly" v-model="_model.repeatWeekly" />
-                                                    <label id="repeatNote" class="col-form-label" style="color:red;margin-left:5px"></label>
-                                                }
-                                                else
-                                                {
-                                                    <input type="checkbox" class="custom-checkbox" disabled v-model="_model.repeatWeekly" />
-                                                    <label class="col-form-label" style="color:red;margin-left:5px">*例會預約請洽陳冠貽</label>
-                                                }
-                                            }
-                                        </div>
-                                        <div class="row" style="margin-top:2px">
-                                            <input id="btnBooking" class="btn btn-sm btn-info" type="button" value="預約" v-on:click="bookingClick" />
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                            <div class="modal fade" id="modal-sm-completed">
-                                <div class="modal-dialog modal-sm">
-                                    <div class="modal-content">
-                                        <div class="modal-header" style="color:white;height: 50px; font-weight: 700; background-color: #3c7da6 ">
-                                            <p>會議資訊</p>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body" style="background-color: #a5bec2 ">
-                                            <div>
-                                                <label>會議室：</label>
-                                                <label id="mRoom"></label>
-                                            </div>
-                                            <div>
-                                                <label>議題：</label>
-                                                <label id="mSubject"></label>
-                                            </div>
-                                            <div>
-                                                <label>預約人：</label>
-                                                <label id="mName"></label>
-                                            </div>
-                                            <div>
-                                                <label>時間：</label>
-                                                <label id="mStartTime"></label>
-                                                <br />
-                                                <label>　到　</label>
-                                                <label id="mEndTime"></label>
-                                            </div>
-                                            <input id="mMeetingSn" type="hidden" value="" />
-                                        </div>
-                                        <div class="modal-footer justify-content-between" style="background-color: #a5bec2 ">
-                                            @{
-                                                if (Convert.ToBoolean(((UserPermissionViewModel)ViewBag.UserPermission).AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management))
-                                                {
-                                                    <input type="button" class="btn btn-danger" data-dismiss="modal" value="取消會議" v-on:click="bookingCancel()" />
-                                                }
-                                            }
-                                        </div>
+        <div id="app" class="container-fluid">
+            <div class="col-md-12">
+                <div class="card">
+                    <div id="calendar">
+                    </div>
+                </div>
+            </div>
+            @{
+                if (Convert.ToBoolean(((UserPermissionViewModel)ViewBag.UserPermission).AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management))
+                {
+                    <div id="divBooking" class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">CIM 排程新增</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="bookingForm">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <label class="col-form-label" asp-for="@Model.FirstOrDefault().CIMTestTypeId"></label>
                                     </div>
-                                    <!-- /.modal-content -->
+                                    <div class="col-md-2">
+                                        <select class="form-control" v-model="_model.cimTestTypeId">
+                                            <option value="1">LAB Test</option>
+                                            <option value="2">FAB Test</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="col-form-label" asp-for="@Model.FirstOrDefault().FloorId"></label>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select class="form-control" v-model="_model.floorId">
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <!-- /.modal-dialog -->
+                                <div class="row" style="margin-top:2px">
+                                    <div class="col-md-2">
+                                        <label class="col-form-label" asp-for="@Model.FirstOrDefault().Name"></label>
+                                        <span asp-validation-for="@Model.FirstOrDefault().Name" style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="text" class="form-control" name="Name" v-model="_model.name" />
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="@Model.FirstOrDefault().JobId"></label>
+                                        <span asp-validation-for="@Model.FirstOrDefault().JobId" style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-2">
+                                        <input type="text" class="form-control" name="JobId" v-model="_model.jobId" />
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top:2px">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="@Model.FirstOrDefault().Subject"></label>
+                                        <span asp-validation-for="@Model.FirstOrDefault().Subject" style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="text" class="form-control" name="Subject" v-model="_model.subject" />
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top:3px">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="@Model.FirstOrDefault().Date"></label>
+                                        <span asp-validation-for="@Model.FirstOrDefault().Date" style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-2">
+                                        <input type="date" class="form-control" name="Date" v-model="_model.date" />
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="@Model.FirstOrDefault().CIMTestDayTypeId"></label>
+                                    </div>
+                                    <div class="col-2">
+                                        <select class="form-control" v-model="_model.cimTestDayTypeId">
+                                            <option value="1">上午</option>
+                                            <option value="2">下午</option>
+                                            <option value="3">整天</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top:2px">
+                                    <input id="btnBooking" class="btn btn-sm btn-secondary" type="button" value="預約" v-on:click="bookingClick" />
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                }
+            }
+            <div class="modal fade" id="modal-sm-completed">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-header" style="height:50px;font-weight: 700; display: inline-block;align-content:center">
+                            <h5 style="display:inline-block">CIM 測試預約內容</h5>
+                            <button type="button" class="close" style="color:white" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div>
+                                <label>日期：</label>
+                                @*<label id="mDate"></label>*@
+                                <input id="mDate" type="date" class="myInputStyle1" disabled style="width:75%" />
                             </div>
+                            <div>
+                                <label>測試階段：</label>
+                                @*<label id="mTestType"></label>*@
+                                <select id="mTestType" class="myInputStyle1" disabled style="width: 65%;">
+                                    <option value="1">LAB Test</option>
+                                    <option value="2">FAB Test</option>
+                                    <option value="3">Done</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>議題：</label>
+                                @*<label id="mSubject"></label>*@
+                                <input id="mSubject" type="text" class="myInputStyle1" disabled style="width:75%" />
+                            </div>
+                            <div>
+                                <label>樓層：</label>
+                                @*<label id="mFloor"></label>*@
+                                <select id="mFloor" class="myInputStyle1" disabled style="width:75%">
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>預約人：</label>
+                                @*<label id="mName"></label>*@
+                                <input id="mName" type="text" class="myInputStyle1" disabled style="width:70%" />
+                            </div>
+                            <div>
+                                <label>工號：</label>
+                                @*<label id="mName"></label>*@
+                                <input id="mJobId" type="text" class="myInputStyle1" disabled style="width:75%" />
+                            </div>
+                            <div>
+                                <label>測試時間：</label>
+                                @*<label id="mTestDayType"></label>*@
+                                <select id="mTestDayType" class="myInputStyle1" disabled style="width:65%">
+                                    <option value="1">AM</option>
+                                    <option value="2">PM</option>
+                                    <option value="3">All</option>
+                                </select>
+                            </div>
+                            <input id="mMeetingSn" type="hidden" value="" />
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            @{
+                                if (Convert.ToBoolean(((UserPermissionViewModel)ViewBag.UserPermission).AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management))
+                                {
+                                    <input id="btnEdit" type="button" class="btn btn-warning" value="編輯" v-on:click="bookingEdit()" />
+                                    <input id="btnUpd" type="button" class="btn btn-secondary" value="儲存" v-on:click="bookingUpdate()" />
+                                    <input id="btnCancel" type="button" class="btn btn-danger" data-dismiss="modal" value="取消排程" v-on:click="bookingCancel()" />
+                                }
+                            }
                         </div>
                     </div>
+                    <!-- /.modal-content -->
                 </div>
-                <div class="col-md-8">
-                    <div class="card">
-                        <div id="calendar">
-                        </div>
-                    </div>
-                </div>
+                <!-- /.modal-dialog -->
             </div>
         </div>
     </section>
@@ -218,14 +220,13 @@
 
         var _model = {
             sn: 0,
-            meetingRoomId: 0,
+            cimTestTypeId: 0,
             date: '',
-            timeStart: '',
             name: '',
+            jobId: '',
             subject: '',
-            repeatWeekly: 0,
-            resizeStartTime: null,
-            resizeEndTime: null
+            cimTestDayTypeId: 0,
+            floorId: 0
         };
 
         const vm = new Vue({
@@ -264,6 +265,49 @@
                             }
                         });
                     }
+                },
+                bookingEdit: function () {
+                    $('#btnEdit').attr('disabled', true);
+                    $('#btnUpd').attr('disabled', false);
+                    $('#btnCancel').attr('disabled', true);
+
+                    $('.modal-body').find('input, select').each(function (idx, attr) {
+                        attr.disabled = false;
+                    });
+                },
+                bookingUpdate: function () {
+
+                    _model.sn = $('#mMeetingSn').val();
+                    _model.cimTestTypeId = $("#mTestType").find("option:selected").val();
+                    _model.date = $('#mDate').val();
+                    _model.name = $('#mName').val();
+                    _model.subject = $('#mSubject').val();
+                    _model.cimTestDayTypeId = $("#mTestDayType").find("option:selected").val();
+                    _model.floorId = $("#mFloor").find("option:selected").val();
+                    _model.jobId = $("#mJobId").val();
+
+                    globalFuc.LoadingPic();
+
+                    $.ajax({
+                        url: "./BookingMeeting/Update",
+                        type: "POST",
+                        dataType: "json",
+                        data: _model,
+                        success: function (res) {
+                            $.unblockUI();
+                            if (res.isSuccess) {
+                                $('#btnEdit').attr('disabled', false);
+                                $('#btnUpd').attr('disabled', true);
+                                $('#btnCancel').attr('disabled', false);
+                                alert('異動成功');
+                                location.reload();
+                            }
+                            else {
+                                alert(res.msg);
+                                return false;
+                            }
+                        }
+                    });
                 },
                 bookingCancel: function () {
 
@@ -320,25 +364,30 @@
                 _modelData.forEach(function (meeting) {
                     _calEvents.push({
                         id: meeting.sn,
-                        title: meeting.name + '-' + meeting.meetingRoom + '-' + meeting.subject,
+                        extendedProps: meeting,
+                        title: meeting.floorId + 'F[' + meeting.cimTestDayType + ']' + meeting.name + '-' + meeting.subject,
                         start: new Date(meeting.startYear, meeting.startMonth - 1, meeting.startDay, meeting.startHour, meeting.startMinute, meeting.startSecond ),
                         end: new Date(meeting.endYear, meeting.endMonth - 1, meeting.endDay, meeting.endHour, meeting.endMinute , meeting.endSecond ),
-                        backgroundColor: meeting.backgroundColor, //red
+                        //backgroundColor: "#294da6", //red
+                        //borderColor: "#b80909",
+                        color: meeting.backgroundColor,
                         textColor: '#000000',
-                        allDay: false
+                        allDay: false,
                     });
                 });
 
                 var Calendar = FullCalendar.Calendar;
                 var calendarEl = document.getElementById('calendar');
 
+                // initial calendar
                 var _calObj = {
                     headerToolbar: {
                         left: 'prev,next today',
                         center: 'title',
-                        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                        right: 'dayGridMonth',
                     },
-                    initialView: 'timeGridWeek',
+                    height: 800,
+                    initialView: 'dayGridMonth',
                     themeSystem: 'bootstrap',
                     editable: false,
                     eventResizableFromStart: false,
@@ -346,9 +395,14 @@
                     events: _calEvents,
                     eventDrop: function (e) {
 
-                        _model.sn = parseInt(e.event.id);
-                        _model.resizeStartTime = e.event.startStr;
-                        _model.resizeEndTime = e.event.endStr;
+                        _model.sn = e.event.id;
+                        _model.cimTestTypeId = e.event.extendedProps.cimTestTypeId;
+                        _model.date = e.event.startStr.substring(0, 10);
+                        _model.name = e.event.extendedProps.name;
+                        _model.subject = e.event.extendedProps.subject;
+                        _model.cimTestDayTypeId = e.event.extendedProps.cimTestDayTypeId;
+                        _model.floorId = e.event.extendedProps.floorId;
+                        _model.jobId = e.event.extendedProps.jobId;
 
                         $.ajax({
                             url: "./BookingMeeting/Update",
@@ -359,7 +413,7 @@
                                 $.unblockUI();
                                 if (res.isSuccess) {
                                     alert('異動成功');
-                                    //location.reload();
+                                    location.reload();
                                 }
                                 else {
                                     alert(res.msg);
@@ -397,12 +451,22 @@
                         });
                     },
                     eventClick: function (e) {
+
+                        $('#btnEdit').attr('disabled', false);
+                        $('#btnUpd').attr('disabled', true);
+                        $('#btnCancel').attr('disabled', false);
+
                         const titleArray = e.event.title.split("-");
-                        $('#mRoom').html(titleArray[1]);
-                        $('#mSubject').html(titleArray[2]);
-                        $('#mName').html(titleArray[0]);
-                        $('#mStartTime').html(e.event.startStr.substring(0, 19).replace('T', ' '));
-                        $('#mEndTime').html(e.event.endStr.substring(0, 19).replace('T', ' '));
+                        $('#mDate').val(e.event.startStr.substring(0, 10));
+                        /*var _testTypeOption = $("#mTestType option").filter(":contains('" + titleArray[2] + "')").val();*/
+                        $('#mTestType').val(e.event.extendedProps.cimTestTypeId);
+                        //$("#mTestType option[value=" + titleArray[2] + "]");
+                        //$('#mTestType').html(titleArray[2]);
+                        $('#mSubject').val(e.event.extendedProps.subject);
+                        $('#mFloor').val(e.event.extendedProps.floorId);
+                        $('#mName').val(e.event.extendedProps.name);
+                        $('#mJobId').val(e.event.extendedProps.jobId);
+                        $('#mTestDayType').val(e.event.extendedProps.cimTestDayTypeId);
                         $('#mMeetingSn').val(e.event.id);
                         $('#modal-sm-completed').modal('show');
                     }
@@ -417,12 +481,16 @@
 
                 calendar.render();
 
-                var date = new Date()
-                var m = date.getMonth()
+                $('.modal').on('hidden.bs.modal', function () {
+                    $('.modal-body').find('input, select').each(function (idx, attr) {
+                        attr.disabled = true;
+                    });
+                })
 
-                let _repeatDTE = new Date(date.setMonth(m + 4));
-
-                $("#repeatNote").html("*會議重複至" + [_repeatDTE.getFullYear(), _repeatDTE.getMonth(), _repeatDTE.getDate()].join('/'));
+                //var date = new Date()
+                //var m = date.getMonth()
+                //let _repeatDTE = new Date(date.setMonth(m + 4));
+                //$("#repeatNote").html("*會議重複至" + [_repeatDTE.getFullYear(), _repeatDTE.getMonth(), _repeatDTE.getDate()].join('/'));
             }
         });
 

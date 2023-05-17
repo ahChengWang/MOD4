@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using MOD4.Web.DomainService.Entity;
 using System;
+using System.Linq;
 using System.Net.Mail;
 using System.Security.Policy;
 
@@ -42,6 +43,12 @@ namespace MOD4.Web.DomainService
 
                     Mymessage.Subject = mailEntity.Subject;
                     Mymessage.IsBodyHtml = true;
+                    Mymessage.Body = mailEntity.Content;
+                    
+                    if (mailEntity.CCUserList != null && mailEntity.CCUserList.Any())
+                        foreach (string _ccUser in mailEntity.CCUserList)
+                            Mymessage.CC.Add(new MailAddress(_ccUser));
+
                     Mymessage.Body = mailEntity.Content;
 
                     //sends the email
