@@ -39,6 +39,8 @@ namespace MOD4.Web.DomainService
             _cimTestTypeBGCss = new Dictionary<CIMTestTypeEnum, string> {
                 { CIMTestTypeEnum.FABTest,"#4bd60f" },
                 { CIMTestTypeEnum.LABTest,"#f0d107" },
+                { CIMTestTypeEnum.SpecDev,"#bf2c2e" },
+                { CIMTestTypeEnum.Meeting,"#8427c2" },
                 { CIMTestTypeEnum.Done,"#666666" },
             };
         }
@@ -131,7 +133,7 @@ namespace MOD4.Web.DomainService
             }
 
             // 檢核會議重複
-            var _meetingOverlap = _cimTestBookingRepository.VerifyOverlap(_startTime, _endTime);
+            var _meetingOverlap = _cimTestBookingRepository.VerifyOverlap(_startTime, _endTime.AddDays(bookingEntity.Days));
             if (_meetingOverlap.Any())
             {
                 string _overlapMsg = "預約會議時間與以下重疊 \n";
@@ -143,22 +145,32 @@ namespace MOD4.Web.DomainService
                 return _overlapMsg;
             }
 
-            CIMTestBookingDao _insCIMBooking = new CIMTestBookingDao
+            List<CIMTestBookingDao> _insCIMBookingList = new List<CIMTestBookingDao>();
+            int _dayDelay = 0;
+
+
+            for (int day = 0; day < bookingEntity.Days; day++)
             {
-                CIMTestTypeId = bookingEntity.CIMTestTypeId,
-                Floor = bookingEntity.Floor,
-                Name = bookingEntity.Name,
-                JobId = bookingEntity.JobId,
-                Subject = bookingEntity.Subject,
-                CIMTestDayTypeId = bookingEntity.CIMTestDayTypeId,
-                StartTime = _startTime,
-                EndTime = _endTime,
-                BackgroundColor = _cimTestTypeBGCss[bookingEntity.CIMTestTypeId]
-            };
+                if (_startTime.AddDays(day).DayOfWeek == DayOfWeek.Saturday)
+                    _dayDelay += 2;
+
+                _insCIMBookingList.Add(new CIMTestBookingDao
+                {
+                    CIMTestTypeId = bookingEntity.CIMTestTypeId,
+                    Floor = bookingEntity.Floor,
+                    Name = bookingEntity.Name,
+                    JobId = bookingEntity.JobId,
+                    Subject = bookingEntity.Subject,
+                    CIMTestDayTypeId = bookingEntity.CIMTestDayTypeId,
+                    StartTime = _startTime.AddDays(day + _dayDelay),
+                    EndTime = _endTime.AddDays(day + _dayDelay),
+                    BackgroundColor = _cimTestTypeBGCss[bookingEntity.CIMTestTypeId]
+                });
+            }
 
             using (TransactionScope _scope = new TransactionScope())
             {
-                var _insResult = _cimTestBookingRepository.Insert(new List<CIMTestBookingDao> { _insCIMBooking }) == 1;
+                var _insResult = _cimTestBookingRepository.Insert(_insCIMBookingList) == _insCIMBookingList.Count;
 
                 if (_insResult)
                     _scope.Complete();
@@ -168,14 +180,16 @@ namespace MOD4.Web.DomainService
 
             if (string.IsNullOrEmpty(_createRes))
             {
-                _mappDomainService.SendMsgToOneAsync($"CIM 測機排程預約成功通知, 申請人:{_insCIMBooking.Name}, 議題:{_insCIMBooking.Subject} {_insCIMBooking.CIMTestTypeId.GetDescription()}, 日期:{_startTime}~{_endTime}", "249367");
+                _mappDomainService.SendMsgToOneAsync(
+                    $"【CIM 測機排程】預約成功通知, 申請人:{bookingEntity.Name}, 內容:{bookingEntity.Subject} {bookingEntity.CIMTestTypeId.GetDescription()}, 日期:{_startTime.ToShortDateString()} ~ {_endTime.AddDays(bookingEntity.Days - 1 + _dayDelay).ToShortDateString()}",
+                    "260837");
                 _mailServer.Send(new MailEntity
                 {
                     To = _accountInfoList.FirstOrDefault().Mail,
-                    Subject = $"【CIM 測機排程】預約申請成功通知 - 申請人:{_insCIMBooking.Name}",
-                    CCUserList = new List<string> { "morrise.chen@innlux.com", "flower.lin@innlux.com;" },
+                    Subject = $"【CIM 測機排程】預約申請成功通知 - 申請人:{bookingEntity.Name}",
+                    CCUserList = new List<string> { "ALLAN.RO@INNOLUX.COM", "MORRISE.CHEN@INNOLUX.COM", "CHRIS31.WANG@INNOLUX.COM", "FLOWER.LIN@INNOLUX.COM" },
                     Content = "<br /> Dear Sir ,<br /><br />" +
-                    $"您 <a style='text-decoration:underline'>[{_insCIMBooking.Subject}({_insCIMBooking.CIMTestTypeId.GetDescription()})]</a><a style='font-weight:900'> CIM 測機排程已成功預約</a>， <br /><br />" +
+                    $"您 <a style='text-decoration:underline;font-weight:800'>【{bookingEntity.Subject}({bookingEntity.CIMTestTypeId.GetDescription()})】</a><a> CIM 測機排程已成功預約</a>， <br /><br />" +
                     $"日期 {_startTime} ~ {_endTime}， <br /><br />" +
                     $"詳細內容請至 <a href='http://10.54.215.210/CarUX/BookingMeeting' target='_blank'>CIM 測機排程</a> 連結查看， <br /><br />" +
                     "謝謝"
@@ -260,14 +274,16 @@ namespace MOD4.Web.DomainService
 
             if (string.IsNullOrEmpty(_createRes) && _booking.CIMTestTypeId != CIMTestTypeEnum.Done)
             {
-                _mappDomainService.SendMsgToOneAsync($"CIM 測機排程預約更新通知, 申請人:{_booking.Name}, 議題:{_booking.Subject} {_booking.CIMTestTypeId.GetDescription()}, 日期:{_startTime}~{_endTime}", "249367");
+                _mappDomainService.SendMsgToOneAsync(
+                    $"【CIM 測機排程】預約更新通知, 申請人:{_booking.Name}, 內容:{_booking.Subject} {_booking.CIMTestTypeId.GetDescription()}, 日期:{_startTime.ToShortDateString()}",
+                    "260837");
                 _mailServer.Send(new MailEntity
                 {
                     To = _accountInfoList.FirstOrDefault().Mail,
                     Subject = $"【CIM 測機排程】預約申請更新通知 - 申請人:{_booking.Name}",
-                    CCUserList = new List<string> { "morrise.chen@innlux.com", "flower.lin@innlux.com;" },
+                    CCUserList = new List<string> { "ALLAN.RO@INNOLUX.COM", "MORRISE.CHEN@INNOLUX.COM", "CHRIS31.WANG@INNOLUX.COM", "FLOWER.LIN@INNOLUX.COM" },
                     Content = "<br /> Dear Sir ,<br /><br />" +
-                    $"您 <a style='text-decoration:underline'>[{_booking.Subject}({_booking.CIMTestTypeId.GetDescription()})]</a><a style='font-weight:900'> CIM 測機排程已成功預約</a>， <br /><br />" +
+                    $"您 <a style='text-decoration:underline;font-weight:900'>【{_booking.Subject}({_booking.CIMTestTypeId.GetDescription()})】</a><a> CIM 測機排程已成功預約</a>， <br /><br />" +
                     $"日期 {_startTime} ~ {_endTime}， <br /><br />" +
                     $"詳細內容請至 <a href='http://10.54.215.210/CarUX/BookingMeeting' target='_blank'>CIM 測機排程</a> 連結查看， <br /><br />" +
                     "謝謝"
@@ -280,14 +296,14 @@ namespace MOD4.Web.DomainService
         public string Delete(int meetingSn)
         {
             string _delResult = "";
-            var _booking = _bookingMeetingRepository.SelectByConditions(sn: meetingSn).FirstOrDefault();
+            var _booking = _cimTestBookingRepository.SelectByConditions(sn: meetingSn);
 
-            if (_booking == null)
-                return "查無此會議";
+            if (_booking == null || !_booking.Any())
+                return "查無 CIM 排程預約";
 
             using (TransactionScope _scope = new TransactionScope())
             {
-                var _updResult = _bookingMeetingRepository.Delete(meetingSn) == 1;
+                var _updResult = _cimTestBookingRepository.Delete(meetingSn) == 1;
 
                 if (_updResult)
                     _scope.Complete();

@@ -21,6 +21,8 @@ namespace MOD4.Web.DomainService.Entity
 
         public int Floor { get; set; }
 
+        public int Days { get; set; }
+
         public DateTime StartTime { get; set; }
 
         public DateTime EndTime { get; set; }

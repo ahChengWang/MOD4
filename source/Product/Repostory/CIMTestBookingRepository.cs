@@ -92,7 +92,7 @@ or (@EndTime between startTime and endTime)) ";
 
         public int Delete(int meetingSn)
         {
-            string sql = @" DELETE [dbo].[booking_meeting] WHERE Sn=@Sn ; ";
+            string sql = @" DELETE [dbo].[cim_test_booking] WHERE Sn=@Sn ; ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, new
             {

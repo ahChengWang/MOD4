@@ -38,6 +38,9 @@ namespace MOD4.Web.ViewModel
         [DisplayName("樓層")]
         public int FloorId { get; set; }
 
+        [DisplayName("測試天數")]
+        public int Days { get; set; }
+
         public int StartYear { get; set; }
         public int StartMonth { get; set; }
         public int StartDay { get; set; }

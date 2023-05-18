@@ -85,6 +85,7 @@ namespace MOD4.Web.Controllers
                 CIMTestDayTypeId = createViewModel.CIMTestDayTypeId,
                 CIMTestTypeId = createViewModel.CIMTestTypeId,
                 Floor = createViewModel.FloorId,
+                Days = createViewModel.Days,
                 Name = createViewModel.Name,
                 JobId = createViewModel.JobId,
                 Subject = createViewModel.Subject,

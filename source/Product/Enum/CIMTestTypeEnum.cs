@@ -10,5 +10,9 @@ namespace MOD4.Web.Enum
         FABTest = 2,
         [Description("Done")]
         Done = 3,
+        [Description("Spec dev.")]
+        SpecDev = 4,
+        [Description("會議")]
+        Meeting = 5,
     }
 }
