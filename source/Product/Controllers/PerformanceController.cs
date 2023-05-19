@@ -52,11 +52,11 @@ namespace MOD4.Web.Controllers
             }
         }
 
-        public IActionResult Search(string mfgDay, string shift, string node, string prodList)
+        public IActionResult Search(string mfgDay, string shift, string node, int owner, string prodList)
         {
             try
             {
-                var resule = _performanceDomainService.GetList(mfgDay, prodList, shift, node);
+                var resule = _performanceDomainService.GetList(mfgDay, prodList, shift, node, owner);
 
                 if (!resule.Any())
                 {

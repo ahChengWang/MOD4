@@ -92,7 +92,10 @@
                                         {
                                             <option value="@item.Item1" selected>@item.Item2</option>
                                         }
-                                        <option value="@item.Item1">@item.Item2</option>
+                                        else
+                                        {
+                                            <option value="@item.Item1">@item.Item2</option>
+                                        }
                                     }
                                 </optgroup>
                             }

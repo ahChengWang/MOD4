@@ -69,7 +69,6 @@
     button[type='button'] {
         width: 200px;
     }
-
 </style>
 
 <div class="content-wrapper">
@@ -91,7 +90,7 @@
                                         <input id="srcDate" class="my-control" type="date" value="" />
                                     </div>
                                     <div class="col-lg-2">
-                                        <label>線體：</label>
+                                        <label>機種：</label>
                                         <select id="dropLine" class="my-control" multiple="multiple">
                                             @{
                                                 foreach (var lcmProd in ViewBag.ProdOptions)
@@ -126,6 +125,13 @@
                                             <option value="1700">1700</option>
                                             <option value="1720">1720</option>
                                             <option value="1910">1910</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <label>Owner：</label>
+                                        <select id="dropOwner" class="my-control">
+                                            <option value="1">量產</option>
+                                            <option value="2">實驗</option>
                                         </select>
                                     </div>
                                     <div class="col-lg-2">
@@ -214,7 +220,7 @@
 
             globalFuc.LoadingPic();
             $.ajax({
-                url: "./Performance/Search?mfgDay=" + $("#srcDate").val() + "&shift=" + $("#dropShift").val() + "&node=" + $("#dropNode").val() + "&prodList=" + $("#dropLine").val(),
+                url: "./Performance/Search?mfgDay=" + $("#srcDate").val() + "&shift=" + $("#dropShift").val() + "&node=" + $("#dropNode").val() + "&owner=" + $("#dropOwner").val() + "&prodList=" + $("#dropLine").val(),
                 type: "GET",
                 dataType: 'html',
                 async: true,

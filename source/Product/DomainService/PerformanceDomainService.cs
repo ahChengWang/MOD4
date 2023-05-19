@@ -43,6 +43,12 @@ namespace MOD4.Web.DomainService
             {"1910",("SHIPPING",11) }
         };
         private readonly string[] _passTransType = new string[] { "MVOT", "MRWK", "SHIP" };
+        private readonly Dictionary<int, string> _ownerDic = new Dictionary<int, string>
+        {
+            {1,"'QTAP','LCME','PRDG','PROD','RES0'" },
+            {2,"'INT0'" },
+        };
+
         #region time block
         private TimeSpan _time0730 = new TimeSpan(7, 30, 0);
         private TimeSpan _time0830 = new TimeSpan(8, 30, 0);
@@ -83,8 +89,7 @@ namespace MOD4.Web.DomainService
             _optionDomainService = optionDomainService;
         }
 
-
-        public List<PassQtyEntity> GetList(string mfgDTE = "", string prodList = "1206", string shift = "", string nodeAryStr = "")
+        public List<PassQtyEntity> GetList(string mfgDTE = "", string prodList = "1206", string shift = "", string nodeAryStr = "", int ownerId = 1)
         {
 
             DateTime _nowTime = DateTime.Now;
@@ -145,7 +150,7 @@ namespace MOD4.Web.DomainService
 
                 foreach (string prod in _allLcmProdOptions.Select(s => s.Item2.Split("-")[0]))
                 {
-                    _prodEqDic.Add(prod, GetNodeAllEquiomentNo($"{node.Key}-{node.Value.Item1}", prod, shift, mfgDTE, _mfgDteEnd));
+                    _prodEqDic.Add(prod, GetNodeAllEquiomentNo($"{node.Key}-{node.Value.Item1}", prod, shift, mfgDTE, _mfgDteEnd, ownerId));
                 }
 
                 //foreach (var prodEq in _prodEqDic)
@@ -155,7 +160,7 @@ namespace MOD4.Web.DomainService
                 {
                     foreach (var eq in prodEq.Value)
                     {
-                        string _qStr = $"Shop=MOD4&G_FAC=6&StrSql_w=+and+prod_nbr+in+('{prodEq.Key}')+and+lcm_owner+in+('QTAP','LCME','PRDG','PROD','RES0')&StrSql_w4=&col0=&col1=&row0={prodEq.Key}" +
+                        string _qStr = $"Shop=MOD4&G_FAC=6&StrSql_w=+and+prod_nbr+in+('{prodEq.Key}')+and+lcm_owner+in+({_ownerDic[ownerId]})&StrSql_w4=&col0=&col1=&row0={prodEq.Key}" +
                                         $"&row2={eq}&row3={shift}&row1={node.Key}&sql_m=+and+acct_date+>=+'{mfgDTE}'+and+acct_date+<=+'{mfgDTE}'" +
                                         $"&sql_m1=+and+trans_date+>=+'{mfgDTE}+07:30:00.000000'+and+trans_date+<=+'{_mfgDteEnd}+07:30:00.000000'" +
                                         $"&sqlbu2=+and+shift_id='{shift}'&vdate_s=&vdate_e=";
@@ -424,13 +429,13 @@ namespace MOD4.Web.DomainService
         }
 
 
-        private List<string> GetNodeAllEquiomentNo(string node, string prodList, string shift, string startDTE, string endDTE)
+        private List<string> GetNodeAllEquiomentNo(string node, string prodList, string shift, string startDTE, string endDTE, int ownerId)
         {
             List<string> _nodeEqList = new List<string>();
 
-            string _qStr = $"Shop=MOD4&G_FAC=6&StrSql_w2={(string.IsNullOrEmpty(prodList) ? "" : $"+And+Prod_Nbr+in+('{prodList}')")}+and+lcm_owner+in+('QTAP','LCME','PRDG','PROD','RES0')+and++work_ctr+>+1000++" +
-                $"&StrSql_w1={(string.IsNullOrEmpty(prodList) ? "" : $"+And+Prod_Nbr+in+('{prodList}')")}+and+lcm_owner+in+('QTAP','LCME','PRDG','PROD','RES0')+and++to_wc+>+1000+++and+shift_id='A'" +
-                $"&StrSql_w={(string.IsNullOrEmpty(prodList) ? "" : $"+And+Prod_Nbr+in+('{prodList}')")}+and+lcm_owner+in+('QTAP','LCME','PRDG','PROD','RES0')&StrSql_tvset=&col0=Pass+Q%27ty&col1=&row0=" +
+            string _qStr = $"Shop=MOD4&G_FAC=6&StrSql_w2={(string.IsNullOrEmpty(prodList) ? "" : $"+And+Prod_Nbr+in+('{prodList}')")}+and+lcm_owner+in+({_ownerDic[ownerId]})+and++work_ctr+>+1000++" +
+                $"&StrSql_w1={(string.IsNullOrEmpty(prodList) ? "" : $"+And+Prod_Nbr+in+('{prodList}')")}+and+lcm_owner+in+({_ownerDic[ownerId]})+and++to_wc+>+1000+++and+shift_id='A'" +
+                $"&StrSql_w={(string.IsNullOrEmpty(prodList) ? "" : $"+And+Prod_Nbr+in+('{prodList}')")}+and+lcm_owner+in+({_ownerDic[ownerId]})&StrSql_tvset=&col0=Pass+Q%27ty&col1=&row0=" +
                 $"&row1={node}&sql_p=&sql_m=+and+acct_date+>='{startDTE}'+and+acct_date+<=+'{endDTE}'" +
                 $"&sql_m1=+and+trans_date+%3E%3D+%27{startDTE}+07%3A30%3A00.000000%27+and+trans_date+%3C%3D+%272022-11-30+07%3A30%3A00.000000%27&sqlbu1=&sqlbu2=+and+shift_id%3D%27{shift}%27" +
                 $"&vdate_s={startDTE}&vdate_e={endDTE}";
