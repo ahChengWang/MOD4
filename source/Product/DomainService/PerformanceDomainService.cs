@@ -19,6 +19,15 @@ namespace MOD4.Web.DomainService
         private readonly IEquipmentDomainService _equipmentDomainService;
         private readonly ILineTTRepository _lineTTRepository;
         private readonly IOptionDomainService _optionDomainService;
+        private readonly Dictionary<string, (string, int)> _defaultNodeDic = new Dictionary<string, (string, int)>
+        {
+            {"1330",("FOG",2) },
+            {"1355",("OCA硬對硬",3) },
+            {"1415",("ASSY(BL外購)",4) },
+            {"1460",("ACCD (模組UV膠檢驗)",6) },
+            {"1700",("D KEN",10) },
+            {"1910",("SHIPPING",11) }
+        };
         private readonly Dictionary<string, (string, int)> _allNodeDictionary = new Dictionary<string, (string, int)>
         {
             {"1300",("PCBI(HMT)",1) },
@@ -30,9 +39,10 @@ namespace MOD4.Web.DomainService
             {"1500",("AGING",7) },
             {"1600",("(A+B) Panel C-",8) },
             {"1720",("D2",9) },
-            {"1700",("D KEN",10) }
+            {"1700",("D KEN",10) },
+            {"1910",("SHIPPING",11) }
         };
-        private readonly string[] _passTransType = new string[] { "MVOT", "MRWK" };
+        private readonly string[] _passTransType = new string[] { "MVOT", "MRWK", "SHIP" };
         #region time block
         private TimeSpan _time0730 = new TimeSpan(7, 30, 0);
         private TimeSpan _time0830 = new TimeSpan(8, 30, 0);
@@ -100,7 +110,7 @@ namespace MOD4.Web.DomainService
             }
 
             if (string.IsNullOrEmpty(nodeAryStr))
-                _nodeDic = _allNodeDictionary;
+                _nodeDic = _defaultNodeDic;
             else
                 _allNodeDictionary.Where(w => nodeAryStr.Contains(w.Key)).ToList().ForEach(f => _nodeDic.Add(f.Key, f.Value));
 
@@ -143,7 +153,6 @@ namespace MOD4.Web.DomainService
 
                 Parallel.ForEach(_prodEqDic, (prodEq) =>
                 {
-
                     foreach (var eq in prodEq.Value)
                     {
                         string _qStr = $"Shop=MOD4&G_FAC=6&StrSql_w=+and+prod_nbr+in+('{prodEq.Key}')+and+lcm_owner+in+('QTAP','LCME','PRDG','PROD','RES0')&StrSql_w4=&col0=&col1=&row0={prodEq.Key}" +
@@ -157,10 +166,10 @@ namespace MOD4.Web.DomainService
 
                         using (var client = new HttpClient())
                         {
-                                //var response = client.PostAsync(url, data);
-                                var response = client.PostAsync(url + _qStr, data).Result;
-                                //var response = client.GetAsync(url);
-                                response.Content.Headers.ContentType.CharSet = "Big5";
+                            //var response = client.PostAsync(url, data);
+                            var response = client.PostAsync(url + _qStr, data).Result;
+                            //var response = client.GetAsync(url);
+                            response.Content.Headers.ContentType.CharSet = "Big5";
 
                             string result = response.Content.ReadAsStringAsync().Result;
 
@@ -170,22 +179,20 @@ namespace MOD4.Web.DomainService
 
                         }
 
-                            //string text = File.ReadAllText("D:\\response.txt");
+                        //string text = File.ReadAllText("D:\\response.txt");
 
-                            //array = text.Split("<SCRIPT LANGUAGE=vbscript >");
+                        //array = text.Split("<SCRIPT LANGUAGE=vbscript >");
 
-                            var cnt = (array.Count() - 3) / 14;
+                        var cnt = (array.Count() - 3) / 14;
 
                         for (int i = 0; i < cnt; i++)
                         {
                             _performanceDetail.Add(Process(array.Skip((i * 14) + 1).Take(14).ToArray(), node.Key, node.Value.Item2));
                         }
                     }
+                });
 
-                        //}
-
-                    });
-
+                //}
 
                 PassQtyEntity _tResponse = new PassQtyEntity();
 
@@ -296,8 +303,9 @@ namespace MOD4.Web.DomainService
                 }
 
                 _response.Add(_tResponse);
-                //};
+
             });
+            //};
 
             return _response.OrderBy(ob => ob.NodeNo).ToList();
         }

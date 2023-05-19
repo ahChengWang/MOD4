@@ -66,6 +66,10 @@
         overflow-x: hidden;
     }
 
+    button[type='button'] {
+        width: 200px;
+    }
+
 </style>
 
 <div class="content-wrapper">
@@ -82,13 +86,13 @@
                             <fieldset id="searchArea">
                                 <legend id="legend">查詢區塊</legend>
                                 <div id="barDiv1" class="row" style="margin-bottom:5px">
-                                    <div style="margin-right:5px;">
+                                    <div class="col-lg-2">
                                         <label>日期：</label>
                                         <input id="srcDate" class="my-control" type="date" value="" />
                                     </div>
-                                    <div style="margin-right: 5px;">
+                                    <div class="col-lg-2">
                                         <label>線體：</label>
-                                        <select id="dropLine" multiple="multiple">
+                                        <select id="dropLine" class="my-control" multiple="multiple">
                                             @{
                                                 foreach (var lcmProd in ViewBag.ProdOptions)
                                                 {
@@ -102,9 +106,9 @@
                                             }
                                         </select>
                                     </div>
-                                    <div style="margin-right: 5px;">
+                                    <div class="col-lg-2">
                                         <label>Node：</label>
-                                        <select id="dropNode" multiple="multiple">
+                                        <select id="dropNode" class="form-control" multiple="multiple">
                                             @*@{
                                                     foreach (var item in ViewBag.ToolId)
                                                     {
@@ -121,9 +125,10 @@
                                             <option value="1600">1600</option>
                                             <option value="1700">1700</option>
                                             <option value="1720">1720</option>
+                                            <option value="1910">1910</option>
                                         </select>
                                     </div>
-                                    <div style="margin-right: 5px;">
+                                    <div class="col-lg-2">
                                         <label>班別：</label>
                                         <select class="my-control" id="dropShift">
                                             @*@{

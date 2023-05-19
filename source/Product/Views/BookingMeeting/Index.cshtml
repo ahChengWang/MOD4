@@ -71,6 +71,7 @@
                             <div class="row">
                                 <div class="col-md-2">
                                     <label class="col-form-label" asp-for="@Model.FirstOrDefault().CIMTestTypeId"></label>
+                                    <span asp-validation-for="@Model.FirstOrDefault().CIMTestTypeId" style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                 </div>
                                 <div class="col-md-2">
                                     <select class="form-control" v-model="_model.cimTestTypeId">
@@ -82,6 +83,7 @@
                                 </div>
                                 <div class="col-md-2">
                                     <label class="col-form-label" asp-for="@Model.FirstOrDefault().FloorId"></label>
+                                    <span asp-validation-for="@Model.FirstOrDefault().FloorId" style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                 </div>
                                 <div class="col-md-2">
                                     <select class="form-control" v-model="_model.floorId">
@@ -125,6 +127,7 @@
                                 </div>
                                 <div class="col-2">
                                     <label class="col-form-label" asp-for="@Model.FirstOrDefault().CIMTestDayTypeId"></label>
+                                    <span asp-validation-for="@Model.FirstOrDefault().CIMTestDayTypeId" style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                 </div>
                                 <div class="col-2">
                                     <select class="form-control" v-model="_model.cimTestDayTypeId">
@@ -137,6 +140,7 @@
                             <div class="row" style="margin-top:3px">
                                 <div class="col-2">
                                     <label class="col-form-label" asp-for="@Model.FirstOrDefault().Days"></label>
+                                    <span asp-validation-for="@Model.FirstOrDefault().Days" style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                 </div>
                                 <div class="col-2">
                                     <select class="form-control" v-model="_model.days">
@@ -272,10 +276,18 @@
                             toast: true,
                             position: 'top-end',
                             showConfirmButton: false,
-                            timer: 5000
+                            timer: 2000
                         });
 
-                        _model.timeStart = $("input[name='TimeStart']").val();
+                        if (_model.cimTestTypeId == 0 || _model.date == '' || _model.name == '' || _model.jobId == '' || _model.subject == '' || _model.cimTestDayTypeId == 0 || _model.floorId == 0 || _model.days == 0) {
+                            Toast.fire({
+                                icon: 'error',
+                                title: '請確認必填項目'
+                            })
+                            return;
+                        }
+
+                        //_model.timeStart = $("input[name='TimeStart']").val();
 
                         $.ajax({
                             url: "./BookingMeeting/Create",

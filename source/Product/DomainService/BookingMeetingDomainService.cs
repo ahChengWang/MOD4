@@ -133,7 +133,7 @@ namespace MOD4.Web.DomainService
             }
 
             // 檢核會議重複
-            var _meetingOverlap = _cimTestBookingRepository.VerifyOverlap(_startTime, _endTime.AddDays(bookingEntity.Days));
+            var _meetingOverlap = _cimTestBookingRepository.VerifyOverlap(_startTime, _endTime.AddDays(bookingEntity.Days - 1));
             if (_meetingOverlap.Any())
             {
                 string _overlapMsg = "預約會議時間與以下重疊 \n";
@@ -181,7 +181,8 @@ namespace MOD4.Web.DomainService
             if (string.IsNullOrEmpty(_createRes))
             {
                 _mappDomainService.SendMsgToOneAsync(
-                    $"【CIM 測機排程】預約成功通知, 申請人:{bookingEntity.Name}, 內容:{bookingEntity.Subject} {bookingEntity.CIMTestTypeId.GetDescription()}, 日期:{_startTime.ToShortDateString()} ~ {_endTime.AddDays(bookingEntity.Days - 1 + _dayDelay).ToShortDateString()}",
+                    $"【CIM 測機排程】預約成功通知, 申請人:{bookingEntity.Name}, 內容:{bookingEntity.Subject} {bookingEntity.CIMTestTypeId.GetDescription()}" +
+                    $", 日期:{_startTime.ToShortDateString()} ~ {_endTime.AddDays(bookingEntity.Days - 1 + _dayDelay).ToShortDateString()} (網址:http://CUX003184s/CarUX/BookingMeeting)",
                     "260837");
                 _mailServer.Send(new MailEntity
                 {
@@ -191,7 +192,7 @@ namespace MOD4.Web.DomainService
                     Content = "<br /> Dear Sir ,<br /><br />" +
                     $"您 <a style='text-decoration:underline;font-weight:800'>【{bookingEntity.Subject}({bookingEntity.CIMTestTypeId.GetDescription()})】</a><a> CIM 測機排程已成功預約</a>， <br /><br />" +
                     $"日期 {_startTime} ~ {_endTime}， <br /><br />" +
-                    $"詳細內容請至 <a href='http://10.54.215.210/CarUX/BookingMeeting' target='_blank'>CIM 測機排程</a> 連結查看， <br /><br />" +
+                    $"詳細內容請至 <a href='http://CUX003184s/CarUX/BookingMeeting' target='_blank'>CIM 測機排程</a> 連結查看， <br /><br />" +
                     "謝謝"
                 });
             }
@@ -275,7 +276,7 @@ namespace MOD4.Web.DomainService
             if (string.IsNullOrEmpty(_createRes) && _booking.CIMTestTypeId != CIMTestTypeEnum.Done)
             {
                 _mappDomainService.SendMsgToOneAsync(
-                    $"【CIM 測機排程】預約更新通知, 申請人:{_booking.Name}, 內容:{_booking.Subject} {_booking.CIMTestTypeId.GetDescription()}, 日期:{_startTime.ToShortDateString()}",
+                    $"【CIM 測機排程】預約更新通知, 申請人:{_booking.Name}, 內容:{_booking.Subject} {_booking.CIMTestTypeId.GetDescription()}, 日期:{_startTime.ToShortDateString()} (網址:http://CUX003184s/CarUX/BookingMeeting)",
                     "260837");
                 _mailServer.Send(new MailEntity
                 {
@@ -285,7 +286,7 @@ namespace MOD4.Web.DomainService
                     Content = "<br /> Dear Sir ,<br /><br />" +
                     $"您 <a style='text-decoration:underline;font-weight:900'>【{_booking.Subject}({_booking.CIMTestTypeId.GetDescription()})】</a><a> CIM 測機排程已成功預約</a>， <br /><br />" +
                     $"日期 {_startTime} ~ {_endTime}， <br /><br />" +
-                    $"詳細內容請至 <a href='http://10.54.215.210/CarUX/BookingMeeting' target='_blank'>CIM 測機排程</a> 連結查看， <br /><br />" +
+                    $"詳細內容請至 <a href='http://CUX003184s/CarUX/BookingMeeting' target='_blank'>CIM 測機排程</a> 連結查看， <br /><br />" +
                     "謝謝"
                 });
             }
