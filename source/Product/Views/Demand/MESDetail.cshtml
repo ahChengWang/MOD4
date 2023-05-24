@@ -26,6 +26,10 @@
         width: 15px;
         height: 15px;
     }
+
+    .uploadFile {
+        margin-left:10px;
+    }
 </style>
 
 <div class="content-wrapper">
@@ -247,6 +251,17 @@
                                 </div>
                                 <hr />
                                 <h5>申請名單</h5>
+
+                                @{
+                                    if (!string.IsNullOrEmpty(Model.UploadFileName))
+                                    {
+                                        <div class="col-lg-5">
+                                            <label for="formFile" class="form-label" asp-for="UploadFileName"></label>
+                                            <a class="uploadFile" target="_blank" href="../Download/@Model.OrderSn">@Model.UploadFileName</a>
+                                        </div>
+                                    }
+                                }
+
                                 <div id="guestInfoDiv">
                                     @{
                                         foreach (var applicant in Model.ApplicantList)

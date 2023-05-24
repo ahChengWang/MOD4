@@ -33,6 +33,8 @@ namespace MOD4.Web.DomainService.Entity
         public string CreateTimeStr { get; set; }
         public bool IsCancel { get; set; }
         public string Url { get; set; }
+        public IFormFile UploadFile { get; set; }
+        public string UploadFileName { get; set; }
         public List<MESApplicantEntity> Applicants { get; set; }
         public List<MESPermissionDetailEntity> PermissionInfo { get; set; }
         public List<MESPermissionAuditHistoryEntity> MESOrderAuditHistory { get; set; }

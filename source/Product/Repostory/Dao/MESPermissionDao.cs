@@ -26,5 +26,6 @@ namespace MOD4.Web.Repostory.Dao
         public bool isCancel { get; set; }
         public MESOrderTypeEnum mesOrderTypeId { get; set; }
         public string applicantReason { get; set; }
+        public string uploadFile { get; set; }
     }
 }

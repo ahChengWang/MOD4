@@ -28,5 +28,7 @@ namespace MOD4.Web.DomainService
         (bool, string) UpdateMES(MESPermissionEntity mesEntity, UserEntity userEntity);
 
         string AuditMES(int orderSn, DemandStatusEnum statusId, string remark, string applicatReason, UserEntity userEntity);
+
+        (bool, string, string) Download(int orderSn);
     }
 }

@@ -81,7 +81,8 @@ namespace MOD4.Web.Repostory
 ,[createTime]
 ,[isCancel]
 ,[mesOrderTypeId]
-,[applicantReason])
+,[applicantReason]
+,[uploadFile])
 VALUES
 (@orderNo
 ,@statusId
@@ -100,7 +101,8 @@ VALUES
 ,@createTime
 ,@isCancel
 ,@mesOrderTypeId
-,@applicantReason); ";
+,@applicantReason
+,@uploadFile); ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, insMESPerm);
 

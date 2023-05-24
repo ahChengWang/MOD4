@@ -154,7 +154,7 @@ namespace MOD4.Web.DomainService.Demand
                         , fileArray[fileNo]);
                 case 2:
                     string[] completeFilesArray = _demandDao.completeFiles.Split(",");
-                    return (new FileStream($@"{_uploadDomainService.GetFileServerUrl()}\upload\{_demandDao.updateUser}\{_demandDao.updateTime.ToString("yyMMdd")}\{completeFilesArray[fileNo]}",
+                    return (new FileStream($@"{_uploadDomainService.GetFileServerUrl()}\upload\weiting.guo\{_demandDao.updateTime.ToString("yyMMdd")}\{completeFilesArray[fileNo]}",
                         FileMode.Open, FileAccess.Read, FileShare.Read)
                         , completeFilesArray[fileNo]);
                 default:
@@ -350,7 +350,7 @@ namespace MOD4.Web.DomainService.Demand
         #region MES Permission
 
         public List<MESPermissionEntity> GetMESApplicantList(UserEntity userEntity,
-            int sn = 0, string dateStart = null, string dateEnd = null, string statusId = "1,2,7,8,9", string kw = "",string orderType = "1,2")
+            int sn = 0, string dateStart = null, string dateEnd = null, string statusId = "1,2,7,8,9", string kw = "", string orderType = "1,2")
         {
             try
             {
@@ -374,6 +374,7 @@ namespace MOD4.Web.DomainService.Demand
                             OrderNo = mes.orderNo,
                             Status = mes.statusId.GetDescription(),
                             StatusId = mes.statusId,
+                            ApplicantReason = mes.applicantReason,
                             Department = mes.department,
                             SubUnit = mes.subUnit,
                             MESOrderTypeId = mes.mesOrderTypeId,
@@ -435,6 +436,7 @@ namespace MOD4.Web.DomainService.Demand
                     OtherPermission = _mesOrder.otherPermission,
                     SamePermName = _mesOrder.samePermName,
                     SamePermJobId = _mesOrder.samePermJobId,
+                    UploadFileName = _mesOrder.uploadFile,
                     CreateTimeStr = _mesOrder.createTime.ToString("yyyy/MM/dd"),
                     AuditAccountSn = _mesOrder.auditAccountSn,
                     Applicants = _accessOrderDetail.Select(s => new MESApplicantEntity
@@ -488,8 +490,14 @@ namespace MOD4.Web.DomainService.Demand
                 DateTime _nowTime = DateTime.Now;
                 int _orderSn = 0;
 
-                if (mESPermissionEntity.Applicants.Any(a => string.IsNullOrEmpty(a.ApplicantName) || string.IsNullOrEmpty(a.ApplicantJobId)))
+                if (mESPermissionEntity.Applicants.Any(a => string.IsNullOrEmpty(a.ApplicantName) || string.IsNullOrEmpty(a.ApplicantJobId)) &&
+                    mESPermissionEntity.UploadFile == null)
                     return (false, "申請名單不能為空");
+
+                string[] _fileNameAry = mESPermissionEntity.UploadFile.FileName.Split(".");
+                var fileName = Path.GetFileName($"{_fileNameAry[0]}_{_nowTime.ToString("MMdd")}_{Guid.NewGuid().ToString("N").Substring(0, 4)}.{_fileNameAry[1]}");
+
+                _ftpService.FTP_Upload(mESPermissionEntity.UploadFile, $"MESEmpList/{userEntity.Name}", fileName);
 
                 MESPermissionDao _mesPermissionDao = new MESPermissionDao
                 {
@@ -509,17 +517,25 @@ namespace MOD4.Web.DomainService.Demand
                     createUser = userEntity.Name,
                     createTime = _nowTime,
                     mesOrderTypeId = mESPermissionEntity.MESOrderTypeId,
-                    applicantReason = mESPermissionEntity.ApplicantReason
+                    applicantReason = mESPermissionEntity.ApplicantReason,
+                    uploadFile = fileName
                 };
 
-                List<MESPermissionApplicantsDao> _mesOrderDetails = mESPermissionEntity.Applicants.Select(detail =>
-                new MESPermissionApplicantsDao
+
+                List<MESPermissionApplicantsDao> _mesOrderDetails = new List<MESPermissionApplicantsDao>();
+
+                if (mESPermissionEntity.Applicants != null && mESPermissionEntity.Applicants.Any() && 
+                    mESPermissionEntity.Applicants.All(a => !string.IsNullOrEmpty(a.ApplicantName) && !string.IsNullOrEmpty(a.ApplicantJobId)))
                 {
-                    applicantName = detail.ApplicantName,
-                    applicantJobId = detail.ApplicantJobId,
-                    createUser = userEntity.Name,
-                    createTime = _nowTime
-                }).ToList();
+                    _mesOrderDetails = mESPermissionEntity.Applicants.Select(detail =>
+                    new MESPermissionApplicantsDao
+                    {
+                        applicantName = detail.ApplicantName,
+                        applicantJobId = detail.ApplicantJobId,
+                        createUser = userEntity.Name,
+                        createTime = _nowTime
+                    }).ToList();
+                }
 
                 // 取得申請人上級
                 List<MESPermissionAuditHistoryDao> _mesOrderAuditHistory = GetMESPermAuditFlow(_nowTime, userEntity);
@@ -527,22 +543,26 @@ namespace MOD4.Web.DomainService.Demand
                 using (TransactionScope _scope = new TransactionScope())
                 {
                     bool _insResult = false;
-                    bool _insDetailResult = false;
+                    bool _insDetailResult = true;
                     bool _insHistoryResult = false;
 
                     _insResult = _mesPermissionRepository.Insert(_mesPermissionDao) == 1;
 
                     _orderSn = _mesPermissionRepository.SelectNewOrderSn(_mesPermissionDao.orderNo).orderSn;
-                    _mesOrderDetails.ForEach(detail =>
+
+                    if (_mesOrderDetails.Any())
                     {
-                        detail.mesPermissionSn = _orderSn;
-                    });
+                        _mesOrderDetails.ForEach(detail =>
+                        {
+                            detail.mesPermissionSn = _orderSn;
+                        });
+                        _insDetailResult = _mesPermissionApplicantsRepository.Insert(_mesOrderDetails) == _mesOrderDetails.Count;
+                    }
                     _mesOrderAuditHistory.ForEach(his =>
                     {
                         his.mesPermissionSn = _orderSn;
                     });
 
-                    _insDetailResult = _mesPermissionApplicantsRepository.Insert(_mesOrderDetails) == _mesOrderDetails.Count;
                     _insHistoryResult = _mesPermissionAuditHistoryRepository.Insert(_mesOrderAuditHistory) == _mesOrderAuditHistory.Count;
 
                     if (_insResult && _insDetailResult && _insHistoryResult)
@@ -674,7 +694,6 @@ namespace MOD4.Web.DomainService.Demand
                 return (false, ex.Message);
             }
         }
-
 
         public string AuditMES(int orderSn, DemandStatusEnum statusId, string remark, string applicatReason, UserEntity userEntity)
         {
@@ -810,6 +829,25 @@ namespace MOD4.Web.DomainService.Demand
             catch (Exception ex)
             {
                 return ex.Message;
+            }
+        }
+
+        public (bool, string, string) Download(int orderSn)
+        {
+            try
+            {
+                MESPermissionDao _mesOrder = _mesPermissionRepository.SelectByConditions(null, null, orderSn: orderSn).FirstOrDefault();
+
+                if (_mesOrder == null)
+                    return (true, "", "");
+
+                var _fileStr = _ftpService.FTP_Download($"MESEmpList/{_mesOrder.createUser}", _mesOrder.uploadFile);
+
+                return (true, _fileStr, _mesOrder.uploadFile);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
         #endregion

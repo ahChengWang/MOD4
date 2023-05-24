@@ -1,4 +1,5 @@
-﻿using MOD4.Web.Enum;
+﻿using Microsoft.AspNetCore.Http;
+using MOD4.Web.Enum;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -35,6 +36,9 @@ namespace MOD4.Web.ViewModel
 
         [Display(Name = "申請原因")]
         public string ApplicantReason { get; set; }
+
+        [Display(Name = "人員名單")]
+        public string UploadFileName { get; set; }
 
         [Display(Name = "申請名單")]
         public List<MESApplicantModel> ApplicantList { get; set; }

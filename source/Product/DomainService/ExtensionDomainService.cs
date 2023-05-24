@@ -12,7 +12,7 @@ using System.Transactions;
 
 namespace MOD4.Web.DomainService
 {
-    public class ExtensionDomainService : IExtensionDomainService
+    public class ExtensionDomainService : BaseDomainService, IExtensionDomainService
     {
         private readonly IUploadDomainService _uploadDomainService;
         private readonly IMPSUploadHistoryRepository _mpsUploadHistoryRepository;
@@ -99,32 +99,11 @@ namespace MOD4.Web.DomainService
         {
             try
             {
-                var serverIP = "ftp://10.132.133.171/FTP_MPS/";
-                var userID = "FTP_MOD4User";
-                var userPW = "MOD4e123";
-
                 string _uplRes = "";
                 string[] _fileNameAry = uploadFile.FileName.Split(".");
-
-                //var serverIP = "ftp://10.54.215.210/";
-                //var userID = "ftptest";
-                //var userPW = "ftpP@ss123";
-
                 var fileName = Path.GetFileName($"{_fileNameAry[0]}_{Guid.NewGuid().ToString("N").Substring(0, 4)}.{_fileNameAry[1]}");
-                var request = (FtpWebRequest)WebRequest.Create(serverIP + fileName);
-                request.Method = WebRequestMethods.Ftp.UploadFile;
-                request.KeepAlive = true;
-                request.UseBinary = true;
-                request.Credentials = new NetworkCredential(userID, userPW);
 
-                //上傳檔案
-                using (Stream requestStream = request.GetRequestStream())
-                {
-                    uploadFile.CopyTo(requestStream);
-                }
-
-                //上傳成功
-                var response = (FtpWebResponse)request.GetResponse();
+                _ftpService.FTP_Upload(uploadFile, "FTP_MPS", fileName);
 
                 string[] _nameAry = uploadFile.FileName.Split(".");
 
@@ -159,39 +138,14 @@ namespace MOD4.Web.DomainService
         {
             try
             {
-                //var userID = "ftptest";// 測試
-                //var userPW = "ftpP@ss123";// 測試
-                var userID = "FTP_MOD4User";
-                var userPW = "MOD4e123";
-
                 MPSUploadHistoryDao _mpsDao = _mpsUploadHistoryRepository.SelectLatest();
 
                 if (_mpsDao == null)
                     return (true, "", "");
 
-                //var _fptPath = $"ftp://10.54.215.210/{_mpsDao.FileName}"; // 測試
-                var _fptPath = $"ftp://10.132.133.171/FTP_MPS/{_mpsDao.FileName}";
+                var _fileStr = _ftpService.FTP_Download("FTP_MPS", _mpsDao.FileName);
 
-                var request = (FtpWebRequest)WebRequest.Create(_fptPath);
-                request.Method = WebRequestMethods.Ftp.DownloadFile;
-                request.Credentials = new NetworkCredential(userID, userPW);
-
-                string _resStr = "";
-
-                using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        _resStr = Path.GetTempFileName();
-
-                        using (FileStream fs = new FileStream(_resStr, FileMode.Create))
-                        {
-                            stream.CopyTo(fs);
-                        }
-                    }
-                }
-
-                return (true, _resStr, _mpsDao.FileName);
+                return (true, _fileStr, _mpsDao.FileName);
             }
             catch (Exception ex)
             {

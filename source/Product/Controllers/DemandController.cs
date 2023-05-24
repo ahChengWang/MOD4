@@ -308,7 +308,7 @@ namespace MOD4.Web.Controllers
                             ApplicantList = mes.ApplicantName,
                             AuditPerson = mes.AuditName,
                             CreateDate = mes.CreateTimeStr,
-                            Department = mes.Department,
+                            Reason = mes.ApplicantReason,
                             Url = mes.Url
                         }).ToList();
 
@@ -346,7 +346,7 @@ namespace MOD4.Web.Controllers
                             ApplicantList = mes.ApplicantName,
                             AuditPerson = mes.AuditName,
                             CreateDate = mes.CreateTimeStr,
-                            Department = mes.Department,
+                            Reason = mes.ApplicantReason,
                             Url = mes.Url
                         }).ToList();
 
@@ -416,7 +416,8 @@ namespace MOD4.Web.Controllers
                     {
                         ApplicantName = emp.ApplicantName,
                         ApplicantJobId = emp.ApplicantJobId
-                    }).ToList()
+                    }).ToList(),
+                    UploadFile = createModel.UploadFile
                 },
                 GetUserInfo());
 
@@ -454,6 +455,7 @@ namespace MOD4.Web.Controllers
                     OtherPermission = _result.OtherPermission,
                     SameEmpName = _result.SamePermName,
                     SameEmpJobId = _result.SamePermJobId,
+                    UploadFileName = _result.UploadFileName,
                     CreateDate = _result.CreateTimeStr,
                     AuditHistory = _result.MESOrderAuditHistory.CopyAToB<MESPermissionAuditHistoryModel>()
                 };
@@ -568,6 +570,7 @@ namespace MOD4.Web.Controllers
                     JobId = _result.JobId,
                     Phone = _result.Phone,
                     ApplicantReason = _result.ApplicantReason,
+                    UploadFileName = _result.UploadFileName,
                     PermissionList = _result.PermissionInfo.CopyAToB<MESPermissionModel>(),
                     ApplicantList = _result.Applicants.CopyAToB<MESApplicantModel>(),
                     OtherPermission = _result.OtherPermission,
@@ -615,6 +618,25 @@ namespace MOD4.Web.Controllers
                 return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
             }
         }
+
+        [HttpGet("[controller]/MES/Download/{orderSn}")]
+        public IActionResult MPSDownload(int orderSn)
+        {
+            try
+            {
+                var _dwnlRes = _demandDomainService.Download(orderSn);
+
+                if (_dwnlRes.Item1)
+                    return PhysicalFile(_dwnlRes.Item2, System.Net.Mime.MediaTypeNames.Application.Octet, _dwnlRes.Item3);
+                else
+                    return RedirectToAction("Error", "Home", new ErrorViewModel { Message = "下載異常" });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
         #endregion
 
         private (bool, string) Edit(DemanEditViewModel updModel, DemandStatusEnum newStatusId)

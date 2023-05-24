@@ -102,6 +102,7 @@ namespace MOD4.Web
             services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));
             services.AddSingleton(new ServiceDescriptor(typeof(CatchHelper), new CatchHelper(Configuration)));
             services.AddSingleton(new ServiceDescriptor(typeof(MailService), new MailService(Configuration)));
+            services.AddSingleton(new ServiceDescriptor(typeof(FTPService), new FTPService(Configuration)));
             services.AddSingleton<IDemadStatusFactory, DemadStatusFactory>();
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             services.AddHttpContextAccessor();

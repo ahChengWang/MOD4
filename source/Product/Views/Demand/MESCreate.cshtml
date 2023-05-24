@@ -45,7 +45,7 @@
                         </div>
                         <!-- /.card-header -->
                         <!-- form start -->
-                        <form id="mesForm">
+                        <form id="mesForm" enctype="multipart/form-data">
                             <div class="card-body">
                                 <div class="row d-flex align-content-center flex-wrap">
                                     <div class="col-lg-1">
@@ -106,6 +106,7 @@
                                 <div class="row d-flex align-content-center flex-wrap">
                                     <div class="col-1">
                                         <label class="col-form-label" asp-for="ApplicantReason"></label>
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                         <span asp-validation-for="ApplicantReason" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
                                     <div class="col-lg-5">
@@ -261,21 +262,31 @@
                                     </div>
                                 </div>
                                 <hr />
-                                <h5>申請名單</h5>
+                                <div class="row d-flex align-content-center flex-wrap">
+                                    <div>
+                                        <h5>申請名單</h5>
+                                    </div>
+                                    <div style="margin-left:15px">
+                                        <span style="color:darkred;font-size:8px;">*手動新增人員與人員名單檔案上傳(.xls、.xlsx、.txt)擇一</span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-5">
+                                    <label for="formFile" class="form-label" asp-for="UploadFile"></label>
+                                    <input class="myInputStyle1" type="file" asp-for="UploadFile" onchange="verifyFile(this)">
+                                </div>
+                                <br />
                                 <div id="divApplicants">
                                     <div class="row d-flex align-content-center flex-wrap">
                                         <div class="col-lg-2">
                                             <label class="col-form-label" asp-for="ApplicantList.FirstOrDefault().ApplicantJobId"></label>
-                                            <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                            <span asp-validation-for="ApplicantList.FirstOrDefault().ApplicantJobId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                            @*<span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                                <span asp-validation-for="ApplicantList.FirstOrDefault().ApplicantJobId" style="font-size:10px;font-weight:700" class="text-danger"></span>*@
                                         </div>
                                         <div class="col-lg-2">
                                             <input type="text" class="myInputStyle1" asp-for="ApplicantList.FirstOrDefault().ApplicantJobId" value="">
                                         </div>
                                         <div class="col-lg-2">
                                             <label class="col-form-label" asp-for="ApplicantList.FirstOrDefault().ApplicantName"></label>
-                                            <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                            <span asp-validation-for="ApplicantList.FirstOrDefault().ApplicantName" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                         </div>
                                         <div class="col-lg-2">
                                             <input type="text" class="myInputStyle1" asp-for="ApplicantList.FirstOrDefault().ApplicantName" value="">
@@ -302,25 +313,15 @@
 @section scripts {
     <script type="text/javascript">
 
-        var _applicant = [];
-
         $("#btnCreate").click(function (e) {
             e.preventDefault();
             if ($("#mesForm").valid()) {
-                $.blockUI({
-                    message: '請稍等...',
-                    css: {
-                        border: 'none',
-                        padding: '5px',
-                        backgroundColor: '#000',
-                        '-webkit-border-radius': '10px',
-                        '-moz-border-radius': '10px',
-                        opacity: '.5',
-                        color: '#fff',
-                        fontSize: '25px',
-                        fontFamily: '微軟正黑體',
-                        fontWeight: 300,
-                    }
+
+                var Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
                 });
 
                 var ttlApplicantCnt = $('#divApplicants').children().length;
@@ -332,10 +333,25 @@
                     applicantJobIds[i].name = 'ApplicantList[' + i + '].ApplicantJobId';
                 }
 
+                if ($("#UploadFile").val() == "" && applicantJobIds[0].value == "") {
+                    Toast.fire({
+                        icon: 'error',
+                        title: '人員檔案和手動新增需則一'
+                    })
+                    return;
+                };
+
+                globalFuc.LoadingPic();
+
+                var formData = new FormData(document.getElementById("mesForm"));
+
                 $.ajax({
                     type: "POST",
                     url: "./Create",
-                    data: $("#mesForm").serialize(),
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
                     success: function (result) {
                         $.unblockUI();
                         if (result.isSuccess) {
@@ -375,7 +391,7 @@
         }
 
         function verifyFile(e) {
-            var validExtensions = ['xls', 'xlsx', 'doc', 'docx', 'txt', 'jpg', 'png', 'jpeg'];
+            var validExtensions = ['xls', 'xlsx', 'txt'];
             var rg1 = /[^0-9a-zA-Z ._-\u4e00-\u9fa5]/;
             let fileName = e.files[0].name;
             let fileEx = e.files[0].name.replace(/^.*\./, '');
