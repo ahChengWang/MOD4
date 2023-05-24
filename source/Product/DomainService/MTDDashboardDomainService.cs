@@ -30,6 +30,11 @@ namespace MOD4.Web.DomainService
             {"1460", "ASSY2010"},
             {"1700", "ACKE2010"}
         };
+        private readonly Dictionary<int, string> _ownerDic = new Dictionary<int, string>
+        {
+            {1, "'QTAP','LCME','PRDG','PROD','RES0'"},
+            {2, "'INT0'"}
+        };
         private readonly string _zipsum106Url = "http://zipsum/modreport/Report/SHOPMOD/OperPerfDataSet.asp?";
         private readonly string _zipsum108Url = "http://zipsum/modreport/Report/SHOPMOD/EquUtilizationDataSet.asp";
         private readonly string _zipsum109Url = "http://zipsum/modreport/Report/SHOPMOD/EntityStaSumDataSet.asp";
@@ -54,7 +59,7 @@ namespace MOD4.Web.DomainService
         /// <param name="date">default 昨日</param>
         /// <param name="time">default 24h</param>
         /// <returns></returns>
-        public List<MTDDashboardEntity> DashboardSearch(int floor = 2, string date = "", decimal time = 24)
+        public List<MTDDashboardEntity> DashboardSearch(int floor = 2, string date = "", decimal time = 24, int owner = 1)
         {
             DateTime _nowTime = DateTime.Now.AddDays(-1).Date;
             DateTime _srchDate = _nowTime;
@@ -71,7 +76,7 @@ namespace MOD4.Web.DomainService
             Dictionary<string, string> _process109Dic = new Dictionary<string, string>();
 
             // 取得MTD排程所有機種
-            List<MTDProductionScheduleDao> _mtdScheduleDataList = _mtdProductionScheduleRepository.SelectByConditions(floor, _srchDate, _srchDate).ToList();
+            List<MTDProductionScheduleDao> _mtdScheduleDataList = _mtdProductionScheduleRepository.SelectByConditions(floor, owner, _srchDate, _srchDate).ToList();
             // gorup MTD排程所有機種 for report 查詢
             List<MTDProductionScheduleDao> _mtdScheduleGroupByProd = _mtdScheduleDataList.GroupBy(gb => gb.ProductName).Select(s => new MTDProductionScheduleDao
             {
@@ -79,7 +84,7 @@ namespace MOD4.Web.DomainService
                 Node = string.Join(",", s.Select(node => node.Node))
             }).ToList();
             // 取得MTD排程所有機種月計畫
-            List<MTDProductionScheduleDao> _mtdMonthPlanList = _mtdProductionScheduleRepository.SelectMonthPlanQty(_nowTime.Year.ToString(), _nowTime.Month.ToString(), floor);
+            List<MTDProductionScheduleDao> _mtdMonthPlanList = _mtdProductionScheduleRepository.SelectMonthPlanQty(_nowTime.Year.ToString(), _nowTime.Month.ToString(), floor, owner);
 
             // call zipsum 1.06 report 查詢 & 解析
             Parallel.ForEach(_mtdScheduleDataList.GroupBy(gb => gb.ProductName).Select(s => new MTDProductionScheduleDao
@@ -235,6 +240,9 @@ namespace MOD4.Web.DomainService
 
         private void Process(string[] detailStr, string node, string prod, ref List<MTDPerformanceEntity> mtdPerformancesList)
         {
+            if (detailStr.Length == 1 || detailStr[1].Contains("No Data For Your Query"))
+                return;
+
             string[] _temp;
             string[] _tempArray;
             int _tempInt = 0;
@@ -371,7 +379,7 @@ namespace MOD4.Web.DomainService
 
         #region ======== schedule ========
 
-        public (List<ManufactureScheduleEntity> manufactureSchedules, string latestUpdInfo) Search(string dateRange = "", int floor = 2)
+        public List<ManufactureScheduleEntity> Search(string dateRange = "", int floor = 2, int owner = 1)
         {
             try
             {
@@ -393,9 +401,8 @@ namespace MOD4.Web.DomainService
                 }
 
                 List<ManufactureScheduleEntity> _manufactureSchedules = new List<ManufactureScheduleEntity>();
-                List<MTDProductionScheduleDao> _mtdScheduleDataList = _mtdProductionScheduleRepository.SelectByConditions(floor, _startDate, _endDate);
-                List<MTDProductionScheduleDao> _mtdMonthPlanList = _mtdProductionScheduleRepository.SelectMonthPlanQty(_nowTime.Year.ToString(), _nowTime.Month.ToString(), floor);
-                MTDScheduleUpdateHistoryDao _mtdScheduleHis = _mtdProductionScheduleRepository.SelectHistory(floor);
+                List<MTDProductionScheduleDao> _mtdScheduleDataList = _mtdProductionScheduleRepository.SelectByConditions(floor, owner, _startDate, _endDate);
+                List<MTDProductionScheduleDao> _mtdMonthPlanList = _mtdProductionScheduleRepository.SelectMonthPlanQty(_nowTime.Year.ToString(), _nowTime.Month.ToString(), floor, owner);
 
                 _manufactureSchedules = _mtdScheduleDataList.GroupBy(gb => new { gb.Process, gb.Model, gb.ProductName })
                     .Select(mtd => new ManufactureScheduleEntity
@@ -412,8 +419,7 @@ namespace MOD4.Web.DomainService
                         }).ToList()
                     }).ToList();
 
-                return (_manufactureSchedules, $@"{(_manufactureSchedules.Any() && _mtdScheduleHis != null
-                        ? _mtdScheduleHis.UpdateTime.ToString("yyyy/MM/dd HH:mm") + "- by " + _mtdScheduleHis.UpdateUser : "")}");
+                return _manufactureSchedules;
             }
             catch (Exception ex)
             {
@@ -421,7 +427,7 @@ namespace MOD4.Web.DomainService
             }
         }
 
-        public string Upload(IFormFile formFile, int floor, UserEntity userEntity)
+        public string Upload(IFormFile formFile, int floor, int owner, UserEntity userEntity)
         {
             try
             {
@@ -477,7 +483,7 @@ namespace MOD4.Web.DomainService
                             break;
 
                         if (string.IsNullOrEmpty(row.GetCell(0).StringCellValue) || string.IsNullOrEmpty(row.GetCell(1).StringCellValue) ||
-                            string.IsNullOrEmpty(row.GetCell(4).StringCellValue))
+                            string.IsNullOrEmpty(row.GetCell(4).StringCellValue) || row.GetCell(4).StringCellValue.Length < 10)
                             continue;
 
                         for (int j = 5; j < row.LastCellNum; j++)
@@ -494,6 +500,7 @@ namespace MOD4.Web.DomainService
                                 ProductName = row.GetCell(4).StringCellValue.Trim(),
                                 Value = Convert.ToInt32(row.GetCell(j).NumericCellValue),
                                 Floor = floor,
+                                OwnerId = owner,
                                 UpdateUser = userEntity.Name,
                                 UpdateTime = _nowTime,
                             });
@@ -503,6 +510,7 @@ namespace MOD4.Web.DomainService
 
                     _mtdScheduleUpdateHistoryDao.FileName = _newFileName;
                     _mtdScheduleUpdateHistoryDao.Floor = floor;
+                    _mtdScheduleUpdateHistoryDao.OwnerId = owner;
                     _mtdScheduleUpdateHistoryDao.UpdateUser = userEntity.Name;
                     _mtdScheduleUpdateHistoryDao.UpdateTime = _nowTime;
 
@@ -511,7 +519,7 @@ namespace MOD4.Web.DomainService
                         bool _updRes = false;
                         bool _insHisRes = false;
 
-                        _updRes = _mtdProductionScheduleRepository.DeleteSchedule() == _updMTDScheduleDao.Count;
+                        _updRes = _mtdProductionScheduleRepository.DeleteSchedule(owner) == _updMTDScheduleDao.Count;
                         _updRes = _mtdProductionScheduleRepository.InsertSchedule(_updMTDScheduleDao) == _updMTDScheduleDao.Count;
                         _insHisRes = _mtdProductionScheduleRepository.InsertScheduleHistory(_mtdScheduleUpdateHistoryDao) == 1;
 
@@ -531,6 +539,19 @@ namespace MOD4.Web.DomainService
             }
         }
 
+        public string GetLatestUpdate(int floor = 2, int owner = 1)
+        {
+            try
+            {
+                MTDScheduleUpdateHistoryDao _mtdScheduleHis = _mtdProductionScheduleRepository.SelectHistory(floor, owner);
+
+                return $@"{(_mtdScheduleHis != null ? _mtdScheduleHis.UpdateTime.ToString("yyyy/MM/dd HH:mm") + "- by " + _mtdScheduleHis.UpdateUser : "")}";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         private string DoFileCopy(IFormFile uploadFile, DateTime nowTime)
         {
             var _fileNameStr = "";

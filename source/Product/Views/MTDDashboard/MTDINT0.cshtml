@@ -64,7 +64,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">各製程生產狀況(DAILY & MTD)</h3>
+                            <h3 class="card-title">各製程生產狀況(DAILY & MTD) - 實驗</h3>
                         </div>
                         <div class="card-body">
                             <fieldset id="searchArea">
@@ -212,7 +212,7 @@
             Search() {
                 globalFuc.LoadingPic();
                 $.ajax({
-                    url: "./MTDDashboard/Search?date=" + $("#datePick").val() + "&time=" + $("#timeRang").val() + "&floor=" + $("#selFloor").val() + "&owner=1",
+                    url: "./MTDINT0/Search?date=" + $("#datePick").val() + "&time=" + $("#timeRang").val() + "&floor=" + $("#selFloor").val() + "&owner=2",
                     type: "GET",
                     dataType: 'html',
                     success: function (result) {

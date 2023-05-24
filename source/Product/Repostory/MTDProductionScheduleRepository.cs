@@ -10,14 +10,16 @@ namespace MOD4.Web.Repostory
 
         public List<MTDProductionScheduleDao> SelectByConditions(
             int floor,
-            DateTime? dateStart
-            , DateTime? dateEnd)
+            int ownerId,
+            DateTime? dateStart, 
+            DateTime? dateEnd)
         {
-            string sql = "select * from mtd_production_schedule where floor = @floor and date between @dateStart and @dateEnd order by sn asc, model desc, productName asc, date asc ; ";
+            string sql = "select * from mtd_production_schedule where floor = @floor and ownerId = @ownerId and date between @dateStart and @dateEnd order by sn asc, model desc, productName asc, date asc ; ";
 
             var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(sql, new
             {
                 floor = floor,
+                ownerId = ownerId,
                 dateStart = dateStart,
                 dateEnd = dateEnd
             });
@@ -25,16 +27,16 @@ namespace MOD4.Web.Repostory
             return dao;
         }
 
-        public List<MTDProductionScheduleDao> SelectMonthPlanQty(string year, string month, int floor)
-        {
-            //string sql = "select process,model,productName,SUM(value)'MonthPlan' from mtd_production_schedule where DATEPART(YEAR, date) = @Year and DATEPART(MONTH, date) = @Month group by process,model,productName; ";
-            string sql = "select * from mtd_production_schedule where DATEPART(YEAR, date) = @Year and DATEPART(MONTH, date) = @Month and floor = @Floor ; ";
+        public List<MTDProductionScheduleDao> SelectMonthPlanQty(string year, string month, int floor, int ownerId)
+        {            
+            string sql = "select * from mtd_production_schedule where DATEPART(YEAR, date) = @Year and DATEPART(MONTH, date) = @Month and floor = @Floor and ownerId = @ownerId ; ";
 
             var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(sql, new
             {
                 Year = year,
                 Month = month,
-                Floor = floor
+                Floor = floor,
+                ownerId = ownerId
             });
 
             return dao;
@@ -52,13 +54,14 @@ namespace MOD4.Web.Repostory
             return dao;
         }
 
-        public MTDScheduleUpdateHistoryDao SelectHistory(int floor)
+        public MTDScheduleUpdateHistoryDao SelectHistory(int floor, int ownerId)
         {
-            string sql = "select TOP 1 * from mtd_schedule_update_history where floor = @Floor order by updateTime desc; ";
+            string sql = "select TOP 1 * from mtd_schedule_update_history where floor = @Floor and ownerId = @OwnerId order by updateTime desc; ";
 
             var dao = _dbHelper.ExecuteQuery<MTDScheduleUpdateHistoryDao>(sql, new
             {
-                Floor = floor
+                Floor = floor,
+                OwnerId = ownerId
             }).FirstOrDefault();
 
             return dao;
@@ -76,6 +79,7 @@ INSERT INTO [dbo].[mtd_production_schedule]
 ,[date]
 ,[value]
 ,[floor]
+,[ownerId]
 ,[updateUser]
 ,[updateTime])
 VALUES
@@ -87,6 +91,7 @@ VALUES
 ,@date
 ,@value
 ,@floor
+,@ownerId
 ,@updateUser
 ,@updateTime
 ); ";
@@ -96,12 +101,14 @@ VALUES
             return dao;
         }
 
-        public int DeleteSchedule()
+        public int DeleteSchedule(int ownerId)
         {
             string sql = @"
- Truncate table [dbo].[mtd_production_schedule]; ";
+ Delete [dbo].[mtd_production_schedule] where ownerId = @OwnerId; ";
 
-            var dao = _dbHelper.ExecuteNonQuery(sql);
+            var dao = _dbHelper.ExecuteNonQuery(sql,new {
+                OwnerId = ownerId
+            });
 
             return dao;
         }
@@ -111,11 +118,13 @@ VALUES
             string sql = @" INSERT INTO [dbo].[mtd_schedule_update_history]
 ([fileName]
 ,[floor]
+,[ownerId]
 ,[updateUser]
 ,[updateTime])
 VALUES
 (@fileName
 ,@floor
+,@ownerId
 ,@updateUser
 ,@updateTime);";
 

@@ -37,7 +37,7 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                var _resilt = _mtdDashboardDomainService.DashboardSearch();
+                var _resilt = _mtdDashboardDomainService.DashboardSearch(owner: 1);
 
                 List<MTDDashboardViewModel> _response = _resilt.Select(mtd => new MTDDashboardViewModel
                 {
@@ -83,11 +83,11 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Search([FromQuery] string date, decimal time, int floor)
+        public IActionResult Search([FromQuery] string date, decimal time, int floor, int owner)
         {
             try
             {
-                var _resilt = _mtdDashboardDomainService.DashboardSearch(floor, date, time);
+                var _resilt = _mtdDashboardDomainService.DashboardSearch(floor, date, time, owner);
 
                 List<MTDDashboardViewModel> _response = _resilt.Select(mtd => new MTDDashboardViewModel
                 {
@@ -129,6 +129,95 @@ namespace MOD4.Web.Controllers
             }
         }
 
+        [HttpGet("[controller]/MTDINT0")]
+        public IActionResult MTDINT0()
+        {
+            try
+            {
+                var _resilt = _mtdDashboardDomainService.DashboardSearch(owner: 2);
+
+                List<MTDDashboardViewModel> _response = _resilt.Select(mtd => new MTDDashboardViewModel
+                {
+                    Process = mtd.Process,
+                    Plan = mtd.Plan,
+                    Actual = mtd.Actual,
+                    Diff = mtd.Diff,
+                    DownTime = mtd.DownTime,
+                    DownPercent = mtd.DownPercent,
+                    MTDDetail = mtd.MTDDetail.Select(detail => new MTDDashboardDetailViewModel
+                    {
+                        Date = detail.Date,
+                        Equipment = detail.Equipment,
+                        BigProduct = detail.BigProduct,
+                        PlanProduct = detail.PlanProduct,
+                        Output = detail.Output,
+                        DayPlan = detail.DayPlan,
+                        RangPlan = detail.RangPlan,
+                        RangDiff = detail.RangDiff,
+                        MonthPlan = detail.MonthPlan,
+                        MTDPlan = detail.MTDPlan,
+                        MTDActual = detail.MTDActual,
+                        MTDDiff = detail.MTDDiff,
+                        EqAbnormal = "",
+                        RepaireTime = "",
+                        Status = ""
+                    }).ToList()
+                }).ToList();
+
+                return View(_response);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel
+                {
+                    Message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("[controller]/MTDINT0/Search")]
+        public IActionResult MTDINT0Search([FromQuery] string date, decimal time, int floor, int owner)
+        {
+            try
+            {
+                var _resilt = _mtdDashboardDomainService.DashboardSearch(floor, date, time, owner);
+
+                List<MTDDashboardViewModel> _response = _resilt.Select(mtd => new MTDDashboardViewModel
+                {
+                    Process = mtd.Process,
+                    Plan = mtd.Plan,
+                    Actual = mtd.Actual,
+                    Diff = mtd.Diff,
+                    DownTime = mtd.DownTime,
+                    DownPercent = mtd.DownPercent,
+                    MTDDetail = mtd.MTDDetail.Select(detail => new MTDDashboardDetailViewModel
+                    {
+                        Date = detail.Date,
+                        Equipment = detail.Equipment,
+                        BigProduct = detail.BigProduct,
+                        PlanProduct = detail.PlanProduct,
+                        Output = detail.Output,
+                        DayPlan = detail.DayPlan,
+                        RangPlan = detail.RangPlan,
+                        RangDiff = detail.RangDiff,
+                        MonthPlan = detail.MonthPlan,
+                        MTDPlan = detail.MTDPlan,
+                        MTDActual = detail.MTDActual,
+                        MTDDiff = detail.MTDDiff,
+                        EqAbnormal = detail.EqAbnormal,
+                        RepaireTime = detail.RepaireTime,
+                        Status = detail.Status
+                    }).ToList()
+                }).ToList();
+
+                return PartialView("_PartialDashboard", _response);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
         #region ===== Manufacture schedule =====
 
         [HttpGet("[controller]/Manufacture")]
@@ -137,8 +226,6 @@ namespace MOD4.Web.Controllers
             try
             {
                 var _result = _mtdDashboardDomainService.Search();
-
-                ViewBag.UpdateInfo = _result.latestUpdInfo;
 
                 UserEntity _userInfo = GetUserInfo();
                 var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.Manufacture);
@@ -149,11 +236,9 @@ namespace MOD4.Web.Controllers
                     AccountPermission = _userCurrentPagePermission.AccountPermission
                 };
 
-                ViewBag.UpdateInfo = _result.latestUpdInfo;
-
                 List<ManufactureViewModel> _reponse = new List<ManufactureViewModel>();
 
-                _result.manufactureSchedules.ForEach(mtd =>
+                _result.ForEach(mtd =>
                 {
                     _reponse.Add(new ManufactureViewModel
                     {
@@ -179,11 +264,11 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpGet("[controller]/Manufacture/Search")]
-        public IActionResult ManufactureSearch([FromQuery] string dateRange, int floor)
+        public IActionResult ManufactureSearch([FromQuery] string dateRange, int floor, int owner)
         {
             try
             {
-                var _result = _mtdDashboardDomainService.Search(dateRange, floor);
+                var _result = _mtdDashboardDomainService.Search(dateRange, floor, owner);
 
                 UserEntity _userInfo = GetUserInfo();
                 var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.Manufacture);
@@ -196,7 +281,7 @@ namespace MOD4.Web.Controllers
 
                 List<ManufactureViewModel> _response = new List<ManufactureViewModel>();
 
-                _result.manufactureSchedules.ForEach(mtd =>
+                _result.ForEach(mtd =>
                 {
                     _response.Add(new ManufactureViewModel
                     {
@@ -215,8 +300,6 @@ namespace MOD4.Web.Controllers
 
                 if (_response.Any())
                 {
-                    ViewBag.UpdateInfo = _result.latestUpdInfo;
-
                     return PartialView("_PartialTable", _response);
                 }
                 else
@@ -229,12 +312,12 @@ namespace MOD4.Web.Controllers
             }
         }
 
-        [HttpPost("[controller]/Manufacture/Upload")]
-        public IActionResult ManufactureUpload([FromForm] IFormFile updFile, int floor)
+        [HttpGet("[controller]/Manufacture/LatestUpdate/{floor}/{owner}")]
+        public IActionResult ManufactureLatestUpdate(int floor, int owner)
         {
             try
             {
-                var _result = _mtdDashboardDomainService.Upload(updFile, floor, GetUserInfo());
+                var _result = _mtdDashboardDomainService.GetLatestUpdate(floor, owner);
 
                 return Json(_result);
             }
@@ -243,6 +326,22 @@ namespace MOD4.Web.Controllers
                 return Json($"錯誤：{ex.Message}");
             }
         }
+
+        [HttpPost("[controller]/Manufacture/Upload")]
+        public IActionResult ManufactureUpload([FromForm] IFormFile updFile, int floor, int owner)
+        {
+            try
+            {
+                var _result = _mtdDashboardDomainService.Upload(updFile, floor, owner, GetUserInfo());
+
+                return Json(_result);
+            }
+            catch (Exception ex)
+            {
+                return Json($"錯誤：{ex.Message}");
+            }
+        }
+
 
         #endregion
 

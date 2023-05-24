@@ -6,11 +6,13 @@ namespace MOD4.Web.DomainService
 {
     public interface IMTDDashboardDomainService
     {
-        List<MTDDashboardEntity> DashboardSearch(int floor = 2, string date = "", decimal time = 24);
+        List<MTDDashboardEntity> DashboardSearch(int floor = 2, string date = "", decimal time = 24, int owner = 1);
 
-        (List<ManufactureScheduleEntity> manufactureSchedules, string latestUpdInfo) Search(string dateRange = "", int floor = 2);
+        List<ManufactureScheduleEntity> Search(string dateRange = "", int floor = 2, int owner = 1);
 
-        string Upload(IFormFile formFile, int floor, UserEntity userEntity);
+        string GetLatestUpdate(int floor = 2, int owner = 1);
+
+        string Upload(IFormFile formFile, int floor, int owner, UserEntity userEntity);
 
         MTBFMTTRDashboardEntity GetMTBFMTTRList(string beginDate, string endDate, string equipment, int floor);
 
