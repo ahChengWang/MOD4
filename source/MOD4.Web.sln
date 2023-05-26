@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.32602.291
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MOD4.Web", "Product\MOD4.Web.csproj", "{86D4D99E-87B1-4983-84BC-49DD2A33AB91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MOD4.Web", "Product\MOD4.Web\MOD4.Web.csproj", "{86D4D99E-87B1-4983-84BC-49DD2A33AB91}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Product", "Product", "{AC5A43F3-E464-4780-88F0-F030EBDB2E94}"
 EndProject
