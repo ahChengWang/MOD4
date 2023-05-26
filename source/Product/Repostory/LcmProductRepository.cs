@@ -15,5 +15,21 @@ namespace MOD4.Web.Repostory
 
             return dao;
         }
+
+        public LcmProductDao Insert(LcmProductDao prodDao)
+        {
+            string sql = @"INSERT INTO [dbo].[definition_lcm_prod]
+([prodNo]
+,[descr])
+VALUES
+(@prodNo
+,@descr); 
+select TOP 1 sn from definition_lcm_prod order by sn desc;
+";
+
+            var dao = _dbHelper.ExecuteQuery<LcmProductDao>(sql, prodDao);
+
+            return dao.FirstOrDefault();
+        }
     }
 }

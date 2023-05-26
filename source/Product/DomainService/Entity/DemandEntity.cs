@@ -35,5 +35,11 @@ namespace MOD4.Web.DomainService.Entity
         public string Remark { get; set; }
 
         public bool UserEditable { get; set; }
+
+        public bool IsNewProd { get; set; }
+
+        public string ProdNo { get; set; }
+
+        public string ProdDesc { get; set; }
     }
 }

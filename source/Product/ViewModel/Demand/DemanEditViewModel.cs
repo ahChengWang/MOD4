@@ -48,6 +48,15 @@ namespace MOD4.Web.ViewModel
         [Display(Name = "駁回原因")]
         public string RejectReason { get; set; }
 
+        [Display(Name = "新機種?")]
+        public bool IsNewProd { get; set; }
+
+        [Display(Name = "機種代號")]
+        public string ProdNo { get; set; }
+
+        [Display(Name = "機種描述")]
+        public string ProdDesc { get; set; }
+
         [Display(Name = "上傳檔案")]
         public List<IFormFile> UploadFile { get; set; }
 

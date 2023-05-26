@@ -30,7 +30,7 @@
                 @{
                     foreach (var category in ViewBag.CategoryOptions)
                     {
-                    <option value="@category.Id">@category.Value</option>
+                        <option value="@category.Id">@category.Value</option>
                     }
                 }
             </select>
@@ -74,13 +74,13 @@
             @{
                 if (Model.UploadFile1 == "")
                 {
-                <a href="#"><label class="custom-file-label">@Model.UploadFile1</label></a>
+                    <a href="#"><label class="custom-file-label">@Model.UploadFile1</label></a>
                 }
                 else
                 {
-                <a target="_blank" href="./Download?orderSn=@Model.OrderSn&typeId=1&fileNo=0">
-                    <label class="custom-file-label">@Model.UploadFile1</label>
-                </a>
+                    <a target="_blank" href="./Download?orderSn=@Model.OrderSn&typeId=1&fileNo=0">
+                        <label class="custom-file-label">@Model.UploadFile1</label>
+                    </a>
                 }
             }
         </div>
@@ -88,13 +88,13 @@
             @{
                 if (Model.UploadFile2 == "")
                 {
-                <a href="#"><label class="custom-file-label">@Model.UploadFile2</label></a>
+                    <a href="#"><label class="custom-file-label">@Model.UploadFile2</label></a>
                 }
                 else
                 {
-                <a target="_blank" href="./Download?orderSn=@Model.OrderSn&typeId=1&fileNo=1">
-                    <label class="custom-file-label">@Model.UploadFile2</label>
-                </a>
+                    <a target="_blank" href="./Download?orderSn=@Model.OrderSn&typeId=1&fileNo=1">
+                        <label class="custom-file-label">@Model.UploadFile2</label>
+                    </a>
                 }
             }
         </div>
@@ -102,13 +102,13 @@
             @{
                 if (Model.UploadFile3 == "")
                 {
-                <a><label class="custom-file-label">@Model.UploadFile3</label></a>
+                    <a><label class="custom-file-label">@Model.UploadFile3</label></a>
                 }
                 else
                 {
-                <a target="_blank" href="./Download?orderSn=@Model.OrderSn&typeId=1&fileNo=2">
-                    <label class="custom-file-label">@Model.UploadFile3</label>
-                </a>
+                    <a target="_blank" href="./Download?orderSn=@Model.OrderSn&typeId=1&fileNo=2">
+                        <label class="custom-file-label">@Model.UploadFile3</label>
+                    </a>
                 }
             }
         </div>
@@ -121,6 +121,26 @@
         </div>
         <div class="col-9">
             <textarea class="form-control" rows="4" asp-for="RejectReason"></textarea>
+        </div>
+    </div>
+    <div class="form-group" style="display: flex;">
+        <div class="col-1">
+            <label class="col-form-label" asp-for="IsNewProd"></label>
+        </div>
+        <div class="col-1">
+            <input class="form-control" style="width:20%" type="checkbox" asp-for="IsNewProd" />
+        </div>
+        <div class="col-2">
+            <label class="col-form-label" asp-for="ProdNo"></label>
+        </div>
+        <div class="col-2">
+            <input class="form-control" type="text" asp-for="ProdNo" disabled />
+        </div>
+        <div class="col-2">
+            <label class="col-form-label" asp-for="ProdDesc"></label>
+        </div>
+        <div class="col-3">
+            <input class="form-control" type="text" asp-for="ProdDesc" disabled />
         </div>
     </div>
 </div>

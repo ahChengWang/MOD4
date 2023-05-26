@@ -8,5 +8,7 @@ namespace MOD4.Web.Repostory
         List<TargetSettingDao> SelectByConditions(List<int> prodSn, List<string> nodeList);
 
         int Update(List<TargetSettingDao> updSettingList);
+
+        int Insert(List<TargetSettingDao> insSettingList);
     }
 }

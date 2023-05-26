@@ -181,7 +181,10 @@ namespace MOD4.Web.Controllers
                     JobNo = updModel.JobNo,
                     UploadFileList = updModel.UploadFile,
                     RejectReason = updModel.RejectReason,
-                    Remark = updModel.Remark
+                    Remark = updModel.Remark,
+                    IsNewProd = updModel.IsNewProd,
+                    ProdNo = updModel.ProdNo,
+                    ProdDesc = updModel.ProdDesc
                 },
                 GetUserInfo());
 

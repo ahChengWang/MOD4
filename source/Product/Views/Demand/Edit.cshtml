@@ -203,136 +203,40 @@
 @section scripts {
     <script type="text/javascript">
 
-    $(function () {
-        bsCustomFileInput.init();
-    });
-
-    function verifyFile(e) {
-        var validExtensions = ['xls', 'xlsx', 'doc', 'docx', 'txt', 'jpg', 'png', 'jpeg'];
-        var rg1 = /[^0-9a-zA-Z ._-\u4e00-\u9fa5]/;
-        let fileEx = e.files[0].name.replace(/^.*\./, '');
-        let fileSize = e.files[0].size;
-
-        if ($.inArray(fileEx, validExtensions) == -1) {
-            alert("無效檔案類型");
-            e.value = "";
-        }
-        else if (fileSize > 2097152) {
-            alert("檔案過大");
-            e.value = "";
-        }
-        //else if (!rg1.test(fileName)) {
-        //    alert("格式有誤");
-        //    e.value = "";
-        //}
-    }
-
-    @*$("#btnSave").click(function () {
-        $.blockUI({
-            message: '請稍等...',
-            css: {
-                border: 'none',
-                padding: '5px',
-                backgroundColor: '#000',
-                '-webkit-border-radius': '10px',
-                '-moz-border-radius': '10px',
-                opacity: '.5',
-                color: '#fff',
-                fontSize: '25px',
-                fontFamily: '微軟正黑體',
-                fontWeight: 300,
-            }
+        $(function () {
+            bsCustomFileInput.init();
         });
-        $.ajax({
-            type: "POST",
-            url: "/Demand/EditToProcess",
-            dataType: 'json',
-            data: $("#demandForm").serialize(),
-            success: function (result) {
-                $.unblockUI();
-                if (result.isSuccess) {
-                    alert(result.msg);
-                    location.href = "@Url.ActionLink("Index", "Demand")";
-                }
-                else {
-                    alert(result.msg);
-                }
-            }
-        });
-    });
 
-    $("#btnReject").click(function () {
-        var _rr = $("#RejectReason").val();
-        if (_rr == "") {
-            alert("駁回原因必填");
-            return false;
+        function verifyFile(e) {
+            var validExtensions = ['xls', 'xlsx', 'doc', 'docx', 'txt', 'jpg', 'png', 'jpeg'];
+            var rg1 = /[^0-9a-zA-Z ._-\u4e00-\u9fa5]/;
+            let fileEx = e.files[0].name.replace(/^.*\./, '');
+            let fileSize = e.files[0].size;
+
+            if ($.inArray(fileEx, validExtensions) == -1) {
+                alert("無效檔案類型");
+                e.value = "";
+            }
+            else if (fileSize > 2097152) {
+                alert("檔案過大");
+                e.value = "";
+            }
+            //else if (!rg1.test(fileName)) {
+            //    alert("格式有誤");
+            //    e.value = "";
+            //}
         }
 
-        $.blockUI({
-            message: '請稍等...',
-            css: {
-                border: 'none',
-                padding: '5px',
-                backgroundColor: '#000',
-                '-webkit-border-radius': '10px',
-                '-moz-border-radius': '10px',
-                opacity: '.5',
-                color: '#fff',
-                fontSize: '25px',
-                fontFamily: '微軟正黑體',
-                fontWeight: 300,
+        $("#IsNewProd").on('change', function (e) {
+            if (e.currentTarget.checked) {
+                $("#ProdNo").removeAttr('disabled', false);
+                $("#ProdDesc").removeAttr('disabled', false);
+            }
+            else {
+                $("#ProdNo").attr('disabled', true);
+                $("#ProdDesc").attr('disabled', true);
             }
         });
-        $.ajax({
-            type: "POST",
-            url: "/Demand/EditToReject",
-            dataType: 'json',
-            data: $("#demandForm").serialize(),
-            success: function (result) {
-                $.unblockUI();
-                if (result.isSuccess) {
-                    alert(result.msg);
-                    location.href = "@Url.ActionLink("Index", "Demand")";
-                }
-                else {
-                    alert(result.msg);
-                }
-            }
-        });
-    });
 
-    $("#btnCancel").click(function () {
-        $.blockUI({
-            message: '請稍等...',
-            css: {
-                border: 'none',
-                padding: '5px',
-                backgroundColor: '#000',
-                '-webkit-border-radius': '10px',
-                '-moz-border-radius': '10px',
-                opacity: '.5',
-                color: '#fff',
-                fontSize: '25px',
-                fontFamily: '微軟正黑體',
-                fontWeight: 300,
-            }
-        });
-        $.ajax({
-            type: "POST",
-            url: "/Demand/EditToReject",
-            dataType: 'json',
-            data: $("#demandForm").serialize(),
-            success: function (result) {
-                $.unblockUI();
-                if (result.isSuccess) {
-                    alert(result.msg);
-                    location.href = "@Url.ActionLink("Index", "Demand")";
-                }
-                else {
-                    alert(result.msg);
-                }
-            }
-        });
-    });*@
     </script>
 }

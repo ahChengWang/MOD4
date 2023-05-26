@@ -67,5 +67,78 @@ namespace MOD4.Web.Repostory
 
             return dao;
         }
+
+        public int Insert(List<TargetSettingDao> insSettingList)
+        {
+            string sql = @"
+INSERT INTO [dbo].[Target_Setting]
+           (Node
+           ,Node_Name
+           ,lcmProdSn
+           ,DownEquipment
+           ,Time0730
+           ,Time0830
+           ,Time0930
+           ,Time1030
+           ,Time1130
+           ,Time1230
+           ,Time1330
+           ,Time1430
+           ,Time1530
+           ,Time1630
+           ,Time1730
+           ,Time1830
+           ,Time1930
+           ,Time2030
+           ,Time2130
+           ,Time2230
+           ,Time2330
+           ,Time0030
+           ,Time0130
+           ,Time0230
+           ,Time0330
+           ,Time0430
+           ,Time0530
+           ,Time0630
+           ,UpdateUser
+           ,UpdateTime
+           ,TimeTarget)
+     VALUES
+           (@Node
+           ,@Node_Name
+           ,@lcmProdSn
+           ,@DownEquipment
+           ,@Time0730
+           ,@Time0830
+           ,@Time0930
+           ,@Time1030
+           ,@Time1130
+           ,@Time1230
+           ,@Time1330
+           ,@Time1430
+           ,@Time1530
+           ,@Time1630
+           ,@Time1730
+           ,@Time1830
+           ,@Time1930
+           ,@Time2030
+           ,@Time2130
+           ,@Time2230
+           ,@Time2330
+           ,@Time0030
+           ,@Time0130
+           ,@Time0230
+           ,@Time0330
+           ,@Time0430
+           ,@Time0530
+           ,@Time0630
+           ,@UpdateUser
+           ,@UpdateTime
+           ,@TimeTarget); ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, insSettingList);
+
+            return dao;
+        }
     }
 }

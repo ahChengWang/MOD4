@@ -24,6 +24,8 @@ namespace MOD4.Web.DomainService.Demand
         private readonly IMESPermissionRepository _mesPermissionRepository;
         private readonly IMESPermissionApplicantsRepository _mesPermissionApplicantsRepository;
         private readonly IMESPermissionAuditHistoryRepository _mesPermissionAuditHistoryRepository;
+        private readonly ILcmProductRepository _lcmProductRepository;
+        private readonly ITargetSettingRepository _targetSettingRepository;
 
         public DemandDomainService(IDemandsRepository demandsRepository,
             IUploadDomainService uploadDomainService,
@@ -32,7 +34,9 @@ namespace MOD4.Web.DomainService.Demand
             IDemadStatusFactory demadStatusFactory,
             IMESPermissionRepository mesPermissionRepository,
             IMESPermissionApplicantsRepository mesPermissionApplicantsRepository,
-            IMESPermissionAuditHistoryRepository mesPermissionAuditHistoryRepository)
+            IMESPermissionAuditHistoryRepository mesPermissionAuditHistoryRepository,
+            ILcmProductRepository lcmProductRepository,
+            ITargetSettingRepository targetSettingRepository)
         {
             _demandsRepository = demandsRepository;
             _uploadDomainService = uploadDomainService;
@@ -42,6 +46,8 @@ namespace MOD4.Web.DomainService.Demand
             _mesPermissionRepository = mesPermissionRepository;
             _mesPermissionApplicantsRepository = mesPermissionApplicantsRepository;
             _mesPermissionAuditHistoryRepository = mesPermissionAuditHistoryRepository;
+            _lcmProductRepository = lcmProductRepository;
+            _targetSettingRepository = targetSettingRepository;
         }
 
         public List<DemandEntity> GetDemands(UserEntity userEntity,
@@ -268,6 +274,56 @@ namespace MOD4.Web.DomainService.Demand
                     UploadUrl = _uploadDomainService.GetFileServerUrl()
                 });
 
+                if (_oldDemand.statusId == DemandStatusEnum.Pending && _updDemandsDao.statusId == DemandStatusEnum.Processing &&
+                    updEntity.IsNewProd)
+                {
+                    LcmProductDao _lcmProductDao = new LcmProductDao
+                    {
+                        ProdNo = updEntity.ProdNo,
+                        Descr = updEntity.ProdDesc
+                    };
+
+                    List<TargetSettingDao> _targetSettingList = new List<TargetSettingDao>
+                    {
+                        new TargetSettingDao {Node="1300",Node_Name="PCBI(HMT)",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
+                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
+                        new TargetSettingDao {Node="1330",Node_Name="FOG",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
+                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
+                        new TargetSettingDao {Node="1355",Node_Name="OCA硬對硬",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
+                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
+                        new TargetSettingDao {Node="1415",Node_Name="機台重合",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
+                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
+                        new TargetSettingDao {Node="1420",Node_Name="AAFC 第二流道",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
+                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
+                        new TargetSettingDao {Node="1460",Node_Name="後背蓋-第三流道機台作業",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
+                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
+                        new TargetSettingDao {Node="1500",Node_Name="AGING",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
+                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
+                        new TargetSettingDao {Node="1600",Node_Name="(A+B) Panel C",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
+                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
+                        new TargetSettingDao {Node="1700",Node_Name="D KEN",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
+                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
+                        new TargetSettingDao {Node="1720",Node_Name="D2",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
+                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
+                        new TargetSettingDao {Node="1910",Node_Name="SHIPPING",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
+                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 }
+                    };
+
+                    using (TransactionScope _scope = new TransactionScope())
+                    {
+                        bool _insRes = false;
+
+                        LcmProductDao _insLcmProd = _lcmProductRepository.Insert(_lcmProductDao);
+
+                        _targetSettingList.ForEach(fe => fe.lcmProdSn = _insLcmProd.sn);
+
+                        _insRes = _targetSettingRepository.Insert(_targetSettingList) == _targetSettingList.Count;
+
+                        if (_insLcmProd.sn != 0 && _insRes)
+                            _scope.Complete();
+                    }
+                }
+
                 return _demandProcess;
 
                 /*
@@ -489,15 +545,19 @@ namespace MOD4.Web.DomainService.Demand
                 string _createRes = "";
                 DateTime _nowTime = DateTime.Now;
                 int _orderSn = 0;
+                string _fileName = "";
 
                 if (mESPermissionEntity.Applicants.Any(a => string.IsNullOrEmpty(a.ApplicantName) || string.IsNullOrEmpty(a.ApplicantJobId)) &&
                     mESPermissionEntity.UploadFile == null)
                     return (false, "申請名單不能為空");
 
-                string[] _fileNameAry = mESPermissionEntity.UploadFile.FileName.Split(".");
-                var fileName = Path.GetFileName($"{_fileNameAry[0]}_{_nowTime.ToString("MMdd")}_{Guid.NewGuid().ToString("N").Substring(0, 4)}.{_fileNameAry[1]}");
+                if (mESPermissionEntity.UploadFile != null)
+                {
+                    string[] _fileNameAry = mESPermissionEntity.UploadFile.FileName.Split(".");
+                    _fileName = Path.GetFileName($"{_fileNameAry[0]}_{_nowTime.ToString("MMdd")}_{Guid.NewGuid().ToString("N").Substring(0, 4)}.{_fileNameAry[1]}");
 
-                _ftpService.FTP_Upload(mESPermissionEntity.UploadFile, $"MESEmpList/{userEntity.Name}", fileName);
+                    _ftpService.FTP_Upload(mESPermissionEntity.UploadFile, $"MESEmpList/{userEntity.Name}", _fileName);
+                }
 
                 MESPermissionDao _mesPermissionDao = new MESPermissionDao
                 {
@@ -510,7 +570,7 @@ namespace MOD4.Web.DomainService.Demand
                     phone = mESPermissionEntity.Phone,
                     auditAccountSn = 6,
                     applicantAccountSn = userEntity.sn,
-                    permissionList = string.Join(",", mESPermissionEntity.PermissionInfo.Where(w => w.IsEnable).Select(s => s.MESPermissionId)),
+                    permissionList = string.Join(",", mESPermissionEntity.PermissionInfo?.Where(w => w.IsEnable).Select(s => s.MESPermissionId)) ?? "",
                     otherPermission = mESPermissionEntity.OtherPermission,
                     samePermName = mESPermissionEntity.SamePermName,
                     samePermJobId = mESPermissionEntity.SamePermJobId,
@@ -518,13 +578,13 @@ namespace MOD4.Web.DomainService.Demand
                     createTime = _nowTime,
                     mesOrderTypeId = mESPermissionEntity.MESOrderTypeId,
                     applicantReason = mESPermissionEntity.ApplicantReason,
-                    uploadFile = fileName
+                    uploadFile = _fileName
                 };
 
 
                 List<MESPermissionApplicantsDao> _mesOrderDetails = new List<MESPermissionApplicantsDao>();
 
-                if (mESPermissionEntity.Applicants != null && mESPermissionEntity.Applicants.Any() && 
+                if (mESPermissionEntity.Applicants != null && mESPermissionEntity.Applicants.Any() &&
                     mESPermissionEntity.Applicants.All(a => !string.IsNullOrEmpty(a.ApplicantName) && !string.IsNullOrEmpty(a.ApplicantJobId)))
                 {
                     _mesOrderDetails = mESPermissionEntity.Applicants.Select(detail =>
