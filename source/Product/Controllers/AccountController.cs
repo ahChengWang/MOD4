@@ -51,15 +51,14 @@ namespace MOD4.Web.Controllers
                 {
                     var claims = new List<Claim>()
                     {
-                        new Claim(ClaimTypes.NameIdentifier, Convert.ToString(_verifyResult.Item2.Account.ToLower())),
                         new Claim("sn", Convert.ToString(_verifyResult.Item2.sn)),
-                        new Claim("Account", _verifyResult.Item2.Account.ToLower()),
-                        new Claim("Name", _verifyResult.Item2.Name),
-                        new Claim("Role", Convert.ToString((int)_verifyResult.Item2.RoleId)),
+                        new Claim(ClaimTypes.Sid, _verifyResult.Item2.Account.ToLower()),
+                        new Claim(ClaimTypes.Name, _verifyResult.Item2.Name),
+                        new Claim(ClaimTypes.Role, Convert.ToString((int)_verifyResult.Item2.RoleId)),
                         new Claim("LevelId", Convert.ToString((int)_verifyResult.Item2.Level_id)),
                         new Claim("DeptSn", Convert.ToString((int)_verifyResult.Item2.DeptSn)),
                         new Claim("JobId", _verifyResult.Item2.JobId),
-                        new Claim("Mail", _verifyResult.Item2.Mail)
+                        new Claim(ClaimTypes.Email, _verifyResult.Item2.Mail)
                     };
 
                     //Initialize a new instance of the ClaimsIdentity with the claims and authentication scheme    
@@ -143,91 +142,6 @@ namespace MOD4.Web.Controllers
             HttpContext.SignOutAsync();
 
             return RedirectToAction("Index", "Account");//導至登入頁
-        }
-
-
-        private string Encrypt(string password, string key)
-        {
-            // ComputeHash - returns byte array  
-            byte[] bytesPW = Encoding.UTF8.GetBytes(password);
-            byte[] bytesKey = Encoding.UTF8.GetBytes(key);
-            // Hash the password with SHA256
-            byte[] keyBytes = SHA256.Create().ComputeHash(bytesKey);
-            return Convert.ToBase64String(AES_Encrypt(bytesPW, keyBytes));
-        }
-
-        private string Decrypt(string password, string key)
-        {
-            byte[] bytesToBeDecrypted = Convert.FromBase64String(password);
-            byte[] passwordBytesdecrypt = Encoding.UTF8.GetBytes(key);
-            passwordBytesdecrypt = SHA256.Create().ComputeHash(passwordBytesdecrypt);
-            return Encoding.UTF8.GetString(AES_Decrypt(bytesToBeDecrypted, passwordBytesdecrypt));
-        }
-
-        private byte[] AES_Encrypt(byte[] bytesToBeEncrypted, byte[] passwordBytes)
-        {
-            byte[] encryptedBytes = null;
-
-            // Set your salt here, change it to meet your flavor:
-            // The salt bytes must be at least 8 bytes.
-            byte[] saltBytes = new byte[] { 2, 1, 7, 3, 6, 4, 8, 5 };
-
-            using (MemoryStream ms = new MemoryStream())
-            {
-                using (RijndaelManaged AES = new RijndaelManaged())
-                {
-                    AES.KeySize = 256;
-                    AES.BlockSize = 128;
-
-                    var key = new Rfc2898DeriveBytes(passwordBytes, saltBytes, 1000);
-                    AES.Key = key.GetBytes(AES.KeySize / 8);
-                    AES.IV = key.GetBytes(AES.BlockSize / 8);
-
-                    AES.Mode = CipherMode.CBC;
-
-                    using (var cs = new CryptoStream(ms, AES.CreateEncryptor(), CryptoStreamMode.Write))
-                    {
-                        cs.Write(bytesToBeEncrypted, 0, bytesToBeEncrypted.Length);
-                        cs.Close();
-                    }
-                    encryptedBytes = ms.ToArray();
-                }
-            }
-
-            return encryptedBytes;
-        }
-
-        private byte[] AES_Decrypt(byte[] bytesToBeDecrypted, byte[] passwordBytes)
-        {
-            byte[] decryptedBytes = null;
-
-            // Set your salt here, change it to meet your flavor:
-            // The salt bytes must be at least 8 bytes.
-            byte[] saltBytes = new byte[] { 2, 1, 7, 3, 6, 4, 8, 5 };
-
-            using (MemoryStream ms = new MemoryStream())
-            {
-                using (RijndaelManaged AES = new RijndaelManaged())
-                {
-                    AES.KeySize = 256;
-                    AES.BlockSize = 128;
-
-                    var key = new Rfc2898DeriveBytes(passwordBytes, saltBytes, 1000);
-                    AES.Key = key.GetBytes(AES.KeySize / 8);
-                    AES.IV = key.GetBytes(AES.BlockSize / 8);
-
-                    AES.Mode = CipherMode.CBC;
-
-                    using (var cs = new CryptoStream(ms, AES.CreateDecryptor(), CryptoStreamMode.Write))
-                    {
-                        cs.Write(bytesToBeDecrypted, 0, bytesToBeDecrypted.Length);
-                        cs.Close();
-                    }
-                    decryptedBytes = ms.ToArray();
-                }
-            }
-
-            return decryptedBytes;
         }
 
         /// <summary>

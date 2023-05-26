@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims;
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -293,7 +295,7 @@
                     </a>
                 </li>-->
                 <li class="nav-item">
-                    <a style="color:white">Hi, @Context.User.Claims.FirstOrDefault(m => m.Type == "Name").Value</a>
+                    <a style="color:white">Hi, @Context.User.Claims.FirstOrDefault(m => m.Type == ClaimTypes.Name).Value</a>
                     <a href="@Url.Action("Logout", "Account")" style="color:darkblue"><img class="myicon" src="~/img/icons/log-out-outline.svg" />登出</a>
                 </li>
             </ul>
