@@ -31,8 +31,11 @@ source/obj/
 source/Product/.vs/
 source/Product/bin/
 source/Product/obj/
-source/Product/MOD4.Web/bin/
-source/Product/MOD4.Web/obj/
+source/Product/MOD4.Web/bin/Debug/
+source/Product/MOD4.Web/bin/Release/
+source/Product/MOD4.Web/obj/Debug/
+source/Product/MOD4.Web/obj/Release/
+
 
 
 
