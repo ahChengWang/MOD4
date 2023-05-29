@@ -36,7 +36,7 @@ namespace MOD4.Web.Enum
         Demand = 21,
         [Description("權限申請單")]
         MESPermission = 22,
-        [Description("MTD Dashboard")]
+        [Description("MTD 量產")]
         MTDDashboard = 24,
         [Description("MTD 實驗")]
         MTDINT0 = 25,
@@ -44,7 +44,7 @@ namespace MOD4.Web.Enum
         Manufacture = 26,
         [Description("MTBF / MTTR")]
         MTBFMTTR = 27,
-        [Description("MPS ⇅")]
+        [Description("2F生產排程")]
         MPS = 28,
         [Description("Monitor")]
         Monitor = 29,

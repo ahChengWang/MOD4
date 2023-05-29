@@ -24,12 +24,15 @@ source/Fundation/Utility/obj/Debug/netcoreapp3.1/Utility.GeneratedMSBuildEditorC
 source/Fundation/Utility/obj/Release/netcoreapp3.1/
 
 *.editorconfig
-source/Product/*.csproj.user
-source/Product/Properties/PublishProfiles/*.pubxml.user
+source/Product/MOD4.Web/*.csproj.user
+source/Product/MOD4.Web/Properties/PublishProfiles/*.pubxml.user
 source/.vs/
 source/obj/
 source/Product/.vs/
 source/Product/bin/
 source/Product/obj/
+source/Product/MOD4.Web/bin/
+source/Product/MOD4.Web/obj/
+
 
 
