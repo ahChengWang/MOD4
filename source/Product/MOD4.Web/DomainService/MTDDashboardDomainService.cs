@@ -174,7 +174,7 @@ namespace MOD4.Web.DomainService
 
             _mtdDashboardList = _mtdDashboardList.Select(data =>
             {
-                data.MTDDetail = data.MTDDetail.Where(detail => detail.Output != "0" || detail.DayPlan != "0").ToList();
+                data.MTDDetail = data.MTDDetail.Where(detail => detail.MTDPlan != "0").ToList();
                 return data;
             }).OrderBy(ob => ob.Sn).ToList();
 

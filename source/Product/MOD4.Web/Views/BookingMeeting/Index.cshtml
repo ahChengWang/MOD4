@@ -8,7 +8,7 @@
 <head>
     <link rel="stylesheet" href="~/plugins/fullcalendar/main.min.css">
     <link rel="stylesheet" href="~/plugins/daterangepicker/daterangepicker.css">
-    <link rel="stylesheet" href="~/css/bootstrap-calendar-darkly.css">
+    <link rel="stylesheet" href="~/css/bootstrap-calendar-solar.css">
     @*<link rel="stylesheet" href="https://bootswatch.com/5/darkly/bootstrap.min.css">*@
 </head>
 
@@ -26,6 +26,14 @@
     #divBooking, #divSrcFreeRoom {
         background-color: #c3cadb;
     }*/
+
+    .card {
+        --bs-card-bg: #285573;
+    }
+
+    body {
+        color: #e1eaf0;
+    }
 
     .card-title {
         font-size: 20px;
@@ -157,8 +165,8 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="row" style="margin-top:2px">
-                                <input id="btnBooking" class="btn btn-sm btn-secondary" type="button" value="預約" v-on:click="bookingClick" />
+                            <div class="row col-sm-2">
+                                <input id="btnBooking" class="btn btn-sm btn-dark" type="button" value="預約" v-on:click="bookingClick" />
                             </div>
                         </form>
                     </div>
