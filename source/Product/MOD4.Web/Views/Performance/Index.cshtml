@@ -69,6 +69,11 @@
     button[type='button'] {
         width: 200px;
     }
+
+    .multiselect-reset {
+        color: black;
+        background-color: white;
+    }
 </style>
 
 <div class="content-wrapper">
@@ -108,23 +113,12 @@
                                     <div class="col-lg-2">
                                         <label>Node：</label>
                                         <select id="dropNode" class="form-control" multiple="multiple">
-                                            @*@{
-                                                    foreach (var item in ViewBag.ToolId)
-                                                    {
-                                                        <option value="@item">@item</option>
-                                                    }
-                                                }*@
-                                            <option value="1300">1300</option>
-                                            <option value="1330">1330</option>
-                                            <option value="1355">1355</option>
-                                            <option value="1415">1415</option>
-                                            <option value="1420">1420</option>
-                                            <option value="1460">1460</option>
-                                            <option value="1500">1500</option>
-                                            <option value="1600">1600</option>
-                                            <option value="1700">1700</option>
-                                            <option value="1720">1720</option>
-                                            <option value="1910">1910</option>
+                                            @{
+                                                foreach (var node in ViewBag.NodeOptions)
+                                                {
+                                                    <option value="@node.Id">@node.Value</option>
+                                                }
+                                            }
                                         </select>
                                     </div>
                                     <div class="col-lg-2">
@@ -198,13 +192,16 @@
         });
 
         $("#dropLine").multiselect({
+            enableResetButton: true,
             enableClickableOptGroups: true,
             enableFiltering: true,
             enableCollapsibleOptGroups: true,
             collapseOptGroupsByDefault: true
         });
 
-        $("#dropNode").multiselect();
+        $("#dropNode").multiselect({
+            enableResetButton: true,
+        });
 
         $("#btnSearch").click(function () {
 

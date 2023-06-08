@@ -5,10 +5,12 @@ namespace MOD4.Web.Repostory
 {
     public interface ITargetSettingRepository
     {
-        List<TargetSettingDao> SelectByConditions(List<int> prodSn, List<string> nodeList);
+        List<TargetSettingDao> SelectByConditions(List<int> prodSn, List<int> nodeList);
 
         int Update(List<TargetSettingDao> updSettingList);
 
         int Insert(List<TargetSettingDao> insSettingList);
+
+        List<MTDProcessSettingDao> SelectForMTDSetting(List<string> prodList);
     }
 }

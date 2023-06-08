@@ -41,6 +41,7 @@ namespace MOD4.Web.Controllers
             {
                 ViewData["ProdName"] = "GDD340IA0090S-34VCS";
                 ViewBag.ProdOptions = _optionDomainService.GetLcmProdOptions();
+                ViewBag.NodeOptions = _optionDomainService.GetNodeList();
 
                 var resule = _performanceDomainService.GetList();
 
@@ -80,6 +81,8 @@ namespace MOD4.Web.Controllers
         {
             try
             {
+                //_targetSettingDomainService.Migration();
+
                 ViewBag.ProdOptions = _optionDomainService.GetLcmProdOptions();
 
                 var _targetSettingList = _targetSettingDomainService.GetList(new List<int> { 1206 });

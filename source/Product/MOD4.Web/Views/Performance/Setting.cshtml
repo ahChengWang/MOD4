@@ -110,7 +110,7 @@
                 <div class="card-header p-0 pt-0">
                     <ul class="nav nav-tabs" id="custom-tabs-one-tab" style="background-color: #3c7da6 ">
                         @{
-                            foreach (var node in (ViewData["NodeTab"] as List<string>))
+                            foreach (var node in (ViewData["NodeTab"] as List<int>))
                             {
                                 var _href = "#node" + node;
                                 <li class="nav-item">
@@ -148,6 +148,7 @@
             function setDefault() {
                 $("input[name='downEqInput']").attr('disabled', true);
                 $("input[name='setting.TimeTarget']").attr('disabled', true);
+                $("input[name*='MTDTarget']").attr('disabled', true);
                 $("input[type='number']").attr('disabled', true).css('background-color', '#e9ecef');
                 $("input[name='submit']").attr('disabled', true).addClass("btn-outline-primary");
 
@@ -221,6 +222,7 @@
                 complete: function () {
                     $("input[name='downEqInput']").attr('disabled', true);
                     $("input[name='setting.TimeTarget']").attr('disabled', true);
+                    $("input[name*='MTDTarget']").attr('disabled', true);
                     $("input[type='number']").attr('disabled', true).css('background-color', '#e9ecef');
                     $("input[name='edit']").removeAttr('disabled').removeClass("btn-outline-danger").addClass("btn-danger");
                     $("input[name='submit']").attr('disabled', true).removeClass("btn-primary").addClass("btn-outline-primary");
@@ -233,6 +235,7 @@
         function editClick(e) {
             $("input[name='downEqInput']").removeAttr('disabled');
             $("input[name='setting.TimeTarget']").removeAttr('disabled');
+            $("input[name*='MTDTarget']").removeAttr('disabled');
             $("input[type='number']").removeAttr('disabled').css('background-color', 'white');
             $("input[name='edit']").attr('disabled', true).removeClass("btn-danger").addClass("btn-outline-danger");
             $("input[name='submit']").removeAttr('disabled').removeClass("btn-outline-primary").addClass("btn-primary");
@@ -269,7 +272,7 @@
             $.ajax({
                 url: "./Setting",
                 type: "POST",
-                dataType: 'json',
+                /*dataType: 'json',*/
                 data: {
                     prodSn: $("#dropLine").val(),
                     settingDetailList: inputArray
@@ -301,6 +304,7 @@
 
             $("input[name='downEqInput']").attr('disabled', true);
             $("input[name='setting.TimeTarget']").attr('disabled', true);
+            $("input[name*='MTDTarget']").attr('disabled', true);
             $("input[type='number']").attr('disabled', true).css('background-color', '#e9ecef');
             $("input[name='edit']").removeAttr('disabled').removeClass("btn-outline-danger").addClass("btn-danger");
             $("input[name='submit']").attr('disabled', true).removeClass("btn-primary").addClass("btn-outline-primary");
@@ -312,11 +316,22 @@
             //serialize data function
             var returnArray = {};
             for (var i = 0; i < formArray.length; i++) {
-            returnArray[formArray[i]['name'].substring(0,8)] = formArray[i]['value'];
+                if (formArray[i]['name'].includes('Time') && formArray[i]['name'] != 'setting.TimeTarget') {
+                    returnArray[formArray[i]['name'].substring(0, 8)] = formArray[i]['value'];
+                }
             }
-            returnArray['Node'] = formArray[0]['value'];
-            returnArray['DownEquipment'] = formArray[1]['value'];
-            returnArray['TimeTarget'] = formArray[2]['value'];
+            if (formArray.length == 29) {
+                returnArray['Node'] = formArray[0]['value'];
+                returnArray['IsMTDTarget'] = formArray[1]['value'];
+                returnArray['DownEquipment'] = formArray[2]['value'];
+                returnArray['TimeTarget'] = formArray[3]['value'];
+            }
+            else {
+                returnArray['Node'] = formArray[0]['value'];
+                returnArray['DownEquipment'] = formArray[1]['value'];
+                returnArray['TimeTarget'] = formArray[2]['value'];
+                returnArray['IsMTDTarget'] = "False";
+            }
 
             return returnArray;
         }
@@ -363,7 +378,6 @@
             _sumDayValue[1].children[0].innerText = _value * 12;
             _sumNightValue.innerText = _value * 12;
 
-            _settingDetail[3].value = _value;
             _settingDetail[4].value = _value;
             _settingDetail[5].value = _value;
             _settingDetail[6].value = _value;
@@ -387,7 +401,17 @@
             _settingDetail[24].value = _value;
             _settingDetail[25].value = _value;
             _settingDetail[26].value = _value;
+            _settingDetail[27].value = _value;
         }
+
+        function checkBoxChange(e) {
+            if (e.checked) {
+                e.value = 'True';
+            }
+            else {
+                e.value = 'False';
+            }
+        };
 
     </script>
 }

@@ -97,6 +97,7 @@ namespace MOD4.Web
             services.AddSingleton<IMTDProductionScheduleRepository, MTDProductionScheduleRepository>();
             services.AddSingleton<IMPSUploadHistoryRepository, MPSUploadHistoryRepository>();
             services.AddSingleton<ICIMTestBookingRepository, CIMTestBookingRepository>();
+            services.AddSingleton<IDefinitionNodeDescRepository, DefinitionNodeDescRepository>();
 
             services.AddScoped<MenuService>();
             services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));
@@ -137,7 +138,7 @@ namespace MOD4.Web
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}");
             });
         }
     }

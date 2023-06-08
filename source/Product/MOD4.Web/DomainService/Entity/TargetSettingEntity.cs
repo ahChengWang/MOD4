@@ -4,10 +4,11 @@ namespace MOD4.Web.DomainService.Entity
 {
     public class TargetSettingEntity
     {
-        public string Node { get; set; }
-        public string Node_Name { get; set; }
+        public int Node { get; set; }
+        public string Descr { get; set; }
         public int LcmProdSn { get; set; }
         public string DownEquipment { get; set; }
+        public bool IsMTDTarget { get; set; }
         public int Time0730 { get; set; }
         public int Time0830 { get; set; }
         public int Time0930 { get; set; }

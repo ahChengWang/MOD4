@@ -18,23 +18,31 @@
             <form id="@_formId">
                 <input type="hidden" asp-for="@setting.Node" />
                 <div class="col-md-9 form-group d-flex align-content-center flex-wrap">
-                    <div class="col-md-2">
-                        <p class="col-form-label" style="text-align: center">日班合計：</p>
+                    <div class="col-md-2" style="text-align: center">
+                        <label class="col-form-label" asp-for="@setting.IsMTDTarget"></label>
                     </div>
                     <div class="col-md-1">
-                        <p class="col-form-label" id="A@_sumId" style="font-weight:600"></p>
+                        <input class="form-control" style="width:20%" type="checkbox" asp-for="@setting.IsMTDTarget" value="@setting.IsMTDTarget" onchange="checkBoxChange(this)"/>
                     </div>
                     <div class="col-md-2" style="text-align:center">
                         <label class="col-form-label" style="text-align:right" asp-for="@setting.DownEquipment"></label>
                     </div>
                     <div class="col-md-3">
-                        <input name="downEqInput" type="text" asp-for="@setting.DownEquipment" />
+                        <input name="downEqInput" type="text" asp-for="@setting.DownEquipment" value="@setting.DownEquipment"/>
                     </div>
                     <div class="col-md-2" style="text-align: center">
                         <label class="col-form-label" asp-for="@setting.TimeTarget"></label>
                     </div>
                     <div class="col-md-2">
-                        <input type="text" asp-for="@setting.TimeTarget" onchange="timeTargetChange(this)"/>
+                        <input type="text" asp-for="@setting.TimeTarget" onchange="timeTargetChange(this)" value="@setting.TimeTarget" />
+                    </div>
+                </div>
+                <div class="col-md-9 form-group d-flex align-content-center flex-wrap">
+                    <div class="col-md-2">
+                        <p class="col-form-label" style="text-align: center">日班合計：</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="col-form-label" id="A@_sumId" style="font-weight:600"></p>
                     </div>
                 </div>
                 <div class="form-group d-flex align-content-center flex-wrap" style="border-bottom: 2px solid lightgray;">
@@ -174,10 +182,10 @@
                     </div>
                     <div class="col-md-3 form-group d-flex align-content-center flex-wrap">
                         <div>
-                            <label class="col-form-label" asp-for="@setting.Time2130"></label>
+                            <label class="col-form-label" asp-for="@setting.Time2230"></label>
                         </div>
                         <div>
-                            <input class="@_classB" name="Time2230@_inputNameId" type="number" min="0" asp-for="@setting.Time2130" onchange="targetChange(this)" />
+                            <input class="@_classB" name="Time2230@_inputNameId" type="number" min="0" asp-for="@setting.Time2230" onchange="targetChange(this)" />
                         </div>
                     </div>
                 </div>

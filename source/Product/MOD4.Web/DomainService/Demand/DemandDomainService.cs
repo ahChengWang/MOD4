@@ -26,6 +26,7 @@ namespace MOD4.Web.DomainService.Demand
         private readonly IMESPermissionAuditHistoryRepository _mesPermissionAuditHistoryRepository;
         private readonly ILcmProductRepository _lcmProductRepository;
         private readonly ITargetSettingRepository _targetSettingRepository;
+        private readonly IDefinitionNodeDescRepository _definitionNodeDescRepository;
 
         public DemandDomainService(IDemandsRepository demandsRepository,
             IUploadDomainService uploadDomainService,
@@ -36,7 +37,8 @@ namespace MOD4.Web.DomainService.Demand
             IMESPermissionApplicantsRepository mesPermissionApplicantsRepository,
             IMESPermissionAuditHistoryRepository mesPermissionAuditHistoryRepository,
             ILcmProductRepository lcmProductRepository,
-            ITargetSettingRepository targetSettingRepository)
+            ITargetSettingRepository targetSettingRepository,
+            IDefinitionNodeDescRepository definitionNodeDescRepository)
         {
             _demandsRepository = demandsRepository;
             _uploadDomainService = uploadDomainService;
@@ -48,6 +50,7 @@ namespace MOD4.Web.DomainService.Demand
             _mesPermissionAuditHistoryRepository = mesPermissionAuditHistoryRepository;
             _lcmProductRepository = lcmProductRepository;
             _targetSettingRepository = targetSettingRepository;
+            _definitionNodeDescRepository = definitionNodeDescRepository;
         }
 
         public List<DemandEntity> GetDemands(UserEntity userEntity,
@@ -277,37 +280,51 @@ namespace MOD4.Web.DomainService.Demand
                 if (_oldDemand.statusId == DemandStatusEnum.Pending && _updDemandsDao.statusId == DemandStatusEnum.Processing &&
                     updEntity.IsNewProd)
                 {
+                    var _defNodeList = _definitionNodeDescRepository.SelectByConditions();
+
                     LcmProductDao _lcmProductDao = new LcmProductDao
                     {
                         ProdNo = updEntity.ProdNo,
                         Descr = updEntity.ProdDesc
                     };
 
-                    List<TargetSettingDao> _targetSettingList = new List<TargetSettingDao>
+                    List<TargetSettingDao> _targetSettingList = new List<TargetSettingDao>();
+
+                    foreach (var nodeInfo in _defNodeList)
                     {
-                        new TargetSettingDao {Node="1300",Node_Name="PCBI(HMT)",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
-                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
-                        new TargetSettingDao {Node="1330",Node_Name="FOG",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
-                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
-                        new TargetSettingDao {Node="1355",Node_Name="OCA硬對硬",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
-                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
-                        new TargetSettingDao {Node="1415",Node_Name="機台重合",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
-                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
-                        new TargetSettingDao {Node="1420",Node_Name="AAFC 第二流道",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
-                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
-                        new TargetSettingDao {Node="1460",Node_Name="後背蓋-第三流道機台作業",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
-                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
-                        new TargetSettingDao {Node="1500",Node_Name="AGING",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
-                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
-                        new TargetSettingDao {Node="1600",Node_Name="(A+B) Panel C",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
-                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
-                        new TargetSettingDao {Node="1700",Node_Name="D KEN",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
-                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
-                        new TargetSettingDao {Node="1720",Node_Name="D2",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
-                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 },
-                        new TargetSettingDao {Node="1910",Node_Name="SHIPPING",DownEquipment ="",Time0730=60,Time0830=60,Time0930=60,Time1030=60,Time1130=60,Time1230=60,Time1330=60,Time1430=60,Time1530=60,Time1630=60,Time1730=60,Time1830=60
-                        ,Time1930=60,Time2030=60,Time2130=60,Time2230=60,Time2330=60,Time0030=60,Time0130=60,Time0230=60,Time0330=60,Time0430=60,Time0530=60,Time0630=60,UpdateUser="admin",UpdateTime=_nowTime,TimeTarget=50 }
-                    };
+                        _targetSettingList.Add(new TargetSettingDao
+                        {
+                            Node = nodeInfo.EqNo,
+                            DownEquipment = "",
+                            Time0730 = 60,
+                            Time0830 = 60,
+                            Time0930 = 60,
+                            Time1030 = 60,
+                            Time1130 = 60,
+                            Time1230 = 60,
+                            Time1330 = 60,
+                            Time1430 = 60,
+                            Time1530 = 60,
+                            Time1630 = 60,
+                            Time1730 = 60,
+                            Time1830 = 60,
+                            Time1930 = 60,
+                            Time2030 = 60,
+                            Time2130 = 60,
+                            Time2230 = 60,
+                            Time2330 = 60,
+                            Time0030 = 60,
+                            Time0130 = 60,
+                            Time0230 = 60,
+                            Time0330 = 60,
+                            Time0430 = 60,
+                            Time0530 = 60,
+                            Time0630 = 60,
+                            UpdateUser = "admin",
+                            UpdateTime = _nowTime,
+                            TimeTarget = 50
+                        });
+                    }
 
                     using (TransactionScope _scope = new TransactionScope())
                     {

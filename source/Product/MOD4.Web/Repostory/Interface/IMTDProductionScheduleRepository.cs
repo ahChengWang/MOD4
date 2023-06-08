@@ -6,7 +6,7 @@ namespace MOD4.Web.Repostory
 {
     public interface IMTDProductionScheduleRepository
     {
-        List<MTDProductionScheduleDao> SelectByConditions(int floor, int ownerId, DateTime? dateStart, DateTime? dateEnd);
+        List<MTDProductionScheduleDao> SelectByConditions(int floor, int ownerId, DateTime dateStart, DateTime dateEnd);
 
         List<MTDProductionScheduleDao> SelectMonthPlanQty(string year, string month, int floor, int ownerId);
 

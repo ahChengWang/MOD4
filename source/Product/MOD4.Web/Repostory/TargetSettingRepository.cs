@@ -7,9 +7,11 @@ namespace MOD4.Web.Repostory
     public class TargetSettingRepository : BaseRepository, ITargetSettingRepository
     {
 
-        public List<TargetSettingDao> SelectByConditions(List<int> prodSn, List<string> nodeList)
+        public List<TargetSettingDao> SelectByConditions(List<int> prodSn, List<int> nodeList)
         {
-            string sql = "select * from Target_Setting where 1=1 ";
+            string sql = $@"select def.descr, ts.* from Target_Setting ts 
+join definition_node_desc def 
+on ts.Node = def.eqNo where 1=1 ";
 
             if (prodSn != null && prodSn.Any())
             {
@@ -34,6 +36,7 @@ namespace MOD4.Web.Repostory
         {
             string sql = @"UPDATE [dbo].[Target_Setting]
    SET [DownEquipment] = @DownEquipment
+      ,[isMTDTarget] = @IsMTDTarget
       ,[Time0730] = @Time0730
       ,[Time0830] = @Time0830
       ,[Time0930] = @Time0930
@@ -73,9 +76,9 @@ namespace MOD4.Web.Repostory
             string sql = @"
 INSERT INTO [dbo].[Target_Setting]
            (Node
-           ,Node_Name
            ,lcmProdSn
            ,DownEquipment
+           ,isMTDTarget
            ,Time0730
            ,Time0830
            ,Time0930
@@ -105,9 +108,9 @@ INSERT INTO [dbo].[Target_Setting]
            ,TimeTarget)
      VALUES
            (@Node
-           ,@Node_Name
            ,@lcmProdSn
            ,@DownEquipment
+           ,@isMTDTarget
            ,@Time0730
            ,@Time0830
            ,@Time0930
@@ -137,6 +140,25 @@ INSERT INTO [dbo].[Target_Setting]
            ,@TimeTarget); ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, insSettingList);
+
+            return dao;
+        }
+
+
+        public List<MTDProcessSettingDao> SelectForMTDSetting(List<string> prodList)
+        {
+            string sql = $@"select defNode.sn,defProd.prodNo,ts.Node,ts.lcmProdSn,ts.DownEquipment as 'DownEq',defNode.process, defNode.descr
+from definition_lcm_prod defProd
+join Target_Setting ts
+on defProd.sn = ts.lcmProdSn
+join definition_node_desc defNode
+on ts.Node = defNode.eqNo
+where ts.isMTDTarget = 1 and defProd.prodNo IN @ProdNo ";
+
+            var dao = _dbHelper.ExecuteQuery<MTDProcessSettingDao>(sql, new
+            {
+                ProdNo = prodList
+            });
 
             return dao;
         }

@@ -39,35 +39,42 @@ namespace MOD4.Web.Controllers
             {
                 var _resilt = _mtdDashboardDomainService.DashboardSearch(owner: 1);
 
-                List<MTDDashboardViewModel> _response = _resilt.Select(mtd => new MTDDashboardViewModel
+                List<MTDDashboardMainViewModel> _response = _resilt.Select(mtd => new MTDDashboardMainViewModel
                 {
                     Process = mtd.Process,
-                    Plan = mtd.Plan,
-                    Actual = mtd.Actual,
-                    Diff = mtd.Diff,
-                    DownTime = mtd.DownTime,
-                    DownPercent = mtd.DownPercent,
-                    UPPercent = mtd.UPPercent,
-                    RUNPercent = mtd.RUNPercent,
-                    UPHPercent = mtd.UPHPercent,
-                    OEEPercent = mtd.OEEPercent,
-                    MTDDetail = mtd.MTDDetail.Select(detail => new MTDDashboardDetailViewModel
+                    Plan = mtd.MTDSubList.Sum(sub => sub.Plan).ToString("#,0"),
+                    Actual = mtd.MTDSubList.Sum(sub => sub.Actual).ToString("#,0"),
+                    Diff = mtd.MTDSubList.Sum(sub => sub.Diff).ToString("#,0"),
+                    ProcessList = mtd.MTDSubList.Select(s => new MTDDashboardViewModel
                     {
-                        Date = detail.Date,
-                        Equipment = detail.Equipment,
-                        BigProduct = detail.BigProduct,
-                        PlanProduct = detail.PlanProduct,
-                        Output = detail.Output,
-                        DayPlan = detail.DayPlan,
-                        RangPlan = detail.RangPlan,
-                        RangDiff = detail.RangDiff,
-                        MonthPlan = detail.MonthPlan,
-                        MTDPlan = detail.MTDPlan,
-                        MTDActual = detail.MTDActual,
-                        MTDDiff = detail.MTDDiff,
-                        EqAbnormal = "",
-                        RepaireTime = "",
-                        Status = ""
+                        Process = s.Process,
+                        Plan = s.Plan.ToString("#,0"),
+                        Actual = s.Actual.ToString("#,0"),
+                        Diff = s.Diff.ToString("#,0"),
+                        DownTime = s.DownTime,
+                        DownPercent = s.DownPercent,
+                        UPPercent = s.UPPercent,
+                        RUNPercent = s.RUNPercent,
+                        UPHPercent = s.UPHPercent,
+                        OEEPercent = s.OEEPercent,
+                        MTDDetail = s.MTDDetail.Select(detail => new MTDDashboardDetailViewModel
+                        {
+                            Date = detail.Date,
+                            Equipment = detail.Equipment,
+                            BigProduct = detail.BigProduct,
+                            PlanProduct = detail.PlanProduct,
+                            Output = detail.Output,
+                            DayPlan = detail.DayPlan,
+                            RangPlan = detail.RangPlan,
+                            RangDiff = detail.RangDiff,
+                            MonthPlan = detail.MonthPlan,
+                            MTDPlan = detail.MTDPlan,
+                            MTDActual = detail.MTDActual,
+                            MTDDiff = detail.MTDDiff,
+                            EqAbnormal = "",
+                            RepaireTime = "",
+                            Status = ""
+                        }).ToList()
                     }).ToList()
                 }).ToList();
 
@@ -89,35 +96,42 @@ namespace MOD4.Web.Controllers
             {
                 var _resilt = _mtdDashboardDomainService.DashboardSearch(floor, date, time, owner);
 
-                List<MTDDashboardViewModel> _response = _resilt.Select(mtd => new MTDDashboardViewModel
+                List<MTDDashboardMainViewModel> _response = _resilt.Select(mtd => new MTDDashboardMainViewModel
                 {
                     Process = mtd.Process,
-                    Plan = mtd.Plan,
-                    Actual = mtd.Actual,
-                    Diff = mtd.Diff,
-                    DownTime = mtd.DownTime,
-                    DownPercent = mtd.DownPercent,
-                    UPPercent = mtd.UPPercent,
-                    RUNPercent = mtd.RUNPercent,
-                    UPHPercent = mtd.UPHPercent,
-                    OEEPercent = mtd.OEEPercent,
-                    MTDDetail = mtd.MTDDetail.Select(detail => new MTDDashboardDetailViewModel
+                    Plan = mtd.MTDSubList.Sum(sub => sub.Plan).ToString("#,0"),
+                    Actual = mtd.MTDSubList.Sum(sub => sub.Actual).ToString("#,0"),
+                    Diff = mtd.MTDSubList.Sum(sub => sub.Diff).ToString("#,0"),
+                    ProcessList = mtd.MTDSubList.Select(s => new MTDDashboardViewModel
                     {
-                        Date = detail.Date,
-                        Equipment = detail.Equipment,
-                        BigProduct = detail.BigProduct,
-                        PlanProduct = detail.PlanProduct,
-                        Output = detail.Output,
-                        DayPlan = detail.DayPlan,
-                        RangPlan = detail.RangPlan,
-                        RangDiff = detail.RangDiff,
-                        MonthPlan = detail.MonthPlan,
-                        MTDPlan = detail.MTDPlan,
-                        MTDActual = detail.MTDActual,
-                        MTDDiff = detail.MTDDiff,
-                        EqAbnormal = detail.EqAbnormal,
-                        RepaireTime = detail.RepaireTime,
-                        Status = detail.Status
+                        Process = s.Process,
+                        Plan = s.Plan.ToString("#,0"),
+                        Actual = s.Actual.ToString("#,0"),
+                        Diff = s.Diff.ToString("#,0"),
+                        DownTime = s.DownTime,
+                        DownPercent = s.DownPercent,
+                        UPPercent = s.UPPercent,
+                        RUNPercent = s.RUNPercent,
+                        UPHPercent = s.UPHPercent,
+                        OEEPercent = s.OEEPercent,
+                        MTDDetail = s.MTDDetail.Select(detail => new MTDDashboardDetailViewModel
+                        {
+                            Date = detail.Date,
+                            Equipment = detail.Equipment,
+                            BigProduct = detail.BigProduct,
+                            PlanProduct = detail.PlanProduct,
+                            Output = detail.Output,
+                            DayPlan = detail.DayPlan,
+                            RangPlan = detail.RangPlan,
+                            RangDiff = detail.RangDiff,
+                            MonthPlan = detail.MonthPlan,
+                            MTDPlan = detail.MTDPlan,
+                            MTDActual = detail.MTDActual,
+                            MTDDiff = detail.MTDDiff,
+                            EqAbnormal = "",
+                            RepaireTime = "",
+                            Status = ""
+                        }).ToList()
                     }).ToList()
                 }).ToList();
 
@@ -136,31 +150,42 @@ namespace MOD4.Web.Controllers
             {
                 var _resilt = _mtdDashboardDomainService.DashboardSearch(owner: 2);
 
-                List<MTDDashboardViewModel> _response = _resilt.Select(mtd => new MTDDashboardViewModel
+                List<MTDDashboardMainViewModel> _response = _resilt.Select(mtd => new MTDDashboardMainViewModel
                 {
                     Process = mtd.Process,
-                    Plan = mtd.Plan,
-                    Actual = mtd.Actual,
-                    Diff = mtd.Diff,
-                    DownTime = mtd.DownTime,
-                    DownPercent = mtd.DownPercent,
-                    MTDDetail = mtd.MTDDetail.Select(detail => new MTDDashboardDetailViewModel
+                    Plan = mtd.MTDSubList.Sum(sub => sub.Plan).ToString("#,0"),
+                    Actual = mtd.MTDSubList.Sum(sub => sub.Actual).ToString("#,0"),
+                    Diff = mtd.MTDSubList.Sum(sub => sub.Diff).ToString("#,0"),
+                    ProcessList = mtd.MTDSubList.Select(s => new MTDDashboardViewModel
                     {
-                        Date = detail.Date,
-                        Equipment = detail.Equipment,
-                        BigProduct = detail.BigProduct,
-                        PlanProduct = detail.PlanProduct,
-                        Output = detail.Output,
-                        DayPlan = detail.DayPlan,
-                        RangPlan = detail.RangPlan,
-                        RangDiff = detail.RangDiff,
-                        MonthPlan = detail.MonthPlan,
-                        MTDPlan = detail.MTDPlan,
-                        MTDActual = detail.MTDActual,
-                        MTDDiff = detail.MTDDiff,
-                        EqAbnormal = "",
-                        RepaireTime = "",
-                        Status = ""
+                        Process = s.Process,
+                        Plan = s.Plan.ToString("#,0"),
+                        Actual = s.Actual.ToString("#,0"),
+                        Diff = s.Diff.ToString("#,0"),
+                        DownTime = s.DownTime,
+                        DownPercent = s.DownPercent,
+                        UPPercent = s.UPPercent,
+                        RUNPercent = s.RUNPercent,
+                        UPHPercent = s.UPHPercent,
+                        OEEPercent = s.OEEPercent,
+                        MTDDetail = s.MTDDetail.Select(detail => new MTDDashboardDetailViewModel
+                        {
+                            Date = detail.Date,
+                            Equipment = detail.Equipment,
+                            BigProduct = detail.BigProduct,
+                            PlanProduct = detail.PlanProduct,
+                            Output = detail.Output,
+                            DayPlan = detail.DayPlan,
+                            RangPlan = detail.RangPlan,
+                            RangDiff = detail.RangDiff,
+                            MonthPlan = detail.MonthPlan,
+                            MTDPlan = detail.MTDPlan,
+                            MTDActual = detail.MTDActual,
+                            MTDDiff = detail.MTDDiff,
+                            EqAbnormal = "",
+                            RepaireTime = "",
+                            Status = ""
+                        }).ToList()
                     }).ToList()
                 }).ToList();
 
@@ -182,31 +207,42 @@ namespace MOD4.Web.Controllers
             {
                 var _resilt = _mtdDashboardDomainService.DashboardSearch(floor, date, time, owner);
 
-                List<MTDDashboardViewModel> _response = _resilt.Select(mtd => new MTDDashboardViewModel
+                List<MTDDashboardMainViewModel> _response = _resilt.Select(mtd => new MTDDashboardMainViewModel
                 {
                     Process = mtd.Process,
-                    Plan = mtd.Plan,
-                    Actual = mtd.Actual,
-                    Diff = mtd.Diff,
-                    DownTime = mtd.DownTime,
-                    DownPercent = mtd.DownPercent,
-                    MTDDetail = mtd.MTDDetail.Select(detail => new MTDDashboardDetailViewModel
+                    Plan = mtd.MTDSubList.Sum(sub => sub.Plan).ToString("#,0"),
+                    Actual = mtd.MTDSubList.Sum(sub => sub.Actual).ToString("#,0"),
+                    Diff = mtd.MTDSubList.Sum(sub => sub.Diff).ToString("#,0"),
+                    ProcessList = mtd.MTDSubList.Select(s => new MTDDashboardViewModel
                     {
-                        Date = detail.Date,
-                        Equipment = detail.Equipment,
-                        BigProduct = detail.BigProduct,
-                        PlanProduct = detail.PlanProduct,
-                        Output = detail.Output,
-                        DayPlan = detail.DayPlan,
-                        RangPlan = detail.RangPlan,
-                        RangDiff = detail.RangDiff,
-                        MonthPlan = detail.MonthPlan,
-                        MTDPlan = detail.MTDPlan,
-                        MTDActual = detail.MTDActual,
-                        MTDDiff = detail.MTDDiff,
-                        EqAbnormal = detail.EqAbnormal,
-                        RepaireTime = detail.RepaireTime,
-                        Status = detail.Status
+                        Process = s.Process,
+                        Plan = s.Plan.ToString("#,0"),
+                        Actual = s.Actual.ToString("#,0"),
+                        Diff = s.Diff.ToString("#,0"),
+                        DownTime = s.DownTime,
+                        DownPercent = s.DownPercent,
+                        UPPercent = s.UPPercent,
+                        RUNPercent = s.RUNPercent,
+                        UPHPercent = s.UPHPercent,
+                        OEEPercent = s.OEEPercent,
+                        MTDDetail = s.MTDDetail.Select(detail => new MTDDashboardDetailViewModel
+                        {
+                            Date = detail.Date,
+                            Equipment = detail.Equipment,
+                            BigProduct = detail.BigProduct,
+                            PlanProduct = detail.PlanProduct,
+                            Output = detail.Output,
+                            DayPlan = detail.DayPlan,
+                            RangPlan = detail.RangPlan,
+                            RangDiff = detail.RangDiff,
+                            MonthPlan = detail.MonthPlan,
+                            MTDPlan = detail.MTDPlan,
+                            MTDActual = detail.MTDActual,
+                            MTDDiff = detail.MTDDiff,
+                            EqAbnormal = "",
+                            RepaireTime = "",
+                            Status = ""
+                        }).ToList()
                     }).ToList()
                 }).ToList();
 

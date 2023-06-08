@@ -7,8 +7,8 @@ namespace MOD4.Web.DomainService.Entity
 {
     public class PassQtyEntity
     {
-        public int NodeNo { get; set; }
-        public string Node { get; set; }
+        //public int NodeNo { get; set; }
+        public int Node { get; set; }
         public string NodeName { get; set; }
         public List<PassQtyDetailEntity> DetailList { get; set; }
         public int SubTarget

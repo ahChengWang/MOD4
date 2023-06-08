@@ -11,17 +11,27 @@ namespace MOD4.Web.Repostory
         public List<MTDProductionScheduleDao> SelectByConditions(
             int floor,
             int ownerId,
-            DateTime? dateStart, 
-            DateTime? dateEnd)
+            DateTime dateStart, 
+            DateTime dateEnd)
         {
-            string sql = "select * from mtd_production_schedule where floor = @floor and ownerId = @ownerId and date between @dateStart and @dateEnd order by sn asc, model desc, productName asc, date asc ; ";
+            string sql = @"select mtdAllPlan.* from mtd_production_schedule mtdAllPlan
+  join (select productName,process from mtd_production_schedule 
+         where DATEPART(YEAR, date) = @year and DATEPART(MONTH, date) = @month and floor = @floor and ownerId = @ownerId  
+		 group by productName ,process  
+		 having SUM(value) !=0) mtdNoPlan 
+    on mtdAllPlan.productName = mtdNoPlan.productName 
+   and mtdAllPlan.process = mtdNoPlan.process 
+ where mtdAllPlan.floor = @floor and ownerId = @ownerId and date between @dateStart and @dateEnd 
+ order by mtdAllPlan.sn asc, mtdAllPlan.model desc, mtdAllPlan.productName asc, date asc ;";
 
             var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(sql, new
             {
                 floor = floor,
                 ownerId = ownerId,
                 dateStart = dateStart,
-                dateEnd = dateEnd
+                dateEnd = dateEnd,
+                year = dateStart.Year,
+                month = dateStart.Month
             });
 
             return dao;

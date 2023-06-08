@@ -19,14 +19,15 @@ namespace MOD4.Web.DomainService
         private readonly IEquipmentDomainService _equipmentDomainService;
         private readonly ILineTTRepository _lineTTRepository;
         private readonly IOptionDomainService _optionDomainService;
-        private readonly Dictionary<string, (string, int)> _defaultNodeDic = new Dictionary<string, (string, int)>
+        private readonly IDefinitionNodeDescRepository _definitionNodeDescRepository;
+        private readonly Dictionary<int, string> _defaultNodeDic = new Dictionary<int, string>
         {
-            {"1330",("FOG",2) },
-            {"1355",("OCA硬對硬",3) },
-            {"1415",("ASSY(BL外購)",4) },
-            {"1460",("ACCD (模組UV膠檢驗)",6) },
-            {"1700",("D KEN",10) },
-            {"1910",("SHIPPING",11) }
+            {1330,"FOG" },
+            {1355,"OCA硬對硬"},
+            {1415,"ASSY(BL外購)"},
+            {1460,"ACCD (模組UV膠檢驗)"},
+            {1700,"D KEN" },
+            {1910,"SHIPPING" }
         };
         private readonly Dictionary<string, (string, int)> _allNodeDictionary = new Dictionary<string, (string, int)>
         {
@@ -80,22 +81,23 @@ namespace MOD4.Web.DomainService
             ITargetSettingDomainService targetSettingDomainService,
             IEquipmentDomainService equipmentDomainService,
             ILineTTRepository lineTTRepository,
-            IOptionDomainService optionDomainService)
+            IOptionDomainService optionDomainService,
+            IDefinitionNodeDescRepository definitionNodeDescRepository)
         {
             _dailyEquipmentRepository = dailyEquipmentRepository;
             _targetSettingDomainService = targetSettingDomainService;
             _equipmentDomainService = equipmentDomainService;
             _lineTTRepository = lineTTRepository;
             _optionDomainService = optionDomainService;
+            _definitionNodeDescRepository = definitionNodeDescRepository;
         }
 
         public List<PassQtyEntity> GetList(string mfgDTE = "", string prodList = "1206", string shift = "", string nodeAryStr = "", int ownerId = 1)
         {
-
             DateTime _nowTime = DateTime.Now;
             DateTime _startTime = new DateTime();
             DateTime _endTime = new DateTime();
-            Dictionary<string, (string, int)> _nodeDic = new Dictionary<string, (string, int)>();
+            Dictionary<int, string> _nodeDic = new Dictionary<int, string>();
             mfgDTE = string.IsNullOrEmpty(mfgDTE) ? _nowTime.ToString("yyyy-MM-dd") : mfgDTE;
             var _mfgDteEnd = DateTime.Parse(mfgDTE).AddDays(1).ToString("yyyy-MM-dd");
             shift = string.IsNullOrEmpty(shift)
@@ -117,7 +119,19 @@ namespace MOD4.Web.DomainService
             if (string.IsNullOrEmpty(nodeAryStr))
                 _nodeDic = _defaultNodeDic;
             else
-                _allNodeDictionary.Where(w => nodeAryStr.Contains(w.Key)).ToList().ForEach(f => _nodeDic.Add(f.Key, f.Value));
+            {
+                var _defNodeList = _definitionNodeDescRepository.SelectByConditions();
+                _nodeDic = (from node in nodeAryStr.Split(",").Select(node => Convert.ToInt32(node)).ToList()
+                            join defNode in _defNodeList
+                            on node equals defNode.EqNo
+                            select new
+                            {
+                                defNode.EqNo,
+                                defNode.Descr
+                            }).ToDictionary(dic => dic.EqNo, dic => dic.Descr);
+
+                //_defNodeList.Where(w => nodeAryStr.Contains(w.Key)).ToList().ForEach(f => _nodeDic.Add(Convert.ToInt32(f.Key), f.Value));
+            }
 
             List<int> _prodOptionList = (prodList ?? "1206").Split(",").Select(s => Convert.ToInt32(s)).ToList();
 
@@ -125,12 +139,6 @@ namespace MOD4.Web.DomainService
 
             _allLcmProdOptions = _allLcmProdOptions.Where(option => _prodOptionList.Contains(option.Item1)).ToList();
 
-
-            //var _dailyEqpList = _dailyEquipmentRepository.SelectByConditions(mfgDTE, shift, _nodeList);
-
-            //var _allNodeList = _dailyEqpList.SelectMany(dailyEq => dailyEq.Equipments.Split(",")).ToList();
-
-            //var _lineTTList = _lineTTRepository.SelectByConditions(mfgDTE, _allNodeList, shift);
 
             var _targetSettingList = _targetSettingDomainService.GetList(prodSn: _prodOptionList, nodeList: _nodeDic.Select(s => s.Key).ToList());
 
@@ -150,7 +158,7 @@ namespace MOD4.Web.DomainService
 
                 foreach (string prod in _allLcmProdOptions.Select(s => s.Item2.Split("-")[0]))
                 {
-                    _prodEqDic.Add(prod, GetNodeAllEquiomentNo($"{node.Key}-{node.Value.Item1}", prod, shift, mfgDTE, _mfgDteEnd, ownerId));
+                    _prodEqDic.Add(prod, GetNodeAllEquiomentNo($"{node.Key}-{node.Value}", prod, shift, mfgDTE, _mfgDteEnd, ownerId));
                 }
 
                 //foreach (var prodEq in _prodEqDic)
@@ -192,7 +200,7 @@ namespace MOD4.Web.DomainService
 
                         for (int i = 0; i < cnt; i++)
                         {
-                            _performanceDetail.Add(Process(array.Skip((i * 14) + 1).Take(14).ToArray(), node.Key, node.Value.Item2));
+                            _performanceDetail.Add(Process(array.Skip((i * 14) + 1).Take(14).ToArray(), node.Key));
                         }
                     }
                 });
@@ -216,7 +224,7 @@ namespace MOD4.Web.DomainService
                 var _lineSetting = new TargetSettingEntity
                 {
                     Node = node.Key,
-                    Node_Name = string.Join("/", _currentProdTarget.Select(s => s.Node_Name)),
+                    Descr = string.Join("/", _currentProdTarget.Select(s => s.Descr)),
                     DownEquipment = string.Join(",", _currentProdTarget.Select(s => s.DownEquipment)),
                     Time0730 = _currentProdTarget.Sum(s => s.Time0730),
                     Time0830 = _currentProdTarget.Sum(s => s.Time0830),
@@ -247,9 +255,8 @@ namespace MOD4.Web.DomainService
 
                 var _eqpHistory = _eqpHistoryList.Where(w => _lineSetting.DownEquipment.Contains(w.ToolId)).ToList();
 
-                _tResponse.NodeNo = node.Value.Item2;
                 _tResponse.Node = node.Key;
-                _tResponse.NodeName = _lineSetting.Node_Name;
+                _tResponse.NodeName = node.Value;
                 _tResponse.DetailList = new List<PassQtyDetailEntity>();
 
                 if (shift == "A")
@@ -312,10 +319,10 @@ namespace MOD4.Web.DomainService
             });
             //};
 
-            return _response.OrderBy(ob => ob.NodeNo).ToList();
+            return _response.OrderBy(ob => ob.Node).ToList();
         }
 
-        private PerformanceDetailEntity Process(string[] detailStr, string nodeStr, int nodeNo)
+        private PerformanceDetailEntity Process(string[] detailStr, int node)
         {
             PerformanceDetailEntity _entity = new PerformanceDetailEntity();
 
@@ -362,8 +369,8 @@ namespace MOD4.Web.DomainService
                 }
 
                 _entity.Qty = 1;
-                _entity.Node = nodeStr;
-                _entity.NodeNo = nodeNo;
+                _entity.Node = node;
+                
             }
 
             return _entity;

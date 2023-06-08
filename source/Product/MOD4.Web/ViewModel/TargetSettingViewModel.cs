@@ -12,7 +12,7 @@ namespace MOD4.Web.ViewModel
 
     public class TargetSettingDetailModel
     {
-        public string Node { get; set; }
+        public int Node { get; set; }
 
 
         [Display(Name = "敲當 EQ No.")]
@@ -22,6 +22,9 @@ namespace MOD4.Web.ViewModel
         [Display(Name = "T.T.")]
         [Required(ErrorMessage = "*必填")]
         public int TimeTarget { get; set; }
+
+        [Display(Name = "MTD站點")]
+        public bool IsMTDTarget { get; set; }
 
         [Display(Name = "07:30~08:30")]
         [Required(ErrorMessage = "*必填")]

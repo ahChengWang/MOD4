@@ -49,6 +49,10 @@
     .col-form-label {
         color: black;
     }
+
+    .fc-daygrid-event {
+        white-space: initial;
+    }
 </style>
 
 <div class="content-wrapper">
@@ -70,107 +74,107 @@
             @{
                 if (Convert.ToBoolean(((UserPermissionViewModel)ViewBag.UserPermission).AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management))
                 {
-                <div id="divBooking" class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">CIM 排程新增</h3>
+                    <div id="divBooking" class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">CIM 排程新增</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="bookingForm">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <label class="col-form-label" asp-for="@Model.FirstOrDefault().CIMTestTypeId"></label>
+                                        <span asp-validation-for="@Model.FirstOrDefault().CIMTestTypeId" style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select class="form-control" v-model="_model.cimTestTypeId">
+                                            <option value="1">LAB Test</option>
+                                            <option value="2">FAB Test</option>
+                                            <option value="4">Spec dev.</option>
+                                            <option value="5">會議</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="col-form-label" asp-for="@Model.FirstOrDefault().FloorId"></label>
+                                        <span asp-validation-for="@Model.FirstOrDefault().FloorId" style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select class="form-control" v-model="_model.floorId">
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top:2px">
+                                    <div class="col-md-2">
+                                        <label class="col-form-label" asp-for="@Model.FirstOrDefault().Name"></label>
+                                        <span asp-validation-for="@Model.FirstOrDefault().Name" style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="text" class="form-control" name="Name" v-model="_model.name" />
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="@Model.FirstOrDefault().JobId"></label>
+                                        <span asp-validation-for="@Model.FirstOrDefault().JobId" style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-2">
+                                        <input type="text" class="form-control" name="JobId" v-model="_model.jobId" />
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top:2px">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="@Model.FirstOrDefault().Subject"></label>
+                                        <span asp-validation-for="@Model.FirstOrDefault().Subject" style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="text" class="form-control" name="Subject" v-model="_model.subject" />
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top:3px">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="@Model.FirstOrDefault().Date"></label>
+                                        <span asp-validation-for="@Model.FirstOrDefault().Date" style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-2">
+                                        <input type="date" class="form-control" name="Date" v-model="_model.date" />
+                                    </div>
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="@Model.FirstOrDefault().CIMTestDayTypeId"></label>
+                                        <span asp-validation-for="@Model.FirstOrDefault().CIMTestDayTypeId" style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-2">
+                                        <select class="form-control" v-model="_model.cimTestDayTypeId">
+                                            <option value="1">上午</option>
+                                            <option value="2">下午</option>
+                                            <option value="3">整天</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top:3px">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="@Model.FirstOrDefault().Days"></label>
+                                        <span asp-validation-for="@Model.FirstOrDefault().Days" style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-2">
+                                        <select class="form-control" v-model="_model.days">
+                                            <option value="1">1天</option>
+                                            <option value="2">2天</option>
+                                            <option value="3">3天</option>
+                                            <option value="4">4天</option>
+                                            <option value="5">5天</option>
+                                            <option value="6">6天</option>
+                                            <option value="7">7天</option>
+                                            <option value="8">8天</option>
+                                            <option value="9">9天</option>
+                                            <option value="10">10天</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row col-sm-2">
+                                    <input id="btnBooking" class="btn btn-sm btn-dark" type="button" value="預約" v-on:click="bookingClick" />
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <form id="bookingForm">
-                            <div class="row">
-                                <div class="col-md-2">
-                                    <label class="col-form-label" asp-for="@Model.FirstOrDefault().CIMTestTypeId"></label>
-                                    <span asp-validation-for="@Model.FirstOrDefault().CIMTestTypeId" style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                </div>
-                                <div class="col-md-2">
-                                    <select class="form-control" v-model="_model.cimTestTypeId">
-                                        <option value="1">LAB Test</option>
-                                        <option value="2">FAB Test</option>
-                                        <option value="4">Spec dev.</option>
-                                        <option value="5">會議</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="col-form-label" asp-for="@Model.FirstOrDefault().FloorId"></label>
-                                    <span asp-validation-for="@Model.FirstOrDefault().FloorId" style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                </div>
-                                <div class="col-md-2">
-                                    <select class="form-control" v-model="_model.floorId">
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row" style="margin-top:2px">
-                                <div class="col-md-2">
-                                    <label class="col-form-label" asp-for="@Model.FirstOrDefault().Name"></label>
-                                    <span asp-validation-for="@Model.FirstOrDefault().Name" style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                </div>
-                                <div class="col-md-2">
-                                    <input type="text" class="form-control" name="Name" v-model="_model.name" />
-                                </div>
-                                <div class="col-2">
-                                    <label class="col-form-label" asp-for="@Model.FirstOrDefault().JobId"></label>
-                                    <span asp-validation-for="@Model.FirstOrDefault().JobId" style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                </div>
-                                <div class="col-2">
-                                    <input type="text" class="form-control" name="JobId" v-model="_model.jobId" />
-                                </div>
-                            </div>
-                            <div class="row" style="margin-top:2px">
-                                <div class="col-2">
-                                    <label class="col-form-label" asp-for="@Model.FirstOrDefault().Subject"></label>
-                                    <span asp-validation-for="@Model.FirstOrDefault().Subject" style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                </div>
-                                <div class="col-6">
-                                    <input type="text" class="form-control" name="Subject" v-model="_model.subject" />
-                                </div>
-                            </div>
-                            <div class="row" style="margin-top:3px">
-                                <div class="col-2">
-                                    <label class="col-form-label" asp-for="@Model.FirstOrDefault().Date"></label>
-                                    <span asp-validation-for="@Model.FirstOrDefault().Date" style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                </div>
-                                <div class="col-2">
-                                    <input type="date" class="form-control" name="Date" v-model="_model.date" />
-                                </div>
-                                <div class="col-2">
-                                    <label class="col-form-label" asp-for="@Model.FirstOrDefault().CIMTestDayTypeId"></label>
-                                    <span asp-validation-for="@Model.FirstOrDefault().CIMTestDayTypeId" style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                </div>
-                                <div class="col-2">
-                                    <select class="form-control" v-model="_model.cimTestDayTypeId">
-                                        <option value="1">上午</option>
-                                        <option value="2">下午</option>
-                                        <option value="3">整天</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row" style="margin-top:3px">
-                                <div class="col-2">
-                                    <label class="col-form-label" asp-for="@Model.FirstOrDefault().Days"></label>
-                                    <span asp-validation-for="@Model.FirstOrDefault().Days" style="font-size:10px;font-weight:700" class="text-danger">*</span>
-                                </div>
-                                <div class="col-2">
-                                    <select class="form-control" v-model="_model.days">
-                                        <option value="1">1天</option>
-                                        <option value="2">2天</option>
-                                        <option value="3">3天</option>
-                                        <option value="4">4天</option>
-                                        <option value="5">5天</option>
-                                        <option value="6">6天</option>
-                                        <option value="7">7天</option>
-                                        <option value="8">8天</option>
-                                        <option value="9">9天</option>
-                                        <option value="10">10天</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row col-sm-2">
-                                <input id="btnBooking" class="btn btn-sm btn-dark" type="button" value="預約" v-on:click="bookingClick" />
-                            </div>
-                        </form>
-                    </div>
-                </div>
                 }
             }
             <div class="modal fade" id="modal-sm-completed">
@@ -237,9 +241,9 @@
                             @{
                                 if (Convert.ToBoolean(((UserPermissionViewModel)ViewBag.UserPermission).AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management))
                                 {
-                                <input id="btnEdit" type="button" class="btn btn-warning" value="編輯" v-on:click="bookingEdit()" />
-                                <input id="btnUpd" type="button" class="btn btn-secondary" value="儲存" v-on:click="bookingUpdate()" />
-                                <input id="btnCancel" type="button" class="btn btn-danger" data-dismiss="modal" value="取消排程" v-on:click="bookingCancel()" />
+                                    <input id="btnEdit" type="button" class="btn btn-warning" value="編輯" v-on:click="bookingEdit()" />
+                                    <input id="btnUpd" type="button" class="btn btn-secondary" value="儲存" v-on:click="bookingUpdate()" />
+                                    <input id="btnCancel" type="button" class="btn btn-danger" data-dismiss="modal" value="取消排程" v-on:click="bookingCancel()" />
                                 }
                             }
                         </div>

@@ -22,6 +22,7 @@ namespace MOD4.Web.DomainService
         private readonly ILcmProductRepository _lcmProductRepository;
         private readonly ICertifiedAreaMappingRepository _certifiedAreaMappingRepository;
         private readonly ISPCChartSettingRepository _spcChartSettingRepository;
+        private readonly IDefinitionNodeDescRepository _definitionNodeDescRepository;
 
         public OptionDomainService(IEqSituationMappingRepository eqSituationMappingRepository,
             IEqEvanCodeMappingRepository eqEvanCodeMappingRepository,
@@ -30,7 +31,8 @@ namespace MOD4.Web.DomainService
             IMenuRepository menuRepository,
             ILcmProductRepository lcmProductRepository,
             ICertifiedAreaMappingRepository certifiedAreaMappingRepository,
-            ISPCChartSettingRepository spcChartSettingRepository)
+            ISPCChartSettingRepository spcChartSettingRepository,
+            IDefinitionNodeDescRepository definitionNodeDescRepository)
         {
             _eqSituationMappingRepository = eqSituationMappingRepository;
             _eqEvanCodeMappingRepository = eqEvanCodeMappingRepository;
@@ -40,6 +42,7 @@ namespace MOD4.Web.DomainService
             _lcmProductRepository = lcmProductRepository;
             _certifiedAreaMappingRepository = certifiedAreaMappingRepository;
             _spcChartSettingRepository = spcChartSettingRepository;
+            _definitionNodeDescRepository = definitionNodeDescRepository;
         }
 
 
@@ -409,6 +412,16 @@ namespace MOD4.Web.DomainService
                 .Select(prod => (prod.Key, prod.Select(p => (p.sn, $"{p.ProdNo}-{p.Descr}")).ToList()))
                 .OrderBy(ob => ob.Key)
                 .ToList();
+        }
+
+        public List<OptionEntity> GetNodeList()
+        {
+            return _definitionNodeDescRepository.SelectByConditions()
+                .Select(node => new OptionEntity 
+                {
+                    Id = node.EqNo,
+                    Value = node.EqNo.ToString()
+                }).ToList();
         }
 
         public List<EqMappingEntity> GetEqIDAreaList()

@@ -35,6 +35,8 @@ namespace MOD4.Web.DomainService
 
         List<(string, List<(int, string)>)> GetLcmProdOptions();
 
+        List<OptionEntity> GetNodeList();
+
         List<EqMappingEntity> GetEqIDAreaList();
 
         List<OptionEntity> GetDepartmentOptionList(int parentDeptId, int levelId);
