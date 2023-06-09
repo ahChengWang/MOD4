@@ -1,4 +1,5 @@
-﻿using MOD4.Web.Repostory.Dao;
+﻿using MOD4.Web.Enum;
+using MOD4.Web.Repostory.Dao;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,27 +8,59 @@ namespace MOD4.Web.Repostory
 {
     public class MTDProductionScheduleRepository : BaseRepository, IMTDProductionScheduleRepository
     {
-
         public List<MTDProductionScheduleDao> SelectByConditions(
+            int floor = 0,
+            bool? isMass = null,
+            MTDCategoryEnum? mtdCategoryId = null,
+            DateTime? dateStart = null,
+            DateTime? dateEnd = null)
+        {
+            string _sql = "select * from mtd_production_schedule where 1 = 1 ";
+
+            if (floor != 0)
+                _sql += " and floor = @Floor ";
+            if (isMass != null)
+                _sql += " and isMass = @IsMass ";
+            if (mtdCategoryId != null)
+                _sql += " and mtdCategoryId = @MTDCategoryId ";
+            if (dateStart != null)
+                _sql += " and date >= @StartDate ";
+            if (dateEnd != null)
+                _sql += " and date <= @EndDate ";
+
+            var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(_sql, new
+            {
+                Floor = floor,
+                IsMass = isMass,
+                MTDCategoryId = mtdCategoryId,
+                StartDate = dateStart,
+                EndDate = dateEnd,
+            });
+
+            return dao;
+        }
+
+
+        public List<MTDProductionScheduleDao> SelectForMTDDashboard(
             int floor,
-            int ownerId,
+            bool isMass,
             DateTime dateStart, 
             DateTime dateEnd)
         {
-            string sql = @"select mtdAllPlan.* from mtd_production_schedule mtdAllPlan
+            string _sql = @"select mtdAllPlan.* from mtd_production_schedule mtdAllPlan
   join (select productName,process from mtd_production_schedule 
-         where DATEPART(YEAR, date) = @year and DATEPART(MONTH, date) = @month and floor = @floor and ownerId = @ownerId  
+         where DATEPART(YEAR, date) = @year and DATEPART(MONTH, date) = @month and floor = @floor and isMass = @IsMass 
 		 group by productName ,process  
 		 having SUM(value) !=0) mtdNoPlan 
     on mtdAllPlan.productName = mtdNoPlan.productName 
    and mtdAllPlan.process = mtdNoPlan.process 
- where mtdAllPlan.floor = @floor and ownerId = @ownerId and date between @dateStart and @dateEnd 
+ where mtdAllPlan.floor = @floor and isMass = @IsMass and date between @dateStart and @dateEnd 
  order by mtdAllPlan.sn asc, mtdAllPlan.model desc, mtdAllPlan.productName asc, date asc ;";
 
-            var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(sql, new
+            var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(_sql, new
             {
-                floor = floor,
-                ownerId = ownerId,
+                Floor = floor,
+                IsMass = isMass,
                 dateStart = dateStart,
                 dateEnd = dateEnd,
                 year = dateStart.Year,
@@ -37,16 +70,16 @@ namespace MOD4.Web.Repostory
             return dao;
         }
 
-        public List<MTDProductionScheduleDao> SelectMonthPlanQty(string year, string month, int floor, int ownerId)
+        public List<MTDProductionScheduleDao> SelectMonthPlanQty(string year, string month, int floor, bool isMass)
         {            
-            string sql = "select * from mtd_production_schedule where DATEPART(YEAR, date) = @Year and DATEPART(MONTH, date) = @Month and floor = @Floor and ownerId = @ownerId ; ";
+            string sql = "select * from mtd_production_schedule where DATEPART(YEAR, date) = @Year and DATEPART(MONTH, date) = @Month and floor = @Floor and isMass = @IsMass ; ";
 
             var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(sql, new
             {
                 Year = year,
                 Month = month,
                 Floor = floor,
-                ownerId = ownerId
+                IsMass = isMass
             });
 
             return dao;

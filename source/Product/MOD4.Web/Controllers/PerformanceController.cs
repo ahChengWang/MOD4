@@ -73,7 +73,6 @@ namespace MOD4.Web.Controllers
 
         }
 
-
         #region ===== target setting =====
 
         [HttpGet("[controller]/Setting")]

@@ -9,7 +9,7 @@ namespace MOD4.Web.DomainService
 
         string Update(int prodSn, List<TargetSettingEntity> settingList, UserEntity userEntity);
 
-        List<MTDProcessSettingEntity> GetSettingForMTD(List<string> prodList);
+        List<MTDProcessSettingEntity> GetSettingForMTD(List<int> prodSnList);
 
         void Migration();
     }

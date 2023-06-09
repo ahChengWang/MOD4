@@ -37,7 +37,7 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                var _resilt = _mtdDashboardDomainService.DashboardSearch(owner: 1);
+                var _resilt = _mtdDashboardDomainService.DashboardSearch(isMass: true);
 
                 List<MTDDashboardMainViewModel> _response = _resilt.Select(mtd => new MTDDashboardMainViewModel
                 {
@@ -94,7 +94,7 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                var _resilt = _mtdDashboardDomainService.DashboardSearch(floor, date, time, owner);
+                var _resilt = _mtdDashboardDomainService.DashboardSearch(floor, date, time, owner == 1);
 
                 List<MTDDashboardMainViewModel> _response = _resilt.Select(mtd => new MTDDashboardMainViewModel
                 {
@@ -148,7 +148,7 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                var _resilt = _mtdDashboardDomainService.DashboardSearch(owner: 2);
+                var _resilt = _mtdDashboardDomainService.DashboardSearch(isMass: false);
 
                 List<MTDDashboardMainViewModel> _response = _resilt.Select(mtd => new MTDDashboardMainViewModel
                 {
@@ -205,7 +205,7 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                var _resilt = _mtdDashboardDomainService.DashboardSearch(floor, date, time, owner);
+                var _resilt = _mtdDashboardDomainService.DashboardSearch(floor, date, time, owner == 1);
 
                 List<MTDDashboardMainViewModel> _response = _resilt.Select(mtd => new MTDDashboardMainViewModel
                 {
@@ -261,6 +261,8 @@ namespace MOD4.Web.Controllers
         {
             try
             {
+                ViewBag.ProdOptions = _optionDomainService.GetLcmProdOptions();
+
                 var _result = _mtdDashboardDomainService.Search();
 
                 UserEntity _userInfo = GetUserInfo();
@@ -272,24 +274,17 @@ namespace MOD4.Web.Controllers
                     AccountPermission = _userCurrentPagePermission.AccountPermission
                 };
 
-                List<ManufactureViewModel> _reponse = new List<ManufactureViewModel>();
-
-                _result.ForEach(mtd =>
+                List<MftrScheduleViewModel> _reponse = _result.Select(res => new MftrScheduleViewModel
                 {
-                    _reponse.Add(new ManufactureViewModel
-                    {
-                        Process = mtd.Process,
-                        Category = mtd.Category,
-                        MonthPlan = mtd.MonthPlan,
-                        ProductName = mtd.ProductName,
-                        PlanDetail = mtd.PlanDetail.Select(s => new ManufactureDetailViewModel
-                        {
-                            Date = s.Date,
-                            Quantity = s.Quantity,
-                            IsToday = s.IsToday
-                        }).ToList()
-                    });
-                });
+                    Process = res.Process,
+                    Date = res.Date,
+                    DateStart = res.DateStart,
+                    Project = res.ProdDesc,
+                    Product = res.ProdNo,
+                    ProductId = res.LcmProdId,
+                    Quantity = res.Qty,
+                    IsMass = res.IsMass,
+                }).ToList();
 
                 return View(_reponse);
             }
@@ -322,15 +317,6 @@ namespace MOD4.Web.Controllers
                     _response.Add(new ManufactureViewModel
                     {
                         Process = mtd.Process,
-                        Category = mtd.Category,
-                        MonthPlan = mtd.MonthPlan,
-                        ProductName = mtd.ProductName,
-                        PlanDetail = mtd.PlanDetail.Select(s => new ManufactureDetailViewModel
-                        {
-                            Date = s.Date,
-                            Quantity = s.Quantity,
-                            IsToday = s.IsToday
-                        }).ToList()
                     });
                 });
 

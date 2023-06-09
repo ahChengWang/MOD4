@@ -5,7 +5,7 @@ namespace MOD4.Web.Repostory
 {
     public interface ILcmProductRepository
     {
-        List<LcmProductDao> SelectByConditions();
+        List<LcmProductDao> SelectByConditions(List<int> snList = null);
 
         LcmProductDao Insert(LcmProductDao prodDao);
     }

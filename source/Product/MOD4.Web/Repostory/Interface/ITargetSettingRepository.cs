@@ -11,6 +11,6 @@ namespace MOD4.Web.Repostory
 
         int Insert(List<TargetSettingDao> insSettingList);
 
-        List<MTDProcessSettingDao> SelectForMTDSetting(List<string> prodList);
+        List<MTDProcessSettingDao> SelectForMTDSetting(List<int> prodList);
     }
 }

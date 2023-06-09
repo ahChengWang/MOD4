@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using MOD4.Web.DomainService.Entity;
+using MOD4.Web.Enum;
 using MOD4.Web.Repostory;
 using MOD4.Web.Repostory.Dao;
 using NPOI.XSSF.UserModel;
@@ -12,6 +13,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using Utility.Helper;
 
 namespace MOD4.Web.DomainService
 {
@@ -23,6 +25,7 @@ namespace MOD4.Web.DomainService
         private readonly IEqpInfoRepository _eqpInfoRepository;
         private readonly IEquipMappingRepository _equipMappingRepository;
         private readonly ITargetSettingDomainService _targetSettingDomainService;
+        private readonly ILcmProductRepository _lcmProductRepository;
         private readonly Dictionary<string, string> _processEqDic = new Dictionary<string, string>
         {
             {"1300", "AOLB2010"},
@@ -45,7 +48,8 @@ namespace MOD4.Web.DomainService
             IAlarmXmlRepository alarmXmlRepository,
             IEqpInfoRepository eqpInfoRepository,
             IEquipMappingRepository equipMappingRepository,
-            ITargetSettingDomainService targetSettingDomainService)
+            ITargetSettingDomainService targetSettingDomainService,
+            ILcmProductRepository lcmProductRepository)
         {
             _mtdProductionScheduleRepository = mtdProductionScheduleRepository;
             _uploadDomainService = uploadDomainService;
@@ -53,6 +57,7 @@ namespace MOD4.Web.DomainService
             _eqpInfoRepository = eqpInfoRepository;
             _equipMappingRepository = equipMappingRepository;
             _targetSettingDomainService = targetSettingDomainService;
+            _lcmProductRepository = lcmProductRepository;
         }
 
         /// <summary>
@@ -62,7 +67,7 @@ namespace MOD4.Web.DomainService
         /// <param name="date">default 昨日</param>
         /// <param name="time">default 24h</param>
         /// <returns></returns>
-        public List<MTDDashboardMainEntity> DashboardSearch(int floor = 2, string date = "", decimal time = 24, int owner = 1)
+        public List<MTDDashboardMainEntity> DashboardSearch(int floor = 2, string date = "", decimal time = 24, bool isMass = true)
         {
             DateTime _nowTime = DateTime.Now.AddDays(-1).Date;
             DateTime _srchDate = _nowTime;
@@ -79,36 +84,50 @@ namespace MOD4.Web.DomainService
             Dictionary<string, string> _process109Dic = new Dictionary<string, string>();
 
             // 取得MTD排程所有機種
-            List<MTDProductionScheduleDao> _mtdScheduleDataList = _mtdProductionScheduleRepository.SelectByConditions(floor, owner, _srchDate, _srchDate).ToList();
+            List<MTDProductionScheduleDao> _mtdScheduleDataList = _mtdProductionScheduleRepository.SelectForMTDDashboard(floor, isMass, _srchDate, _srchDate).ToList();
 
-            var _mtdProdProcessSettings = _targetSettingDomainService.GetSettingForMTD(_mtdScheduleDataList.Select(s => s.ProductName).Distinct().ToList());
+            List<int> _lcmProdList = _mtdScheduleDataList.Select(s => s.LcmProdId).Distinct().ToList();
 
-            _mtdProdProcessSettings = (from setting in _mtdProdProcessSettings
-                                       join schedule in _mtdScheduleDataList
-                                       on new { setting.Process, setting.ProdNo } equals new { schedule.Process, ProdNo = schedule.ProductName }
-                                       select setting).ToList();
+            List<LcmProductDao> _lcmProductList = _lcmProductRepository.SelectByConditions(_lcmProdList);
 
-            // gorup MTD排程所有機種 for report 查詢
-            List<MTDProductionScheduleDao> _mtdScheduleGroupByProd = _mtdScheduleDataList.GroupBy(gb => gb.ProductName).Select(s => new MTDProductionScheduleDao
-            {
-                ProductName = s.Key,
-                Node = string.Join(",", s.Select(node => node.Node))
-            }).ToList();
+            var _mtdProdProcessSettings = _targetSettingDomainService.GetSettingForMTD(_lcmProdList);
+
+            List<MTDProdScheduleEntity> _mtdProdScheduleList = (from setting in _mtdProdProcessSettings
+                                                                join defProd in _lcmProductList
+                                                                on setting.LcmProdSn equals defProd.sn
+                                                                join schedule in _mtdScheduleDataList
+                                                                on new { setting.Process, setting.LcmProdSn } equals new { schedule.Process, LcmProdSn = schedule.LcmProdId }
+                                                                select new MTDProdScheduleEntity
+                                                                {
+                                                                    Process = schedule.Process,
+                                                                    MTDCategoryId = schedule.MTDCategoryId,
+                                                                    Node = schedule.Node,
+                                                                    Model = schedule.Model,
+                                                                    LcmProdId = schedule.LcmProdId,
+                                                                    ProdNo = defProd.ProdNo,
+                                                                    ProdDesc = defProd.Descr,
+                                                                    DownEq = setting.DownEq,
+                                                                    Date = schedule.Date,
+                                                                    Qty = schedule.Qty,
+                                                                    Floor = schedule.Floor,
+                                                                    IsMass = schedule.IsMass,
+                                                                    MonthPlan = schedule.MonthPlan
+                                                                }).ToList();
 
             // 取得MTD排程所有機種月計畫
-            List<MTDProductionScheduleDao> _mtdMonthPlanList = _mtdProductionScheduleRepository.SelectMonthPlanQty(_nowTime.Year.ToString(), _nowTime.Month.ToString(), floor, owner);
+            List<MTDProductionScheduleDao> _mtdMonthPlanList = _mtdProductionScheduleRepository.SelectMonthPlanQty(_nowTime.Year.ToString(), _nowTime.Month.ToString(), floor, isMass);
 
             Task _106Task = new Task(() =>
             {
                 // call zipsum 1.06 report 查詢 & 解析
-                Parallel.ForEach(_mtdProdProcessSettings.GroupBy(gb => gb.ProdNo).Select(s => new MTDProductionScheduleDao
+                Parallel.ForEach(_mtdProdScheduleList.GroupBy(gb => gb.LcmProdId).Select(s => new MTDProdScheduleEntity
                 {
-                    ProductName = s.Key,
+                    LcmProdId = s.Key,
                     Node = string.Join(",", s.Select(node => node.Node))
                 }), (prod) =>
                 {
-                    var _temp106Today = GetZipsum106Today(_srchDate.ToString("yyyy-MM-dd"), _srchDate.ToString("yyyy-MM-dd"), prod.ProductName, prod.Node);
-                    var _temp106Month = GetZipsum106Month($"{_srchDate:yyyy-MM}-01", _srchDate.ToString("yyyy-MM-dd"), prod.ProductName, prod.Node);
+                    var _temp106Today = GetZipsum106Today(_srchDate.ToString("yyyy-MM-dd"), _srchDate.ToString("yyyy-MM-dd"), prod.ProdNo, prod.Node);
+                    var _temp106Month = GetZipsum106Month($"{_srchDate:yyyy-MM}-01", _srchDate.ToString("yyyy-MM-dd"), prod.ProdNo, prod.Node);
                     lock (this)
                     {
                         _mtdPerformanceDay.AddRange(_temp106Today);
@@ -130,7 +149,7 @@ namespace MOD4.Web.DomainService
             Task _108109Task = new Task(() =>
             {
                 // call zipsum 1.08 1.09 report 查詢 & 解析
-                Parallel.ForEach(_mtdProdProcessSettings.GroupBy(gb => new { gb.Node, gb.DownEq }), (node) =>
+                Parallel.ForEach(_mtdProdScheduleList.GroupBy(gb => new { gb.Node, gb.DownEq }), (node) =>
                 {
                     var _temp108List = GetZipsum108Today(_srchDate.ToString("yyyy-MM-dd"), node.Key.DownEq, node.Key.Node.ToString());
                     foreach (var zip108Data in _temp108List)
@@ -163,8 +182,8 @@ namespace MOD4.Web.DomainService
 
             //_mtdScheduleDataList.GroupBy(gb => gb.Node).ToList().ForEach(s =>
             //{
-            //    GetZipsum108Today(_srchDate.ToString("yyyy-MM-dd"), _processEqDic[s.Key], s.Key, ref _processDownDic);
-            //    GetZipsum109Today(_srchDate.ToString("yyyy-MM-dd"), _processEqDic[s.Key], s.Key, ref _process109Dic);
+            //    GetZipsum108Today(_srchDate.ToString("yyyy-MM-dd"), _processEqDic[node.Key], node.Key, ref _processDownDic);
+            //    GetZipsum109Today(_srchDate.ToString("yyyy-MM-dd"), _processEqDic[node.Key], node.Key, ref _process109Dic);
             //});
 
             // 取得機況 (未處理、已處理)
@@ -180,14 +199,14 @@ namespace MOD4.Web.DomainService
                 // {
                 List<MTDDashboardDetailEntity> _tempDetailList = detail.Select(dt =>
                  {
-                     var _currSchedule = _mtdScheduleDataList.FirstOrDefault(f => f.Process == dt.Process && f.ProductName == dt.ProdNo) ??
+                     var _currSchedule = _mtdScheduleDataList.FirstOrDefault(f => f.Process == dt.Process && f.LcmProdId == dt.LcmProdSn) ??
                      new MTDProductionScheduleDao
                      {
                          Date = _nowTime,
-                         Value = 0
+                         Qty = 0
                      };
 
-                     var _currMonth = _mtdMonthPlanList.Where(w => w.Node == dt.Node.ToString() && w.ProductName == dt.ProdNo);
+                     var _currMonth = _mtdMonthPlanList.Where(w => w.Node == dt.Node.ToString() && w.LcmProdId == dt.LcmProdSn);
                      var _currActualMonth = _mtdPerformanceMonth.Where(w => w.Node == dt.Node.ToString() && w.Product == dt.ProdNo);
                      var _currAlarmData = _alarmOverList.FirstOrDefault(f => f.tool_id == dt.DownEq && f.prod_id == dt.ProdNo);
 
@@ -198,13 +217,13 @@ namespace MOD4.Web.DomainService
                          BigProduct = _currSchedule.Model,
                          PlanProduct = dt.ProdNo,
                          Output = _mtdPerformanceDay.FirstOrDefault(f => f.Node == dt.Node.ToString() && f.Product == dt.ProdNo)?.Qty.ToString("#,0") ?? "0",
-                         DayPlan = _currSchedule.Value.ToString("#,0"),
-                         RangPlan = (_currSchedule.Value * (time / 24)).ToString("#,0"),
-                         RangDiff = ((_mtdPerformanceDay.FirstOrDefault(f => f.Node == dt.Node.ToString() && f.Product == dt.ProdNo)?.Qty ?? 0) - (_currSchedule.Value * (time / 24))).ToString("#,0"),
-                         MonthPlan = _currMonth.Sum(sum => sum.Value).ToString("#,0"),
-                         MTDPlan = _currMonth.Where(mon => mon.Date <= _srchDate).Sum(sum => sum.Value).ToString("#,0"),
+                         DayPlan = _currSchedule.Qty.ToString("#,0"),
+                         RangPlan = (_currSchedule.Qty * (time / 24)).ToString("#,0"),
+                         RangDiff = ((_mtdPerformanceDay.FirstOrDefault(f => f.Node == dt.Node.ToString() && f.Product == dt.ProdNo)?.Qty ?? 0) - (_currSchedule.Qty * (time / 24))).ToString("#,0"),
+                         MonthPlan = _currMonth.Sum(sum => sum.Qty).ToString("#,0"),
+                         MTDPlan = _currMonth.Where(mon => mon.Date <= _srchDate).Sum(sum => sum.Qty).ToString("#,0"),
                          MTDActual = _currActualMonth.Sum(sum => sum.Qty).ToString("#,0"),
-                         MTDDiff = (_currActualMonth.Sum(sum => sum.Qty) - _currMonth.Where(mon => mon.Date <= _srchDate).Sum(sum => sum.Value)).ToString("#,0"),
+                         MTDDiff = (_currActualMonth.Sum(sum => sum.Qty) - _currMonth.Where(mon => mon.Date <= _srchDate).Sum(sum => sum.Qty)).ToString("#,0"),
                          EqAbnormal = _currAlarmData == null ? "" : _currAlarmData.comment,
                          RepaireTime = _currAlarmData == null ? "" : _currAlarmData.spend_time.ToString(),
                          Status = _currAlarmData == null ? "" : _currAlarmData.end_time == null ? "處理中" : "已排除"
@@ -237,7 +256,7 @@ namespace MOD4.Web.DomainService
 
             _mtdDashboardList = _mtdDashboardList.Select(data =>
             {
-                data.Diff = data.Actual - data.Plan;                
+                data.Diff = data.Actual - data.Plan;
                 //data.MTDDetail = data.MTDDetail.Where(detail => detail.MTDPlan != "0").ToList();
 
                 return data;
@@ -460,7 +479,7 @@ namespace MOD4.Web.DomainService
 
         #region ======== schedule ========
 
-        public List<ManufactureScheduleEntity> Search(string dateRange = "", int floor = 2, int owner = 1)
+        public List<MftrScheduleEntity> Search(string dateRange = "", int floor = 2, int owner = 1, MTDCategoryEnum mtdCategoryId = MTDCategoryEnum.BOND)
         {
             try
             {
@@ -481,24 +500,26 @@ namespace MOD4.Web.DomainService
                     DateTime.TryParseExact(_dateAry[1].Trim(), "yyyy/MM/dd", null, DateTimeStyles.None, out _endDate);
                 }
 
-                List<ManufactureScheduleEntity> _manufactureSchedules = new List<ManufactureScheduleEntity>();
-                List<MTDProductionScheduleDao> _mtdScheduleDataList = _mtdProductionScheduleRepository.SelectByConditions(floor, owner, _startDate, _endDate);
-                List<MTDProductionScheduleDao> _mtdMonthPlanList = _mtdProductionScheduleRepository.SelectMonthPlanQty(_nowTime.Year.ToString(), _nowTime.Month.ToString(), floor, owner);
+                List<MTDProductionScheduleDao> _mtdScheduleDataList = _mtdProductionScheduleRepository.SelectByConditions(floor, null, mtdCategoryId, _startDate, _endDate);
+                List<LcmProductDao> _lcmProductList = _lcmProductRepository.SelectByConditions(_mtdScheduleDataList.Select(s => s.LcmProdId).Distinct().ToList());
 
-                _manufactureSchedules = _mtdScheduleDataList.GroupBy(gb => new { gb.Process, gb.Model, gb.ProductName })
-                    .Select(mtd => new ManufactureScheduleEntity
-                    {
-                        Process = mtd.Key.Process,
-                        Category = mtd.Key.Model,
-                        MonthPlan = _mtdMonthPlanList.Where(w => w.Process == mtd.Key.Process && w.Model == mtd.Key.Model && w.ProductName == mtd.Key.ProductName).Sum(sum => sum.Value).ToString("#,0"),
-                        ProductName = mtd.Key.ProductName,
-                        PlanDetail = mtd.Select(s => new ManufactureDetailEntity
-                        {
-                            Date = s.Date.ToString("MM/dd"),
-                            Quantity = s.Value,
-                            IsToday = s.Date == _nowTime.Date
-                        }).ToList()
-                    }).ToList();
+                List<MftrScheduleEntity> _manufactureSchedules = (from mtd in _mtdScheduleDataList
+                                                                  join defProd in _lcmProductList
+                                                                  on mtd.LcmProdId equals defProd.sn
+                                                                  select new MftrScheduleEntity
+                                                                  {
+                                                                      Process = mtd.Process,
+                                                                      Date = mtd.Date,
+                                                                      DateStart = mtd.Date.ToString("yyyy-MM-dd"),
+                                                                      MTDCategoryId = mtd.MTDCategoryId,
+                                                                      MTDCategory = mtd.MTDCategoryId.GetDescription(),
+                                                                      Model = mtd.Model,
+                                                                      ProdNo = defProd.ProdNo,
+                                                                      LcmProdId = mtd.LcmProdId,
+                                                                      ProdDesc = defProd.Descr,
+                                                                      IsMass = mtd.IsMass,
+                                                                      Qty = mtd.Qty
+                                                                  }).ToList();
 
                 return _manufactureSchedules;
             }
@@ -510,114 +531,116 @@ namespace MOD4.Web.DomainService
 
         public string Upload(IFormFile formFile, int floor, int owner, UserEntity userEntity)
         {
-            try
-            {
-                string _uploadResult = "";
+            //try
+            //{
+            //    string _uploadResult = "";
 
-                if (formFile.Length > 0)   // 檢查 <input type="file"> 是否輸入檔案？
-                {
-                    XSSFWorkbook workbook;
-                    List<MTDProductionScheduleDao> _updMTDScheduleDao = new List<MTDProductionScheduleDao>();
-                    MTDScheduleUpdateHistoryDao _mtdScheduleUpdateHistoryDao = new MTDScheduleUpdateHistoryDao();
-                    Dictionary<int, DateTime> _dateDictionary = new Dictionary<int, DateTime>();
-                    DateTime _nowTime = DateTime.Now;
-                    string _newFileName = DoFileCopy(formFile, _nowTime);
-                    (int, string) _processInfo = (0, "");
+            //    if (formFile.Length > 0)   // 檢查 <input type="file"> 是否輸入檔案？
+            //    {
+            //        XSSFWorkbook workbook;
+            //        List<MTDProductionScheduleDao> _updMTDScheduleDao = new List<MTDProductionScheduleDao>();
+            //        MTDScheduleUpdateHistoryDao _mtdScheduleUpdateHistoryDao = new MTDScheduleUpdateHistoryDao();
+            //        Dictionary<int, DateTime> _dateDictionary = new Dictionary<int, DateTime>();
+            //        DateTime _nowTime = DateTime.Now;
+            //        string _newFileName = DoFileCopy(formFile, _nowTime);
+            //        (int, string) _processInfo = (0, "");
 
-                    using (var ms = new MemoryStream())
-                    {
-                        formFile.CopyTo(ms);
+            //        using (var ms = new MemoryStream())
+            //        {
+            //            formFile.CopyTo(ms);
 
-                        // 上傳檔案，不用存檔。直接讓NOPI 讀取檔案內容（Stream串流）
-                        Stream stream = new MemoryStream(ms.ToArray());
+            //            // 上傳檔案，不用存檔。直接讓NOPI 讀取檔案內容（Stream串流）
+            //            Stream stream = new MemoryStream(ms.ToArray());
 
-                        workbook = new XSSFWorkbook(stream); // 將剛剛的Excel (Stream）讀取到工作表裡面
-                        // XSSFWorkbook() 只能讀取 System.IO.Stream
-                    }
+            //            workbook = new XSSFWorkbook(stream); // 將剛剛的Excel (Stream）讀取到工作表裡面
+            //            // XSSFWorkbook() 只能讀取 System.IO.Stream
+            //        }
 
-                    // 讀取 Excel裡面的工作表（跟以前 MVC 5完全相同）
-                    #region
-                    XSSFSheet _scheduleSheet = (XSSFSheet)workbook.GetSheetAt(0); // 生產排線 sheet
-                    //XSSFSheet _verifySheet = (XSSFSheet)workbook.GetSheetAt(1); // 驗證 sheet
+            //        // 讀取 Excel裡面的工作表（跟以前 MVC 5完全相同）
+            //        #region
+            //        XSSFSheet _scheduleSheet = (XSSFSheet)workbook.GetSheetAt(0); // 生產排線 sheet
+            //        //XSSFSheet _verifySheet = (XSSFSheet)workbook.GetSheetAt(1); // 驗證 sheet
 
-                    StringBuilder SB = new StringBuilder(); // System.Text命名空間
+            //        StringBuilder SB = new StringBuilder(); // System.Text命名空間
 
-                    XSSFRow _headerDate = (XSSFRow)_scheduleSheet.GetRow(0); // 取得表頭日期
+            //        XSSFRow _headerDate = (XSSFRow)_scheduleSheet.GetRow(0); // 取得表頭日期
 
-                    // 表頭列，共有幾個 "欄位"?（取得最後一欄的數字）
-                    for (int k = 5; k < _headerDate.LastCellNum; k++)
-                    {
-                        if (_headerDate.GetCell(k) != null)
-                        {
-                            _dateDictionary.Add(k, _headerDate.GetCell(k).DateCellValue);
-                            //SB.Append(_headerDate.GetCell(k).StringCellValue + "   ");
-                        }
-                    }
+            //        // 表頭列，共有幾個 "欄位"?（取得最後一欄的數字）
+            //        for (int k = 5; k < _headerDate.LastCellNum; k++)
+            //        {
+            //            if (_headerDate.GetCell(k) != null)
+            //            {
+            //                _dateDictionary.Add(k, _headerDate.GetCell(k).DateCellValue);
+            //                //SB.Append(_headerDate.GetCell(k).StringCellValue + "   ");
+            //            }
+            //        }
 
-                    // for迴圈的「啟始值」要加一，表示不包含 Excel表頭列
-                    for (int i = (_scheduleSheet.FirstRowNum + 1); i <= _scheduleSheet.LastRowNum; i++)
-                    {
-                        // 每一列做迴圈
-                        XSSFRow row = (XSSFRow)_scheduleSheet.GetRow(i); // 不包含 Excel表頭列
+            //        // for迴圈的「啟始值」要加一，表示不包含 Excel表頭列
+            //        for (int i = (_scheduleSheet.FirstRowNum + 1); i <= _scheduleSheet.LastRowNum; i++)
+            //        {
+            //            // 每一列做迴圈
+            //            XSSFRow row = (XSSFRow)_scheduleSheet.GetRow(i); // 不包含 Excel表頭列
 
-                        if (row.Count() < 5)
-                            break;
+            //            if (row.Count() < 5)
+            //                break;
 
-                        if (string.IsNullOrEmpty(row.GetCell(0).StringCellValue) || string.IsNullOrEmpty(row.GetCell(1).StringCellValue) ||
-                            string.IsNullOrEmpty(row.GetCell(4).StringCellValue) || row.GetCell(4).StringCellValue.Length < 10)
-                            continue;
+            //            if (string.IsNullOrEmpty(row.GetCell(0).StringCellValue) || string.IsNullOrEmpty(row.GetCell(1).StringCellValue) ||
+            //                string.IsNullOrEmpty(row.GetCell(4).StringCellValue) || row.GetCell(4).StringCellValue.Length < 10)
+            //                continue;
 
-                        for (int j = 5; j < row.LastCellNum; j++)
-                        {
-                            _processInfo = ConvertProcessToSn(row.GetCell(0).StringCellValue);
+            //            for (int j = 5; j < row.LastCellNum; j++)
+            //            {
+            //                _processInfo = ConvertProcessToSn(row.GetCell(0).StringCellValue);
 
-                            _updMTDScheduleDao.Add(new MTDProductionScheduleDao
-                            {
-                                Sn = _processInfo.Item1,
-                                Process = row.GetCell(0).StringCellValue.Trim(),
-                                Date = _dateDictionary[j],
-                                Node = _processInfo.Item2,
-                                Model = row.GetCell(1).StringCellValue.Trim(),
-                                ProductName = row.GetCell(4).StringCellValue.Trim(),
-                                Value = Convert.ToInt32(row.GetCell(j).NumericCellValue),
-                                Floor = floor,
-                                OwnerId = owner,
-                                UpdateUser = userEntity.Name,
-                                UpdateTime = _nowTime,
-                            });
-                        }
-                    }
-                    #endregion
+            //                _updMTDScheduleDao.Add(new MTDProductionScheduleDao
+            //                {
+            //                    Sn = _processInfo.Item1,
+            //                    Process = row.GetCell(0).StringCellValue.Trim(),
+            //                    Date = _dateDictionary[j],
+            //                    Node = _processInfo.Item2,
+            //                    Model = row.GetCell(1).StringCellValue.Trim(),
+            //                    ProductName = row.GetCell(4).StringCellValue.Trim(),
+            //                    Value = Convert.ToInt32(row.GetCell(j).NumericCellValue),
+            //                    Floor = floor,
+            //                    OwnerId = owner,
+            //                    UpdateUser = userEntity.Name,
+            //                    UpdateTime = _nowTime,
+            //                });
+            //            }
+            //        }
+            //        #endregion
 
-                    _mtdScheduleUpdateHistoryDao.FileName = _newFileName;
-                    _mtdScheduleUpdateHistoryDao.Floor = floor;
-                    _mtdScheduleUpdateHistoryDao.OwnerId = owner;
-                    _mtdScheduleUpdateHistoryDao.UpdateUser = userEntity.Name;
-                    _mtdScheduleUpdateHistoryDao.UpdateTime = _nowTime;
+            //        _mtdScheduleUpdateHistoryDao.FileName = _newFileName;
+            //        _mtdScheduleUpdateHistoryDao.Floor = floor;
+            //        _mtdScheduleUpdateHistoryDao.OwnerId = owner;
+            //        _mtdScheduleUpdateHistoryDao.UpdateUser = userEntity.Name;
+            //        _mtdScheduleUpdateHistoryDao.UpdateTime = _nowTime;
 
-                    using (TransactionScope _scope = new TransactionScope())
-                    {
-                        bool _updRes = false;
-                        bool _insHisRes = false;
+            //        using (TransactionScope _scope = new TransactionScope())
+            //        {
+            //            bool _updRes = false;
+            //            bool _insHisRes = false;
 
-                        _updRes = _mtdProductionScheduleRepository.DeleteSchedule(owner) == _updMTDScheduleDao.Count;
-                        _updRes = _mtdProductionScheduleRepository.InsertSchedule(_updMTDScheduleDao) == _updMTDScheduleDao.Count;
-                        _insHisRes = _mtdProductionScheduleRepository.InsertScheduleHistory(_mtdScheduleUpdateHistoryDao) == 1;
+            //            _updRes = _mtdProductionScheduleRepository.DeleteSchedule(owner) == _updMTDScheduleDao.Count;
+            //            _updRes = _mtdProductionScheduleRepository.InsertSchedule(_updMTDScheduleDao) == _updMTDScheduleDao.Count;
+            //            _insHisRes = _mtdProductionScheduleRepository.InsertScheduleHistory(_mtdScheduleUpdateHistoryDao) == 1;
 
-                        if (_updRes && _insHisRes)
-                            _scope.Complete();
-                        else
-                            _uploadResult = "更新異常";
-                    }
+            //            if (_updRes && _insHisRes)
+            //                _scope.Complete();
+            //            else
+            //                _uploadResult = "更新異常";
+            //        }
 
-                }
+            //    }
 
-                return _uploadResult;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            //    return _uploadResult;
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw ex;
+            //}
+
+            return "";
         }
 
         public string GetLatestUpdate(int floor = 2, int owner = 1)

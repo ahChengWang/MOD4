@@ -1,4 +1,5 @@
-﻿using MOD4.Web.Repostory.Dao;
+﻿using MOD4.Web.Enum;
+using MOD4.Web.Repostory.Dao;
 using System;
 using System.Collections.Generic;
 
@@ -6,9 +7,11 @@ namespace MOD4.Web.Repostory
 {
     public interface IMTDProductionScheduleRepository
     {
-        List<MTDProductionScheduleDao> SelectByConditions(int floor, int ownerId, DateTime dateStart, DateTime dateEnd);
+        List<MTDProductionScheduleDao> SelectByConditions(int floor = 0, bool? isMass = null, MTDCategoryEnum? mtdCategoryId = null, DateTime? dateStart = null, DateTime? dateEnd = null);
 
-        List<MTDProductionScheduleDao> SelectMonthPlanQty(string year, string month, int floor, int ownerId);
+        List<MTDProductionScheduleDao> SelectForMTDDashboard(int floor, bool isMass, DateTime dateStart, DateTime dateEnd);
+
+        List<MTDProductionScheduleDao> SelectMonthPlanQty(string year, string month, int floor, bool isMass);
 
         MTDProductionScheduleDao SelectNewOrderSn(string orderNo);
 

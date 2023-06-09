@@ -7,11 +7,19 @@ namespace MOD4.Web.Repostory
     public class LcmProductRepository : BaseRepository, ILcmProductRepository
     {
 
-        public List<LcmProductDao> SelectByConditions()
+        public List<LcmProductDao> SelectByConditions(List<int> snList = null)
         {
             string sql = "select * from vw_lcm_prod where 1=1 ";
 
-            var dao = _dbHelper.ExecuteQuery<LcmProductDao>(sql);
+            if (snList != null && snList.Any())
+            {
+                sql += " and sn in @Sn ";
+            }
+
+            var dao = _dbHelper.ExecuteQuery<LcmProductDao>(sql, new
+            {
+                Sn = snList
+            });
 
             return dao;
         }

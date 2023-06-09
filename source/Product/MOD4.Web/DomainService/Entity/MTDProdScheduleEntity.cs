@@ -1,15 +1,18 @@
 ﻿using MOD4.Web.Enum;
 using System;
 
-namespace MOD4.Web.Repostory.Dao
+namespace MOD4.Web.DomainService.Entity
 {
-    public class MTDProductionScheduleDao
+    public class MTDProdScheduleEntity
     {
         public string Process { get; set; }
         public MTDCategoryEnum MTDCategoryId { get; set; }
         public string Node { get; set; }
         public string Model { get; set; }
         public int LcmProdId { get; set; }
+        public string ProdNo { get; set; }
+        public string ProdDesc { get; set; }
+        public string DownEq { get; set; }
         public DateTime Date { get; set; }
         public int Qty { get; set; }
         public int Floor { get; set; }

@@ -145,7 +145,7 @@ INSERT INTO [dbo].[Target_Setting]
         }
 
 
-        public List<MTDProcessSettingDao> SelectForMTDSetting(List<string> prodList)
+        public List<MTDProcessSettingDao> SelectForMTDSetting(List<int> prodList)
         {
             string sql = $@"select defNode.sn,defProd.prodNo,ts.Node,ts.lcmProdSn,ts.DownEquipment as 'DownEq',defNode.process, defNode.descr
 from definition_lcm_prod defProd
@@ -153,11 +153,11 @@ join Target_Setting ts
 on defProd.sn = ts.lcmProdSn
 join definition_node_desc defNode
 on ts.Node = defNode.eqNo
-where ts.isMTDTarget = 1 and defProd.prodNo IN @ProdNo ";
+where ts.isMTDTarget = 1 and defProd.sn IN @ProdSn ";
 
             var dao = _dbHelper.ExecuteQuery<MTDProcessSettingDao>(sql, new
             {
-                ProdNo = prodList
+                ProdSn = prodList
             });
 
             return dao;

@@ -9,6 +9,5 @@
         public string DownEq { get; set; }
         public string Process { get; set; }
         public string Descr { get; set; }
-
     }
 }

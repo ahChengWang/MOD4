@@ -77,11 +77,11 @@ namespace MOD4.Web.DomainService
             }
         }
 
-        public List<MTDProcessSettingEntity> GetSettingForMTD(List<string> prodList)
+        public List<MTDProcessSettingEntity> GetSettingForMTD(List<int> prodSnList)
         {
             try
             {
-                return _targetSettingRepository.SelectForMTDSetting(prodList).CopyAToB<MTDProcessSettingEntity>();
+                return _targetSettingRepository.SelectForMTDSetting(prodSnList).CopyAToB<MTDProcessSettingEntity>();
             }
             catch (Exception ex)
             {
