@@ -105,6 +105,7 @@ namespace MOD4.Web
             services.AddSingleton(new ServiceDescriptor(typeof(MailService), new MailService(Configuration)));
             services.AddSingleton(new ServiceDescriptor(typeof(FTPService), new FTPService(Configuration)));
             services.AddSingleton<IDemadStatusFactory, DemadStatusFactory>();
+            services.AddSingleton<IMTDProcessFactory, MTDProcessFactory>();
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             services.AddHttpContextAccessor();
 

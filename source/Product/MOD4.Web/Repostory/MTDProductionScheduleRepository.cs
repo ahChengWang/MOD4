@@ -13,7 +13,8 @@ namespace MOD4.Web.Repostory
             bool? isMass = null,
             MTDCategoryEnum? mtdCategoryId = null,
             DateTime? dateStart = null,
-            DateTime? dateEnd = null)
+            DateTime? dateEnd = null,
+            int prodId = 0)
         {
             string _sql = "select * from mtd_production_schedule where 1 = 1 ";
 
@@ -23,6 +24,8 @@ namespace MOD4.Web.Repostory
                 _sql += " and isMass = @IsMass ";
             if (mtdCategoryId != null)
                 _sql += " and mtdCategoryId = @MTDCategoryId ";
+            if (prodId != 0)
+                _sql += " and lcmProdId = @LcmProdId ";
             if (dateStart != null)
                 _sql += " and date >= @StartDate ";
             if (dateEnd != null)
@@ -35,6 +38,7 @@ namespace MOD4.Web.Repostory
                 MTDCategoryId = mtdCategoryId,
                 StartDate = dateStart,
                 EndDate = dateEnd,
+                LcmProdId = prodId
             });
 
             return dao;
@@ -114,27 +118,27 @@ namespace MOD4.Web.Repostory
         {
             string sql = @"
 INSERT INTO [dbo].[mtd_production_schedule]
-([sn]
-,[process]
+([process]
+,[mtdCategoryId]
 ,[node]
 ,[model]
-,[productName]
+,[lcmProdId]
 ,[date]
-,[value]
+,[qty]
 ,[floor]
-,[ownerId]
+,[isMass]
 ,[updateUser]
 ,[updateTime])
 VALUES
-(@sn
-,@process
+(@process
+,@mtdCategoryId
 ,@node
 ,@model
-,@productName
+,@lcmProdId
 ,@date
-,@value
+,@qty
 ,@floor
-,@ownerId
+,@isMass
 ,@updateUser
 ,@updateTime
 ); ";
@@ -172,6 +176,19 @@ VALUES
 ,@updateTime);";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, insHisDao);
+
+            return dao;
+        }
+
+        public int UpdateSchedule(MTDProductionScheduleDao updMTDProdSchedule)
+        {
+            string sql = @" update mtd_production_schedule 
+  set lcmProdId = @LcmProdId,
+      qty = @Qty,
+      isMass = @IsMass 
+where sn = @Sn ;";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, updMTDProdSchedule);
 
             return dao;
         }

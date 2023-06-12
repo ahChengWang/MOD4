@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MOD4.Web.Enum;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 
@@ -6,6 +7,8 @@ namespace MOD4.Web.ViewModel
 {
     public class MftrScheduleViewModel
     {
+        public int Sn { get; set; }
+
         [DisplayName("Process")]
         public string Process { get; set; }
 
@@ -27,5 +30,9 @@ namespace MOD4.Web.ViewModel
 
         [DisplayName("量產品?")]
         public bool IsMass { get; set; }
+
+        public MTDCategoryEnum MTDCategoryId { get; set; }
+
+        public int Floor { get; set; }
     }
 }

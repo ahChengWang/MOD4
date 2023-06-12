@@ -11,6 +11,10 @@ namespace MOD4.Web.DomainService
 
         List<MftrScheduleEntity> Search(string dateRange = "", int floor = 2, int owner = 1, MTDCategoryEnum mtdCategoryId = MTDCategoryEnum.BOND);
 
+        (string, int) Create(MftrScheduleEntity mftrScheduleEntity, UserEntity userEntity);
+
+        string Update(MftrScheduleEntity updMftrScheduleEntity, UserEntity userEntity);
+
         string GetLatestUpdate(int floor = 2, int owner = 1);
 
         string Upload(IFormFile formFile, int floor, int owner, UserEntity userEntity);

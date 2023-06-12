@@ -161,7 +161,7 @@
                                     <label>量產品?</label>
                                 </div>
                                 <div id="mMassDiv" class="col-md-4">
-                                    <input id="mMass" type="checkbox" onclick="myFuc.CheckBoxChange(this)"/>
+                                    <input id="mMass" type="checkbox" onclick="myFuc.CheckBoxChange(this)" />
                                 </div>
                             </div>
                             <input id="mScheduleSn" type="hidden" value="" />
@@ -187,67 +187,163 @@
 
         var _mngrPermission = @(Convert.ToInt32(Convert.ToBoolean(((UserPermissionViewModel)ViewBag.UserPermission).AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management)));
 
+        let _bgColor = "#239623";
+
+        let Calendar = FullCalendar.Calendar;
+        let calendarEl = document.getElementById('calendar');
+
+        // initial calendar
+        let _calObj = {
+            headerToolbar: {
+                left: 'customprev,customnext,customtoday',
+                center: 'title',
+                right: '',
+            },
+            height: 800,
+            initialView: 'dayGridMonth',
+            themeSystem: 'bootstrap',
+            editable: true,
+            eventResizableFromStart: false,
+            displayEventTime: false,
+            droppable: false, // this allows things to be dropped onto the calendar !!!
+            windowResize: function (e) {
+                // 當 menu 收折, calendar table RWD
+                $('table[role="presentation"]')[0].style.width = '100%';
+                $('table[role="presentation"]')[1].style.width = '100%';
+            },
+            /*events: _calEvents,*/
+            eventDrop: function (e) {
+            },
+            eventClick: function (e) {
+
+                $('#mDate').html(e.event.startStr.substring(0, 10));
+                $('#mDropProd').val(e.event.extendedProps.productId).trigger('change');
+                $('#mQty').val(e.event.extendedProps.quantity);
+
+                $('#mMassDiv').empty();
+                $('#mMassDiv').append('<input id="mMass" type="checkbox" onclick="myFuc.CheckBoxChange(this)"/>');
+
+                if (e.event.extendedProps.isMass) {
+                    $('#mMass').attr('checked', true);
+                    $('#mMass').val('True');
+                }
+                else {
+                    $('#mMass').removeAttr('checked');
+                    $('#mMass').val('False');
+                }
+                $('#mScheduleSn').val(e.event.extendedProps.sn);
+
+                myFuc.ModalInputDisplay(true);
+                myFuc.ModalFooterBtnCreate(false);
+
+                $('#modal-sm-completed').modal('show');
+            },
+            customButtons: {
+                customprev: {
+                    text: '<',
+                    click: function () {
+
+                        calendar.prev();
+
+                        if (_mngrPermission == 1)
+                            myFuc.SetDbClickEvent();
+
+                        myFuc.ResetCalTitle(calendar);
+                    }
+                },
+                customnext: {
+                    text: '>',
+                    click: function () {
+                        calendar.next();
+
+                        if (_mngrPermission == 1)
+                            myFuc.SetDbClickEvent();
+                        myFuc.ResetCalTitle(calendar);
+                    }
+                },
+                customtoday: {
+                    text: 'today',
+                    click: function () {
+                        calendar.today();
+
+                        if (_mngrPermission == 1)
+                            myFuc.SetDbClickEvent();
+                        myFuc.ResetCalTitle(calendar);
+                    }
+                }
+            }
+        }
+
+        var calendar = new Calendar(calendarEl, _calObj);
+
         //#region myFuc()
 
         let myFuc = {
+            InitialCalendar(calData) {
+
+                var _calEvents = [];
+
+                calData.forEach(function (plan) {
+                    if (plan.isMass) {
+                        _bgColor = "#28a628";
+                    }
+                    else {
+                        _bgColor = "#e5eb4d";
+                    }
+
+                    _calEvents.push({
+                        id: plan.sn,
+                        title: plan.project + '【' + plan.product + '】(' + plan.quantity + ')',
+                        start: plan.dateStart,
+                        textColor: '#000000',
+                        color: _bgColor,
+                        allDay: true,
+                        extendedProps: plan
+                    });
+                });
+
+                _calObj.events = _calEvents;
+
+                calendar = new Calendar(calendarEl, _calObj);
+
+                calendar.render();
+
+                myFuc.ResetCalTitle(calendar);
+
+            },
             Search() {
                 globalFuc.LoadingPic();
                 $.ajax({
-                    url: "./Manufacture/Search?dateRange=" + $("#dateRange").val() + "&floor=" + $("#selFloor").val() + "&owner=" + $("#selOwner").val(),
+                    url: "./Manufacture/Search/" + $("#selProcess").val() + "/" + $("#selFloor").val(),
                     type: "GET",
-                    dataType: 'html',
+                    dataType: 'json',
                     success: function (result) {
                         $.unblockUI();
-                        if (isJsonString(result)) {
-                            $(".lock-header").children().empty();
-                            $("#latestInfo").html("");
-                            var _res = JSON.parse(result);
-                            alert(_res.message);
+                        if (result.isSuccess) {
+                            myFuc.InitialCalendar(result.data);
                         }
                         else {
+                            alert(result.msg);
+                            _calObj.events = [];
+                            calendar = new Calendar(calendarEl, _calObj);
+                            calendar.render();
+                            myFuc.ResetCalTitle(calendar);
+                        };
 
-                            $(".lock-header").children().empty();
-                            $(".lock-header").html(result);
-
-                            $('table tbody').find('tr').each(function (idx, tr) {
-                                if (tr.children[0].innerHTML == 'BOND') {
-                                    tr.children[0].style.background = '#eba963';
-                                    tr.children[3].style.background = '#eba963';
-                                }
-                                else if (tr.children[0].innerHTML == 'FOG') {
-                                    tr.children[0].style.background = '#b0b0b0';
-                                    tr.children[3].style.background = '#b0b0b0';
-                                }
-                                else if (tr.children[0].innerHTML == 'LAM') {
-                                    tr.children[0].style.background = '#64aded';
-                                    tr.children[3].style.background = '#64aded';
-                                }
-                                else if (tr.children[0].innerHTML == 'ASSY') {
-                                    tr.children[0].style.background = '#a563cf';
-                                    tr.children[3].style.background = '#a563cf';
-                                }
-                                else if (tr.children[0].innerHTML == 'CDP') {
-                                    tr.children[0].style.background = '#63cf8c';
-                                    tr.children[3].style.background = '#63cf8c';
-                                }
-                            });
-
-                            $.ajax({
-                                url: "./Manufacture/LatestUpdate/" + $("#selFloor").val() + "/" + $("#selOwner").val(),
-                                type: "GET",
-                                dataType: 'json',
-                                success: function (result) {
-                                    if (result != '') {
-                                        $("#latestInfo").html("");
-                                        $("#latestInfo").html("最後更新 " + result);
-                                    }
-                                    else {
-                                        $("#latestInfo").html("最後更新 ");
-                                    }
-                                }
-                            });
-
-                        }
+                        //$.ajax({
+                        //    url: "./Manufacture/LatestUpdate/" + $("#selFloor").val() + "/" + $("#selOwner").val(),
+                        //    type: "GET",
+                        //    dataType: 'json',
+                        //    success: function (result) {
+                        //        if (result != '') {
+                        //            $("#latestInfo").html("");
+                        //            $("#latestInfo").html("最後更新 " + result);
+                        //        }
+                        //        else {
+                        //            $("#latestInfo").html("最後更新 ");
+                        //        }
+                        //    }
+                        //});
                     }
                 });
             },
@@ -292,6 +388,100 @@
                 }
                 $('#modalDesc').html("確認匯入" + $("#uplFloor option:selected").val() + "樓 MTD " + $("#uplOwner option:selected").html() + "排程?");
             },
+            Create() {
+                $.ajax({
+                    url: "./Manufacture/Create",
+                    type: "POST",
+                    data: {
+                        createMftrVM: {
+                            'Date': $('#mDate')[0].innerHTML,
+                            'ProductId': $('#mDropProd').val(),
+                            'Quantity': $('#mQty').val(),
+                            'IsMass': $('#mMass').val(),
+                            'MTDCategoryId': $('#selProcess').val(),
+                            'Floor': $('#selFloor').val()
+                        }
+                    },
+                    success: function (result) {
+                        if (result.isSuccess) {
+                            alert('新增成功');
+
+                            let _option = ($("#mDropProd option[value=" + $('#mDropProd').val() + "]")[0]).text.split('-');
+
+                            if ($('#mMass')[0].checked) {
+                                _bgColor = "#28a628";
+                            }
+                            else {
+                                _bgColor = "#e5eb4d";
+                            }
+                            calendar.addEvent({
+                                extendedProps: {
+                                    sn: result.data,
+                                    productId: $('#mDropProd').val(),
+                                    quantity: $('#mQty').val(),
+                                    isMass: $('#mMass')[0].checked
+                                },
+                                title: _option[1] + '【' + _option[0] + '】(' + $('#mQty').val() + ')',
+                                start: $('#mDate')[0].innerHTML,
+                                textColor: '#000000',
+                                color: _bgColor,
+                                allDay: true,
+                            });
+
+                            $('#modal-sm-completed').modal('hide');
+                        }
+                        else {
+                            alert(result.msg);
+                        }
+                    }
+                });
+            },
+            Update() {
+                $.ajax({
+                    url: "./Manufacture/Update",
+                    type: "POST",
+                    data: {
+                        updateMftrVM: {
+                            'Sn': $('#mScheduleSn').val(),
+                            'Date': $('#mDate')[0].innerHTML,
+                            'ProductId': $('#mDropProd').val(),
+                            'Quantity': $('#mQty').val(),
+                            'IsMass': $('#mMass').val(),
+                            'MTDCategoryId': $('#selProcess').val(),
+                            'Floor': $('#selFloor').val()
+                        }
+                    },
+                    success: function (result) {
+                        if (result.isSuccess) {
+                            alert('更新成功');
+
+                            let _option = ($("#mDropProd option[value=" + $('#mDropProd').val() + "]")[0]).text.split('-');
+
+                            let _currEnevt = calendar.getEventById($('#mScheduleSn').val());
+
+                            if ($('#mMass')[0].checked) {
+                                _bgColor = "#28a628";
+                            }
+                            else {
+                                _bgColor = "#e5eb4d";
+                            }
+
+                            _currEnevt.setProp('title', _option[1] + '【' + _option[0] + '】(' + $('#mQty').val() + ')');
+                            _currEnevt.setProp('color', _bgColor);
+                            _currEnevt.setProp('extendedProps', {
+                                productId: $('#mDropProd').val(),
+                                quantity: $('#mQty').val(),
+                                isMass: $('#mMass')[0].checked
+                            });
+
+                            $('#modal-sm-completed').modal('hide');
+                        }
+                        else {
+                            alert(result.msg);
+                        }
+                    }
+                });
+            },
             SetDbClickEvent() {
                 let _tbl = $('tbody[role="presentation"]')[0].children;
                 $.each(_tbl, function (index, tr) {
@@ -325,21 +515,21 @@
             ModalFooterBtnCreate(isCreate) {
                 $('#mfooter').empty();
                 if (isCreate) {
-                    $('.modal-footer').append('<input id="btnCreate" type="button" class="btn btn-info" value="新增" onclick="" />');
+                    $('.modal-footer').append('<input id="btnCreate" type="button" class="btn btn-info" value="新增" onclick="myFuc.Create()" />');
                 }
                 else {
                     $('.modal-footer').append('<input id="btnEdit" type="button" class="btn btn-warning" value="編輯" onclick="myFuc.EditClick()" /> ' +
-                        '<input id="btnUpd" type="button" class="btn btn-secondary" disabled value="儲存" onclick="bookingUpdate()" />' +
+                        '<input id="btnUpd" type="button" class="btn btn-secondary" disabled value="儲存" onclick="myFuc.Update()" />' +
                         '<input id="btnCancel" type="button" class="btn btn-danger" disabled data-dismiss="modal" value="取消排程" onclick="bookingCancel()" />');
                 }
             },
-            ResetCalTitle() {
+            ResetCalTitle(calendar) {
+
+                let _afterTTL = calendar.currentData.viewTitle;
                 let processSel = $("#selProcess").find(":selected").text();
                 let _calTitle = $('.fc-toolbar-title')[0];
 
-                if (_calTitle.textContent.split(processSel)[0] != '') {
-                    _calTitle.textContent = processSel + ' - ' + _calTitle.textContent.split(processSel)[0];
-                }
+                _calTitle.textContent = processSel + ' - ' + _afterTTL;
             },
             CheckBoxChange(e) {
                 if (e.checked) {
@@ -359,116 +549,8 @@
 
         $(function () {
 
-            var _calEvents = [];
-            let _bgColor = "#239623";
-
-            // 取得 Index return data
             var _modelData = @(Html.Raw(Json.Serialize(Model)));
-
-            _modelData.forEach(function (plan) {
-                if (plan.isMass) {
-                    _bgColor = "#28a628";
-                }
-                else {
-                    _bgColor = "#e5eb4d";
-                }
-
-                _calEvents.push({
-                    extendedProps: plan,
-                    title: plan.project + '【' + plan.product + '】(' + plan.quantity + ')',
-                    start: plan.dateStart,
-                    textColor: '#000000',
-                    color: _bgColor,
-                    allDay: true,
-                });
-            });
-
-            var Calendar = FullCalendar.Calendar;
-            var calendarEl = document.getElementById('calendar');
-
-            // initial calendar
-            let _calObj = {
-                headerToolbar: {
-                    left: 'customprev,customnext,customtoday',
-                    center: 'title',
-                    right: '',
-                },
-                height: 800,
-                initialView: 'dayGridMonth',
-                themeSystem: 'bootstrap',
-                editable: true,
-                eventResizableFromStart: false,
-                displayEventTime: false,
-                droppable: false, // this allows things to be dropped onto the calendar !!!
-                windowResize: function (e) {
-                    // 當 menu 收折, calendar table RWD
-                    $('table[role="presentation"]')[0].style.width = '100%';
-                    $('table[role="presentation"]')[1].style.width = '100%';
-                },
-                events: _calEvents,
-                eventDrop: function (e) {
-                },
-                eventClick: function (e) {
-
-                    $('#mDate').html(e.event.startStr.substring(0, 10));
-                    $('#mDropProd').val(e.event.extendedProps.productId).trigger('change');
-                    $('#mQty').val(e.event.extendedProps.quantity);
-
-                    $('#mMassDiv').empty();
-                    $('#mMassDiv').append('<input id="mMass" type="checkbox" onclick="myFuc.CheckBoxChange(this)"/>');
-
-                    if (e.event.extendedProps.isMass) {
-                        $('#mMass').attr('checked', true);
-                        $('#mMass').val('True');
-                    }
-                    else {
-                        $('#mMass').removeAttr('checked');
-                        $('#mMass').val('False');
-                    }
-
-                    myFuc.ModalInputDisplay(true);
-                    myFuc.ModalFooterBtnCreate(false);
-
-                    $('#modal-sm-completed').modal('show');
-                },
-                customButtons: {
-                    customprev: {
-                        text: '<',
-                        click: function () {
-                            calendar.prev();
-
-                            if (_mngrPermission == 1)
-                                myFuc.SetDbClickEvent();
-
-                            myFuc.ResetCalTitle();
-                        }
-                    },
-                    customnext: {
-                        text: '>',
-                        click: function () {
-                            calendar.next();
-
-                            if (_mngrPermission == 1)
-                                myFuc.SetDbClickEvent();
-                            myFuc.ResetCalTitle();
-                        }
-                    },
-                    customtoday: {
-                        text: 'today',
-                        click: function () {
-                            calendar.today();
-
-                            if (_mngrPermission == 1)
-                                myFuc.SetDbClickEvent();
-                            myFuc.ResetCalTitle();
-                        }
-                    }
-                }
-            }
-
-            var calendar = new Calendar(calendarEl, _calObj);
-
-            calendar.render();
+            myFuc.InitialCalendar(_modelData);
 
             //
             if (_mngrPermission == 1) {
@@ -481,10 +563,6 @@
             // 當 menu 收折, calendar table RWD
             $('table[role="presentation"]')[0].style.width = '100%';
             $('table[role="presentation"]')[1].style.width = '100%';
-
-            let processSel = $("#selProcess").find(":selected").text();
-            let _calTitle = $('.fc-toolbar-title')[0];
-            _calTitle.textContent = processSel + ' - ' + _calTitle.textContent;
 
             $('.select2bs4').select2({
                 theme: 'bootstrap4'

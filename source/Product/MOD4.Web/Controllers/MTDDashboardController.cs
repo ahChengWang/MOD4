@@ -276,6 +276,7 @@ namespace MOD4.Web.Controllers
 
                 List<MftrScheduleViewModel> _reponse = _result.Select(res => new MftrScheduleViewModel
                 {
+                    Sn = res.Sn,
                     Process = res.Process,
                     Date = res.Date,
                     DateStart = res.DateStart,
@@ -294,12 +295,12 @@ namespace MOD4.Web.Controllers
             }
         }
 
-        [HttpGet("[controller]/Manufacture/Search")]
-        public IActionResult ManufactureSearch([FromQuery] string dateRange, int floor, int owner)
+        [HttpGet("[controller]/Manufacture/Search/{mtdCategoryId}/{floor}")]
+        public IActionResult ManufactureSearch(MTDCategoryEnum mtdCategoryId, int floor)
         {
             try
             {
-                var _result = _mtdDashboardDomainService.Search(dateRange, floor, owner);
+                var _result = _mtdDashboardDomainService.Search(floor: floor, mtdCategoryId: mtdCategoryId);
 
                 UserEntity _userInfo = GetUserInfo();
                 var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.Manufacture);
@@ -310,27 +311,100 @@ namespace MOD4.Web.Controllers
                     AccountPermission = _userCurrentPagePermission.AccountPermission
                 };
 
-                List<ManufactureViewModel> _response = new List<ManufactureViewModel>();
-
-                _result.ForEach(mtd =>
+                List<MftrScheduleViewModel> _reponse = _result.Select(res => new MftrScheduleViewModel
                 {
-                    _response.Add(new ManufactureViewModel
+                    Sn = res.Sn,
+                    Process = res.Process,
+                    Date = res.Date,
+                    DateStart = res.DateStart,
+                    Project = res.ProdDesc,
+                    Product = res.ProdNo,
+                    ProductId = res.LcmProdId,
+                    Quantity = res.Qty,
+                    IsMass = res.IsMass,
+                }).ToList();
+
+                if (_reponse.Any())
+                    return Json(new ResponseViewModel<List<MftrScheduleViewModel>>
                     {
-                        Process = mtd.Process,
+                        IsSuccess = true,
+                        Data = _reponse
                     });
-                });
-
-                if (_response.Any())
-                {
-                    return PartialView("_PartialTable", _response);
-                }
                 else
-                    return Json(new { message = "查無排程" });
+                    return Json(new ResponseViewModel<object>
+                    {
+                        IsSuccess = false,
+                        Msg = "查無排程"
+                    });
 
             }
             catch (Exception ex)
             {
                 return Json(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("[controller]/Manufacture/Create")]
+        public IActionResult MftrCreate(MftrScheduleViewModel createMftrVM)
+        {
+            try
+            {
+                var _createRes = _mtdDashboardDomainService.Create(new MftrScheduleEntity
+                {
+                    Date = createMftrVM.Date,
+                    IsMass = createMftrVM.IsMass,
+                    LcmProdId = createMftrVM.ProductId,
+                    Qty = createMftrVM.Quantity,
+                    MTDCategoryId = createMftrVM.MTDCategoryId,
+                    Floor = createMftrVM.Floor
+                },
+                GetUserInfo());
+
+                return Json(new ResponseViewModel<int>
+                {
+                    IsSuccess = _createRes.Item1 == "",
+                    Data = _createRes.Item2,
+                    Msg = _createRes.Item1 == "" ? "" : _createRes.Item1
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("[controller]/Manufacture/Update")]
+        public IActionResult MftrUpdate(MftrScheduleViewModel updateMftrVM)
+        {
+            try
+            {
+                var _updateRes = _mtdDashboardDomainService.Update(new MftrScheduleEntity
+                {
+                    Sn = updateMftrVM.Sn,
+                    Date = updateMftrVM.Date,
+                    IsMass = updateMftrVM.IsMass,
+                    LcmProdId = updateMftrVM.ProductId,
+                    Qty = updateMftrVM.Quantity,
+                },
+                GetUserInfo());
+
+                return Json(new ResponseViewModel<int>
+                {
+                    IsSuccess = _updateRes == "",
+                    Msg = _updateRes == "" ? "" : _updateRes
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
             }
         }
 
@@ -453,13 +527,13 @@ namespace MOD4.Web.Controllers
                 }, GetUserInfo());
 
                 if (_result != "")
-                    return Json(new ResponseViewModel
+                    return Json(new ResponseViewModel<string>
                     {
                         IsSuccess = false,
                         Msg = _result
                     });
                 else
-                    return Json(new ResponseViewModel
+                    return Json(new ResponseViewModel<string>
                     {
                         IsSuccess = true,
                         Data = _result
@@ -467,7 +541,7 @@ namespace MOD4.Web.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new ResponseViewModel
+                return Json(new ResponseViewModel<string>
                 {
                     IsSuccess = false,
                     Msg = ex.Message

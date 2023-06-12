@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
+using MOD4.Web.Extension.Demand;
 using MOD4.Web.Repostory;
 using MOD4.Web.Repostory.Dao;
 using NPOI.XSSF.UserModel;
@@ -26,6 +27,7 @@ namespace MOD4.Web.DomainService
         private readonly IEquipMappingRepository _equipMappingRepository;
         private readonly ITargetSettingDomainService _targetSettingDomainService;
         private readonly ILcmProductRepository _lcmProductRepository;
+        private readonly IMTDProcessFactory _mtdProcessFactory;
         private readonly Dictionary<string, string> _processEqDic = new Dictionary<string, string>
         {
             {"1300", "AOLB2010"},
@@ -49,7 +51,8 @@ namespace MOD4.Web.DomainService
             IEqpInfoRepository eqpInfoRepository,
             IEquipMappingRepository equipMappingRepository,
             ITargetSettingDomainService targetSettingDomainService,
-            ILcmProductRepository lcmProductRepository)
+            ILcmProductRepository lcmProductRepository,
+            IMTDProcessFactory mtdProcessFactory)
         {
             _mtdProductionScheduleRepository = mtdProductionScheduleRepository;
             _uploadDomainService = uploadDomainService;
@@ -58,6 +61,7 @@ namespace MOD4.Web.DomainService
             _equipMappingRepository = equipMappingRepository;
             _targetSettingDomainService = targetSettingDomainService;
             _lcmProductRepository = lcmProductRepository;
+            _mtdProcessFactory = mtdProcessFactory;
         }
 
         /// <summary>
@@ -484,8 +488,8 @@ namespace MOD4.Web.DomainService
             try
             {
                 DateTime _nowTime = DateTime.Now;
-                DateTime _startDate = DateTime.Parse($"{_nowTime.ToString("yyyy/MM")}/01").AddDays(-10);
-                DateTime _endDate = DateTime.Parse($"{_nowTime.AddMonths(1).ToString("yyyy/MM")}/01").AddDays(-1);
+                DateTime _startDate = DateTime.Parse($"{_nowTime.ToString("yyyy/MM")}/01").AddMonths(-4);
+                DateTime _endDate = DateTime.Parse($"{_nowTime.AddMonths(7).ToString("yyyy/MM")}/01").AddDays(-1);
 
                 if (!string.IsNullOrEmpty(dateRange))
                 {
@@ -508,6 +512,7 @@ namespace MOD4.Web.DomainService
                                                                   on mtd.LcmProdId equals defProd.sn
                                                                   select new MftrScheduleEntity
                                                                   {
+                                                                      Sn = mtd.Sn,
                                                                       Process = mtd.Process,
                                                                       Date = mtd.Date,
                                                                       DateStart = mtd.Date.ToString("yyyy-MM-dd"),
@@ -527,6 +532,80 @@ namespace MOD4.Web.DomainService
             {
                 throw ex;
             }
+        }
+
+        public (string, int) Create(MftrScheduleEntity mftrScheduleEntity, UserEntity userEntity)
+        {
+            string _createRes = "";
+            int _latestSn = 0;
+            DateTime _nowTime = DateTime.Now;
+
+            MTDProductionScheduleDao _mtdProdScheduleDao = new MTDProductionScheduleDao
+            {
+                Date = mftrScheduleEntity.Date,
+                Floor = mftrScheduleEntity.Floor,
+                Node = "",
+                Model = "",
+                IsMass = mftrScheduleEntity.IsMass,
+                LcmProdId = mftrScheduleEntity.LcmProdId,
+                Qty = mftrScheduleEntity.Qty,
+                MTDCategoryId = mftrScheduleEntity.MTDCategoryId,
+                Process = _mtdProcessFactory.GetProcess(mftrScheduleEntity.MTDCategoryId),
+                UpdateUser = userEntity.Name,
+                UpdateTime = _nowTime
+            };
+
+            using (TransactionScope _scope = new TransactionScope())
+            {
+                bool _insRes = false;
+
+                _insRes = _mtdProductionScheduleRepository.InsertSchedule(new List<MTDProductionScheduleDao> { _mtdProdScheduleDao }) == 1;
+                _latestSn = _mtdProductionScheduleRepository.SelectByConditions(
+                    floor: _mtdProdScheduleDao.Floor,
+                    isMass: _mtdProdScheduleDao.IsMass,
+                    mtdCategoryId: _mtdProdScheduleDao.MTDCategoryId,
+                    dateStart: _mtdProdScheduleDao.Date,
+                    dateEnd: _mtdProdScheduleDao.Date,
+                    prodId: _mtdProdScheduleDao.LcmProdId).FirstOrDefault()?.Sn ?? 0;
+
+                if (_insRes)
+                    _scope.Complete();
+                else
+                    _createRes = "新增排程異常";
+            }
+
+            return (_createRes, _latestSn);
+        }
+
+        public string Update(MftrScheduleEntity updMftrScheduleEntity, UserEntity userEntity)
+        {
+            string _updateRes = "";
+
+            DateTime _nowTime = DateTime.Now;
+
+            MTDProductionScheduleDao _updMTDProdScheduleDao = new MTDProductionScheduleDao
+            {
+                Sn = updMftrScheduleEntity.Sn,
+                IsMass = updMftrScheduleEntity.IsMass,
+                LcmProdId = updMftrScheduleEntity.LcmProdId,
+                Qty = updMftrScheduleEntity.Qty,
+                UpdateUser = userEntity.Name,
+                UpdateTime = _nowTime
+            };
+
+            using (TransactionScope _scope = new TransactionScope())
+            {
+                bool _updRes = false;
+
+                _updRes = _mtdProductionScheduleRepository.UpdateSchedule(_updMTDProdScheduleDao) == 1;
+
+                if (_updRes)
+                    _scope.Complete();
+                else
+                    _updateRes = "更新排程異常";
+            }
+
+            return _updateRes;
         }
 
         public string Upload(IFormFile formFile, int floor, int owner, UserEntity userEntity)
