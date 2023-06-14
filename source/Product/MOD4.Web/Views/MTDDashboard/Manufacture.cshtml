@@ -213,6 +213,33 @@
             },
             /*events: _calEvents,*/
             eventDrop: function (e) {
+
+                let _eventsObj = e.event;
+
+                $.ajax({
+                    url: "./Manufacture/Update",
+                    type: "POST",
+                    data: {
+                        updateMftrVM: {
+                            'Sn': _eventsObj.id,
+                            'Date': _eventsObj.startStr,
+                            'IsDrop': true
+                        }
+                    },
+                    success: function (result) {
+                        if (result.isSuccess) {
+                            
+                            let _currEnevt = calendar.getEventById(e.event.id);
+
+                            //_currEnevt.setExtendedProp('productId', $('#mDropProd').val());
+                            //_currEnevt.setExtendedProp('quantity', $('#mQty').val());
+                            //_currEnevt.setExtendedProp('isMass', $('#mMass')[0].checked);
+                        }
+                        else {
+                            alert(result.msg);
+                        }
+                    }
+                });
             },
             eventClick: function (e) {
 
@@ -284,19 +311,13 @@
                 var _calEvents = [];
 
                 calData.forEach(function (plan) {
-                    if (plan.isMass) {
-                        _bgColor = "#28a628";
-                    }
-                    else {
-                        _bgColor = "#e5eb4d";
-                    }
 
                     _calEvents.push({
                         id: plan.sn,
                         title: plan.project + '【' + plan.product + '】(' + plan.quantity + ')',
                         start: plan.dateStart,
                         textColor: '#000000',
-                        color: _bgColor,
+                        color: myFuc.GetEventBgColor(plan.isMass),
                         allDay: true,
                         extendedProps: plan
                     });
@@ -408,12 +429,6 @@
 
                             let _option = ($("#mDropProd option[value=" + $('#mDropProd').val() + "]")[0]).text.split('-');
 
-                            if ($('#mMass')[0].checked) {
-                                _bgColor = "#28a628";
-                            }
-                            else {
-                                _bgColor = "#e5eb4d";
-                            }
                             calendar.addEvent({
                                 extendedProps: {
                                     sn: result.data,
@@ -424,7 +439,7 @@
                                 title: _option[1] + '【' + _option[0] + '】(' + $('#mQty').val() + ')',
                                 start: $('#mDate')[0].innerHTML,
                                 textColor: '#000000',
-                                color: _bgColor,
+                                color: myFuc.GetEventBgColor($('#mMass')[0].checked),
                                 allDay: true,
                             });
 
@@ -448,7 +463,8 @@
                             'Quantity': $('#mQty').val(),
                             'IsMass': $('#mMass').val(),
                             'MTDCategoryId': $('#selProcess').val(),
-                            'Floor': $('#selFloor').val()
+                            'Floor': $('#selFloor').val(),
+                            'IsDrop': false
                         }
                     },
                     success: function (result) {
@@ -459,20 +475,11 @@
 
                             let _currEnevt = calendar.getEventById($('#mScheduleSn').val());
 
-                            if ($('#mMass')[0].checked) {
-                                _bgColor = "#28a628";
-                            }
-                            else {
-                                _bgColor = "#e5eb4d";
-                            }
-
                             _currEnevt.setProp('title', _option[1] + '【' + _option[0] + '】(' + $('#mQty').val() + ')');
-                            _currEnevt.setProp('color', _bgColor);
-                            _currEnevt.setProp('extendedProps', {
-                                productId: $('#mDropProd').val(),
-                                quantity: $('#mQty').val(),
-                                isMass: $('#mMass')[0].checked
-                            });
+                            _currEnevt.setProp('color', myFuc.GetEventBgColor($('#mMass')[0].checked));
+                            _currEnevt.setExtendedProp('productId', $('#mDropProd').val());
+                            _currEnevt.setExtendedProp('quantity', $('#mQty').val());
+                            _currEnevt.setExtendedProp('isMass', $('#mMass')[0].checked);
 
                             $('#modal-sm-completed').modal('hide');
                         }
@@ -540,6 +547,12 @@
                     e.value = 'False';
                     $('#mMass').removeAttr('checked');
                 }
+            },
+            GetEventBgColor(isMass) {
+                if (isMass)
+                    return "#28a628";
+                else 
+                    return "#e5eb4d";
             }
         }
 

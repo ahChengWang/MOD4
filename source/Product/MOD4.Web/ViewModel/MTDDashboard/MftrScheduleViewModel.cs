@@ -34,5 +34,7 @@ namespace MOD4.Web.ViewModel
         public MTDCategoryEnum MTDCategoryId { get; set; }
 
         public int Floor { get; set; }
+
+        public bool IsDrop { get; set; }
     }
 }

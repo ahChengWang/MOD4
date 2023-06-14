@@ -504,7 +504,9 @@ namespace MOD4.Web.DomainService
                     DateTime.TryParseExact(_dateAry[1].Trim(), "yyyy/MM/dd", null, DateTimeStyles.None, out _endDate);
                 }
 
-                List<MTDProductionScheduleDao> _mtdScheduleDataList = _mtdProductionScheduleRepository.SelectByConditions(floor, null, mtdCategoryId, _startDate, _endDate);
+                List<MTDProductionScheduleDao> _mtdScheduleDataList = _mtdProductionScheduleRepository
+                    .SelectByConditions(floor: floor, isMass: null, mtdCategoryId: mtdCategoryId, dateStart: _startDate, dateEnd: _endDate);
+
                 List<LcmProductDao> _lcmProductList = _lcmProductRepository.SelectByConditions(_mtdScheduleDataList.Select(s => s.LcmProdId).Distinct().ToList());
 
                 List<MftrScheduleEntity> _manufactureSchedules = (from mtd in _mtdScheduleDataList
@@ -583,15 +585,32 @@ namespace MOD4.Web.DomainService
 
             DateTime _nowTime = DateTime.Now;
 
+            if (updMftrScheduleEntity.Sn == 0)
+                return "event Id 異常";
+
+            var _oldMTDProdSchedule = _mtdProductionScheduleRepository.SelectByConditions(updMftrScheduleEntity.Sn).FirstOrDefault();
+
             MTDProductionScheduleDao _updMTDProdScheduleDao = new MTDProductionScheduleDao
             {
                 Sn = updMftrScheduleEntity.Sn,
-                IsMass = updMftrScheduleEntity.IsMass,
-                LcmProdId = updMftrScheduleEntity.LcmProdId,
-                Qty = updMftrScheduleEntity.Qty,
                 UpdateUser = userEntity.Name,
                 UpdateTime = _nowTime
             };
+
+            if (updMftrScheduleEntity.IsDrop)
+            {
+                _updMTDProdScheduleDao.Date = updMftrScheduleEntity.Date;
+                _updMTDProdScheduleDao.IsMass = _oldMTDProdSchedule.IsMass;
+                _updMTDProdScheduleDao.LcmProdId = _oldMTDProdSchedule.LcmProdId;
+                _updMTDProdScheduleDao.Qty = _oldMTDProdSchedule.Qty;
+            }
+            else
+            {
+                _updMTDProdScheduleDao.Date = _oldMTDProdSchedule.Date;
+                _updMTDProdScheduleDao.IsMass = updMftrScheduleEntity.IsMass;
+                _updMTDProdScheduleDao.LcmProdId = updMftrScheduleEntity.LcmProdId;
+                _updMTDProdScheduleDao.Qty = updMftrScheduleEntity.Qty;
+            }
 
             using (TransactionScope _scope = new TransactionScope())
             {

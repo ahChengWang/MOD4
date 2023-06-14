@@ -37,5 +37,7 @@ namespace MOD4.Web.DomainService.Entity
         public DateTime UpdateTime { get; set; }
 
         public int MonthPlan { get; set; }
+
+        public bool IsDrop { get; set; }
     }
 }

@@ -389,6 +389,7 @@ namespace MOD4.Web.Controllers
                     IsMass = updateMftrVM.IsMass,
                     LcmProdId = updateMftrVM.ProductId,
                     Qty = updateMftrVM.Quantity,
+                    IsDrop = updateMftrVM.IsDrop
                 },
                 GetUserInfo());
 

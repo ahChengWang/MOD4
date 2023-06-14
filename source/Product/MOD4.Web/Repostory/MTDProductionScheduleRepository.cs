@@ -9,6 +9,7 @@ namespace MOD4.Web.Repostory
     public class MTDProductionScheduleRepository : BaseRepository, IMTDProductionScheduleRepository
     {
         public List<MTDProductionScheduleDao> SelectByConditions(
+            int sn = 0,
             int floor = 0,
             bool? isMass = null,
             MTDCategoryEnum? mtdCategoryId = null,
@@ -18,6 +19,8 @@ namespace MOD4.Web.Repostory
         {
             string _sql = "select * from mtd_production_schedule where 1 = 1 ";
 
+            if (sn != 0)
+                _sql += " and sn = @Sn ";
             if (floor != 0)
                 _sql += " and floor = @Floor ";
             if (isMass != null)
@@ -33,6 +36,7 @@ namespace MOD4.Web.Repostory
 
             var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(_sql, new
             {
+                Sn = sn,
                 Floor = floor,
                 IsMass = isMass,
                 MTDCategoryId = mtdCategoryId,
@@ -52,14 +56,14 @@ namespace MOD4.Web.Repostory
             DateTime dateEnd)
         {
             string _sql = @"select mtdAllPlan.* from mtd_production_schedule mtdAllPlan
-  join (select productName,process from mtd_production_schedule 
+  join (select lcmProdId,process from mtd_production_schedule 
          where DATEPART(YEAR, date) = @year and DATEPART(MONTH, date) = @month and floor = @floor and isMass = @IsMass 
-		 group by productName ,process  
-		 having SUM(value) !=0) mtdNoPlan 
-    on mtdAllPlan.productName = mtdNoPlan.productName 
+		 group by lcmProdId ,process  
+		 having SUM(qty) !=0) mtdNoPlan 
+    on mtdAllPlan.lcmProdId = mtdNoPlan.lcmProdId 
    and mtdAllPlan.process = mtdNoPlan.process 
  where mtdAllPlan.floor = @floor and isMass = @IsMass and date between @dateStart and @dateEnd 
- order by mtdAllPlan.sn asc, mtdAllPlan.model desc, mtdAllPlan.productName asc, date asc ;";
+ order by mtdAllPlan.sn asc, mtdAllPlan.model desc, mtdAllPlan.lcmProdId asc, date asc ;";
 
             var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(_sql, new
             {
@@ -183,9 +187,10 @@ VALUES
         public int UpdateSchedule(MTDProductionScheduleDao updMTDProdSchedule)
         {
             string sql = @" update mtd_production_schedule 
-  set lcmProdId = @LcmProdId,
-      qty = @Qty,
-      isMass = @IsMass 
+    set date = @Date,
+        lcmProdId = @LcmProdId,
+        qty = @Qty,
+        isMass = @IsMass 
 where sn = @Sn ;";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, updMTDProdSchedule);

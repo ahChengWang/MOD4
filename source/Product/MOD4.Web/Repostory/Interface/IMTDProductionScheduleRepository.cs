@@ -7,7 +7,7 @@ namespace MOD4.Web.Repostory
 {
     public interface IMTDProductionScheduleRepository
     {
-        List<MTDProductionScheduleDao> SelectByConditions(int floor = 0, bool? isMass = null, MTDCategoryEnum? mtdCategoryId = null, DateTime? dateStart = null, DateTime? dateEnd = null, int prodId = 0);
+        List<MTDProductionScheduleDao> SelectByConditions(int sn = 0, int floor = 0, bool? isMass = null, MTDCategoryEnum? mtdCategoryId = null, DateTime? dateStart = null, DateTime? dateEnd = null, int prodId = 0);
 
         List<MTDProductionScheduleDao> SelectForMTDDashboard(int floor, bool isMass, DateTime dateStart, DateTime dateEnd);
 
