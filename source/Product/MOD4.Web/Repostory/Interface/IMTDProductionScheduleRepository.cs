@@ -9,7 +9,9 @@ namespace MOD4.Web.Repostory
     {
         List<MTDProductionScheduleDao> SelectByConditions(int sn = 0, int floor = 0, bool? isMass = null, MTDCategoryEnum? mtdCategoryId = null, DateTime? dateStart = null, DateTime? dateEnd = null, int prodId = 0);
 
-        List<MTDProductionScheduleDao> SelectForMTDDashboard(int floor, bool isMass, DateTime dateStart, DateTime dateEnd);
+        List<MTDProductionScheduleDao> SelectMTDTodayPlan(int floor, bool isMass, DateTime dateStart, DateTime dateEnd);
+
+        List<MTDProductionScheduleDao> SelectMTDMonHavePlan(int floor, bool isMass, DateTime dateStart, DateTime dateEnd);
 
         List<MTDProductionScheduleDao> SelectMonthPlanQty(string year, string month, int floor, bool isMass);
 

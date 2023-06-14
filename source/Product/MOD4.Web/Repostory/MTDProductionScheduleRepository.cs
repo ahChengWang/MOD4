@@ -49,30 +49,45 @@ namespace MOD4.Web.Repostory
         }
 
 
-        public List<MTDProductionScheduleDao> SelectForMTDDashboard(
+        public List<MTDProductionScheduleDao> SelectMTDTodayPlan(
             int floor,
             bool isMass,
             DateTime dateStart, 
             DateTime dateEnd)
         {
-            string _sql = @"select mtdAllPlan.* from mtd_production_schedule mtdAllPlan
-  join (select lcmProdId,process from mtd_production_schedule 
-         where DATEPART(YEAR, date) = @year and DATEPART(MONTH, date) = @month and floor = @floor and isMass = @IsMass 
-		 group by lcmProdId ,process  
-		 having SUM(qty) !=0) mtdNoPlan 
-    on mtdAllPlan.lcmProdId = mtdNoPlan.lcmProdId 
-   and mtdAllPlan.process = mtdNoPlan.process 
- where mtdAllPlan.floor = @floor and isMass = @IsMass and date between @dateStart and @dateEnd 
- order by mtdAllPlan.sn asc, mtdAllPlan.model desc, mtdAllPlan.lcmProdId asc, date asc ;";
+            string _sql = @" select * from mtd_production_schedule 
+where date between @DateStart and @DateEnd and floor = @Floor and isMass = @IsMass;";
 
             var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(_sql, new
             {
                 Floor = floor,
                 IsMass = isMass,
-                dateStart = dateStart,
-                dateEnd = dateEnd,
+                DateStart = dateStart,
+                DateEnd = dateEnd,
                 year = dateStart.Year,
                 month = dateStart.Month
+            });
+
+            return dao;
+        }
+
+        public List<MTDProductionScheduleDao> SelectMTDMonHavePlan(
+            int floor,
+            bool isMass,
+            DateTime dateStart,
+            DateTime dateEnd)
+        {
+            string _sql = @" select * from mtd_production_schedule 
+where DATEPART(YEAR, date) = @Year and DATEPART(MONTH, date) = @Month and date != @DateStart and floor = @Floor and isMass = @IsMass ; ";
+
+            var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(_sql, new
+            {
+                Floor = floor,
+                IsMass = isMass,
+                DateStart = dateStart,
+                DateEnd = dateEnd,
+                Year = dateStart.Year,
+                Month = dateStart.Month
             });
 
             return dao;
@@ -124,8 +139,6 @@ namespace MOD4.Web.Repostory
 INSERT INTO [dbo].[mtd_production_schedule]
 ([process]
 ,[mtdCategoryId]
-,[node]
-,[model]
 ,[lcmProdId]
 ,[date]
 ,[qty]
@@ -136,8 +149,6 @@ INSERT INTO [dbo].[mtd_production_schedule]
 VALUES
 (@process
 ,@mtdCategoryId
-,@node
-,@model
 ,@lcmProdId
 ,@date
 ,@qty

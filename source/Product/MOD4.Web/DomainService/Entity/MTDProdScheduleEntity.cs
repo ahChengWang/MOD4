@@ -5,6 +5,7 @@ namespace MOD4.Web.DomainService.Entity
 {
     public class MTDProdScheduleEntity
     {
+        public int Sn { get; set; }
         public string Process { get; set; }
         public MTDCategoryEnum MTDCategoryId { get; set; }
         public string Node { get; set; }

@@ -377,6 +377,40 @@ namespace MOD4.Web.Controllers
             }
         }
 
+        [HttpPost("[controller]/Manufacture/BatchCreate")]
+        public IActionResult MftrBatchCreate(MftrScheduleViewModel createMftrVM)
+        {
+            try
+            {
+                var _createRes = _mtdDashboardDomainService.Create(new MftrScheduleEntity
+                {
+                    Date = createMftrVM.Date,
+                    IsMass = createMftrVM.IsMass,
+                    LcmProdId = createMftrVM.ProductId,
+                    Qty = createMftrVM.Quantity,
+                    MTDCategoryId = createMftrVM.MTDCategoryId,
+                    Floor = createMftrVM.Floor
+                },
+                GetUserInfo());
+
+                return Json(new ResponseViewModel<int>
+                {
+                    IsSuccess = _createRes.Item1 == "",
+                    Data = _createRes.Item2,
+                    Msg = _createRes.Item1 == "" ? "" : _createRes.Item1
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
+            }
+        }
+
+
         [HttpPost("[controller]/Manufacture/Update")]
         public IActionResult MftrUpdate(MftrScheduleViewModel updateMftrVM)
         {
