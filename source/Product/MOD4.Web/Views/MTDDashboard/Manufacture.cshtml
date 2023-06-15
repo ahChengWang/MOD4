@@ -8,7 +8,6 @@
 
 <head>
     <link rel="stylesheet" href="~/plugins/fullcalendar/main.min.css">
-    <link rel="stylesheet" href="~/plugins/daterangepicker/daterangepicker.css">
 </head>
 
 <style>
@@ -97,9 +96,10 @@
                                     </div>
                                 </div>
                             </fieldset>
-                            @*<div style="text-align: right; font-size: 10px; font-family: 'Microsoft JhengHei'; font-weight: 700; font-style: italic; ">
-                                    <p id="latestInfo">最後更新 @ViewBag.UpdateInfo</p>
-                                </div>*@
+                            <div class="d-flex align-content-center flex-wrap">
+                                <div><a style="background-color: #28a628">量產</a></div>
+                                <div><a style="background-color: #e5eb4d; margin-left: 4px;">實驗</a></div>
+                            </div>
                             <div id="calendar" style="width:100%">
                             </div>
                         </div>
@@ -110,6 +110,67 @@
             </div>
             <!-- /.row -->
 
+            @{
+                if (Convert.ToBoolean(((UserPermissionViewModel)ViewBag.UserPermission).AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management))
+                {
+                    <div id="divBooking" class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">排程新增</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="mtdCreateForm">
+                                <div class="form-group d-flex align-content-center flex-wrap">
+                                    <div class="col-md-2">
+                                        <label>日期：</label>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input id="dateRange" class="myInputStyle1" style="text-align:center" asp-for="@Model.FirstOrDefault().DateRange" />
+                                    </div>
+                                </div>
+                                <div class="form-group d-flex align-content-center flex-wrap">
+                                    <div class="col-md-2">
+                                        <label>機種：</label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <select class="select2bs4" id="dropProd" name="ProductId">
+                                            @{
+                                                foreach (var lcmProd in ViewBag.ProdOptions)
+                                                {
+                                                    <optgroup label="@lcmProd.Item1">
+                                                        @foreach (var item in lcmProd.Item2)
+                                                        {
+                                                            <option value="@item.Item1">@item.Item2</option>
+                                                        }
+                                                    </optgroup>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group d-flex align-content-center flex-wrap">
+                                    <div class="col-md-2">
+                                        <label>日產量：</label>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input id="qty" type="number" class="myInputStyle1" style="text-align:center" min="0" value="0" asp-for="@Model.FirstOrDefault().Quantity" />
+                                    </div>
+                                </div>
+                                <div class="form-group d-flex align-content-center flex-wrap">
+                                    <div class="col-md-2">
+                                        <label>量產品?</label>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input name="IsMass" type="checkbox" onclick="myFuc.CheckBoxChange(this)" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <input class="btn btn-sm btn-dark" type="button" value="新增" onclick="myFuc.BatchCreate(this)" />
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                }
+            }
             <div class="modal fade" id="modal-sm-completed">
                 <div class="modal-dialog modal-md">
                     <div class="modal-content">
@@ -228,7 +289,7 @@
                     },
                     success: function (result) {
                         if (result.isSuccess) {
-                            
+
                             let _currEnevt = calendar.getEventById(e.event.id);
 
                             //_currEnevt.setExtendedProp('productId', $('#mDropProd').val());
@@ -345,10 +406,11 @@
                         }
                         else {
                             alert(result.msg);
-                            _calObj.events = [];
-                            calendar = new Calendar(calendarEl, _calObj);
-                            calendar.render();
-                            myFuc.ResetCalTitle(calendar);
+                            myFuc.InitialCalendar([]);
+                            //_calObj.events = [];
+                            //calendar = new Calendar(calendarEl, _calObj);
+                            //calendar.render();
+                            //myFuc.ResetCalTitle(calendar);
                         };
 
                         //$.ajax({
@@ -451,6 +513,43 @@
                     }
                 });
             },
+            BatchCreate() {
+
+                let _form = globalFuc.MapFormToObject($('#mtdCreateForm').serializeArray());
+                _form['MTDCategoryId'] = $('#selProcess').val();
+                _form['Floor'] = $('#selFloor').val();
+
+                $.ajax({
+                    url: "./Manufacture/BatchCreate",
+                    type: "POST",
+                    data: _form,
+                    success: function (result) {
+                        if (result.isSuccess) {
+                            alert('新增成功');
+
+                            let _option = ($("#mDropProd option[value=" + $('#mDropProd').val() + "]")[0]).text.split('-');
+
+                            result.data.forEach(function (mtd, idx) {
+                                calendar.addEvent({
+                                    id: mtd.sn,
+                                    title: mtd.project + '【' + mtd.product + '】(' + mtd.quantity + ')',
+                                    start: mtd.dateStart,
+                                    textColor: '#000000',
+                                    color: myFuc.GetEventBgColor(mtd.isMass),
+                                    allDay: true,
+                                    extendedProps: mtd
+                                });
+                            });
+
+
+                            $('#modal-sm-completed').modal('hide');
+                        }
+                        else {
+                            alert(result.msg);
+                        }
+                    }
+                });
+            },
             Update() {
                 $.ajax({
                     url: "./Manufacture/Update",
@@ -480,6 +579,27 @@
                             _currEnevt.setExtendedProp('productId', $('#mDropProd').val());
                             _currEnevt.setExtendedProp('quantity', $('#mQty').val());
                             _currEnevt.setExtendedProp('isMass', $('#mMass')[0].checked);
+
+                            $('#modal-sm-completed').modal('hide');
+                        }
+                        else {
+                            alert(result.msg);
+                        }
+                    }
+                });
+            },
+            Cancel() {
+                $.ajax({
+                    url: "./Manufacture/Cancel/" + $('#mScheduleSn').val(),
+                    type: "POST",
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result.isSuccess) {
+                            alert('刪除成功');
+
+                            let _currEnevt = calendar.getEventById($('#mScheduleSn').val());
+
+                            _currEnevt.remove();
 
                             $('#modal-sm-completed').modal('hide');
                         }
@@ -527,7 +647,7 @@
                 else {
                     $('.modal-footer').append('<input id="btnEdit" type="button" class="btn btn-warning" value="編輯" onclick="myFuc.EditClick()" /> ' +
                         '<input id="btnUpd" type="button" class="btn btn-secondary" disabled value="儲存" onclick="myFuc.Update()" />' +
-                        '<input id="btnCancel" type="button" class="btn btn-danger" disabled data-dismiss="modal" value="取消排程" onclick="bookingCancel()" />');
+                        '<input id="btnCancel" type="button" class="btn btn-danger" data-dismiss="modal" value="取消排程" onclick="myFuc.Cancel()" />');
                 }
             },
             ResetCalTitle(calendar) {
@@ -551,7 +671,7 @@
             GetEventBgColor(isMass) {
                 if (isMass)
                     return "#28a628";
-                else 
+                else
                     return "#e5eb4d";
             }
         }
@@ -564,6 +684,15 @@
 
             var _modelData = @(Html.Raw(Json.Serialize(Model)));
             myFuc.InitialCalendar(_modelData);
+
+            $('#dateRange').daterangepicker({
+                timePicker: false,
+                startDate: moment().startOf('month').add(2, 'month'),
+                endDate: moment().startOf('month').add(3, 'month').add(-1, 'day'),
+                locale: {
+                    format: 'yyyy/MM/DD'
+                }
+            });
 
             //
             if (_mngrPermission == 1) {

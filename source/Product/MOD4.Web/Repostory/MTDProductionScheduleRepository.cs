@@ -163,13 +163,13 @@ VALUES
             return dao;
         }
 
-        public int DeleteSchedule(int ownerId)
+        public int DeleteSchedule(int sn)
         {
             string sql = @"
- Delete [dbo].[mtd_production_schedule] where ownerId = @OwnerId; ";
+ Delete [dbo].[mtd_production_schedule] where sn = @Sn; ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql,new {
-                OwnerId = ownerId
+                Sn = sn
             });
 
             return dao;

@@ -452,6 +452,13 @@
                         backgroundColor: 'transparent'
                     }
                 });
+            },
+            MapFormToObject(form) {
+                let _cnvObj = {};
+                form.map(function (prop) {
+                    _cnvObj[prop.name] = prop.value;
+                });
+                return _cnvObj;
             }
         }
 

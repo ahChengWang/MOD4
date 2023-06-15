@@ -36,5 +36,7 @@ namespace MOD4.Web.ViewModel
         public int Floor { get; set; }
 
         public bool IsDrop { get; set; }
+
+        public string DateRange { get; set; }
     }
 }

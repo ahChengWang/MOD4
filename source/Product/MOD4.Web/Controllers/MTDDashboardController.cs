@@ -360,12 +360,34 @@ namespace MOD4.Web.Controllers
                 },
                 GetUserInfo());
 
-                return Json(new ResponseViewModel<int>
+                if (string.IsNullOrEmpty(_createRes.Item1))
                 {
-                    IsSuccess = _createRes.Item1 == "",
-                    Data = _createRes.Item2,
-                    Msg = _createRes.Item1 == "" ? "" : _createRes.Item1
-                });
+                    List<MftrScheduleViewModel> _reponse = _createRes.Item2.Select(res => new MftrScheduleViewModel
+                    {
+                        Sn = res.Sn,
+                        Process = res.Process,
+                        Date = res.Date,
+                        DateStart = res.DateStart,
+                        Project = res.ProdDesc,
+                        Product = res.ProdNo,
+                        ProductId = res.LcmProdId,
+                        Quantity = res.Qty,
+                        IsMass = res.IsMass,
+                    }).ToList();
+
+                    return Json(new ResponseViewModel<List<MftrScheduleViewModel>>
+                    {
+                        IsSuccess = _createRes.Item1 == "",
+                        Data = _reponse,
+                        Msg = _createRes.Item1 == "" ? "" : _createRes.Item1
+                    });
+                }
+                else
+                    return Json(new ResponseViewModel<List<string>>
+                    {
+                        IsSuccess = _createRes.Item1 == "",
+                        Msg = _createRes.Item1 == "" ? "" : _createRes.Item1
+                    });
             }
             catch (Exception ex)
             {
@@ -385,6 +407,7 @@ namespace MOD4.Web.Controllers
                 var _createRes = _mtdDashboardDomainService.Create(new MftrScheduleEntity
                 {
                     Date = createMftrVM.Date,
+                    DateRange = createMftrVM.DateRange,
                     IsMass = createMftrVM.IsMass,
                     LcmProdId = createMftrVM.ProductId,
                     Qty = createMftrVM.Quantity,
@@ -393,12 +416,34 @@ namespace MOD4.Web.Controllers
                 },
                 GetUserInfo());
 
-                return Json(new ResponseViewModel<int>
+                if (string.IsNullOrEmpty(_createRes.Item1))
                 {
-                    IsSuccess = _createRes.Item1 == "",
-                    Data = _createRes.Item2,
-                    Msg = _createRes.Item1 == "" ? "" : _createRes.Item1
-                });
+                    List<MftrScheduleViewModel> _reponse = _createRes.Item2.Select(res => new MftrScheduleViewModel
+                    {
+                        Sn = res.Sn,
+                        Process = res.Process,
+                        Date = res.Date,
+                        DateStart = res.DateStart,
+                        Project = res.ProdDesc,
+                        Product = res.ProdNo,
+                        ProductId = res.LcmProdId,
+                        Quantity = res.Qty,
+                        IsMass = res.IsMass,
+                    }).ToList();
+
+                    return Json(new ResponseViewModel<List<MftrScheduleViewModel>>
+                    {
+                        IsSuccess = _createRes.Item1 == "",
+                        Data = _reponse,
+                        Msg = _createRes.Item1 == "" ? "" : _createRes.Item1
+                    });
+                }
+                else
+                    return Json(new ResponseViewModel<List<string>>
+                    {
+                        IsSuccess = _createRes.Item1 == "",
+                        Msg = _createRes.Item1 == "" ? "" : _createRes.Item1
+                    });
             }
             catch (Exception ex)
             {
@@ -409,7 +454,6 @@ namespace MOD4.Web.Controllers
                 });
             }
         }
-
 
         [HttpPost("[controller]/Manufacture/Update")]
         public IActionResult MftrUpdate(MftrScheduleViewModel updateMftrVM)
@@ -473,7 +517,28 @@ namespace MOD4.Web.Controllers
             }
         }
 
+        [HttpPost("[controller]/Manufacture/Cancel/{scheduleSn}")]
+        public IActionResult MftrCancel(int scheduleSn)
+        {
+            try
+            {
+                var _createRes = _mtdDashboardDomainService.Cancel(scheduleSn);
 
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = _createRes == "",
+                    Msg = _createRes
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
+            }
+        }
         #endregion
 
         #region === MTBF 、 MTTR ===
