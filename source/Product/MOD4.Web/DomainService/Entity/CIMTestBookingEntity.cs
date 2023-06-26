@@ -28,5 +28,7 @@ namespace MOD4.Web.DomainService.Entity
         public DateTime EndTime { get; set; }
 
         public string BackgroundColor { get; set; }
+
+        public string Remark { get; set; }
     }
 }

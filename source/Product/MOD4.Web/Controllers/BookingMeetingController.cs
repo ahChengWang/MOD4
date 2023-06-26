@@ -62,7 +62,8 @@ namespace MOD4.Web.Controllers
                 EndHour = data.EndTime.Hour,
                 EndMinute = data.EndTime.Minute,
                 EndSecond = data.EndTime.Second,
-                BackgroundColor = data.BackgroundColor
+                BackgroundColor = data.BackgroundColor,
+                Remark = data.Remark
             }).ToList();
 
             return View(_response);
@@ -89,14 +90,14 @@ namespace MOD4.Web.Controllers
                 Name = createViewModel.Name,
                 JobId = createViewModel.JobId,
                 Subject = createViewModel.Subject,
-            });
+                Remark = createViewModel.Remark
+            }, GetUserInfo());
 
-            if (_result != "")
+            return Json(new ResponseViewModel<List<string>>
             {
-                return Json(new { IsSuccess = false, msg = _result });
-            }
-            else
-                return Json(new { IsSuccess = true, msg = "" });
+                IsSuccess = _result == "",
+                Msg = _result == "" ? "" : _result
+            });
         }
 
         [HttpPost]
@@ -112,12 +113,45 @@ namespace MOD4.Web.Controllers
                 JobId = updateViewModel.JobId,
                 Subject = updateViewModel.Subject,
                 CIMTestDayTypeId = updateViewModel.CIMTestDayTypeId,
-            });
+                Remark = updateViewModel.Remark
+            }, GetUserInfo());
 
-            if (_result != "")
-                return Json(new { IsSuccess = false, msg = _result });
-            else
-                return Json(new { IsSuccess = true, msg = "" });
+            CIMTestBookingViewModel _response = new CIMTestBookingViewModel();
+
+            if (string.IsNullOrEmpty(_result.Item1))
+                _response = new CIMTestBookingViewModel
+                {
+                    Sn = _result.Item2.Sn,
+                    Date = _result.Item2.Date,
+                    CIMTestDayTypeId = _result.Item2.CIMTestDayTypeId,
+                    CIMTestTypeId = _result.Item2.CIMTestTypeId,
+                    FloorId = _result.Item2.Floor,
+                    Days = _result.Item2.Days,
+                    Name = _result.Item2.Name,
+                    JobId = _result.Item2.JobId,
+                    Subject = _result.Item2.Subject,
+                    Remark = _result.Item2.Remark,
+                    StartYear = _result.Item2.StartTime.Year,
+                    StartMonth = _result.Item2.StartTime.Month,
+                    StartDay = _result.Item2.StartTime.Day,
+                    StartHour = _result.Item2.StartTime.Hour,
+                    StartMinute = _result.Item2.StartTime.Minute,
+                    StartSecond = _result.Item2.StartTime.Second,
+                    EndYear = _result.Item2.EndTime.Year,
+                    EndMonth = _result.Item2.EndTime.Month,
+                    EndDay = _result.Item2.EndTime.Day,
+                    EndHour = _result.Item2.EndTime.Hour,
+                    EndMinute = _result.Item2.EndTime.Minute,
+                    EndSecond = _result.Item2.EndTime.Second,
+                    BackgroundColor = _result.Item2.BackgroundColor
+                };
+
+            return Json(new ResponseViewModel<CIMTestBookingViewModel>
+            {
+                IsSuccess = _result.Item1 == "",
+                Data = _response,
+                Msg = _result.Item1 == "" ? "" : _result.Item1
+            });
         }
 
         [HttpDelete("[controller]/Cancel/{meetingSn}")]

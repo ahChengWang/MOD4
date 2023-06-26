@@ -44,6 +44,7 @@ namespace MOD4.Web.Controllers
                 _userInfo.DeptSn = Convert.ToInt32(_userClaims.FirstOrDefault(m => m.Type == "DeptSn").Value);
                 _userInfo.Mail = _userClaims.FirstOrDefault(m => m.Type == ClaimTypes.Email).Value;
                 _userInfo.JobId = _userClaims.FirstOrDefault(m => m.Type == "JobId").Value;
+                _userInfo.Password = _userClaims.FirstOrDefault(m => m.Type == "Psw").Value;
                 _userInfo.UserMenuPermissionList = _userPermission;
 
 

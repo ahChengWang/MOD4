@@ -34,5 +34,7 @@ namespace MOD4.Web.DomainService
         //void InsertUpdateAccountInfo(AccountInfoEntity accInfoEntity);
 
         bool VerifyInxSSO(string account, string password);
+
+        string Decrypt(string password, string key = "MOD4_Saikou");
     }
 }

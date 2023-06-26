@@ -123,6 +123,7 @@ namespace MOD4.Web.DomainService
                                                                     Sn = setting.Sn,
                                                                     Process = schedule.Process,
                                                                     //MTDCategoryId = schedule.MTDCategoryId,
+                                                                    Model = defProd.BigProd,
                                                                     Node = setting.Node.ToString(),
                                                                     LcmProdId = schedule.LcmProdId,
                                                                     ProdNo = defProd.ProdNo,
@@ -235,7 +236,7 @@ namespace MOD4.Web.DomainService
                     {
                         Date = _currSchedule.Date.ToString("MM/dd"),
                         Equipment = dt.DownEq,
-                        //BigProduct = _currSchedule.Model,
+                        BigProduct = dt.Model,
                         PlanProduct = dt.ProdNo,
                         Output = _mtdPerformanceDay.FirstOrDefault(f => f.Node == dt.Node.ToString() && f.Product == dt.ProdNo)?.Qty.ToString("#,0") ?? "0",
                         DayPlan = _currSchedule.Qty.ToString("#,0"),

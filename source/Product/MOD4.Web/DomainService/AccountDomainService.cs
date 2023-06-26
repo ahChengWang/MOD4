@@ -831,7 +831,7 @@ namespace MOD4.Web.DomainService
             return Convert.ToBase64String(AES_Encrypt(bytesPW, keyBytes));
         }
 
-        private string Decrypt(string password, string key)
+        public string Decrypt(string password, string key = "MOD4_Saikou")
         {
             byte[] bytesToBeDecrypted = Convert.FromBase64String(password);
             byte[] passwordBytesdecrypt = Encoding.UTF8.GetBytes(key);

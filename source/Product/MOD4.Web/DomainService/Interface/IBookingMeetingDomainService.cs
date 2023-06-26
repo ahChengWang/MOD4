@@ -11,9 +11,9 @@ namespace MOD4.Web.DomainService
 
         string GetFreeTimeRoom(MeetingRoomEnum roomId, string date);
 
-        string Create(CIMTestBookingEntity cimBookingEntity);
+        string Create(CIMTestBookingEntity cimBookingEntity, UserEntity userEntity);
 
-        string Update(CIMTestBookingEntity updBookingEntity);
+        (string, CIMTestBookingEntity) Update(CIMTestBookingEntity updBookingEntity, UserEntity userEntity);
 
         string Delete(int meetingSn);
     }

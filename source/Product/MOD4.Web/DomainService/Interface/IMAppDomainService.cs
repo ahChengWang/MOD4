@@ -7,5 +7,6 @@ namespace MOD4.Web.DomainService
     public interface IMAppDomainService
     {
         Task SendMsgToOneAsync(string msg, string charSn);
+        Task SendMsgWithTagAsync(MAppTagUserEntity mapTagEntity);
     }
 }

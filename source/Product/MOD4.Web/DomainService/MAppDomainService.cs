@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MOD4.Web.DomainService.Entity;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -44,6 +45,27 @@ namespace MOD4.Web.DomainService
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        public async Task SendMsgWithTagAsync(MAppTagUserEntity mapTagEntity)
+        {
+            try
+            {
+                var _request = new HttpRequestMessage(HttpMethod.Post, "http://127.0.0.1:82/MAppTagUser");
+                HttpContent _content = new StringContent(
+                    JsonConvert.SerializeObject(mapTagEntity), Encoding.UTF8, "application/json");
+
+                _request.Content = _content;
+
+                using (HttpClient client = new HttpClient())
+                {
+                    await client.SendAsync(_request);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
 

@@ -5,6 +5,7 @@
         public string ProdSize { get; set; }
         public int sn { get; set; }
         public string ProdNo { get; set; }
+        public string BigProd { get; set; }
         public string Descr { get; set; }
     }
 }

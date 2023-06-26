@@ -41,6 +41,9 @@ namespace MOD4.Web.ViewModel
         [DisplayName("測試天數")]
         public int Days { get; set; }
 
+        [DisplayName("備註")]
+        public string Remark { get; set; }
+
         public int StartYear { get; set; }
         public int StartMonth { get; set; }
         public int StartDay { get; set; }

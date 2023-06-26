@@ -26,5 +26,7 @@ namespace MOD4.Web.Repostory.Dao
         public DateTime EndTime { get; set; }
 
         public string BackgroundColor { get; set; }
+
+        public string Remark { get; set; }
     }
 }

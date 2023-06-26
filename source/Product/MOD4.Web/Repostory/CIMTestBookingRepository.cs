@@ -34,7 +34,8 @@ namespace MOD4.Web.Repostory
 ,[cimTestDayTypeId]
 ,[startTime]
 ,[endTime]
-,[backgroundColor])
+,[backgroundColor]
+,[remark])
 VALUES
 (@cimTestTypeId
 ,@name
@@ -44,7 +45,8 @@ VALUES
 ,@cimTestDayTypeId
 ,@startTime
 ,@endTime
-,@backgroundColor); ";
+,@backgroundColor
+,@remark); ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, bookingDaoList);
 
@@ -83,6 +85,7 @@ or (@EndTime between startTime and endTime)) ";
 ,[startTime] = @StartTime
 ,[endTime] = @EndTime
 ,[backgroundColor] = @BackgroundColor
+,[remark] = @remark
  WHERE sn = @Sn ; ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, updDao);

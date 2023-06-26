@@ -169,6 +169,15 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="row" style="margin-top:2px">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="@Model.FirstOrDefault().Remark"></label>
+                                        <span asp-validation-for="@Model.FirstOrDefault().Remark" style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="text" class="form-control" name="Remark" v-model="_model.remark" />
+                                    </div>
+                                </div>
                                 <div class="row col-sm-2">
                                     <input id="btnBooking" class="btn btn-sm btn-dark" type="button" value="預約" v-on:click="bookingClick" />
                                 </div>
@@ -235,6 +244,10 @@
                                     <option value="3">All</option>
                                 </select>
                             </div>
+                            <div>
+                                <label>備註：</label>
+                                <input id="mRemark" type="text" class="myInputStyle1" disabled style="width:85%" />
+                            </div>
                             <input id="mMeetingSn" type="hidden" value="" />
                         </div>
                         <div class="modal-footer justify-content-between">
@@ -273,8 +286,108 @@
             subject: '',
             cimTestDayTypeId: 0,
             floorId: 0,
-            days: 0
+            days: 0,
+            remark: ''
         };
+
+        var Calendar = FullCalendar.Calendar;
+        var calendarEl = document.getElementById('calendar');
+
+        // initial calendar
+        var _calObj = {
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth',
+            },
+            height: 800,
+            initialView: 'dayGridMonth',
+            themeSystem: 'bootstrap',
+            editable: false,
+            eventResizableFromStart: false,
+            displayEventTime: false,
+            droppable: false, // this allows things to be dropped onto the calendar !!!
+            //events: _calEvents,
+            eventDrop: function (e) {
+
+                _model.sn = e.event.id;
+                _model.cimTestTypeId = e.event.extendedProps.cimTestTypeId;
+                _model.date = e.event.startStr.substring(0, 10);
+                _model.name = e.event.extendedProps.name;
+                _model.subject = e.event.extendedProps.subject;
+                _model.cimTestDayTypeId = e.event.extendedProps.cimTestDayTypeId;
+                _model.floorId = e.event.extendedProps.floorId;
+                _model.jobId = e.event.extendedProps.jobId;
+                _model.remark = e.event.extendedProps.remark;
+
+                $.ajax({
+                    url: "./BookingMeeting/Update",
+                    type: "POST",
+                    dataType: "json",
+                    data: _model,
+                    success: function (res) {
+                        $.unblockUI();
+                        if (res.isSuccess) {
+                            alert('異動成功');
+                        }
+                        else {
+                            alert(res.msg);
+                            e.revert();
+                            //alert(res.msg);
+                            return false;
+                        }
+                    }
+                });
+            },
+            eventResize: function (e) {
+
+                _model.sn = parseInt(e.event.id);
+                _model.resizeStartTime = e.event.startStr;
+                _model.resizeEndTime = e.event.endStr;
+
+                $.ajax({
+                    url: "./BookingMeeting/Update",
+                    type: "POST",
+                    dataType: "json",
+                    data: _model,
+                    success: function (res) {
+                        $.unblockUI();
+                        if (res.isSuccess) {
+                            alert('異動成功');
+                            //location.reload();
+                        }
+                        else {
+                            alert(res.msg);
+                            e.revert();
+                            //alert(res.msg);
+                            return false;
+                        }
+                    }
+                });
+            },
+            eventClick: function (e) {
+
+                $('#btnEdit').attr('disabled', false);
+                $('#btnUpd').attr('disabled', true);
+                $('#btnCancel').attr('disabled', false);
+
+                $('#mDate').val(e.event.startStr.substring(0, 10));
+                /*var _testTypeOption = $("#mTestType option").filter(":contains('" + titleArray[2] + "')").val();*/
+                $('#mTestType').val(e.event.extendedProps.cimTestTypeId);
+                //$("#mTestType option[value=" + titleArray[2] + "]");
+                //$('#mTestType').html(titleArray[2]);
+                $('#mSubject').val(e.event.extendedProps.subject);
+                $('#mFloor').val(e.event.extendedProps.floorId);
+                $('#mName').val(e.event.extendedProps.name);
+                $('#mJobId').val(e.event.extendedProps.jobId);
+                $('#mTestDayType').val(e.event.extendedProps.cimTestDayTypeId);
+                $('#mRemark').val(e.event.extendedProps.remark);
+                $('#mMeetingSn').val(e.event.id);
+                $('#modal-sm-completed').modal('show');
+            }
+        };
+
+        var calendar = new Calendar(calendarEl, _calObj);
 
         const vm = new Vue({
             el: '#app',
@@ -340,6 +453,7 @@
                     _model.cimTestDayTypeId = $("#mTestDayType").find("option:selected").val();
                     _model.floorId = $("#mFloor").find("option:selected").val();
                     _model.jobId = $("#mJobId").val();
+                    _model.remark = $("#mRemark").val();
 
                     globalFuc.LoadingPic();
 
@@ -355,7 +469,25 @@
                                 $('#btnUpd').attr('disabled', true);
                                 $('#btnCancel').attr('disabled', false);
                                 alert('異動成功');
-                                location.reload();
+
+                                let _cimTestDayTypeOpt = ($("#mTestDayType option[value=" + $("#mTestDayType").find("option:selected").val() + "]")[0]).text;
+
+                                let _currEnevt = calendar.getEventById($('#mMeetingSn').val());
+
+                                _currEnevt.setProp('title', res.data.floorId + 'F[' + _cimTestDayTypeOpt + ']' + res.data.name + '-' + res.data.subject);
+                                _currEnevt.setStart(new Date(res.data.startYear, res.data.startMonth - 1, res.data.startDay, res.data.startHour, res.data.startMinute, res.data.startSecond));
+                                _currEnevt.setEnd(new Date(res.data.endYear, res.data.endMonth - 1, res.data.endDay, res.data.endHour, res.data.endMinute, res.data.endSecond));
+                                _currEnevt.setProp('color', res.data.backgroundColor);
+                                _currEnevt.setExtendedProp('date', $('#mDate').val());
+                                _currEnevt.setExtendedProp('cimTestTypeId', $("#mTestType").find("option:selected").val());
+                                _currEnevt.setExtendedProp('cimTestDayTypeId', $("#mTestDayType").find("option:selected").val());
+                                _currEnevt.setExtendedProp('floorId', $("#mFloor").find("option:selected").val());
+                                _currEnevt.setExtendedProp('name', $('#mName').val());
+                                _currEnevt.setExtendedProp('jobId', $('#mJobId').val());
+                                _currEnevt.setExtendedProp('subject', $('#mSubject').val());
+                                _currEnevt.setExtendedProp('remark', $('#mRemark').val());
+
+                                $('#modal-sm-completed').modal('hide');
                             }
                             else {
                                 alert(res.msg);
@@ -375,7 +507,12 @@
                             $.unblockUI();
                             if (res.isSuccess) {
                                 alert('排程預約取消');
-                                location.reload();
+
+                                let _currEnevt = calendar.getEventById($('#mMeetingSn').val());
+
+                                _currEnevt.remove();
+
+                                $('#modal-sm-completed').modal('hide');
                             }
                             else {
                                 alert(res.msg);
@@ -431,108 +568,17 @@
                     });
                 });
 
-                var Calendar = FullCalendar.Calendar;
-                var calendarEl = document.getElementById('calendar');
+                Calendar = FullCalendar.Calendar;
+                calendarEl = document.getElementById('calendar');
 
-                // initial calendar
-                var _calObj = {
-                    headerToolbar: {
-                        left: 'prev,next today',
-                        center: 'title',
-                        right: 'dayGridMonth',
-                    },
-                    height: 800,
-                    initialView: 'dayGridMonth',
-                    themeSystem: 'bootstrap',
-                    editable: false,
-                    eventResizableFromStart: false,
-                    displayEventTime: false,
-                    droppable: false, // this allows things to be dropped onto the calendar !!!
-                    events: _calEvents,
-                    eventDrop: function (e) {
-
-                        _model.sn = e.event.id;
-                        _model.cimTestTypeId = e.event.extendedProps.cimTestTypeId;
-                        _model.date = e.event.startStr.substring(0, 10);
-                        _model.name = e.event.extendedProps.name;
-                        _model.subject = e.event.extendedProps.subject;
-                        _model.cimTestDayTypeId = e.event.extendedProps.cimTestDayTypeId;
-                        _model.floorId = e.event.extendedProps.floorId;
-                        _model.jobId = e.event.extendedProps.jobId;
-
-                        $.ajax({
-                            url: "./BookingMeeting/Update",
-                            type: "POST",
-                            dataType: "json",
-                            data: _model,
-                            success: function (res) {
-                                $.unblockUI();
-                                if (res.isSuccess) {
-                                    alert('異動成功');
-                                    location.reload();
-                                }
-                                else {
-                                    alert(res.msg);
-                                    e.revert();
-                                    //alert(res.msg);
-                                    return false;
-                                }
-                            }
-                        });
-                    },
-                    eventResize: function (e) {
-
-                        _model.sn = parseInt(e.event.id);
-                        _model.resizeStartTime = e.event.startStr;
-                        _model.resizeEndTime = e.event.endStr;
-
-                        $.ajax({
-                            url: "./BookingMeeting/Update",
-                            type: "POST",
-                            dataType: "json",
-                            data: _model,
-                            success: function (res) {
-                                $.unblockUI();
-                                if (res.isSuccess) {
-                                    alert('異動成功');
-                                    //location.reload();
-                                }
-                                else {
-                                    alert(res.msg);
-                                    e.revert();
-                                    //alert(res.msg);
-                                    return false;
-                                }
-                            }
-                        });
-                    },
-                    eventClick: function (e) {
-
-                        $('#btnEdit').attr('disabled', false);
-                        $('#btnUpd').attr('disabled', true);
-                        $('#btnCancel').attr('disabled', false);
-
-                        $('#mDate').val(e.event.startStr.substring(0, 10));
-                        /*var _testTypeOption = $("#mTestType option").filter(":contains('" + titleArray[2] + "')").val();*/
-                        $('#mTestType').val(e.event.extendedProps.cimTestTypeId);
-                        //$("#mTestType option[value=" + titleArray[2] + "]");
-                        //$('#mTestType').html(titleArray[2]);
-                        $('#mSubject').val(e.event.extendedProps.subject);
-                        $('#mFloor').val(e.event.extendedProps.floorId);
-                        $('#mName').val(e.event.extendedProps.name);
-                        $('#mJobId').val(e.event.extendedProps.jobId);
-                        $('#mTestDayType').val(e.event.extendedProps.cimTestDayTypeId);
-                        $('#mMeetingSn').val(e.event.id);
-                        $('#modal-sm-completed').modal('show');
-                    }
-                };
+                _calObj.events = _calEvents;
 
                 if (Boolean(_permissionData.accountPermission & 32)) {
                     _calObj.editable = true;
                     _calObj.eventResizableFromStart = true;
                 }
 
-                var calendar = new Calendar(calendarEl, _calObj);
+                calendar = new Calendar(calendarEl, _calObj);
 
                 calendar.render();
 
