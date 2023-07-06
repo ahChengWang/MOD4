@@ -1,5 +1,6 @@
 ﻿using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Repostory;
+using NLog;
 //using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9,10 +10,11 @@ using System.Net.Http;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using Utility.Helper;
 
 namespace MOD4.Web.DomainService
 {
-    public class PerformanceDomainService : IPerformanceDomainService
+    public class PerformanceDomainService : BaseDomainService, IPerformanceDomainService
     {
         private readonly IDailyEquipmentRepository _dailyEquipmentRepository;
         private readonly ITargetSettingDomainService _targetSettingDomainService;
@@ -319,6 +321,8 @@ namespace MOD4.Web.DomainService
             });
             //};
 
+            _logHelper.WriteLog(LogLevel.Info, this.GetType().Name, $"使用者查詢");
+
             return _response.OrderBy(ob => ob.Node).ToList();
         }
 
@@ -370,7 +374,7 @@ namespace MOD4.Web.DomainService
 
                 _entity.Qty = 1;
                 _entity.Node = node;
-                
+
             }
 
             return _entity;

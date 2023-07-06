@@ -7,13 +7,13 @@ namespace MOD4.Web.Repostory
 {
     public interface IMTDProductionScheduleRepository
     {
-        List<MTDProductionScheduleDao> SelectByConditions(int sn = 0, int floor = 0, bool? isMass = null, MTDCategoryEnum? mtdCategoryId = null, DateTime? dateStart = null, DateTime? dateEnd = null, int prodId = 0);
+        List<MTDProductionScheduleDao> SelectByConditions(int floor, int ownerId, DateTime? dateStart, DateTime? dateEnd);
 
-        List<MTDProductionScheduleDao> SelectMTDTodayPlan(int floor, bool isMass, DateTime dateStart, DateTime dateEnd);
+        List<MTDProductionScheduleDao> SelectMTDTodayPlan(int floor, int owner, DateTime dateStart, DateTime dateEnd);
 
-        List<MTDProductionScheduleDao> SelectMTDMonHavePlan(int floor, bool isMass, DateTime dateStart, DateTime dateEnd);
+        List<MTDProductionScheduleDao> SelectMTDMonHavePlan(int floor, int owner, DateTime dateStart, DateTime dateEnd);
 
-        List<MTDProductionScheduleDao> SelectMonthPlanQty(string year, string month, int floor, bool isMass);
+        List<MTDProductionScheduleDao> SelectMonthPlanQty(string year, string month, int floor, int ownerId);
 
         MTDProductionScheduleDao SelectNewOrderSn(string orderNo);
 
@@ -21,10 +21,8 @@ namespace MOD4.Web.Repostory
 
         int InsertSchedule(List<MTDProductionScheduleDao> insMTDSchedule);
 
-        int DeleteSchedule(int sn);
+        int DeleteSchedule(int ownerId);
 
         int InsertScheduleHistory(MTDScheduleUpdateHistoryDao insHisDao);
-
-        int UpdateSchedule(MTDProductionScheduleDao updMTDProdSchedule);
     }
 }

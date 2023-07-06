@@ -17,10 +17,11 @@ using System.Transactions;
 using System.Web;
 using System.Xml.Serialization;
 using System.Xml;
+using NLog;
 
 namespace MOD4.Web.DomainService
 {
-    public class AccountDomainService : IAccountDomainService
+    public class AccountDomainService : BaseDomainService, IAccountDomainService
     {
         private readonly IAccountInfoRepository _accountInfoRepository;
         private readonly IMenuRepository _menuRepository;
@@ -443,6 +444,8 @@ namespace MOD4.Web.DomainService
 
                 CatchHelper.Delete(new string[] { $"accInfo" });
                 CatchHelper.Set("accInfo", JsonConvert.SerializeObject(_accInfoList.Any() ? _accInfoList : GetAllAccountInfo()), 604800);
+
+                _logHelper.WriteLog(LogLevel.Info, this.GetType().Name, $"使用者登錄:{_accInfoEntity.Name}({_accInfoEntity.JobId})");
 
                 return (true, _accInfoEntity);
             }

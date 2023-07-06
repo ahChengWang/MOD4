@@ -9,40 +9,19 @@ namespace MOD4.Web.Repostory
     public class MTDProductionScheduleRepository : BaseRepository, IMTDProductionScheduleRepository
     {
         public List<MTDProductionScheduleDao> SelectByConditions(
-            int sn = 0,
-            int floor = 0,
-            bool? isMass = null,
-            MTDCategoryEnum? mtdCategoryId = null,
-            DateTime? dateStart = null,
-            DateTime? dateEnd = null,
-            int prodId = 0)
+            int floor,
+            int ownerId,
+            DateTime? dateStart,
+            DateTime? dateEnd)
         {
-            string _sql = "select * from mtd_production_schedule where 1 = 1 ";
+            string sql = "select * from mtd_production_schedule where floor = @floor and ownerId = @ownerId and date between @dateStart and @dateEnd order by sn asc, model desc, lcmProdId asc, date asc ; ";
 
-            if (sn != 0)
-                _sql += " and sn = @Sn ";
-            if (floor != 0)
-                _sql += " and floor = @Floor ";
-            if (isMass != null)
-                _sql += " and isMass = @IsMass ";
-            if (mtdCategoryId != null)
-                _sql += " and mtdCategoryId = @MTDCategoryId ";
-            if (prodId != 0)
-                _sql += " and lcmProdId = @LcmProdId ";
-            if (dateStart != null)
-                _sql += " and date >= @StartDate ";
-            if (dateEnd != null)
-                _sql += " and date <= @EndDate ";
-
-            var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(_sql, new
+            var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(sql, new
             {
-                Sn = sn,
-                Floor = floor,
-                IsMass = isMass,
-                MTDCategoryId = mtdCategoryId,
-                StartDate = dateStart,
-                EndDate = dateEnd,
-                LcmProdId = prodId
+                floor = floor,
+                ownerId = ownerId,
+                dateStart = dateStart,
+                dateEnd = dateEnd
             });
 
             return dao;
@@ -51,17 +30,17 @@ namespace MOD4.Web.Repostory
 
         public List<MTDProductionScheduleDao> SelectMTDTodayPlan(
             int floor,
-            bool isMass,
+            int owner,
             DateTime dateStart, 
             DateTime dateEnd)
         {
             string _sql = @" select * from mtd_production_schedule 
-where date between @DateStart and @DateEnd and floor = @Floor and isMass = @IsMass;";
+where date between @DateStart and @DateEnd and floor = @Floor and ownerId = @OwnerId;";
 
             var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(_sql, new
             {
                 Floor = floor,
-                IsMass = isMass,
+                OwnerId = owner,
                 DateStart = dateStart,
                 DateEnd = dateEnd,
                 year = dateStart.Year,
@@ -73,17 +52,17 @@ where date between @DateStart and @DateEnd and floor = @Floor and isMass = @IsMa
 
         public List<MTDProductionScheduleDao> SelectMTDMonHavePlan(
             int floor,
-            bool isMass,
+            int owner,
             DateTime dateStart,
             DateTime dateEnd)
         {
             string _sql = @" select * from mtd_production_schedule 
-where DATEPART(YEAR, date) = @Year and DATEPART(MONTH, date) = @Month and date != @DateStart and floor = @Floor and isMass = @IsMass ; ";
+where DATEPART(YEAR, date) = @Year and DATEPART(MONTH, date) = @Month and date != @DateStart and floor = @Floor and ownerId = @OwnerId ; ";
 
             var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(_sql, new
             {
                 Floor = floor,
-                IsMass = isMass,
+                OwnerId = owner,
                 DateStart = dateStart,
                 DateEnd = dateEnd,
                 Year = dateStart.Year,
@@ -93,16 +72,16 @@ where DATEPART(YEAR, date) = @Year and DATEPART(MONTH, date) = @Month and date !
             return dao;
         }
 
-        public List<MTDProductionScheduleDao> SelectMonthPlanQty(string year, string month, int floor, bool isMass)
-        {            
-            string sql = "select * from mtd_production_schedule where DATEPART(YEAR, date) = @Year and DATEPART(MONTH, date) = @Month and floor = @Floor and isMass = @IsMass ; ";
+        public List<MTDProductionScheduleDao> SelectMonthPlanQty(string year, string month, int floor, int ownerId)
+        {
+            string sql = "select * from mtd_production_schedule where DATEPART(YEAR, date) = @Year and DATEPART(MONTH, date) = @Month and floor = @Floor and ownerId = @ownerId ; ";
 
             var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(sql, new
             {
                 Year = year,
                 Month = month,
                 Floor = floor,
-                IsMass = isMass
+                ownerId = ownerId
             });
 
             return dao;
@@ -133,27 +112,30 @@ where DATEPART(YEAR, date) = @Year and DATEPART(MONTH, date) = @Month and date !
             return dao;
         }
 
+
         public int InsertSchedule(List<MTDProductionScheduleDao> insMTDSchedule)
         {
             string sql = @"
 INSERT INTO [dbo].[mtd_production_schedule]
-([process]
-,[mtdCategoryId]
+([sn]
+,[process]
+,[model]
 ,[lcmProdId]
 ,[date]
-,[qty]
+,[value]
 ,[floor]
-,[isMass]
+,[ownerId]
 ,[updateUser]
 ,[updateTime])
 VALUES
-(@process
-,@mtdCategoryId
+(@sn
+,@process
+,@model
 ,@lcmProdId
 ,@date
-,@qty
+,@value
 ,@floor
-,@isMass
+,@ownerId
 ,@updateUser
 ,@updateTime
 ); ";
@@ -163,13 +145,14 @@ VALUES
             return dao;
         }
 
-        public int DeleteSchedule(int sn)
+        public int DeleteSchedule(int ownerId)
         {
             string sql = @"
- Delete [dbo].[mtd_production_schedule] where sn = @Sn; ";
+ Delete [dbo].[mtd_production_schedule] where ownerId = @OwnerId; ";
 
-            var dao = _dbHelper.ExecuteNonQuery(sql,new {
-                Sn = sn
+            var dao = _dbHelper.ExecuteNonQuery(sql, new
+            {
+                OwnerId = ownerId
             });
 
             return dao;
@@ -191,20 +174,6 @@ VALUES
 ,@updateTime);";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, insHisDao);
-
-            return dao;
-        }
-
-        public int UpdateSchedule(MTDProductionScheduleDao updMTDProdSchedule)
-        {
-            string sql = @" update mtd_production_schedule 
-    set date = @Date,
-        lcmProdId = @LcmProdId,
-        qty = @Qty,
-        isMass = @IsMass 
-where sn = @Sn ;";
-
-            var dao = _dbHelper.ExecuteNonQuery(sql, updMTDProdSchedule);
 
             return dao;
         }

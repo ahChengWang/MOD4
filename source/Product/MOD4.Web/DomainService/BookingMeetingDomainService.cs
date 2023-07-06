@@ -4,6 +4,7 @@ using MOD4.Web.Enum;
 using MOD4.Web.Repostory;
 using MOD4.Web.Repostory.Dao;
 using Newtonsoft.Json;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,6 +53,8 @@ namespace MOD4.Web.DomainService
         public List<CIMTestBookingEntity> GetList()
         {
             var _bookingList = _cimTestBookingRepository.SelectByConditions();
+
+            _logHelper.WriteLog(LogLevel.Info, this.GetType().Name, $"使用者查詢");
 
             return _bookingList.Select(booking => new CIMTestBookingEntity
             {

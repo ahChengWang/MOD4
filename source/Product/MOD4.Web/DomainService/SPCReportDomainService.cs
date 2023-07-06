@@ -7,10 +7,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Transactions;
+using NLog;
 
 namespace MOD4.Web.DomainService
 {
-    public class SPCReportDomainService : ISPCReportDomainService
+    public class SPCReportDomainService : BaseDomainService, ISPCReportDomainService
     {
         private readonly ISPCMicroScopeDataRepository _spcMicroScopeDataRepository;
         private readonly ISPCChartSettingRepository _spcChartSettingRepository;
@@ -78,7 +79,12 @@ namespace MOD4.Web.DomainService
             }
             catch (Exception ex)
             {
+                _logHelper.WriteLog(LogLevel.Error, this.GetType().Name, ex.Message);
                 throw ex;
+            }
+            finally
+            {
+                _logHelper.WriteLog(LogLevel.Info, this.GetType().Name, $"使用者查詢");
             }
         }
 

@@ -22,12 +22,20 @@ namespace Utility.Helper
             switch (level.Ordinal)
             {
                 case 0:
+                    _logger.Trace($"{module.Replace("DomainService", "")} | {msg}");
+                    break;
                 case 1:
+                    _logger.Debug($"{module.Replace("DomainService", "")} | {msg}");
+                    break;
                 case 2:
-                case 3:
                     _logger.Info($"{module.Replace("DomainService", "")} | {msg}");
                     break;
+                case 3:
+                    _logger.Warn($"{module.Replace("DomainService", "")} | {msg}");
+                    break;
                 case 4:
+                    _logger.Error($"{module.Replace("DomainService", "")} | {msg}");
+                    break;
                 case 5:
                 default:
                     _logger.Fatal($"{module.Replace("DomainService", "")} | {msg}");
@@ -51,8 +59,15 @@ namespace Utility.Helper
                 FileName = $"{logPath}fatal.log",
                 Layout = layout
             };
+            var _debugLogFile = new NLog.Targets.FileTarget("f")
+            {
+                Name = "debugfile",
+                FileName = $"{logPath}debug.log",
+                Layout = layout
+            };
 
-            _config.AddRule(LogLevel.Trace, LogLevel.Warn, _infoLogFile);
+            _config.AddRule(LogLevel.Trace, LogLevel.Debug, _debugLogFile);
+            _config.AddRule(LogLevel.Warn, LogLevel.Warn, _infoLogFile);
             _config.AddRule(LogLevel.Error, LogLevel.Fatal, _fatalLogFile);
             LogManager.Configuration = _config;
             _logger = LogManager.GetLogger("debug");

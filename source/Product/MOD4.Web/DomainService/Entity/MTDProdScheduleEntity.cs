@@ -17,7 +17,7 @@ namespace MOD4.Web.DomainService.Entity
         public DateTime Date { get; set; }
         public int Qty { get; set; }
         public int Floor { get; set; }
-        public bool IsMass { get; set; }
+        public int OwnerId { get; set; }
         public string UpdateUser { get; set; }
         public DateTime UpdateTime { get; set; }
         public int MonthPlan { get; set; }

@@ -162,5 +162,26 @@ where ts.isMTDTarget = 1 and defProd.sn IN @ProdSn ";
 
             return dao;
         }
+
+        public List<MTDProcessSettingDao> SelectForUploadMTD(IEnumerable<string> prodNoList, IEnumerable<string> processList)
+        {
+            string sql = $@"
+select defNode.process ,defPod.prodNo, setting.lcmProdSn, setting.Node 
+  from Target_Setting setting
+  join definition_lcm_prod defPod
+    on setting.lcmProdSn = defPod.sn
+  join definition_node_desc defNode
+    on setting.Node = defNode.eqNo
+ where setting.isMTDTarget = 1 and defPod.prodNo in @ProdNo and defNode.process in @Process ;
+ ";
+
+            var dao = _dbHelper.ExecuteQuery<MTDProcessSettingDao>(sql, new
+            {
+                ProdNo = prodNoList,
+                Process = processList
+            });
+
+            return dao;
+        }
     }
 }

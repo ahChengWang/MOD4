@@ -11,6 +11,8 @@ namespace MOD4.Web.DomainService
 
         List<MTDProcessSettingEntity> GetSettingForMTD(List<int> prodSnList);
 
+        List<MTDProcessSettingEntity> GetUploadMTDSettings(IEnumerable<string> prodNoList, IEnumerable<string> processList);
+
         void Migration();
     }
 }

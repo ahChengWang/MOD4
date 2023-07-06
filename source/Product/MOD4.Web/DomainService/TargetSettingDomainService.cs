@@ -89,6 +89,18 @@ namespace MOD4.Web.DomainService
             }
         }
 
+        public List<MTDProcessSettingEntity> GetUploadMTDSettings(IEnumerable<string> prodNoList, IEnumerable<string> processList)
+        {
+            try
+            {
+                return _targetSettingRepository.SelectForUploadMTD(prodNoList, processList).CopyAToB<MTDProcessSettingEntity>();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public void Migration()
         {
             var _nowTime = DateTime.Now;

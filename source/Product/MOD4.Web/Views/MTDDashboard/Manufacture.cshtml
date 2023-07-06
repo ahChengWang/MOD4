@@ -1,19 +1,87 @@
-﻿@*@model List<MOD4.Web.ViewModel.ManufactureViewModel>*@
-@model List<MOD4.Web.ViewModel.MftrScheduleViewModel>
+﻿@model List<MOD4.Web.ViewModel.ManufactureViewModel>
 @using MOD4.Web.ViewModel
 
 @{
     ViewBag.Title = "生產排線";
 }
 
-<head>
-    <link rel="stylesheet" href="~/plugins/fullcalendar/main.min.css">
-</head>
-
 <style>
     .card-title {
         font-size: 30px;
         font-weight: 900;
+    }
+
+    table {
+        box-shadow: #999;
+    }
+
+    .table td, .table th {
+        padding: 0.3rem;
+    }
+
+    .card {
+        box-shadow: 2px 2px 2px #999;
+        background-color: #c3cadb;
+    }
+
+    .lock-header {
+        overflow: auto;
+        max-height: 700px;
+        width: 100%;
+        padding: 0;
+    }
+
+    .sticky-th-date {
+        background-color: #3b80c4; /*rgba(240,240,240,1);*/
+        z-index: 0;
+        position: sticky;
+        top: 0;
+    }
+
+    .sticky-th1, .sticky-th2, .sticky-th3, .sticky-th4 {
+        position: sticky;
+        z-index: 2;
+        background: #3e7bb8;
+        top: 0;
+    }
+
+    .sticky-th1 {
+        left: 0;
+    }
+
+    .sticky-th2 {
+        left: 67px;
+    }
+
+    .sticky-th3 {
+        left: 118px;
+    }
+
+    .sticky-th4 {
+        left: 164px;
+    }
+
+    .sticky-column1, .sticky-column2, .sticky-column3, .sticky-column4 {
+        position: sticky;
+        position: -webkit-sticky;
+        z-index: 1;
+        background: rgba(240,240,240,0.9);
+    }
+
+    .sticky-column1 {
+        left: 0;
+    }
+
+    .sticky-column2 {
+        left: 67px;
+    }
+
+    .sticky-column3 {
+        left: 118px;
+    }
+
+    .sticky-column4 {
+        left: 164px;
     }
 
     .my-control {
@@ -37,20 +105,7 @@
         font-size: 8px;
         color: darkred;
     }
-
-    thead {
-        width: 50%;
-    }
-
-    .fc-daygrid-event {
-        white-space: initial;
-    }
 </style>
-
-<head>
-    <link rel="stylesheet" href="~/plugins/select2/css/select2.min.css" />
-    <link rel="stylesheet" href="~/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" />
-</head>
 
 <div class="content-wrapper">
     <section class="content">
@@ -62,178 +117,122 @@
                             <h3 class="card-title">生產排線(含實驗)</h3>
                         </div>
                         <div class="card-body">
-                            @*<span style="font-size:8px;font-weight:700" class="text-danger">*預設顯示當月及上月排程</span>*@
+                            <span style="font-size:8px;font-weight:700" class="text-danger">*預設顯示當月及上月排程</span>
                             <fieldset id="searchArea">
                                 <legend id="legend">查詢區塊</legend>
                                 <div class="form-group d-flex align-content-center flex-wrap">
                                     <div class="col-lg-1">
-                                        <label class="col-form-label" ondblclick="dblClick(this)">製程專線：</label>
+                                        <label class="col-form-label">查詢區間：</label>
                                     </div>
-                                    <div class="col-lg-3">
-                                        <select id="selProcess" class="my-control" value="">
-                                            <option selected value="1">BOND</option>
-                                            <option value="2">FOG_VCS</option>
-                                            <option value="3">LAM</option>
-                                            <option value="4">ASSY_Padi 31.3"</option>
-                                            <option value="5">CDP_Padi 31.3"</option>
-                                            <option value="6">ASSY_VCS 34"</option>
-                                            <option value="7">CDP_VCS 34"</option>
-                                            <option value="8">ASSY_Pana 48"</option>
-                                            <option value="9">CDP_Pana 48"</option>
-                                        </select>
+                                    <div class="col-lg-2">
+                                        <input id="dateRange" class="form-control" name="datepicker" value="" />
                                     </div>
                                     <div class="col-lg-1">
                                         <label class="col-form-label">樓層：</label>
                                     </div>
-                                    <div class="col-lg-2">
+                                    <div class="col-lg-1">
                                         <select id="selFloor" class="my-control" value="">
                                             <option selected value="2">2</option>
                                             <option value="3">3</option>
                                         </select>
                                     </div>
                                     <div class="col-lg-1">
-                                        <input class="btn btn-info" type="button" name="btn29" value="查詢" onclick="myFuc.Search()" />
+                                        <label class="col-form-label">owner：</label>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <select id="selOwner" class="my-control" value="">
+                                            <option selected value="1">量產</option>
+                                            <option value="2">實驗</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <input class="btn btn-info" type="button" name="btn29" value="查詢" onclick="btnClickSearch()" />
                                     </div>
                                 </div>
                             </fieldset>
-                            <div class="d-flex align-content-center flex-wrap">
-                                <div><a style="background-color: #28a628">量產</a></div>
-                                <div><a style="background-color: #e5eb4d; margin-left: 4px;">實驗</a></div>
+                            <div style="text-align: right; font-size: 10px; font-family: 'Microsoft JhengHei'; font-weight: 700; font-style: italic; ">
+                                <p id="latestInfo">最後更新 @ViewBag.UpdateInfo</p>
                             </div>
-                            <div id="calendar" style="width:100%">
+                            <div>
+                                <div class="lock-header">
+                                    <partial name="_PartialTable" model="Model" />
+                                </div>
                             </div>
                         </div>
                         <!-- /.card-body -->
+
+                        @{
+                            UserPermissionViewModel _test = (UserPermissionViewModel)ViewBag.UserPermission;
+
+                            if (Convert.ToBoolean(_test.AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management))
+                            {
+                                <hr />
+                                <div class="form-group d-flex align-content-center flex-wrap">
+                                    <div class="col-lg-2">
+                                        <label class="col-form-label">MTD 排程、驗證 上傳</label>
+                                        @*<span style="font-size:8px;font-weight:700" class="text-danger">*</span>*@
+                                        @*<span asp-validation-for="File" style="font-size:10px;font-weight:700" class="text-danger"></span>*@
+                                        <div>
+                                            <span class="unit">(允許 xlsx)</span>
+                                            <br />
+                                            <span class="unit">單檔最大2MB</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 custom-file">
+                                        <input id="updFile" type="file" class="custom-file-input" onchange="verifyFile(this)">
+                                        <label class="custom-file-label">Choose file</label>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">匯入樓層：</label>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <select id="uplFloor" class="my-control" value="">
+                                            <option selected value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <label class="col-form-label">owner：</label>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <select id="uplOwner" class="my-control" value="">
+                                            <option selected value="1">量產</option>
+                                            <option value="2">實驗</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <input id="btnUpload" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-sm-verify" value="上傳" />
+                                    </div>
+                                </div>
+
+                                <div class="modal fade" id="modal-sm-verify">
+                                    <div class="modal-dialog modal-sm">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p id="modalDesc"></p>
+                                            </div>
+                                            <div class="modal-footer justify-content-between">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">否</button>
+                                                <input type="button" class="btn btn-primary" value="確認" onclick="btnUploadClick()" />
+                                            </div>
+                                        </div>
+                                        <!-- /.modal-content -->
+                                    </div>
+                                    <!-- /.modal-dialog -->
+                                </div>
+                            }
+                        }
+
                     </div>
                 </div>
                 <!-- /.col -->
             </div>
             <!-- /.row -->
-
-            @{
-                if (Convert.ToBoolean(((UserPermissionViewModel)ViewBag.UserPermission).AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management))
-                {
-                    <div id="divBooking" class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">排程新增</h3>
-                        </div>
-                        <div class="card-body">
-                            <form id="mtdCreateForm">
-                                <div class="form-group d-flex align-content-center flex-wrap">
-                                    <div class="col-md-2">
-                                        <label>日期：</label>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <input id="dateRange" class="myInputStyle1" style="text-align:center" asp-for="@Model.FirstOrDefault().DateRange" />
-                                    </div>
-                                </div>
-                                <div class="form-group d-flex align-content-center flex-wrap">
-                                    <div class="col-md-2">
-                                        <label>機種：</label>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <select class="select2bs4" id="dropProd" name="ProductId">
-                                            @{
-                                                foreach (var lcmProd in ViewBag.ProdOptions)
-                                                {
-                                                    <optgroup label="@lcmProd.Item1">
-                                                        @foreach (var item in lcmProd.Item2)
-                                                        {
-                                                            <option value="@item.Item1">@item.Item2</option>
-                                                        }
-                                                    </optgroup>
-                                                }
-                                            }
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-group d-flex align-content-center flex-wrap">
-                                    <div class="col-md-2">
-                                        <label>日產量：</label>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <input id="qty" type="number" class="myInputStyle1" style="text-align:center" min="0" value="0" asp-for="@Model.FirstOrDefault().Quantity" />
-                                    </div>
-                                </div>
-                                <div class="form-group d-flex align-content-center flex-wrap">
-                                    <div class="col-md-2">
-                                        <label>量產品?</label>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input name="IsMass" type="checkbox" onclick="myFuc.CheckBoxChange(this)" />
-                                    </div>
-                                </div>
-                                <div class="col-sm-2">
-                                    <input class="btn btn-sm btn-dark" type="button" value="新增" onclick="myFuc.BatchCreate(this)" />
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                }
-            }
-            <div class="modal fade" id="modal-sm-completed">
-                <div class="modal-dialog modal-md">
-                    <div class="modal-content">
-                        <div class="modal-header" style="height: 50px; display: inline-block; align-content: center; background-color: #3c7da6 ;">
-                            <h5 style="display: inline-block; font-weight: 700; ">新增單日排程</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body" style="background-color:lightgray">
-                            <div class="form-group d-flex align-content-center flex-wrap">
-                                <div class="col-md-2">
-                                    <label>日期：</label>
-                                </div>
-                                <div>
-                                    <label id="mDate"></label>
-                                </div>
-                            </div>
-                            <div class="form-group d-flex align-content-center flex-wrap">
-                                <div class="col-md-2">
-                                    <label>機種：</label>
-                                </div>
-                                <div class="col-md-9">
-                                    <select class="myInputStyle1 select2bs4" id="mDropProd" disabled>
-                                        @{
-                                            foreach (var lcmProd in ViewBag.ProdOptions)
-                                            {
-                                                <optgroup label="@lcmProd.Item1">
-                                                    @foreach (var item in lcmProd.Item2)
-                                                    {
-                                                        <option value="@item.Item1">@item.Item2</option>
-                                                    }
-                                                </optgroup>
-                                            }
-                                        }
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group d-flex align-content-center flex-wrap">
-                                <div class="col-md-2">
-                                    <label>日產量：</label>
-                                </div>
-                                <div class="col-md-3">
-                                    <input id="mQty" type="number" class="myInputStyle1" style="text-align:center" min="0" value="0" disabled />
-                                </div>
-                            </div>
-                            <div class="form-group d-flex align-content-center flex-wrap">
-                                <div class="col-md-2">
-                                    <label>量產品?</label>
-                                </div>
-                                <div id="mMassDiv" class="col-md-4">
-                                    <input id="mMass" type="checkbox" onclick="myFuc.CheckBoxChange(this)" />
-                                </div>
-                            </div>
-                            <input id="mScheduleSn" type="hidden" value="" />
-                        </div>
-                        <div id="mfooter" class="modal-footer justify-content-between" style="background-color: lightgray;">
-                        </div>
-                    </div>
-                    <!-- /.modal-content -->
-                </div>
-                <!-- /.modal-dialog -->
-            </div>
         </div>
         <!-- /.container-fluid -->
     </section>
@@ -241,196 +240,139 @@
 </div>
 
 @section scripts{
-    <script src="~/plugins/moment/moment.min.js"></script>
-    <script src="~/plugins/fullcalendar/main.js"></script>
-    <script src="~/plugins/select2/js/select2.full.min.js"></script>
     <script type="text/javascript">
 
-        var _mngrPermission = @(Convert.ToInt32(Convert.ToBoolean(((UserPermissionViewModel)ViewBag.UserPermission).AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management)));
+        $(function () {
+            bsCustomFileInput.init();
 
-        let _bgColor = "#239623";
+            $('input[name="datepicker"]').daterangepicker({
+                timePicker: false,
+                startDate: moment().startOf('month').add(-1, 'month'),
+                endDate: moment().startOf('month').add(1, 'month').add(-1, 'day'),
+                locale: {
+                    format: 'yyyy/MM/DD'
+                }
+            });
 
-        let Calendar = FullCalendar.Calendar;
-        let calendarEl = document.getElementById('calendar');
+            $('table tbody').find('tr').each(function (idx, tr) {
+                if (tr.children[0].innerHTML == 'BOND') {
+                    tr.children[0].style.background = '#eba963';
+                    tr.children[3].style.background = '#eba963';
+                }
+                else if (tr.children[0].innerHTML == 'FOG') {
+                    tr.children[0].style.background = '#b0b0b0';
+                    tr.children[3].style.background = '#b0b0b0';
+                }
+                else if (tr.children[0].innerHTML == 'LAM') {
+                    tr.children[0].style.background = '#64aded';
+                    tr.children[3].style.background = '#64aded';
+                }
+                else if (tr.children[0].innerHTML == 'ASSY') {
+                    tr.children[0].style.background = '#a563cf';
+                    tr.children[3].style.background = '#a563cf';
+                }
+                else if (tr.children[0].innerHTML == 'CDP') {
+                    tr.children[0].style.background = '#63cf8c';
+                    tr.children[3].style.background = '#63cf8c';
+                }
+            });
 
-        // initial calendar
-        let _calObj = {
-            headerToolbar: {
-                left: 'customprev,customnext,customtoday',
-                center: 'title',
-                right: '',
-            },
-            height: 800,
-            initialView: 'dayGridMonth',
-            themeSystem: 'bootstrap',
-            editable: true,
-            eventResizableFromStart: false,
-            displayEventTime: false,
-            droppable: false, // this allows things to be dropped onto the calendar !!!
-            windowResize: function (e) {
-                // 當 menu 收折, calendar table RWD
-                $('table[role="presentation"]')[0].style.width = '100%';
-                $('table[role="presentation"]')[1].style.width = '100%';
-            },
-            /*events: _calEvents,*/
-            eventDrop: function (e) {
+            let _data = @(Html.Raw(Json.Serialize(Model)));
 
-                let _eventsObj = e.event;
-
+            if (_data.length != 0) {
                 $.ajax({
-                    url: "./Manufacture/Update",
-                    type: "POST",
-                    data: {
-                        updateMftrVM: {
-                            'Sn': _eventsObj.id,
-                            'Date': _eventsObj.startStr,
-                            'IsDrop': true
-                        }
-                    },
-                    success: function (result) {
-                        if (result.isSuccess) {
-
-                            let _currEnevt = calendar.getEventById(e.event.id);
-
-                            //_currEnevt.setExtendedProp('productId', $('#mDropProd').val());
-                            //_currEnevt.setExtendedProp('quantity', $('#mQty').val());
-                            //_currEnevt.setExtendedProp('isMass', $('#mMass')[0].checked);
-                        }
-                        else {
-                            alert(result.msg);
-                        }
-                    }
-                });
-            },
-            eventClick: function (e) {
-
-                $('#mDate').html(e.event.startStr.substring(0, 10));
-                $('#mDropProd').val(e.event.extendedProps.productId).trigger('change');
-                $('#mQty').val(e.event.extendedProps.quantity);
-
-                $('#mMassDiv').empty();
-                $('#mMassDiv').append('<input id="mMass" type="checkbox" onclick="myFuc.CheckBoxChange(this)"/>');
-
-                if (e.event.extendedProps.isMass) {
-                    $('#mMass').attr('checked', true);
-                    $('#mMass').val('True');
-                }
-                else {
-                    $('#mMass').removeAttr('checked');
-                    $('#mMass').val('False');
-                }
-                $('#mScheduleSn').val(e.event.extendedProps.sn);
-
-                myFuc.ModalInputDisplay(true);
-                myFuc.ModalFooterBtnCreate(false);
-
-                $('#modal-sm-completed').modal('show');
-            },
-            customButtons: {
-                customprev: {
-                    text: '<',
-                    click: function () {
-
-                        calendar.prev();
-
-                        if (_mngrPermission == 1)
-                            myFuc.SetDbClickEvent();
-
-                        myFuc.ResetCalTitle(calendar);
-                    }
-                },
-                customnext: {
-                    text: '>',
-                    click: function () {
-                        calendar.next();
-
-                        if (_mngrPermission == 1)
-                            myFuc.SetDbClickEvent();
-                        myFuc.ResetCalTitle(calendar);
-                    }
-                },
-                customtoday: {
-                    text: 'today',
-                    click: function () {
-                        calendar.today();
-
-                        if (_mngrPermission == 1)
-                            myFuc.SetDbClickEvent();
-                        myFuc.ResetCalTitle(calendar);
-                    }
-                }
-            }
-        }
-
-        var calendar = new Calendar(calendarEl, _calObj);
-
-        //#region myFuc()
-
-        let myFuc = {
-            InitialCalendar(calData) {
-
-                var _calEvents = [];
-
-                calData.forEach(function (plan) {
-
-                    _calEvents.push({
-                        id: plan.sn,
-                        title: plan.project + '【' + plan.product + '】(' + plan.quantity + ')',
-                        start: plan.dateStart,
-                        textColor: '#000000',
-                        color: myFuc.GetEventBgColor(plan.isMass),
-                        allDay: true,
-                        extendedProps: plan
-                    });
-                });
-
-                _calObj.events = _calEvents;
-
-                calendar = new Calendar(calendarEl, _calObj);
-
-                calendar.render();
-
-                myFuc.ResetCalTitle(calendar);
-
-            },
-            Search() {
-                globalFuc.LoadingPic();
-                $.ajax({
-                    url: "./Manufacture/Search/" + $("#selProcess").val() + "/" + $("#selFloor").val(),
+                    url: "./Manufacture/LatestUpdate/" + $("#selFloor").val() + "/" + $("#selOwner").val(),
                     type: "GET",
                     dataType: 'json',
                     success: function (result) {
-                        $.unblockUI();
-                        if (result.isSuccess) {
-                            myFuc.InitialCalendar(result.data);
+                        if (result != '') {
+                            $("#latestInfo").html("");
+                            $("#latestInfo").html("最後更新 " + result);
                         }
                         else {
-                            alert(result.msg);
-                            myFuc.InitialCalendar([]);
-                            //_calObj.events = [];
-                            //calendar = new Calendar(calendarEl, _calObj);
-                            //calendar.render();
-                            //myFuc.ResetCalTitle(calendar);
-                        };
+                            $("#latestInfo").html("最後更新 ");
+                        }
+                    }
+                });
+            }
 
-                        //$.ajax({
-                        //    url: "./Manufacture/LatestUpdate/" + $("#selFloor").val() + "/" + $("#selOwner").val(),
-                        //    type: "GET",
-                        //    dataType: 'json',
-                        //    success: function (result) {
-                        //        if (result != '') {
-                        //            $("#latestInfo").html("");
-                        //            $("#latestInfo").html("最後更新 " + result);
-                        //        }
-                        //        else {
-                        //            $("#latestInfo").html("最後更新 ");
-                        //        }
-                        //    }
-                        //});
+
+            //let _date = new Date();
+            //let _month = _date.getMonth() + 1;
+            //let _day = (new Date()).getDate();
+            //let _todayStr = _month + '/' + _day;
+
+            //$('table thead').find('th').each(function (idx, th) {
+            //    if (th.innerHTML == _todayStr) {
+            //        th.style.backgroundColor = '#cf0202';
+            //    }
+            //});
+
+        });
+
+        let myFuc = {
+            Search() {
+                globalFuc.LoadingPic();
+                $.ajax({
+                    url: "./Manufacture/Search?dateRange=" + $("#dateRange").val() + "&floor=" + $("#selFloor").val() + "&owner=" + $("#selOwner").val(),
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (result) {
+                        $.unblockUI();
+                        if (isJsonString(result)) {
+                            $(".lock-header").children().empty();
+                            $("#latestInfo").html("");
+                            var _res = JSON.parse(result);
+                            alert(_res.message);
+                        }
+                        else {
+
+                            $(".lock-header").children().empty();
+                            $(".lock-header").html(result);
+
+                            $('table tbody').find('tr').each(function (idx, tr) {
+                                if (tr.children[0].innerHTML == 'BOND') {
+                                    tr.children[0].style.background = '#eba963';
+                                    tr.children[3].style.background = '#eba963';
+                                }
+                                else if (tr.children[0].innerHTML == 'FOG') {
+                                    tr.children[0].style.background = '#b0b0b0';
+                                    tr.children[3].style.background = '#b0b0b0';
+                                }
+                                else if (tr.children[0].innerHTML == 'LAM') {
+                                    tr.children[0].style.background = '#64aded';
+                                    tr.children[3].style.background = '#64aded';
+                                }
+                                else if (tr.children[0].innerHTML == 'ASSY') {
+                                    tr.children[0].style.background = '#a563cf';
+                                    tr.children[3].style.background = '#a563cf';
+                                }
+                                else if (tr.children[0].innerHTML == 'CDP') {
+                                    tr.children[0].style.background = '#63cf8c';
+                                    tr.children[3].style.background = '#63cf8c';
+                                }
+                            });
+
+                            $.ajax({
+                                url: "./Manufacture/LatestUpdate/" + $("#selFloor").val() + "/" + $("#selOwner").val(),
+                                type: "GET",
+                                dataType: 'json',
+                                success: function (result) {
+                                    if (result != '') {
+                                        $("#latestInfo").html("");
+                                        $("#latestInfo").html("最後更新 " + result);
+                                    }
+                                    else {
+                                        $("#latestInfo").html("最後更新 ");
+                                    }
+                                }
+                            });
+
+                        }
                     }
                 });
             },
-            @*Upload() {
+            Upload() {
 
                 if ($("#updFile")[0].files.length == 0) {
                     alert("請選擇檔案");
@@ -463,261 +405,23 @@
                         }
                     }
                 });
-            },*@
-            Upload() {
-                if ($("#updFile")[0].files.length == 0) {
-                    alert("請選擇檔案");
-                    return false;
-                }
-                $('#modalDesc').html("確認匯入" + $("#uplFloor option:selected").val() + "樓 MTD " + $("#uplOwner option:selected").html() + "排程?");
-            },
-            Create() {
-                $.ajax({
-                    url: "./Manufacture/Create",
-                    type: "POST",
-                    data: {
-                        createMftrVM: {
-                            'Date': $('#mDate')[0].innerHTML,
-                            'ProductId': $('#mDropProd').val(),
-                            'Quantity': $('#mQty').val(),
-                            'IsMass': $('#mMass').val(),
-                            'MTDCategoryId': $('#selProcess').val(),
-                            'Floor': $('#selFloor').val()
-                        }
-                    },
-                    success: function (result) {
-                        if (result.isSuccess) {
-                            alert('新增成功');
-
-                            let _option = ($("#mDropProd option[value=" + $('#mDropProd').val() + "]")[0]).text.split('-');
-
-                            calendar.addEvent({
-                                extendedProps: {
-                                    sn: result.data,
-                                    productId: $('#mDropProd').val(),
-                                    quantity: $('#mQty').val(),
-                                    isMass: $('#mMass')[0].checked
-                                },
-                                title: _option[1] + '【' + _option[0] + '】(' + $('#mQty').val() + ')',
-                                start: $('#mDate')[0].innerHTML,
-                                textColor: '#000000',
-                                color: myFuc.GetEventBgColor($('#mMass')[0].checked),
-                                allDay: true,
-                            });
-
-                            $('#modal-sm-completed').modal('hide');
-                        }
-                        else {
-                            alert(result.msg);
-                        }
-                    }
-                });
-            },
-            BatchCreate() {
-
-                let _form = globalFuc.MapFormToObject($('#mtdCreateForm').serializeArray());
-                _form['MTDCategoryId'] = $('#selProcess').val();
-                _form['Floor'] = $('#selFloor').val();
-
-                $.ajax({
-                    url: "./Manufacture/BatchCreate",
-                    type: "POST",
-                    data: _form,
-                    success: function (result) {
-                        if (result.isSuccess) {
-                            alert('新增成功');
-
-                            let _option = ($("#mDropProd option[value=" + $('#mDropProd').val() + "]")[0]).text.split('-');
-
-                            result.data.forEach(function (mtd, idx) {
-                                calendar.addEvent({
-                                    id: mtd.sn,
-                                    title: mtd.project + '【' + mtd.product + '】(' + mtd.quantity + ')',
-                                    start: mtd.dateStart,
-                                    textColor: '#000000',
-                                    color: myFuc.GetEventBgColor(mtd.isMass),
-                                    allDay: true,
-                                    extendedProps: mtd
-                                });
-                            });
-
-
-                            $('#modal-sm-completed').modal('hide');
-                        }
-                        else {
-                            alert(result.msg);
-                        }
-                    }
-                });
-            },
-            Update() {
-                $.ajax({
-                    url: "./Manufacture/Update",
-                    type: "POST",
-                    data: {
-                        updateMftrVM: {
-                            'Sn': $('#mScheduleSn').val(),
-                            'Date': $('#mDate')[0].innerHTML,
-                            'ProductId': $('#mDropProd').val(),
-                            'Quantity': $('#mQty').val(),
-                            'IsMass': $('#mMass').val(),
-                            'MTDCategoryId': $('#selProcess').val(),
-                            'Floor': $('#selFloor').val(),
-                            'IsDrop': false
-                        }
-                    },
-                    success: function (result) {
-                        if (result.isSuccess) {
-                            alert('更新成功');
-
-                            let _option = ($("#mDropProd option[value=" + $('#mDropProd').val() + "]")[0]).text.split('-');
-
-                            let _currEnevt = calendar.getEventById($('#mScheduleSn').val());
-
-                            _currEnevt.setProp('title', _option[1] + '【' + _option[0] + '】(' + $('#mQty').val() + ')');
-                            _currEnevt.setProp('color', myFuc.GetEventBgColor($('#mMass')[0].checked));
-                            _currEnevt.setExtendedProp('productId', $('#mDropProd').val());
-                            _currEnevt.setExtendedProp('quantity', $('#mQty').val());
-                            _currEnevt.setExtendedProp('isMass', $('#mMass')[0].checked);
-
-                            $('#modal-sm-completed').modal('hide');
-                        }
-                        else {
-                            alert(result.msg);
-                        }
-                    }
-                });
-            },
-            Cancel() {
-                $.ajax({
-                    url: "./Manufacture/Cancel/" + $('#mScheduleSn').val(),
-                    type: "POST",
-                    dataType: 'json',
-                    success: function (result) {
-                        if (result.isSuccess) {
-                            alert('刪除成功');
-
-                            let _currEnevt = calendar.getEventById($('#mScheduleSn').val());
-
-                            _currEnevt.remove();
-
-                            $('#modal-sm-completed').modal('hide');
-                        }
-                        else {
-                            alert(result.msg);
-                        }
-                    }
-                });
-            },
-            SetDbClickEvent() {
-                let _tbl = $('tbody[role="presentation"]')[0].children;
-                $.each(_tbl, function (index, tr) {
-                    $.each(tr.children, function (idx, td) {
-                        td.ondblclick = myFuc.DayDbClick;
-                    });
-                });
-            },
-            DayDbClick(td) {
-                $('#modal-sm-completed').modal('show');
-                $('#mDate').html(td.currentTarget.dataset.date);
-                $('#mQty').val(0);
-                $('#mMass').val('False');
-                $('#mMass').removeAttr('checked');
-
-                myFuc.ModalFooterBtnCreate(true);
-                myFuc.ModalInputDisplay(false);
-            },
-            EditClick() {
-                $('#btnEdit').attr('disabled', true);
-                $('#btnUpd').attr('disabled', false);
-                $('#btnCancel').attr('disabled', true);
-
-                myFuc.ModalInputDisplay(false);
-            },
-            ModalInputDisplay(disabled) {
-                $('.modal-body').find('input, select').each(function (idx, attr) {
-                    attr.disabled = disabled;
-                });
-            },
-            ModalFooterBtnCreate(isCreate) {
-                $('#mfooter').empty();
-                if (isCreate) {
-                    $('.modal-footer').append('<input id="btnCreate" type="button" class="btn btn-info" value="新增" onclick="myFuc.Create()" />');
-                }
-                else {
-                    $('.modal-footer').append('<input id="btnEdit" type="button" class="btn btn-warning" value="編輯" onclick="myFuc.EditClick()" /> ' +
-                        '<input id="btnUpd" type="button" class="btn btn-secondary" disabled value="儲存" onclick="myFuc.Update()" />' +
-                        '<input id="btnCancel" type="button" class="btn btn-danger" data-dismiss="modal" value="取消排程" onclick="myFuc.Cancel()" />');
-                }
-            },
-            ResetCalTitle(calendar) {
-
-                let _afterTTL = calendar.currentData.viewTitle;
-                let processSel = $("#selProcess").find(":selected").text();
-                let _calTitle = $('.fc-toolbar-title')[0];
-
-                _calTitle.textContent = processSel + ' - ' + _afterTTL;
-            },
-            CheckBoxChange(e) {
-                if (e.checked) {
-                    e.value = 'True';
-                    $('#mMass').attr('checked', true);
-                }
-                else {
-                    e.value = 'False';
-                    $('#mMass').removeAttr('checked');
-                }
-            },
-            GetEventBgColor(isMass) {
-                if (isMass)
-                    return "#28a628";
-                else
-                    return "#e5eb4d";
             }
         }
 
-        //#endregion
+        function btnClickSearch() {
+            myFuc.Search();
+        }
 
-        //#region ready()
+        function btnUploadClick() {
+            myFuc.Upload();
+        }
 
-        $(function () {
-
-            var _modelData = @(Html.Raw(Json.Serialize(Model)));
-            myFuc.InitialCalendar(_modelData);
-
-            $('#dateRange').daterangepicker({
-                timePicker: false,
-                startDate: moment().startOf('month').add(2, 'month'),
-                endDate: moment().startOf('month').add(3, 'month').add(-1, 'day'),
-                locale: {
-                    format: 'yyyy/MM/DD'
-                }
-            });
-
-            //
-            if (_mngrPermission == 1) {
-                myFuc.SetDbClickEvent();
+        $('#btnUpload').on('click', function () {
+            if ($("#updFile")[0].files.length == 0) {
+                alert("請選擇檔案");
+                return false;
             }
-            else {
-                $('#mfooter').remove();
-            }
-
-            // 當 menu 收折, calendar table RWD
-            $('table[role="presentation"]')[0].style.width = '100%';
-            $('table[role="presentation"]')[1].style.width = '100%';
-
-            $('.select2bs4').select2({
-                theme: 'bootstrap4'
-            })
-        });
-
-        //#endregion
-
-        // 當 menu 收折, calendar table RWD
-        $('a[data-widget="pushmenu"]').on('click', function (e) {
-            $('table[role="presentation"]')[0].style.width = '100%';
-            $('table[role="presentation"]')[1].style.width = '100%';
-            $('.fc-daygrid-body-unbalanced')[0].style.width = '100%';
+            $('#modalDesc').html("確認匯入" + $("#uplFloor option:selected").val() + "樓 MTD " + $("#uplOwner option:selected").html() + "排程?");
         });
 
         function verifyFile(e) {
@@ -730,6 +434,5 @@
                 e.value = "";
             }
         }
-
     </script>
 }

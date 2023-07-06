@@ -7,15 +7,9 @@ namespace MOD4.Web.DomainService
 {
     public interface IMTDDashboardDomainService
     {
-        List<MTDDashboardMainEntity> DashboardSearch(int floor = 2, string date = "", decimal time = 24, bool isMass = true);
+        List<MTDDashboardMainEntity> DashboardSearch(int floor = 2, string date = "", decimal time = 24, int owner = 1);
 
-        List<MftrScheduleEntity> Search(string dateRange = "", int floor = 2, int owner = 1, MTDCategoryEnum mtdCategoryId = MTDCategoryEnum.BOND);
-
-        (string, List<MftrScheduleEntity>) Create(MftrScheduleEntity mftrScheduleEntity, UserEntity userEntity);
-
-        string Update(MftrScheduleEntity updMftrScheduleEntity, UserEntity userEntity);
-
-        string Cancel(int sn);
+        List<ManufactureScheduleEntity> Search(string dateRange = "", int floor = 2, int owner = 1);
 
         string GetLatestUpdate(int floor = 2, int owner = 1);
 

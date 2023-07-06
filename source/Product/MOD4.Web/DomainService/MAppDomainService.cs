@@ -1,5 +1,6 @@
 ﻿using MOD4.Web.DomainService.Entity;
 using Newtonsoft.Json;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MOD4.Web.DomainService
 {
-    public class MAppDomainService : IMAppDomainService
+    public class MAppDomainService : BaseDomainService, IMAppDomainService
     {
 
 
@@ -65,7 +66,7 @@ namespace MOD4.Web.DomainService
             }
             catch (Exception ex)
             {
-                throw;
+                _logHelper.WriteLog(LogLevel.Error, this.GetType().Name, $"tag user 異常：{ex.Message}");
             }
         }
 

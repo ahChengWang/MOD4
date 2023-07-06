@@ -32,12 +32,11 @@ namespace MOD4.Web.Controllers
             _optionDomainService = optionDomainService;
             _logger = logger;
         }
-
         public IActionResult Index()
         {
             try
             {
-                var _resilt = _mtdDashboardDomainService.DashboardSearch(isMass: true);
+                var _resilt = _mtdDashboardDomainService.DashboardSearch();
 
                 List<MTDDashboardMainViewModel> _response = _resilt.Select(mtd => new MTDDashboardMainViewModel
                 {
@@ -94,7 +93,7 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                var _resilt = _mtdDashboardDomainService.DashboardSearch(floor, date, time, owner == 1);
+                var _resilt = _mtdDashboardDomainService.DashboardSearch(floor, date, time, owner);
 
                 List<MTDDashboardMainViewModel> _response = _resilt.Select(mtd => new MTDDashboardMainViewModel
                 {
@@ -148,7 +147,7 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                var _resilt = _mtdDashboardDomainService.DashboardSearch(isMass: false);
+                var _resilt = _mtdDashboardDomainService.DashboardSearch(owner: 0);
 
                 List<MTDDashboardMainViewModel> _response = _resilt.Select(mtd => new MTDDashboardMainViewModel
                 {
@@ -205,7 +204,7 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                var _resilt = _mtdDashboardDomainService.DashboardSearch(floor, date, time, owner == 1);
+                var _resilt = _mtdDashboardDomainService.DashboardSearch(floor, date, time, owner);
 
                 List<MTDDashboardMainViewModel> _response = _resilt.Select(mtd => new MTDDashboardMainViewModel
                 {
@@ -261,8 +260,6 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                ViewBag.ProdOptions = _optionDomainService.GetLcmProdOptions();
-
                 var _result = _mtdDashboardDomainService.Search();
 
                 UserEntity _userInfo = GetUserInfo();
@@ -274,18 +271,24 @@ namespace MOD4.Web.Controllers
                     AccountPermission = _userCurrentPagePermission.AccountPermission
                 };
 
-                List<MftrScheduleViewModel> _reponse = _result.Select(res => new MftrScheduleViewModel
+                List<ManufactureViewModel> _reponse = new List<ManufactureViewModel>();
+
+                _result.ForEach(mtd =>
                 {
-                    Sn = res.Sn,
-                    Process = res.Process,
-                    Date = res.Date,
-                    DateStart = res.DateStart,
-                    Project = res.ProdDesc,
-                    Product = res.ProdNo,
-                    ProductId = res.LcmProdId,
-                    Quantity = res.Qty,
-                    IsMass = res.IsMass,
-                }).ToList();
+                    _reponse.Add(new ManufactureViewModel
+                    {
+                        Process = mtd.Process,
+                        Category = mtd.Category,
+                        MonthPlan = mtd.MonthPlan,
+                        ProductName = mtd.ProductName,
+                        PlanDetail = mtd.PlanDetail.Select(s => new ManufactureDetailViewModel
+                        {
+                            Date = s.Date,
+                            Quantity = s.Quantity,
+                            IsToday = s.IsToday
+                        }).ToList()
+                    });
+                });
 
                 return View(_reponse);
             }
@@ -295,12 +298,12 @@ namespace MOD4.Web.Controllers
             }
         }
 
-        [HttpGet("[controller]/Manufacture/Search/{mtdCategoryId}/{floor}")]
-        public IActionResult ManufactureSearch(MTDCategoryEnum mtdCategoryId, int floor)
+        [HttpGet("[controller]/Manufacture/Search")]
+        public IActionResult ManufactureSearch([FromQuery] string dateRange, int floor, int owner)
         {
             try
             {
-                var _result = _mtdDashboardDomainService.Search(floor: floor, mtdCategoryId: mtdCategoryId);
+                var _result = _mtdDashboardDomainService.Search(dateRange, floor, owner);
 
                 UserEntity _userInfo = GetUserInfo();
                 var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.Manufacture);
@@ -311,179 +314,36 @@ namespace MOD4.Web.Controllers
                     AccountPermission = _userCurrentPagePermission.AccountPermission
                 };
 
-                List<MftrScheduleViewModel> _reponse = _result.Select(res => new MftrScheduleViewModel
-                {
-                    Sn = res.Sn,
-                    Process = res.Process,
-                    Date = res.Date,
-                    DateStart = res.DateStart,
-                    Project = res.ProdDesc,
-                    Product = res.ProdNo,
-                    ProductId = res.LcmProdId,
-                    Quantity = res.Qty,
-                    IsMass = res.IsMass,
-                }).ToList();
+                List<ManufactureViewModel> _response = new List<ManufactureViewModel>();
 
-                if (_reponse.Any())
-                    return Json(new ResponseViewModel<List<MftrScheduleViewModel>>
+                _result.ForEach(mtd =>
+                {
+                    _response.Add(new ManufactureViewModel
                     {
-                        IsSuccess = true,
-                        Data = _reponse
+                        Process = mtd.Process,
+                        Category = mtd.Category,
+                        MonthPlan = mtd.MonthPlan,
+                        ProductName = mtd.ProductName,
+                        PlanDetail = mtd.PlanDetail.Select(s => new ManufactureDetailViewModel
+                        {
+                            Date = s.Date,
+                            Quantity = s.Quantity,
+                            IsToday = s.IsToday
+                        }).ToList()
                     });
+                });
+
+                if (_response.Any())
+                {
+                    return PartialView("_PartialTable", _response);
+                }
                 else
-                    return Json(new ResponseViewModel<object>
-                    {
-                        IsSuccess = false,
-                        Msg = "查無排程"
-                    });
+                    return Json(new { message = "查無排程" });
 
             }
             catch (Exception ex)
             {
                 return Json(new { message = ex.Message });
-            }
-        }
-
-        [HttpPost("[controller]/Manufacture/Create")]
-        public IActionResult MftrCreate(MftrScheduleViewModel createMftrVM)
-        {
-            try
-            {
-                var _createRes = _mtdDashboardDomainService.Create(new MftrScheduleEntity
-                {
-                    Date = createMftrVM.Date,
-                    IsMass = createMftrVM.IsMass,
-                    LcmProdId = createMftrVM.ProductId,
-                    Qty = createMftrVM.Quantity,
-                    MTDCategoryId = createMftrVM.MTDCategoryId,
-                    Floor = createMftrVM.Floor
-                },
-                GetUserInfo());
-
-                if (string.IsNullOrEmpty(_createRes.Item1))
-                {
-                    List<MftrScheduleViewModel> _reponse = _createRes.Item2.Select(res => new MftrScheduleViewModel
-                    {
-                        Sn = res.Sn,
-                        Process = res.Process,
-                        Date = res.Date,
-                        DateStart = res.DateStart,
-                        Project = res.ProdDesc,
-                        Product = res.ProdNo,
-                        ProductId = res.LcmProdId,
-                        Quantity = res.Qty,
-                        IsMass = res.IsMass,
-                    }).ToList();
-
-                    return Json(new ResponseViewModel<List<MftrScheduleViewModel>>
-                    {
-                        IsSuccess = _createRes.Item1 == "",
-                        Data = _reponse,
-                        Msg = _createRes.Item1 == "" ? "" : _createRes.Item1
-                    });
-                }
-                else
-                    return Json(new ResponseViewModel<List<string>>
-                    {
-                        IsSuccess = _createRes.Item1 == "",
-                        Msg = _createRes.Item1 == "" ? "" : _createRes.Item1
-                    });
-            }
-            catch (Exception ex)
-            {
-                return Json(new ResponseViewModel<string>
-                {
-                    IsSuccess = false,
-                    Msg = ex.Message
-                });
-            }
-        }
-
-        [HttpPost("[controller]/Manufacture/BatchCreate")]
-        public IActionResult MftrBatchCreate(MftrScheduleViewModel createMftrVM)
-        {
-            try
-            {
-                var _createRes = _mtdDashboardDomainService.Create(new MftrScheduleEntity
-                {
-                    Date = createMftrVM.Date,
-                    DateRange = createMftrVM.DateRange,
-                    IsMass = createMftrVM.IsMass,
-                    LcmProdId = createMftrVM.ProductId,
-                    Qty = createMftrVM.Quantity,
-                    MTDCategoryId = createMftrVM.MTDCategoryId,
-                    Floor = createMftrVM.Floor
-                },
-                GetUserInfo());
-
-                if (string.IsNullOrEmpty(_createRes.Item1))
-                {
-                    List<MftrScheduleViewModel> _reponse = _createRes.Item2.Select(res => new MftrScheduleViewModel
-                    {
-                        Sn = res.Sn,
-                        Process = res.Process,
-                        Date = res.Date,
-                        DateStart = res.DateStart,
-                        Project = res.ProdDesc,
-                        Product = res.ProdNo,
-                        ProductId = res.LcmProdId,
-                        Quantity = res.Qty,
-                        IsMass = res.IsMass,
-                    }).ToList();
-
-                    return Json(new ResponseViewModel<List<MftrScheduleViewModel>>
-                    {
-                        IsSuccess = _createRes.Item1 == "",
-                        Data = _reponse,
-                        Msg = _createRes.Item1 == "" ? "" : _createRes.Item1
-                    });
-                }
-                else
-                    return Json(new ResponseViewModel<List<string>>
-                    {
-                        IsSuccess = _createRes.Item1 == "",
-                        Msg = _createRes.Item1 == "" ? "" : _createRes.Item1
-                    });
-            }
-            catch (Exception ex)
-            {
-                return Json(new ResponseViewModel<string>
-                {
-                    IsSuccess = false,
-                    Msg = ex.Message
-                });
-            }
-        }
-
-        [HttpPost("[controller]/Manufacture/Update")]
-        public IActionResult MftrUpdate(MftrScheduleViewModel updateMftrVM)
-        {
-            try
-            {
-                var _updateRes = _mtdDashboardDomainService.Update(new MftrScheduleEntity
-                {
-                    Sn = updateMftrVM.Sn,
-                    Date = updateMftrVM.Date,
-                    IsMass = updateMftrVM.IsMass,
-                    LcmProdId = updateMftrVM.ProductId,
-                    Qty = updateMftrVM.Quantity,
-                    IsDrop = updateMftrVM.IsDrop
-                },
-                GetUserInfo());
-
-                return Json(new ResponseViewModel<int>
-                {
-                    IsSuccess = _updateRes == "",
-                    Msg = _updateRes == "" ? "" : _updateRes
-                });
-            }
-            catch (Exception ex)
-            {
-                return Json(new ResponseViewModel<string>
-                {
-                    IsSuccess = false,
-                    Msg = ex.Message
-                });
             }
         }
 
@@ -517,28 +377,6 @@ namespace MOD4.Web.Controllers
             }
         }
 
-        [HttpPost("[controller]/Manufacture/Cancel/{scheduleSn}")]
-        public IActionResult MftrCancel(int scheduleSn)
-        {
-            try
-            {
-                var _createRes = _mtdDashboardDomainService.Cancel(scheduleSn);
-
-                return Json(new ResponseViewModel<string>
-                {
-                    IsSuccess = _createRes == "",
-                    Msg = _createRes
-                });
-            }
-            catch (Exception ex)
-            {
-                return Json(new ResponseViewModel<string>
-                {
-                    IsSuccess = false,
-                    Msg = ex.Message
-                });
-            }
-        }
         #endregion
 
         #region === MTBF 、 MTTR ===
