@@ -479,5 +479,20 @@ namespace MOD4.Web.DomainService
 
             return _nodeEqList;
         }
+
+        private void Get106NewReport()
+        {
+            string _qStr = "apiJob=[{'name':'Date','apiName':'TN_OperationPerformance','FactoryType':'CARUX','FacId':'A','Building':'A','DateFrom':'2023-07-05','DateTo':'2023-07-05','Shift':'ALL','Floor':'ALL','WorkOrder':'','LcmProductType':'ALL','Size':'ALL','BigProduct':'ALL','LcmOwner':'','LcdGrade':'','Product':'ALL','ProdId':'','OptionProduct':'GDD340IA0090S','#optionmenu':'','prod_nbr':'GDD340IA0090S','owner_code':\"RES0','QTAP','PROD','PRDG','LCME\"}]";
+
+            var data = new StringContent(_qStr, Encoding.UTF8, "text/plain");
+            data.Headers.Add("Reporttoken", "VE5VSTIyMDA4MTYzMjAyMy0wNy0wNg==");
+
+            using (var client = new HttpClient())
+            {
+                var response = client.PostAsync("http://ptnreportapi.innolux.com/SQLAgent/ApiWorkMulti?" + _qStr, data);
+
+                var _tesRes = response.Result.Content.ReadAsStringAsync().Result;
+            }
+        }
     }
 }
