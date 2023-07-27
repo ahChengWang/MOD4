@@ -67,7 +67,7 @@ namespace Utility.Helper
             };
 
             _config.AddRule(LogLevel.Trace, LogLevel.Debug, _debugLogFile);
-            _config.AddRule(LogLevel.Warn, LogLevel.Warn, _infoLogFile);
+            _config.AddRule(LogLevel.Info, LogLevel.Warn, _infoLogFile);
             _config.AddRule(LogLevel.Error, LogLevel.Fatal, _fatalLogFile);
             LogManager.Configuration = _config;
             _logger = LogManager.GetLogger("debug");

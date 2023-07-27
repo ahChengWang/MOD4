@@ -46,7 +46,9 @@ namespace MOD4.Web.Enum
         MTBFMTTR = 27,
         [Description("2F生產排程")]
         MPS = 28,
-        [Description("Monitor")]
-        Monitor = 29,
+        [Description("各部效率")]
+        Efficiency = 29,
+        [Description("各部效率-設定")]
+        EffSetting = 30,
     }
 }

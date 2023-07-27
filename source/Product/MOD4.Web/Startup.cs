@@ -98,6 +98,8 @@ namespace MOD4.Web
             services.AddSingleton<IMPSUploadHistoryRepository, MPSUploadHistoryRepository>();
             services.AddSingleton<ICIMTestBookingRepository, CIMTestBookingRepository>();
             services.AddSingleton<IDefinitionNodeDescRepository, DefinitionNodeDescRepository>();
+            services.AddSingleton<IEfficiencySettingRepository, EfficiencySettingRepository>();
+            services.AddSingleton<IDailyEfficiencyRepository, DailyEfficiencyRepository>();
 
             services.AddScoped<MenuService>();
             services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));

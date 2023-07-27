@@ -1,0 +1,390 @@
+﻿
+@{
+    ViewBag.Title = "各部效率-設定";
+}
+
+<style>
+
+    .card-title {
+        font-size: 35px;
+        font-weight: 600;
+    }
+
+    table {
+        width: 100%;
+        margin-bottom: 1rem;
+        display: block;
+        overflow-x: auto;
+    }
+
+        table th {
+            padding: 0.3rem 0.3rem 0.3rem 0.3rem;
+            text-align: center;
+            vertical-align: middle !important;
+            font-size: 15px;
+            border: 1px solid #787878;
+        }
+
+        table td {
+            padding: 0.4rem 0.1rem 0.4rem 0.1rem;
+            text-align: center;
+            vertical-align: middle !important;
+            font-size: 15px;
+            border: 1px solid #787878;
+        }
+
+    .style-table {
+        border-collapse: collapse;
+        font-size: 0.9em;
+        font-family: sans-serif;
+        min-width: 400px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.15);
+    }
+
+        .style-table thead tr {
+            background-color: #3a617a;
+            color: #d6d6d6;
+        }
+
+    .prodBtn {
+        background: rgba(82, 94, 93);
+        border-radius: 5px;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        outline-offset: 4px;
+    }
+
+    .front {
+        display: block;
+        /*padding: 12px 42px;*/
+        border-radius: 5px;
+        font-size: 1.2rem;
+        background: rgba(144, 166, 163);
+        color: black;
+        transform: translateY(-4px);
+    }
+
+    .prodBtn:active .front {
+        transform: translateY(-2px);
+    }
+
+    input {
+        text-align: center;
+    }
+
+    .selectStyle {
+        border-bottom: 1px solid black;
+        border-top: 0px;
+        border-left: 0px;
+        border-right: 0px;
+        background-color: transparent;
+        outline: none;
+    }
+</style>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="col-12">
+                <div id="app" class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">各部效率-設定</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group d-flex align-content-center flex-wrap">
+                            <div>
+                                <label class="col-form-label">樓層：</label>
+                            </div>
+                            <div class="col-md-1">
+                                <select id="selFloor" class="form-control" value="">
+                                    <option selected value="2">2</option>
+                                    <option value="3">3</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <input class="btn btn-info" type="button" name="btn29" value="查詢" v-on:click="clickSearch()" />
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <input class="form-control" type="text" placeholder="機種查詢 ex:GDD34...." v-model="searchStr" />
+                        </div>
+                        <br />
+                        <div>
+                            <table class="style-table">
+                                <thead>
+                                    <tr>
+                                        <th width="5%" rowspan="2">Product ID</th>
+                                        <th rowspan="2">班別</th>
+                                        <th colspan="4">Bonding</th>
+                                        <th colspan="4">FOG</th>
+                                        <th colspan="4">LAM</th>
+                                        <th colspan="4">ASSY</th>
+                                        <th colspan="4">C+Dken</th>
+                                    </tr>
+                                    <tr>
+                                        <th>站點</th>
+                                        <th>WT</th>
+                                        <th width="4%">人力(inline)</th>
+                                        <th width="4%">人力(offline)</th>
+                                        <th width="5%">站點</th>
+                                        <th>WT</th>
+                                        <th width="4%">人力(inline)</th>
+                                        <th width="4%">人力(offline)</th>
+                                        <th width="5%">站點</th>
+                                        <th>WT</th>
+                                        <th width="4%">人力(inline)</th>
+                                        <th width="4%">人力(offline)</th>
+                                        <th width="5%">站點</th>
+                                        <th>WT</th>
+                                        <th width="4%">人力(inline)</th>
+                                        <th width="4%">人力(offline)</th>
+                                        <th width="5%">站點</th>
+                                        <th>WT</th>
+                                        <th width="4%">人力(inline)</th>
+                                        <th width="4%">人力(offline)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr :id="'setting' + idx" v-for="(setting, idx) in wrapper" :key="idx">
+                                        <td v-if="(idx % 2) === 0" rowspan="2" style="font-weight:600">
+                                            <input type="hidden" :value="setting.prodSn" />
+                                            <input type="button" class="btn-light" name="btnProd" style="background-color: transparent;font-weight:900;color:black" :value="setting.prodNo" v-on:click="editClick(idx)" />
+                                        </td>
+                                        @*<td><input class="myInputStyle1" disabled type="text" style="width:100%" :value="setting.detailList[0].node" /></td>*@
+                                        <td>
+                                            <input type="hidden" :value="setting.shift" />
+                                            {{setting.shiftDesc}}
+                                        </td>
+                                        <td>
+                                            <select class="selectStyle" disabled :value="setting.detailList[0].node">
+                                                <option v-for="node in nodeOptions" :value="node.id">{{node.value}}</option>
+                                            </select>
+                                        </td>
+                                        <td><input class="myInputStyle1" disabled type="text" style="width:100%" :value="setting.detailList[0].wt" /></td>
+                                        <td><input class="myInputStyle1" disabled type="text" style="width:70%" :value="setting.detailList[0].inlineEmps" /></td>
+                                        <td><input class="myInputStyle1" disabled type="text" style="width:70%" :value="setting.detailList[0].offlineEmps" /></td>
+                                        @*<td><input class="myInputStyle1" disabled type="text" style="width:100%" :value="setting.detailList[1].node" /></td>*@
+                                        <td>
+                                            <select class="selectStyle" disabled :value="setting.detailList[1].node">
+                                                <option v-for="node in nodeOptions" :value="node.id">{{node.value}}</option>
+                                            </select>
+                                        </td>
+                                        <td><input class="myInputStyle1" disabled type="text" style="width:100%" :value="setting.detailList[1].wt" /></td>
+                                        <td><input class="myInputStyle1" disabled type="text" style="width:70%" :value="setting.detailList[1].inlineEmps" /></td>
+                                        <td><input class="myInputStyle1" disabled type="text" style="width:70%" :value="setting.detailList[1].offlineEmps" /></td>
+                                        @*<td><input class="myInputStyle1" disabled type="text" style="width:100%" :value="setting.detailList[2].node" /></td>*@
+                                        <td>
+                                            <select class="selectStyle" disabled :value="setting.detailList[2].node">
+                                                <option v-for="node in nodeOptions" :value="node.id">{{node.value}}</option>
+                                            </select>
+                                        </td>
+                                        <td><input class="myInputStyle1" disabled type="text" style="width:100%" :value="setting.detailList[2].wt" /></td>
+                                        <td><input class="myInputStyle1" disabled type="text" style="width:70%" :value="setting.detailList[2].inlineEmps" /></td>
+                                        <td><input class="myInputStyle1" disabled type="text" style="width:70%" :value="setting.detailList[2].offlineEmps" /></td>
+                                        @*<td><input class="myInputStyle1" disabled type="text" style="width:100%" :value="setting.detailList[2].node" /></td>*@
+                                        <td>
+                                            <select class="selectStyle" disabled :value="setting.detailList[3].node">
+                                                <option v-for="node in nodeOptions" :value="node.id">{{node.value}}</option>
+                                            </select>
+                                        </td>
+                                        <td><input class="myInputStyle1" disabled type="text" style="width:100%" :value="setting.detailList[3].wt" /></td>
+                                        <td><input class="myInputStyle1" disabled type="text" style="width:70%" :value="setting.detailList[3].inlineEmps" /></td>
+                                        <td><input class="myInputStyle1" disabled type="text" style="width:70%" :value="setting.detailList[3].offlineEmps" /></td>
+                                        @*<td><input class="myInputStyle1" disabled type="text" style="width:100%" :value="setting.detailList[4].node" /></td>*@
+                                        <td>
+                                            <select class="selectStyle" disabled :value="setting.detailList[4].node">
+                                                <option v-for="node in nodeOptions" :value="node.id">{{node.value}}</option>
+                                            </select>
+                                        </td>
+                                        <td><input class="myInputStyle1" disabled type="text" style="width:100%" :value="setting.detailList[4].wt" /></td>
+                                        <td><input class="myInputStyle1" disabled type="text" style="width:70%" :value="setting.detailList[4].inlineEmps" /></td>
+                                        <td><input class="myInputStyle1" disabled type="text" style="width:70%" :value="setting.detailList[4].offlineEmps" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+
+        var _model = {
+            prodSn: 0,
+            prodNo: '',
+            detailList: []
+        };
+
+        var _saveModel = {
+            node: 0,
+            wt: 0,
+            inlineEmps: 0,
+            offlineEmps: 0
+        };
+
+        var _procesDic = {
+            1: 'Bonding',
+            2: 'FOG',
+            3: 'LAM',
+            4: 'ASSY',
+            5: 'CDP',
+        };
+
+        const vue = new Vue({
+            el: '#app',
+            data: {
+                settingList: @(Html.Raw(Json.Serialize(Model))),
+                searchStr: '',
+                nodeOptions:@(Html.Raw(Json.Serialize(ViewBag.NodeList)))
+            },
+            methods: {
+                editClick(trId) {
+                    let rIdArray = ['setting' + trId, 'setting' + (trId + 1)];
+                    var _chkEditing = $('#' + rIdArray[0]).attr('name');
+                    var _chkEditing_1 = $('#' + rIdArray[1]).attr('name');
+                    if ((typeof _chkEditing == 'undefined') && (typeof _chkEditing_1 == 'undefined')) {
+
+                        $('tbody').find('input').attr('disabled', true);
+                        for (var i = 0; i < rIdArray.length; i++) {
+                            $('#' + rIdArray[i]).attr('name', 'edit');
+                            $('#' + rIdArray[i]).find('input').removeAttr('disabled');
+                            $('#' + rIdArray[i]).find('select').removeAttr('disabled');
+                        }
+
+                        $('#' + rIdArray[0] + ' td:first-child').find('input').eq(1).css('color', 'white');
+                        $('#' + rIdArray[1]).css('box-shadow', '0px 3px 3px 3px #999');
+                        $('#' + rIdArray[1]).css('transition', '0.2s');
+                    }
+                    else {
+                        if (this.saveClick(rIdArray)) {
+
+                            for (var i = 0; i < rIdArray.length; i++) {
+                                $('#' + rIdArray[i]).removeAttr('name', 'edit');
+                                $('#' + rIdArray[i]).find('select').attr('disabled', true);
+                            }
+
+                            $('#' + rIdArray[0] + ' td:first-child').find('input').eq(1).css('color', 'black');
+                            $('#' + rIdArray[1]).css('box-shadow', '');
+                            $('#' + rIdArray[1]).css('transition', '0.2s');
+
+                            $('input[name="btnProd"]').removeAttr('disabled');
+                            $('.myInputStyle1').attr('disabled', true);
+                        }
+                    }
+                },
+                saveClick(ids) {
+                    let _modelArray = [];
+
+                    for (var i = 0; i < ids.length; i++) {
+
+                        let _shift = "";
+                        var settingInfo = $('#' + ids[i]).find('input').slice(3);
+                        var settingNode = $('#' + ids[i]).find('select');
+
+                        if (i == 0) {
+                            _shift = $('#' + ids[i]).find('input').eq(2).val();
+                            settingInfo = $('#' + ids[i]).find('input').slice(3);
+                        }
+                        else {
+                            _shift = $('#' + ids[i]).find('input').val();
+                            settingInfo = $('#' + ids[i]).find('input').slice(1);
+                        }
+
+                        let editModel = {
+                            ProdSn: $('#' + ids[0]).find('input').eq(0).val(),
+                            ProdNo: $('#' + ids[0]).find('input').eq(1).val(),
+                            Floor: $('#selFloor').val(),
+                            Shift: _shift,
+                            detailList:[]
+                        };
+                        for (var j = 0; j < 5; j++) {
+                            editModel.detailList.push({
+                                processId: j + 1,
+                                node: parseInt(settingNode[j].value),
+                                wt: parseFloat(settingInfo[j * 3].value),
+                                inlineEmps: parseInt(settingInfo[(j * 3) + 1].value),
+                                offlineEmps: parseInt(settingInfo[(j * 3) + 2].value)
+                            });
+                        };
+
+                        _modelArray.push(editModel);
+                    };
+
+                    var Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+
+                    let _res = true;
+
+                    $.ajax({
+                        type: "POST",
+                        url: "./EffSetting",
+                        dataType: 'json',
+                        data: { editModelList: _modelArray},
+                        success: function (result) {
+                            $.unblockUI();
+                            if (result.isSuccess) {
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: '更新成功'
+                                });
+                                _res = true;
+                            }
+                            else {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: result.msg
+                                });
+                                _res = false;
+                            }
+                        }
+                    });
+                    return _res;
+                },
+                clickSearch() {
+
+                    globalFuc.LoadingPic();
+
+                    $.ajax({
+                        type: "GET",
+                        url: "./EffSetting/Search/" + $('#selFloor').val(),
+                        success: function (result) {
+                            $.unblockUI();
+                            if (result.isSuccess) {
+                                vue.settingList = result.data;
+                                vue.searchStr = '';
+                            }
+                            else {
+
+                            }
+                        }
+                    });
+                }
+            },
+            mounted() {
+
+            },
+            computed: {
+                wrapper() {
+                    if (this.searchStr == '') {
+                        return this.settingList;
+                    }
+                    else {
+                        return this.settingList.filter(item => {
+                            return item.prodNo.includes(this.searchStr)
+                        });
+                    }
+                }
+            }
+        });
+
+    </script>
+}

@@ -414,9 +414,9 @@ namespace MOD4.Web.DomainService
                 .ToList();
         }
 
-        public List<OptionEntity> GetNodeList()
+        public List<OptionEntity> GetNodeList(int isActive = 1)
         {
-            return _definitionNodeDescRepository.SelectByConditions()
+            return _definitionNodeDescRepository.SelectByConditions(isActive: isActive)
                 .Select(node => new OptionEntity 
                 {
                     Id = node.EqNo,

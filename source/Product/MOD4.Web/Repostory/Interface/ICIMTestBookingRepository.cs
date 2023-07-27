@@ -9,8 +9,10 @@ namespace MOD4.Web.Repostory
     {
         int Delete(int meetingSn);
         int Insert(List<CIMTestBookingDao> bookingDaoList);
-        List<CIMTestBookingDao> SelectByConditions(int sn = 0);
+        List<CIMTestBookingDao> SelectByConditions(int sn = 0, CIMTestTypeEnum testTypeId = 0, string jobId = "", int floor = 0, CIMTestDayTypeEnum testDayTypeId = 0, DateTime? startTime = null, DateTime? endTime = null);
         int Update(CIMTestBookingDao updDao);
         List<CIMTestBookingDao> VerifyOverlap(DateTime startTime, DateTime endTime, int sn = 0);
+
+        int UpdateAnn(string updAnn);
     }
 }

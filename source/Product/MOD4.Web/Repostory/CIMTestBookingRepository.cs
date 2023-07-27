@@ -8,16 +8,43 @@ namespace MOD4.Web.Repostory
     public class CIMTestBookingRepository : BaseRepository, ICIMTestBookingRepository
     {
 
-        public List<CIMTestBookingDao> SelectByConditions(int sn = 0)
+        public List<CIMTestBookingDao> SelectByConditions(
+            int sn = 0,
+            CIMTestTypeEnum testTypeId = 0,
+            string jobId = "",
+            int floor = 0,
+            CIMTestDayTypeEnum testDayTypeId = 0,
+            DateTime? startTime = null,
+            DateTime? endTime = null)
         {
             string sql = "select * from cim_test_booking where 1=1 ";
 
             if (sn != 0)
                 sql += " and sn = @sn ";
 
+            if (testTypeId != 0)
+                sql += " and cimTestTypeId = @CimTestTypeId ";
+            else
+                sql += " and cimTestTypeId != 99 ";
+
+            if (!string.IsNullOrEmpty(jobId))
+                sql += " and jobId = @JobId ";
+            if (floor != 0)
+                sql += " and floor = @Floor ";
+            if (testDayTypeId != 0)
+                sql += " and cimTestDayTypeId = @CimTestDayTypeId ";
+            if (startTime != null)
+                sql += " and startTime >= @StartTime ";
+
             var dao = _dbHelper.ExecuteQuery<CIMTestBookingDao>(sql, new
             {
-                sn = sn
+                sn = sn,
+                CimTestTypeId = testTypeId,
+                JobId = jobId,
+                Floor = floor,
+                CimTestDayTypeId = testDayTypeId,
+                StartTime = startTime,
+                EndTime = endTime
             });
 
             return dao;
@@ -104,5 +131,20 @@ or (@EndTime between startTime and endTime)) ";
 
             return dao;
         }
+
+        public int UpdateAnn(string updAnn)
+        {
+            string sql = @" UPDATE [dbo].[cim_test_booking]
+   SET [remark] = @remark 
+ WHERE [cimTestTypeId] = 99 ; ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, new
+            {
+                remark = updAnn
+            });
+
+            return dao;
+        }
+
     }
 }

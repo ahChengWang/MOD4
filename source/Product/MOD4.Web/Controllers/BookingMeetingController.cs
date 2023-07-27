@@ -6,6 +6,7 @@ using MOD4.Web.DomainService;
 using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
 using MOD4.Web.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Utility.Helper;
@@ -39,7 +40,9 @@ namespace MOD4.Web.Controllers
                 AccountPermission = _userCurrentPagePermission.AccountPermission
             };
 
-            List<CIMTestBookingViewModel> _response = _bookingMeetingDomainService.GetList().Select(data => new CIMTestBookingViewModel
+            List<CIMTestBookingEntity> _bookingEntity = _bookingMeetingDomainService.GetList();
+
+            List<CIMTestBookingViewModel> _response = _bookingEntity.Select(data => new CIMTestBookingViewModel
             {
                 Sn = data.Sn,
                 Name = data.Name,
@@ -65,6 +68,10 @@ namespace MOD4.Web.Controllers
                 BackgroundColor = data.BackgroundColor,
                 Remark = data.Remark
             }).ToList();
+
+            ViewBag.Ann = _bookingMeetingDomainService.GetAnnouncement();
+            ViewBag.BookingList = string.Join("\n" , _bookingEntity.Where(b => b.JobId == _userInfo.JobId && b.StartTime > DateTime.Now.Date).OrderBy(o => o.StartTime)
+                .Select(s => $"{s.StartTime.ToShortDateString()} ({s.CIMTestDayTypeId}) [{s.CIMTestTypeId.GetDescription()}] 議題:{s.Subject}"));
 
             return View(_response);
         }
@@ -93,10 +100,38 @@ namespace MOD4.Web.Controllers
                 Remark = createViewModel.Remark
             }, GetUserInfo());
 
-            return Json(new ResponseViewModel<List<string>>
+            List<CIMTestBookingViewModel> _response = _result.Item1?.Select(data => new CIMTestBookingViewModel
             {
-                IsSuccess = _result == "",
-                Msg = _result == "" ? "" : _result
+                Sn = data.Sn,
+                Name = data.Name,
+                JobId = data.JobId,
+                Subject = data.Subject,
+                CIMTestTypeId = data.CIMTestTypeId,
+                CIMTestType = data.CIMTestTypeId.GetDescription(),
+                CIMTestDayTypeId = data.CIMTestDayTypeId,
+                CIMTestDayType = data.CIMTestDayTypeId.GetDescription(),
+                FloorId = data.Floor,
+                StartYear = data.StartTime.Year,
+                StartMonth = data.StartTime.Month,
+                StartDay = data.StartTime.Day,
+                StartHour = data.StartTime.Hour,
+                StartMinute = data.StartTime.Minute,
+                StartSecond = data.StartTime.Second,
+                EndYear = data.EndTime.Year,
+                EndMonth = data.EndTime.Month,
+                EndDay = data.EndTime.Day,
+                EndHour = data.EndTime.Hour,
+                EndMinute = data.EndTime.Minute,
+                EndSecond = data.EndTime.Second,
+                BackgroundColor = data.BackgroundColor,
+                Remark = data.Remark
+            }).ToList() ?? new List<CIMTestBookingViewModel>();
+
+            return Json(new ResponseViewModel<List<CIMTestBookingViewModel>>
+            {
+                IsSuccess = _result.Item2 == "",
+                Data = _response,
+                Msg = _result.Item2 == "" ? "" : _result.Item2
             });
         }
 
@@ -163,6 +198,29 @@ namespace MOD4.Web.Controllers
                 return Json(new { IsSuccess = false, msg = _result });
             else
                 return Json(new { IsSuccess = true, msg = "" });
+        }
+
+        [HttpPut("[controller]/UpdateAnn")]
+        public IActionResult UpdateAnn(string announcement)
+        {
+            try
+            {
+                string _updRes = _bookingMeetingDomainService.UpdateAnnouncement(announcement);
+
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = _updRes == "",
+                    Msg = _updRes
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
+            }
         }
     }
 }

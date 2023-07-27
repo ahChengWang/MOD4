@@ -9,9 +9,13 @@ namespace MOD4.Web.DomainService
     {
         List<CIMTestBookingEntity> GetList();
 
+        string GetAnnouncement();
+
+        string UpdateAnnouncement(string announcement);
+
         string GetFreeTimeRoom(MeetingRoomEnum roomId, string date);
 
-        string Create(CIMTestBookingEntity cimBookingEntity, UserEntity userEntity);
+        (List<CIMTestBookingEntity>, string) Create(CIMTestBookingEntity cimBookingEntity, UserEntity userEntity);
 
         (string, CIMTestBookingEntity) Update(CIMTestBookingEntity updBookingEntity, UserEntity userEntity);
 

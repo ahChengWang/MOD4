@@ -608,7 +608,7 @@ namespace MOD4.Web.DomainService
                             row.GetCell(4).StringCellValue.Length > 10))
                             continue;
 
-                        for (int j = 5; j < _dateDictionary.Count; j++)
+                        for (int j = 0; j < _dateDictionary.Count; j++)
                         {
                             _processInfo = ConvertProcessToSn(row.GetCell(0).StringCellValue);
 
@@ -616,11 +616,11 @@ namespace MOD4.Web.DomainService
                             {
                                 Sn = _processInfo.Item1,
                                 Process = row.GetCell(0).StringCellValue.Trim(),
-                                Date = _dateDictionary[j],
+                                Date = _dateDictionary[j + 5],
                                 Node = _processInfo.Item2,
                                 Model = row.GetCell(1).StringCellValue.Trim(),
                                 ProdNo = row.GetCell(4).StringCellValue.Trim(),
-                                Qty = Convert.ToInt32(row.GetCell(j).NumericCellValue),
+                                Qty = Convert.ToInt32(row.GetCell(j + 5).NumericCellValue),
                                 Floor = floor,
                                 OwnerId = owner,
                                 UpdateUser = userEntity.Name,

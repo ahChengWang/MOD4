@@ -1,5 +1,7 @@
 ﻿using MOD4.Web.DomainService.Entity;
+using MOD4.Web.Enum;
 using MOD4.Web.Repostory;
+using MOD4.Web.Repostory.Dao;
 using NLog;
 //using Newtonsoft.Json;
 using System;
@@ -10,6 +12,7 @@ using System.Net.Http;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 using Utility.Helper;
 
 namespace MOD4.Web.DomainService
@@ -22,6 +25,9 @@ namespace MOD4.Web.DomainService
         private readonly ILineTTRepository _lineTTRepository;
         private readonly IOptionDomainService _optionDomainService;
         private readonly IDefinitionNodeDescRepository _definitionNodeDescRepository;
+        private readonly ILcmProductRepository _lcmProductRepository;
+        private readonly IEfficiencySettingRepository _efficiencySettingRepository;
+        private readonly IDailyEfficiencyRepository _dailyEfficiencyRepository;
         private readonly Dictionary<int, string> _defaultNodeDic = new Dictionary<int, string>
         {
             {1330,"FOG" },
@@ -84,7 +90,10 @@ namespace MOD4.Web.DomainService
             IEquipmentDomainService equipmentDomainService,
             ILineTTRepository lineTTRepository,
             IOptionDomainService optionDomainService,
-            IDefinitionNodeDescRepository definitionNodeDescRepository)
+            IDefinitionNodeDescRepository definitionNodeDescRepository,
+            ILcmProductRepository lcmProductRepository,
+            IEfficiencySettingRepository efficiencySettingRepository,
+            IDailyEfficiencyRepository dailyEfficiencyRepository)
         {
             _dailyEquipmentRepository = dailyEquipmentRepository;
             _targetSettingDomainService = targetSettingDomainService;
@@ -92,6 +101,9 @@ namespace MOD4.Web.DomainService
             _lineTTRepository = lineTTRepository;
             _optionDomainService = optionDomainService;
             _definitionNodeDescRepository = definitionNodeDescRepository;
+            _lcmProductRepository = lcmProductRepository;
+            _efficiencySettingRepository = efficiencySettingRepository;
+            _dailyEfficiencyRepository = dailyEfficiencyRepository;
         }
 
         public List<PassQtyEntity> GetList(string mfgDTE = "", string prodList = "1206", string shift = "", string nodeAryStr = "", int ownerId = 1)
@@ -494,5 +506,236 @@ namespace MOD4.Web.DomainService
                 var _tesRes = response.Result.Content.ReadAsStringAsync().Result;
             }
         }
+
+
+        #region Efficiency
+
+        public List<EfficiencyEntity> GetDailyEfficiencyList(string mfgDate, int floor = 3)
+        {
+            try
+            {
+                DateTime _mfgDTE = string.IsNullOrEmpty(mfgDate) ? DateTime.Now.AddDays(-1) : DateTime.Parse(mfgDate);
+
+                List<EfficiencyEntity> _response = new List<EfficiencyEntity>();
+                List<DailyPerformanceDao> _dailyEffList = _dailyEfficiencyRepository.SelectByConditions(_mfgDTE.Date, floor);
+
+                _response = _dailyEffList.GroupBy(g => g.ProcessId).Select(eff =>
+                {
+                    var _eff = eff.Where(w => w.LcmProdSn != 0).OrderByDescending(od => od.LcmProdSn).ThenBy(o => o.Shift).ToList();
+                    var _ttlSummary = eff.FirstOrDefault(w => w.LcmProdSn == 0 && w.Shift == "");
+
+                    EfficiencyEntity _tmp = new EfficiencyEntity
+                    {
+                        Floor = floor.ToString(),
+                        Process = eff.Key.GetDescription(),
+                        TTLcount = eff.Count() + 3,
+                        TTLPassQty = _ttlSummary.PassQty,
+                        EfficiencyInlineTTL = _ttlSummary.InlineEfficiency,
+                        EfficiencyInlineOfflineTTL = _ttlSummary.InOfflineEfficiency,
+                        InfoList = _eff.Select(s => new EfficiencyDetailEntity
+                        {
+                            ProdNo = s.ProdNo,
+                            PassQty = s.PassQty,
+                            Shift = s.Shift == "A" ? "日" : "夜",
+                            StartTime = s.OpenTime?.ToString("yyyy/MM/dd HH:mm:ss") ?? "",
+                            EndTime = s.CloseTime?.ToString("yyyy/MM/dd HH:mm:ss") ?? "",
+                            EfficiencyInline = s.InlineEfficiency == 0 ? 0 : s.InlineEfficiency,
+                            EfficiencyInlineOffline = s.InOfflineEfficiency == 0 ? 0 : s.InOfflineEfficiency,
+                            MedianTT = s.MedianTT.ToString("0.0")
+                        }).ToList()
+                    };
+
+                    //var _tmpAList = _tmp.InfoList.Where(w => w.Shift == "日");
+                    //var _tmpBList = _tmp.InfoList.Where(w => w.Shift == "夜");
+
+                    _tmp.InfoList.AddRange(eff.Where(w => w.LcmProdSn == 0 && w.Shift == "A").Select(s => new EfficiencyDetailEntity
+                    {
+                        ProdNo = "TTL",
+                        PassQty = s.PassQty,
+                        Shift = "日",
+                        StartTime = "",
+                        EndTime = "",
+                        EfficiencyInline = s.InlineEfficiency == 0 ? 0 : s.InlineEfficiency,
+                        EfficiencyInlineOffline = s.InOfflineEfficiency == 0 ? 0 : s.InOfflineEfficiency,
+                        MedianTT = ""
+                    }));
+
+                    _tmp.InfoList.AddRange(eff.Where(w => w.LcmProdSn == 0 && w.Shift == "B").Select(s => new EfficiencyDetailEntity
+                    {
+                        ProdNo = "TTL",
+                        PassQty = s.PassQty,
+                        Shift = "夜",
+                        StartTime = "",
+                        EndTime = "",
+                        EfficiencyInline = s.InlineEfficiency == 0 ? 0 : s.InlineEfficiency,
+                        EfficiencyInlineOffline = s.InOfflineEfficiency == 0 ? 0 : s.InOfflineEfficiency,
+                        MedianTT = ""
+                    }));
+
+                    return _tmp;
+
+                }).ToList();
+
+                return _response;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public List<EfficiencySettingEntity> GetEfficiencySetting(int floor)
+        {
+            var _effSettings = _efficiencySettingRepository.SelectByConditions(floor: floor);
+
+            var _defProdList = _lcmProductRepository.SelectByConditions();
+
+            var _effSettingEntity = (from setting in _effSettings
+                                     join def in _defProdList
+                                     on setting.LcmProdSn equals def.sn
+                                     select new EfficiencySettingEntity
+                                     {
+                                         LcmProdSn = setting.LcmProdSn,
+                                         ProdNo = def.ProdNo,
+                                         ProcessId = setting.ProcessId,
+                                         Shift = setting.Shift,
+                                         Process = setting.ProcessId.GetDescription(),
+                                         Node = setting.Node,
+                                         WT = setting.WT,
+                                         InlineEmps = setting.InlineEmps,
+                                         OfflineEmps = setting.OfflineEmps,
+                                         Floor = setting.Floor
+                                     }).ToList();
+
+            return _effSettingEntity;
+        }
+
+        public string UpdateEfficiencySetting(List<EfficiencySettingEntity> updEntity, UserEntity userEntity)
+        {
+            try
+            {
+                string _updResult = "";
+                DateTime _nowTime = DateTime.Now;
+
+
+                if (updEntity.Any(a => a.LcmProdSn == 0 || a.Node == 0))
+                    return "";
+
+                List<EfficiencySettingDao> _updEffList = updEntity.Select(eff => new EfficiencySettingDao
+                {
+                    ProcessId = eff.ProcessId,
+                    Shift = eff.Shift,
+                    Floor = eff.Floor,
+                    Node = eff.Node,
+                    LcmProdSn = eff.LcmProdSn,
+                    WT = eff.WT,
+                    InlineEmps = eff.InlineEmps,
+                    OfflineEmps = eff.OfflineEmps,
+                    UpdateTime = _nowTime,
+                    UpdateUser = userEntity.Name
+                }).ToList();
+
+                using (TransactionScope _scope = new TransactionScope())
+                {
+                    var _res = false;
+
+                    _res = _efficiencySettingRepository.UpdateSetting(_updEffList) == _updEffList.Count;
+
+                    if (_res)
+                        _scope.Complete();
+                    else
+                        _updResult = "更新異常";
+                }
+
+                return _updResult;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private void BatchInsert()
+        {
+            DateTime _now = DateTime.Now;
+
+            var _defProdList = _lcmProductRepository.SelectByConditions();
+
+            List<EfficiencySettingDao> _insList = new List<EfficiencySettingDao>();
+
+            int[] _floor = new int[] { 2, 3 };
+
+            foreach (LcmProductDao dao in _defProdList)
+            {
+                _insList.Add(new EfficiencySettingDao
+                {
+                    LcmProdSn = dao.sn,
+                    Node = 1100,
+                    ProcessId = ProcessEnum.BOND,
+                    WT = 200,
+                    InlineEmps = 5,
+                    OfflineEmps = 2,
+                    UpdateTime = _now,
+                    UpdateUser = "admin"
+                });
+                _insList.Add(new EfficiencySettingDao
+                {
+                    LcmProdSn = dao.sn,
+                    Node = 1330,
+                    ProcessId = ProcessEnum.FOG,
+                    WT = 200,
+                    InlineEmps = 5,
+                    OfflineEmps = 2,
+                    UpdateTime = _now,
+                    UpdateUser = "admin"
+                });
+                _insList.Add(new EfficiencySettingDao
+                {
+                    LcmProdSn = dao.sn,
+                    Node = 1355,
+                    ProcessId = ProcessEnum.LAM,
+                    WT = 200,
+                    InlineEmps = 5,
+                    OfflineEmps = 2,
+                    UpdateTime = _now,
+                    UpdateUser = "admin"
+                });
+                _insList.Add(new EfficiencySettingDao
+                {
+                    LcmProdSn = dao.sn,
+                    Node = 1415,
+                    ProcessId = ProcessEnum.ASSY,
+                    WT = 200,
+                    InlineEmps = 5,
+                    OfflineEmps = 2,
+                    UpdateTime = _now,
+                    UpdateUser = "admin"
+                });
+                _insList.Add(new EfficiencySettingDao
+                {
+                    LcmProdSn = dao.sn,
+                    Node = 1600,
+                    ProcessId = ProcessEnum.CDP,
+                    WT = 200,
+                    InlineEmps = 5,
+                    OfflineEmps = 2,
+                    UpdateTime = _now,
+                    UpdateUser = "admin"
+                });
+            }
+
+
+            using (TransactionScope _scope = new TransactionScope())
+            {
+                _efficiencySettingRepository.Insert(_insList);
+                _scope.Complete();
+            }
+
+
+        }
+
+        #endregion
     }
 }

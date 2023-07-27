@@ -5,6 +5,6 @@ namespace MOD4.Web.Repostory
 {
     public interface IDefinitionNodeDescRepository
     {
-        List<DefinitionNodeDescDao> SelectByConditions(int eqNo = 0);
+        List<DefinitionNodeDescDao> SelectByConditions(int eqNo = 0, int isActive = 1);
     }
 }

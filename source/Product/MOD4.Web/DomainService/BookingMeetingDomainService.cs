@@ -1,15 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
-using MOD4.Web.DomainService.Entity;
+﻿using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
 using MOD4.Web.Repostory;
 using MOD4.Web.Repostory.Dao;
-using Newtonsoft.Json;
 using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Transactions;
 using Utility.Helper;
 
@@ -52,7 +48,10 @@ namespace MOD4.Web.DomainService
 
         public List<CIMTestBookingEntity> GetList()
         {
-            var _bookingList = _cimTestBookingRepository.SelectByConditions();
+            DateTime _nowTime = DateTime.Now;
+            DateTime _startTime = DateTime.Parse($"{_nowTime.AddMonths(-1).ToString("yyyy/MM")}/01");
+
+            var _bookingList = _cimTestBookingRepository.SelectByConditions(startTime: _startTime);
 
             _logHelper.WriteLog(LogLevel.Info, this.GetType().Name, $"使用者查詢");
 
@@ -72,6 +71,37 @@ namespace MOD4.Web.DomainService
             }).ToList();
         }
 
+        public string GetAnnouncement()
+        {
+            var _bookingList = _cimTestBookingRepository.SelectByConditions(testTypeId: CIMTestTypeEnum.Announcement);
+
+            return _bookingList.FirstOrDefault().Remark;
+        }
+
+        public string UpdateAnnouncement(string announcement)
+        {
+            try
+            {
+                string _updResponse = "";
+
+                using (TransactionScope _scope = new TransactionScope())
+                {
+                    var _updRes = _cimTestBookingRepository.UpdateAnn(announcement) == 1;
+
+                    if (_updRes)
+                        _scope.Complete();
+                    else
+                        _updResponse = "更新異常";
+                }
+
+                return _updResponse;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+
+        }
 
         public string GetFreeTimeRoom(MeetingRoomEnum roomId, string date)
         {
@@ -102,21 +132,22 @@ namespace MOD4.Web.DomainService
                 return $"{date} 全時段都可預約";
         }
 
-        public string Create(CIMTestBookingEntity bookingEntity, UserEntity userEntity)
+        public (List<CIMTestBookingEntity>, string) Create(CIMTestBookingEntity bookingEntity, UserEntity userEntity)
         {
             string _createRes = "";
+            List<CIMTestBookingEntity> _newBookingList = new List<CIMTestBookingEntity>();
 
             if (string.IsNullOrEmpty(bookingEntity.Date?.Trim() ?? "") ||
                 string.IsNullOrEmpty(bookingEntity.Name?.Trim() ?? "") || string.IsNullOrEmpty(bookingEntity.Subject?.Trim() ?? ""))
-                return "欄位不可空白";
+                return (null, "欄位不可空白");
 
             if (!DateTime.TryParse($"{bookingEntity.Date}", out _))
-                return "預約時間異常";
+                return (null, "預約時間異常");
 
             var _accountInfoList = _accountDomainService.GetAccountInfoByConditions(null, bookingEntity.Name.Trim(), bookingEntity.JobId.Trim(), null);
 
             if (_accountInfoList == null || !_accountInfoList.Any())
-                return "請確認預約人姓名及工號";
+                return (null, "請確認預約人姓名及工號");
 
             DateTime _startTime = DateTime.Now;
             DateTime _endTime = DateTime.Now;
@@ -149,12 +180,13 @@ namespace MOD4.Web.DomainService
                 {
                     _overlapMsg += $"CIM 測試: {booking.Subject}; 預約人: {booking.Name}; 時間: {booking.StartTime.ToString("HH:mm:ss")} - {booking.EndTime.ToString("HH:mm:ss")} \n";
                 }
-                return _overlapMsg;
+                return (null, _overlapMsg);
             }
 
             List<CIMTestBookingDao> _insCIMBookingList = new List<CIMTestBookingDao>();
             int _dayDelay = 0;
 
+            // 處理多日預約
             for (int day = 0; day < bookingEntity.Days; day++)
             {
                 if (_startTime.AddDays(day).DayOfWeek == DayOfWeek.Saturday)
@@ -213,16 +245,38 @@ namespace MOD4.Web.DomainService
                 {
                     To = _accountInfoList.FirstOrDefault().Mail,
                     Subject = $"【CIM 測機排程】預約申請成功通知 - 申請人:{bookingEntity.Name}",
-                    CCUserList = new List<string> { "ALLAN.RO@INNOLUX.COM", "MORRISE.CHEN@INNOLUX.COM", "CHRIS31.WANG@INNOLUX.COM", "FLOWER.LIN@INNOLUX.COM" },
+                    CCUserList = new List<string> { "ALLAN.RO@INNOLUX.COM", "MORRISE.CHEN@INNOLUX.COM", "CHRIS31.WANG@INNOLUX.COM", "AKUEI.YANG@INNOLUX.COM", "FLOWER.LIN@INNOLUX.COM" },
                     Content = "<br /> Dear Sir ,<br /><br />" +
                     $"您 <a style='text-decoration:underline;font-weight:800'>【{bookingEntity.Subject}({bookingEntity.CIMTestTypeId.GetDescription()})】</a><a> CIM 測機排程已成功預約</a>， <br /><br />" +
                     $"日期 {_startTime} ~ {_endTime}， <br /><br />" +
                     $"詳細內容請至 <a href='http://CUX003184s/CarUX/BookingMeeting' target='_blank'>CIM 測機排程</a> 連結查看， <br /><br />" +
                     "謝謝"
                 });
+
+                // 查詢新增預約
+                _newBookingList = _cimTestBookingRepository.SelectByConditions(
+                    testTypeId: bookingEntity.CIMTestTypeId,
+                    jobId: bookingEntity.JobId,
+                    floor: bookingEntity.Floor,
+                    testDayTypeId: bookingEntity.CIMTestDayTypeId,
+                    startTime: _insCIMBookingList.Min(book => book.StartTime),
+                    endTime: _insCIMBookingList.Max(book => book.EndTime)).Select(booking => new CIMTestBookingEntity
+                    {
+                        Sn = booking.Sn,
+                        Name = booking.Name,
+                        Subject = booking.Subject,
+                        CIMTestTypeId = booking.CIMTestTypeId,
+                        Floor = booking.Floor,
+                        JobId = booking.JobId,
+                        CIMTestDayTypeId = booking.CIMTestDayTypeId,
+                        StartTime = booking.StartTime,
+                        EndTime = booking.EndTime,
+                        BackgroundColor = booking.BackgroundColor,
+                        Remark = booking.Remark
+                    }).ToList();
             }
 
-            return _createRes;
+            return (_newBookingList, _createRes);
         }
 
         public (string, CIMTestBookingEntity) Update(CIMTestBookingEntity updBookingEntity, UserEntity userEntity)
@@ -324,7 +378,7 @@ namespace MOD4.Web.DomainService
                 {
                     To = _accountInfoList.FirstOrDefault().Mail,
                     Subject = $"【CIM 測機排程】預約申請更新通知 - 申請人:{_booking.Name}",
-                    CCUserList = new List<string> { "ALLAN.RO@INNOLUX.COM", "MORRISE.CHEN@INNOLUX.COM", "CHRIS31.WANG@INNOLUX.COM", "FLOWER.LIN@INNOLUX.COM" },
+                    CCUserList = new List<string> { "ALLAN.RO@INNOLUX.COM", "MORRISE.CHEN@INNOLUX.COM", "CHRIS31.WANG@INNOLUX.COM", "AKUEI.YANG@INNOLUX.COM", "FLOWER.LIN@INNOLUX.COM" },
                     Content = "<br /> Dear Sir ,<br /><br />" +
                     $"您 <a style='text-decoration:underline;font-weight:900'>【{_booking.Subject}({_booking.CIMTestTypeId.GetDescription()})】</a><a> CIM 測機排程已成功預約</a>， <br /><br />" +
                     $"日期 {_startTime} ~ {_endTime}， <br /><br />" +

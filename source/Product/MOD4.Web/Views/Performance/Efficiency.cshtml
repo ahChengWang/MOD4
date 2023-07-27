@@ -1,0 +1,216 @@
+﻿@{
+    ViewBag.Title = "各部效率";
+}
+
+<style>
+
+    .card-title {
+        font-size: 35px;
+        font-weight: 600;
+    }
+
+    table {
+        width: 100%;
+        margin-bottom: 1rem;
+        box-shadow: #999;
+        border-collapse: collapse;
+    }
+
+        table td, table th {
+            padding: 0.2rem;
+            text-align: center;
+            vertical-align: middle !important;
+            font-size: 17px;
+            border: 1px solid #787878;
+        }
+
+    .my-control {
+        display: initial;
+        width: 70%;
+        height: calc(2.25rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        box-shadow: inset 0 0 0 transparent;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+</style>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div id="app" class="card">
+                <div class="card-header">
+                    <h2 class="card-title">各部效率</h2>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <fieldset id="searchArea">
+                        <legend id="legend">查詢區塊</legend>
+                        <div id="barDiv1" class="row" style="margin-bottom:5px">
+                            <div class="col-lg-2">
+                                <label>日期：</label>
+                                <input id="srcDate" class="my-control" type="date" v-model="searchDate" :value="searchDate" :max="searchMAXDate" />
+                            </div>
+                            <div class="col-lg-2">
+                                <label>樓層：</label>
+                                <select class="my-control" id="selFloor">
+                                    <option value="2">2</option>
+                                    <option selected value="3">3</option>
+                                </select>
+                            </div>
+                            <div>
+                                <input type="button" class="btn btn-info" style="margin-left:7px" name="name" value="查詢" v-on:click="Search()" />
+                            </div>
+                        </div>
+                        <br />
+                    </fieldset>
+                    <div style="text-align: right; font-size: 10px; font-family: 'Microsoft JhengHei'; font-weight: 700; font-style: italic; ">
+                        <p>每日上午 7:50更新前一日資料</p>
+                    </div>
+                    <br id="brId" />
+                    <div>
+                        <table v-for="info in efficiencyList">
+                            <thead>
+                                <tr>
+                                    <th width="5%"></th>
+                                    <th width="8%">機種</th>
+                                    <th width="5%">日夜班</th>
+                                    <th width="5%">Pass量</th>
+                                    <th width="8%">效率(inline)</th>
+                                    <th width="8%">效率(inline+offline)</th>
+                                    <th width="10%">開線時間</th>
+                                    <th width="10%">收線時間</th>
+                                    <th width="5%">中位數_TT</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(detail, idx) in info.infoList">
+                                    <td v-if="idx === 0" :rowspan="info.ttLcount">{{info.floor}}F - {{info.process}}</td>
+                                    <td v-if="(idx % 2) === 0 && detail.prodNo != 'TTL'" rowspan="2">{{detail.prodNo}}</td>
+                                    <td v-if="(idx % 2) === 0 && detail.prodNo == 'TTL'" rowspan="2" style="background-color: #e6ce87;">{{detail.prodNo}}</td>
+                                    <td>{{detail.shift}}</td>
+                                    <td>{{detail.passQty}}</td>
+                                    <td v-if="detail.efficiencyInline < 90" style="font-weight: 600; background-color: #c94040 ">{{detail.efficiencyInline}}%</td>
+                                    <td v-if="detail.efficiencyInline >= 90 && detail.efficiencyInline < 95" style="font-weight: 600; background-color: #dbcf48 ">{{detail.efficiencyInline}}%</td>
+                                    <td v-if="detail.efficiencyInline >= 95" style="font-weight: 600; background-color: #81b83b">{{detail.efficiencyInline}}%</td>
+
+                                    <td v-if="detail.efficiencyInlineOffline == 0"></td>
+                                    <td v-if="detail.efficiencyInlineOffline != 0 && detail.efficiencyInlineOffline < 90" style="font-weight: 600; background-color: #c94040 ">{{detail.efficiencyInlineOffline}}%</td>
+                                    <td v-if="detail.efficiencyInlineOffline != 0 && detail.efficiencyInlineOffline >= 90 && detail.efficiencyInlineOffline < 95" style="font-weight: 600; background-color: #dbcf48 ">{{detail.efficiencyInlineOffline}}%</td>
+                                    <td v-if="detail.efficiencyInlineOffline != 0 && detail.efficiencyInlineOffline >= 95" style="font-weight: 600; background-color: #81b83b">{{detail.efficiencyInlineOffline}}%</td>
+                                    <td>{{detail.startTime}}</td>
+                                    <td>{{detail.endTime}}</td>
+                                    <td>{{detail.medianTT}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="background-color: #e6ce87;">TTL</td>
+                                    <td>{{info.ttlPassQty}}</td>
+                                    <td v-if="info.efficiencyInlineTTL < 90" style="font-weight: 600; background-color: #c94040 ">{{info.efficiencyInlineTTL}}%</td>
+                                    <td v-if="info.efficiencyInlineTTL >= 90 && detail.efficiencyInline < 95" style="font-weight: 600; background-color: #dbcf48 ">{{info.efficiencyInlineTTL}}%</td>
+                                    <td v-if="info.efficiencyInlineTTL >= 95" style="font-weight: 600; background-color: #81b83b">{{info.efficiencyInlineTTL}}%</td>
+                                    <td v-if="info.efficiencyInlineOfflineTTL < 90" style="font-weight: 600; background-color: #c94040 ">{{info.efficiencyInlineOfflineTTL}}%</td>
+                                    <td v-if="info.efficiencyInlineOfflineTTL >= 90 && detail.efficiencyInline < 95" style="font-weight: 600; background-color: #dbcf48 ">{{info.efficiencyInlineOfflineTTL}}%</td>
+                                    <td v-if="info.efficiencyInlineOfflineTTL >= 95" style="font-weight: 600; background-color: #81b83b">{{info.efficiencyInlineOfflineTTL}}%</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    </section>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+
+        var _efficiencys = []
+        var _allProds = []
+
+        var _model = {
+            efficiencyList: [],
+            meetingRoomId: 0,
+            date: '',
+            timeStart: '',
+            name: '',
+            subject: '',
+            repeatWeekly: 0,
+            resizeStartTime: null,
+            resizeEndTime: null
+        };
+
+        const vm = new Vue({
+            el: '#app',
+            data: {
+                efficiencyList: _efficiencys,
+                searchDate: '',
+                searchMAXDate: ''
+            },
+            methods: {
+                Search() {
+
+                    if (vm.searchDate == '') {
+                        alert("請選擇日期");
+                        return false;
+                    }
+
+                    $.ajax({
+                        url: "./Efficiency/Search/" + $("#selFloor").val() + "/" + vm.searchDate,
+                        type: "GET",
+                        success: function (res) {
+                            $.unblockUI();
+                            if (res.isSuccess) {
+                                vm.efficiencyList = res.data;
+                            }
+                            else {
+
+                            }
+                        }
+                    });
+                },
+                SetInitDate() {
+                    let today = new Date();
+                    today.setDate(today.getDate() - 1);
+                    let _year = today.getFullYear();
+                    let _month = (today.getMonth() + 1);
+                    let _day = today.getDate();
+
+                    if (_month.toString().length < 2) {
+                        _month = '0' + _month;
+                    }
+                    if (_day.toString().length < 2) {
+                        _day = '0' + _day;
+                    }
+
+                    const _yesterday = _year + '-' + _month + '-' + _day;
+                    const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
+                    return _yesterday;
+                }
+            },
+            mounted() {
+                @{
+                    foreach (var item in Model)
+                    {
+                        @:_efficiencys.push({ floor: @item.Floor, process: "@item.Process", ttlPassQty: "@item.TTLPassQty", efficiencyInlineTTL: "@item.EfficiencyInlineTTL", efficiencyInlineOfflineTTL: "@item.EfficiencyInlineOfflineTTL", ttLcount: @item.TTLcount, infoList: @(Html.Raw(Json.Serialize(item.InfoList)))});
+                    }
+                }
+
+                this.searchDate = this.SetInitDate();
+                this.searchMAXDate = this.SetInitDate();
+            }
+        });
+
+    </script>
+}
