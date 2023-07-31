@@ -7,7 +7,7 @@ namespace MOD4.Web.DomainService
 {
     public interface IMTDDashboardDomainService
     {
-        List<MTDDashboardMainEntity> DashboardSearch(int floor = 2, string date = "", decimal time = 24, int owner = 1);
+        (string Result, List<MTDDashboardMainEntity> Entitys) DashboardSearch(int floor = 2, string date = "", decimal time = 24, int owner = 1);
 
         List<ManufactureScheduleEntity> Search(string dateRange = "", int floor = 2, int owner = 1);
 

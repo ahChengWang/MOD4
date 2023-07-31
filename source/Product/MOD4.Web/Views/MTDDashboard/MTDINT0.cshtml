@@ -218,14 +218,8 @@
                     success: function (result) {
                         $.unblockUI();
                         if (isJsonString(result)) {
-                            var _res = JSON.parse(result);
-                            if (result == '""') {
-                                alert('查無資料');
-                            }
-                            if ('isException' in _res) {
-                                alert(_res.msg);
-                                return false;
-                            }
+                            alert(JSON.parse(result).msg);
+                            return false;
                         }
                         else {
                             $('#dashDiv').children().empty();

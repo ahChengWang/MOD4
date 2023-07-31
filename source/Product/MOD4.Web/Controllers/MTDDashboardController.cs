@@ -38,7 +38,15 @@ namespace MOD4.Web.Controllers
             {
                 var _resilt = _mtdDashboardDomainService.DashboardSearch();
 
-                List<MTDDashboardMainViewModel> _response = _resilt.Select(mtd => new MTDDashboardMainViewModel
+                if (_resilt.Result != "")
+                {
+                    return RedirectToAction("Error", "Home", new ErrorViewModel
+                    {
+                        Message = _resilt.Result
+                    });
+                }
+
+                List<MTDDashboardMainViewModel> _response = _resilt.Entitys.Select(mtd => new MTDDashboardMainViewModel
                 {
                     Process = mtd.Process,
                     Plan = mtd.MTDSubList.Sum(sub => sub.Plan).ToString("#,0"),
@@ -95,7 +103,14 @@ namespace MOD4.Web.Controllers
             {
                 var _resilt = _mtdDashboardDomainService.DashboardSearch(floor, date, time, owner);
 
-                List<MTDDashboardMainViewModel> _response = _resilt.Select(mtd => new MTDDashboardMainViewModel
+                if (_resilt.Result != "")
+                    return Json(new ResponseViewModel<string>
+                    {
+                        IsSuccess = false,
+                        Msg = _resilt.Result
+                    });
+
+                List<MTDDashboardMainViewModel> _response = _resilt.Entitys.Select(mtd => new MTDDashboardMainViewModel
                 {
                     Process = mtd.Process,
                     Plan = mtd.MTDSubList.Sum(sub => sub.Plan).ToString("#,0"),
@@ -138,7 +153,11 @@ namespace MOD4.Web.Controllers
             }
             catch (Exception ex)
             {
-                throw;
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
             }
         }
 
@@ -149,7 +168,15 @@ namespace MOD4.Web.Controllers
             {
                 var _resilt = _mtdDashboardDomainService.DashboardSearch(owner: 0);
 
-                List<MTDDashboardMainViewModel> _response = _resilt.Select(mtd => new MTDDashboardMainViewModel
+                if (_resilt.Result != "")
+                {
+                    return RedirectToAction("Error", "Home", new ErrorViewModel
+                    {
+                        Message = _resilt.Result
+                    });
+                }
+
+                List<MTDDashboardMainViewModel> _response = _resilt.Entitys.Select(mtd => new MTDDashboardMainViewModel
                 {
                     Process = mtd.Process,
                     Plan = mtd.MTDSubList.Sum(sub => sub.Plan).ToString("#,0"),
@@ -206,7 +233,14 @@ namespace MOD4.Web.Controllers
             {
                 var _resilt = _mtdDashboardDomainService.DashboardSearch(floor, date, time, owner);
 
-                List<MTDDashboardMainViewModel> _response = _resilt.Select(mtd => new MTDDashboardMainViewModel
+                if (_resilt.Result != "")
+                    return Json(new ResponseViewModel<string>
+                    {
+                        IsSuccess = false,
+                        Msg = _resilt.Result
+                    });
+
+                List<MTDDashboardMainViewModel> _response = _resilt.Entitys.Select(mtd => new MTDDashboardMainViewModel
                 {
                     Process = mtd.Process,
                     Plan = mtd.MTDSubList.Sum(sub => sub.Plan).ToString("#,0"),
@@ -249,7 +283,11 @@ namespace MOD4.Web.Controllers
             }
             catch (Exception ex)
             {
-                throw;
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
             }
         }
 

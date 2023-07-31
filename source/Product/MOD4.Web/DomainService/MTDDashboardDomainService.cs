@@ -69,7 +69,7 @@ namespace MOD4.Web.DomainService
         /// <param name="date">default 昨日</param>
         /// <param name="time">default 24h</param>
         /// <returns></returns>
-        public List<MTDDashboardMainEntity> DashboardSearch(int floor = 2, string date = "", decimal time = 24, int owner = 1)
+        public (string Result, List<MTDDashboardMainEntity> Entitys) DashboardSearch(int floor = 2, string date = "", decimal time = 24, int owner = 1)
         {
             DateTime _nowTime = DateTime.Now.AddDays(-1).Date;
             DateTime _srchDate = _nowTime;
@@ -110,6 +110,18 @@ namespace MOD4.Web.DomainService
             List<LcmProductDao> _lcmProductList = _lcmProductRepository.SelectByConditions(_lcmProdList);
 
             var _mtdProdProcessSettings = _targetSettingDomainService.GetSettingForMTD(_lcmProdList);
+
+            var _dupProdSettings = _mtdProdProcessSettings.GroupBy(g => new { g.ProdNo, g.Process }).Where(w => w.Count() > 1).Select(s => s.Key).ToList();
+
+            if (_dupProdSettings.Any())
+            {
+                string _verifyResult = "查詢異常\n請確認以下機種設定是否異常\n單一製程段只會有一個MTD站點\n";
+                foreach (var setting in _dupProdSettings)
+                {
+                    _verifyResult += $"製程({setting.Process}),機種({setting.ProdNo})\n";
+                }
+                return (_verifyResult, null);
+            }
 
             List<MTDProdScheduleEntity> _mtdProdScheduleList = (from setting in _mtdProdProcessSettings
                                                                 join defProd in _lcmProductList
@@ -169,9 +181,9 @@ namespace MOD4.Web.DomainService
             Task _108109Task = new Task(() =>
             {
                 // call zipsum 1.08 1.09 report 查詢 & 解析
-                Parallel.ForEach(_mtdProdScheduleList.GroupBy(gb => new { gb.Node, gb.DownEq }), (node) =>
+                Parallel.ForEach(_mtdProdScheduleList.GroupBy(gb => gb.DownEq), (prod) =>
                 {
-                    var _temp108List = GetZipsum108Today(_srchDate.ToString("yyyy-MM-dd"), node.Key.DownEq, node.Key.Node.ToString());
+                    var _temp108List = GetZipsum108Today(_srchDate.ToString("yyyy-MM-dd"), prod.Key);
                     foreach (var zip108Data in _temp108List)
                     {
                         lock (this)
@@ -180,7 +192,7 @@ namespace MOD4.Web.DomainService
                         }
                     }
 
-                    var _temp109List = GetZipsum109Today(_srchDate.ToString("yyyy-MM-dd"), node.Key.DownEq, node.Key.Node.ToString());
+                    var _temp109List = GetZipsum109Today(_srchDate.ToString("yyyy-MM-dd"), prod.Key);
                     foreach (var zip109Data in _temp109List)
                     {
                         lock (this)
@@ -282,11 +294,11 @@ namespace MOD4.Web.DomainService
                 return data;
             }).OrderBy(ob => ob.Sn).ThenBy(tb => tb.EqNo).ToList();
 
-            return _mtdDashboardList.GroupBy(g => g.Process).Select(data => new MTDDashboardMainEntity
+            return ("", _mtdDashboardList.GroupBy(g => g.Process).Select(data => new MTDDashboardMainEntity
             {
                 Process = data.Key,
                 MTDSubList = data.ToList()
-            }).ToList();
+            }).ToList());
         }
 
         private List<MTDPerformanceEntity> GetZipsum106Today(string startDate, string endDate, string prod, string node, int owner)
@@ -406,7 +418,7 @@ namespace MOD4.Web.DomainService
             return _tempEntity;
         }
 
-        private List<(string, decimal)> GetZipsum108Today(string date, string passEq, string process)
+        private List<(string, decimal)> GetZipsum108Today(string date, string passEq)
         {
             List<(string, decimal)> _respList = new List<(string, decimal)>();
 
@@ -452,7 +464,7 @@ namespace MOD4.Web.DomainService
             return _respList;
         }
 
-        private List<(string, string)> GetZipsum109Today(string date, string passEq, string process)
+        private List<(string, string)> GetZipsum109Today(string date, string passEq)
         {
             List<(string, string)> _respList = new List<(string, string)>();
 
@@ -630,10 +642,13 @@ namespace MOD4.Web.DomainService
                     }
                     #endregion
 
-                    var _settingList = _targetSettingDomainService.GetUploadMTDSettings(_uplMTDScheduleEntity.Select(mtd => mtd.ProdNo).Distinct(), _uplMTDScheduleEntity.Select(mtd => mtd.Process).Distinct());
+                    var _settingResult = VerifySettings(_uplMTDScheduleEntity, floor);
+
+                    if (!string.IsNullOrEmpty(_settingResult.Item1))
+                        return _settingResult.Item1;
 
                     List<MTDProductionScheduleDao> _updMTDScheduleDao = (from mtd in _uplMTDScheduleEntity
-                                                                         join setting in _settingList
+                                                                         join setting in _settingResult.Item2
                                                                          on new { mtd.ProdNo, mtd.Process } equals new { setting.ProdNo, setting.Process }
                                                                          select new MTDProductionScheduleDao
                                                                          {
@@ -648,7 +663,6 @@ namespace MOD4.Web.DomainService
                                                                              UpdateUser = mtd.UpdateUser,
                                                                              UpdateTime = mtd.UpdateTime,
                                                                          }).ToList();
-
 
 
                     _mtdScheduleUpdateHistoryDao.FileName = _newFileName;
@@ -695,6 +709,7 @@ namespace MOD4.Web.DomainService
                 throw ex;
             }
         }
+
         private string DoFileCopy(IFormFile uploadFile, DateTime nowTime)
         {
             var _fileNameStr = "";
@@ -741,6 +756,54 @@ namespace MOD4.Web.DomainService
                 default:
                     return (0, "");
             }
+        }
+
+        private (string, List<MTDProcessSettingEntity>) VerifySettings(List<MTDProdScheduleEntity> uplMTDScheduleEntity, int floor)
+        {
+            string _verifyResult = "";
+
+            var _settingList = _targetSettingDomainService.GetUploadMTDSettings(uplMTDScheduleEntity.Select(mtd => mtd.ProdNo).Distinct(), uplMTDScheduleEntity.Select(mtd => mtd.Process).Distinct());
+
+            var _dupProdSettings = _settingList.GroupBy(g => new { g.ProdNo, g.Process }).Where(w => w.Count() > 1).Select(s => s.Key).ToList();
+
+            if (_dupProdSettings.Any())
+            {
+                _verifyResult += "請確認以下機種設定是否異常\n";
+                foreach (var setting in _dupProdSettings)
+                {
+                    _verifyResult += $"process({setting.Process}),機種({setting.ProdNo})\n";
+                }
+            }
+
+            //switch (floor)
+            //{
+            //    case 2:
+            //        var _nonSetting2 = _settingList.GroupBy(g => new { g.ProdNo }).Where(w => w.Count() < 5).Select(s => s.Key).ToList();
+            //        if (_nonSetting2.Any())
+            //        {
+            //            _verifyResult += "\n確認以下機種是否皆已設定\n";
+            //            foreach (var setting in _nonSetting2)
+            //            {
+            //                _verifyResult += $"機種({setting.ProdNo})\n";
+            //            }
+            //        }
+            //        break;
+            //    case 3:
+            //        var _nonSetting3 = _settingList.GroupBy(g => new { g.ProdNo }).Where(w => w.Count() < 4).Select(s => s.Key).ToList();
+            //        if (_nonSetting3.Any())
+            //        {
+            //            _verifyResult += "\n確認以下機種是否皆已設定\n";
+            //            foreach (var setting in _nonSetting3)
+            //            {
+            //                _verifyResult += $"機種序號({setting.ProdNo})\n";
+            //            }
+            //        }
+            //        break;
+            //    default:
+            //        break;
+            //}
+
+            return (_verifyResult, _settingList);
         }
 
         #endregion
