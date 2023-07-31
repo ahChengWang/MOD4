@@ -427,8 +427,8 @@ namespace MOD4.Web.DomainService
                 string _encryptPw = Encrypt(loginEntity.Password, shaKey);
 
                 loginEntity.EncryptPw = _encryptPw;
-
-                if (requiredVerify)
+                                
+                if (requiredVerify && loginEntity.Account.ToUpper() != "MFG")
                 {
                     _accInfoEntity = DoInxSSOVerify(loginEntity);
                 }

@@ -505,7 +505,7 @@ namespace MOD4.Web.DomainService
             {
                 DateTime _nowTime = DateTime.Now;
                 DateTime _startDate = DateTime.Parse($"{_nowTime.ToString("yyyy/MM")}/01").AddDays(-10);
-                DateTime _endDate = DateTime.Parse($"{_nowTime.AddMonths(1).ToString("yyyy/MM")}/01").AddDays(-1);
+                DateTime _endDate = DateTime.Parse($"{_nowTime.AddMonths(1).ToString("yyyy/MM")}/15");
 
                 if (!string.IsNullOrEmpty(dateRange))
                 {
@@ -630,7 +630,7 @@ namespace MOD4.Web.DomainService
                     }
                     #endregion
 
-                    var _settingList = _targetSettingDomainService.GetUploadMTDSettings(_uplMTDScheduleEntity.Select(mtd => mtd.ProdNo), _uplMTDScheduleEntity.Select(mtd => mtd.Process));
+                    var _settingList = _targetSettingDomainService.GetUploadMTDSettings(_uplMTDScheduleEntity.Select(mtd => mtd.ProdNo).Distinct(), _uplMTDScheduleEntity.Select(mtd => mtd.Process).Distinct());
 
                     List<MTDProductionScheduleDao> _updMTDScheduleDao = (from mtd in _uplMTDScheduleEntity
                                                                          join setting in _settingList

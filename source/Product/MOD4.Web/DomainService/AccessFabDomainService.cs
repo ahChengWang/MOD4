@@ -698,6 +698,26 @@ namespace MOD4.Web.DomainService
                             IsDel = false
                         }
                     };
+                case JobLevelEnum.Employee when auditFlow.DeptAccSn == 83:
+                    return new List<AccessFabOrderAuditHistoryDao>() {
+                        new AccessFabOrderAuditHistoryDao
+                        {
+                            AuditSn = 1,
+                            AuditAccountSn = _gateManager.sn,
+                            //AuditAccountName = auditFlow.DeptName,
+                            AuditAccountName = $"管制口主管-{_gateManager.Name}",
+                            StatusId = FabInOutStatusEnum.Processing,
+                            IsDel = false
+                        },
+                        new AccessFabOrderAuditHistoryDao
+                        {
+                            AuditSn = 2,
+                            AuditAccountSn = auditFlow.TopAccSn,
+                            //AuditAccountName = auditFlow.TopName,
+                            AuditAccountName = $"廠長-{auditFlow.TopName}",
+                            StatusId = FabInOutStatusEnum.Processing,
+                            IsDel = false
+                        }};
                 case JobLevelEnum.Employee:
                     return new List<AccessFabOrderAuditHistoryDao>() {
                         new AccessFabOrderAuditHistoryDao

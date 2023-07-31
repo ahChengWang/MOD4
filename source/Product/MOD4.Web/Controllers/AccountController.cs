@@ -76,7 +76,7 @@ namespace MOD4.Web.Controllers
                     //紀錄Session
                     //HttpContext.Session.Set("CurrentAccount", ByteConvertHelper.Object2Bytes(_result.sn));
 
-                    return Json(new { IsSuccess = true, InnxSSO = _innxVerify, Data = _verifyResult.Item2 });
+                    return Json(new { IsSuccess = true, InnxSSO = loginViewMode.Account.ToUpper() == "MFG" ? false : _innxVerify, Data = _verifyResult.Item2 });
                 }
                 else
                     return Json(new { IsSuccess = false, InnxSSO = _innxVerify, Data = "帳密有誤" });
