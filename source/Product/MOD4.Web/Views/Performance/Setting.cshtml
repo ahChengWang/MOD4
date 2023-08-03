@@ -57,6 +57,12 @@
             width: 50%;
             text-align: center;
         }
+
+    span[name="note"] {
+        color: indianred;
+        font-weight: 600;
+        font-size: 10px;
+    }
 </style>
 
 <head>
@@ -105,6 +111,11 @@
                 <div style="margin-bottom: 10px; margin-left: 10px;">
                     <input id="btnSearch" type="button" class="btn btn-info" style="float: right" name="btn29" value="查詢" />
                 </div>
+            </div>
+            <div class="form-group">
+                <span name="note">⨂ MTD站點：勾選後為"MTD量產"看板抓取Pass量站點, 各製程段只能一個</span>
+                <br />
+                <span name="note">⨂ 敲當EQ No.：各製程段人員敲當的EQ, 用於"分時"及"MTD量產"機況撈取</span>
             </div>
             <div class="card card-info card-tabs">
                 <div class="card-header p-0 pt-0">

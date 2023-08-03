@@ -85,12 +85,12 @@ namespace MOD4.Web.DomainService
             Dictionary<string, decimal> _processDownDic = new Dictionary<string, decimal>();
             Dictionary<string, string> _process109Dic = new Dictionary<string, string>();
 
-            // 取得MTD排程所有機種
+            // 取得當日MTD排程所有機種
             List<MTDProductionScheduleDao> _mtdScheduleDataList = _mtdProductionScheduleRepository.SelectMTDTodayPlan(floor, owner, _srchDate, _srchDate).ToList();
 
             var _todayProcess = _mtdScheduleDataList.ToDictionary(dic => (dic.Process, dic.LcmProdId));
 
-            // 取得 MTD 本月有排程但今日無排程所有機種
+            // 取得 MTD 本月有排程但今日無排程所有機種 (也需顯示在 Dashboard)
             List<MTDProductionScheduleDao> _mtdTodayNoPlanList = _mtdProductionScheduleRepository.SelectMTDMonHavePlan(floor, owner, _srchDate, _srchDate).ToList();
 
             _mtdScheduleDataList.AddRange(_mtdTodayNoPlanList.GroupBy(gb => (gb.Process, gb.LcmProdId))
@@ -252,10 +252,10 @@ namespace MOD4.Web.DomainService
                         DayPlan = _currSchedule.Value.ToString("#,0"),
                         RangPlan = (_currSchedule.Value * (time / 24)).ToString("#,0"),
                         RangDiff = ((_mtdPerformanceDay.FirstOrDefault(f => f.Node == dt.Node.ToString() && f.Product == dt.ProdNo)?.Qty ?? 0) - (_currSchedule.Value * (time / 24))).ToString("#,0"),
-                        MonthPlan = _currMonth.Sum(sum => sum.Value).ToString("#,0"),
-                        MTDPlan = _currMonth.Where(mon => mon.Date <= _srchDate).Sum(sum => sum.Value).ToString("#,0"),
+                        MonthPlan = (_currMonth.Sum(sum => sum.Value) + _currSchedule.Value).ToString("#,0"),
+                        MTDPlan = (_currMonth.Where(mon => mon.Date == _srchDate).Sum(sum => sum.Value) + _currSchedule.Value).ToString("#,0"),
                         MTDActual = _currActualMonth.Sum(sum => sum.Qty).ToString("#,0"),
-                        MTDDiff = (_currActualMonth.Sum(sum => sum.Qty) - _currMonth.Where(mon => mon.Date <= _srchDate).Sum(sum => sum.Value)).ToString("#,0"),
+                        MTDDiff = (_currActualMonth.Sum(sum => sum.Qty) - (_currMonth.Where(mon => mon.Date == _srchDate).Sum(sum => sum.Value) + _currSchedule.Value)).ToString("#,0"),
                         EqAbnormal = _currAlarmData == null ? "" : _currAlarmData.comment,
                         RepaireTime = _currAlarmData == null ? "" : _currAlarmData.spend_time.ToString(),
                         Status = _currAlarmData == null ? "" : _currAlarmData.end_time == null ? "處理中" : "已排除"
@@ -289,7 +289,7 @@ namespace MOD4.Web.DomainService
             _mtdDashboardList = _mtdDashboardList.Select(data =>
             {
                 data.Diff = data.Actual - data.Plan;
-                //data.MTDDetail = data.MTDDetail.Where(detail => detail.MTDPlan != "0").ToList();
+                data.MTDDetail = data.MTDDetail.Where(detail => detail.MonthPlan != "0" || detail.Output != "0").ToList();
 
                 return data;
             }).OrderBy(ob => ob.Sn).ThenBy(tb => tb.EqNo).ToList();

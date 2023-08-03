@@ -35,7 +35,7 @@ namespace MOD4.Web.Repostory
             DateTime dateEnd)
         {
             string _sql = @" select * from mtd_production_schedule 
-where date between @DateStart and @DateEnd and floor = @Floor and ownerId = @OwnerId;";
+where date between @DateStart and @DateEnd and floor = @Floor and ownerId = @OwnerId ;";
 
             var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(_sql, new
             {
@@ -43,8 +43,8 @@ where date between @DateStart and @DateEnd and floor = @Floor and ownerId = @Own
                 OwnerId = owner,
                 DateStart = dateStart,
                 DateEnd = dateEnd,
-                year = dateStart.Year,
-                month = dateStart.Month
+                //year = dateStart.Year,
+                //month = dateStart.Month
             });
 
             return dao;
@@ -57,7 +57,7 @@ where date between @DateStart and @DateEnd and floor = @Floor and ownerId = @Own
             DateTime dateEnd)
         {
             string _sql = @" select * from mtd_production_schedule 
-where DATEPART(YEAR, date) = @Year and DATEPART(MONTH, date) = @Month and date != @DateStart and floor = @Floor and ownerId = @OwnerId ; ";
+where DATEPART(YEAR, date) = @Year and DATEPART(MONTH, date) = @Month and date != @DateStart and value != 0 and floor = @Floor and ownerId = @OwnerId ; ";
 
             var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(_sql, new
             {

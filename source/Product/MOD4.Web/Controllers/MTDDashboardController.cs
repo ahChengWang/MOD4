@@ -78,9 +78,9 @@ namespace MOD4.Web.Controllers
                             MTDPlan = detail.MTDPlan,
                             MTDActual = detail.MTDActual,
                             MTDDiff = detail.MTDDiff,
-                            EqAbnormal = "",
-                            RepaireTime = "",
-                            Status = ""
+                            EqAbnormal = detail.EqAbnormal,
+                            RepaireTime = detail.RepaireTime,
+                            Status = detail.Status
                         }).ToList()
                     }).ToList()
                 }).ToList();
@@ -142,9 +142,9 @@ namespace MOD4.Web.Controllers
                             MTDPlan = detail.MTDPlan,
                             MTDActual = detail.MTDActual,
                             MTDDiff = detail.MTDDiff,
-                            EqAbnormal = "",
-                            RepaireTime = "",
-                            Status = ""
+                            EqAbnormal = detail.EqAbnormal,
+                            RepaireTime = detail.RepaireTime,
+                            Status = detail.Status
                         }).ToList()
                     }).ToList()
                 }).ToList();
