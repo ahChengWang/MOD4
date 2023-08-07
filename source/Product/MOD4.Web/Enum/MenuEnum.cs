@@ -50,5 +50,7 @@ namespace MOD4.Web.Enum
         Efficiency = 29,
         [Description("各部效率-設定")]
         EffSetting = 30,
+        [Description("Monitor")]
+        Monitor = 31,
     }
 }

@@ -14,6 +14,11 @@ using System;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
+using System.Net.WebSockets;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.Net;
+using MOD4.Web.Controllers;
 
 namespace MOD4.Web
 {
@@ -109,6 +114,8 @@ namespace MOD4.Web
             services.AddSingleton(new ServiceDescriptor(typeof(LogHelper), new LogHelper(Configuration)));
             services.AddSingleton<IDemadStatusFactory, DemadStatusFactory>();
             services.AddSingleton<IMTDProcessFactory, MTDProcessFactory>();
+            //加入WebSocket處理服務
+            services.AddSingleton<WebSocketHandler>();
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             services.AddHttpContextAccessor();
 
@@ -135,6 +142,36 @@ namespace MOD4.Web
             app.UseSession();
             app.UseRouting();
 
+            //加入WebSocket處理服務
+            //builder.Services.AddSingleton<WebSocketHandler>();
+
+            //加入 WebSocket 功能
+            var wsOptions = new WebSocketOptions
+            {
+                KeepAliveInterval = TimeSpan.FromSeconds(120)
+            };
+
+            app.UseWebSockets(wsOptions);
+
+            //覺得用 Controller 接收 WebSocket 太複雜，我改在 Middleware 層處理
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Path == "/send")
+                {
+                    if (context.WebSockets.IsWebSocketRequest)
+                    {
+                        using (WebSocket ws = await context.WebSockets.AcceptWebSocketAsync())
+                        {
+                            var wsHandler = context.RequestServices.GetRequiredService<WebSocketHandler>();
+                            await wsHandler.ProcessWebSocket(ws);
+                        }
+                    }
+                    else
+                        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                }
+                else await next();
+            });
+
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -145,5 +182,24 @@ namespace MOD4.Web
                     pattern: "{controller=Home}/{action=Index}");
             });
         }
+
+        //private async Task Send(HttpContext context, WebSocket webSocket)
+        //{
+        //    var buffer = new byte[1034 * 4];
+        //    WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), System.Threading.CancellationToken.None);
+        //    if (result != null)
+        //    {
+        //        while (!result.CloseStatus.HasValue)
+        //        {
+        //            string msg = Encoding.UTF8.GetString(new ArraySegment<byte>(buffer, 0, result.Count));
+        //            Console.WriteLine($"client says: {msg}");
+        //            await webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes($"Server says: {DateTime.UtcNow:f}")), result.MessageType, result.EndOfMessage, System.Threading.CancellationToken.None);
+        //            result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), System.Threading.CancellationToken.None);
+        //        }
+
+        //        await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, System.Threading.CancellationToken.None);
+        //    }
+
+        //}
     }
 }
