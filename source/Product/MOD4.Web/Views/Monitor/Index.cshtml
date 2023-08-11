@@ -23,39 +23,339 @@
             border: 1rem solid;
         }
     */
+
+    /*.card-body {
+        position: relative;
+    }
+
+        .card-body > div {
+            display: block;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            bottom: 10px;
+            left: 10px;
+            opacity: 0;
+            filter: alpha(opacity=0);*/
+    /*當圖片數量增加，影片長度需更改，變為5s*圖片數量*/
+    /*-webkit-animation: silder 15s linear infinite;
+            animation: silder 15s linear infinite;
+        }*/
+
+    /*動畫關鍵影格*/
+    /*@@-webkit-keyframes silder {
+        3% {
+            opacity: 1;
+            filter: alpha(opacity=100);
+        }
+
+        27% {
+            opacity: 1;
+            filter: alpha(opacity=100);
+        }
+
+        30% {
+            opacity: 0;
+            filter: alpha(opacity=0);
+        }
+    }
+
+    @@keyframes silder {
+        3% {
+            opacity: 1;
+            filter: alpha(opacity=100);
+        }
+
+        27% {
+            opacity: 1;
+            filter: alpha(opacity=100);
+        }
+
+        30% {
+            opacity: 0;
+            filter: alpha(opacity=0);
+        }
+    }*/
+    /*每個圖片各延遲5秒*/
+    /*.card-body > div:nth-child(3) {
+        -webkit-animation-delay: 10s;
+        animation-delay: 10s;
+    }
+
+    .card-body > div:nth-child(2) {
+        -webkit-animation-delay: 5s;
+        animation-delay: 5s;
+    }
+
+    .card-body > div:nth-child(1) {
+        -webkit-animation-delay: 0s;
+        animation-delay: 0s;
+    }*/
+    /*滑入時停止播放*/
+    /*.card-body:hover > div {
+        -webkit-animation-play-state: paused;
+        animation-play-state: paused;
+    }*/
+
+
+    .bg-theme {
+        /*background-image: url('./img/monitorBG.png');*/
+        line-height: 1.15;
+        font-size: 0.5rem;
+        margin: 0;
+        padding: 0;
+        background-repeat: no-repeat;
+        background-position: 0 0 / cover;
+        background-color: #101129; /* 101129  ff5000 */
+    }
+
+    div[name='mapDiv'] {
+        -webkit-filter: drop-shadow(12px 12px 7px rgba(0, 0, 0, 0.7));
+        filter: drop-shadow(12px 12px 7px rgba(0, 0, 0, 0.7));
+        /*display: flex;
+        justify-content: center;*/
+    }
+
+    img[usemap='#veg'] {
+        /*width: 100%;*/
+        height: 100%;
+        object-fit: cover;
+    }
+
+    td {
+        font-size: 8px;
+        padding-right: 0rem;
+        padding-left: 0rem;
+    }
+
+    div[name='card'] {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        background-color: rgba(0,0,0,.2);
+    }
+
+    div[name='cHeader'] {
+        color: white;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    td {
+        color: white;
+    }
+
+    .panel {
+        /* 边框 */
+        box-sizing: border-box;
+        border: 2px solid red;
+        border-image: url('./img/border.png') 51 38 21 132;
+        border-width: 2.125rem 1.583rem 0.875rem 5.5rem;
+        position: relative;
+        margin-bottom: 0.833rem;
+    }
+
+        .panel .inner {
+            /* 装内容 */
+            /* height: 60px; */
+            position: absolute;
+            top: -2.125rem;
+            right: -1.583rem;
+            bottom: -0.875rem;
+            left: -5.5rem;
+            padding: 1rem 1.5rem;
+        }
+
+    .monitor {
+        height: 90%;
+    }
+
+        .monitor .inner {
+            padding: 1rem 0;
+            display: flex;
+            flex-direction: column;
+        }
 </style>
 
-<body style="background: #3d3d3d;">
-    <div>
-        <div style="clear: both; width: 500px; height: 50px; border: 1px solid black;" id="selections"></div>
+<head>
+    <link rel="stylesheet" href="~/img/monitorBG.png">
+    <link rel="stylesheet" href="~/img/border.png">
+    <link rel="stylesheet" href="~/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    @*<link rel="stylesheet" href="~/css/app-style.css">*@
+</head>
 
-        <img id="fabLayout2" src="~/img/FabLayout2F.png" usemap="#veg">
-        <map id="veg_map" name="veg">
-            <area alt="bondVCS" shape="poly" name="bondVCS" coords="209,129,  866,129, 866,174, 209,174" href="#">
-            <area alt="FOG" shape="poly" name="FOG" coords="97,278, 486,278, 486,310, 97,310" href="#">
-            <area alt="ff2STH" shape="poly" name="ff2STH" coords="510,289, 694,289, 694,316, 510,316" href="#">
-            <area alt="HTHSTH20" shape="poly" name="HTHSTH20" coords="97,332, 175,332, 175,324, 495,324, 495,332, 575,332, 575,356, 97,356" href="#">
-            <area alt="ocaVCS" shape="poly" name="ocaVCS" coords="545,214 ,1011,214, 1011,259, 545,259" href="#">
-            <area alt="ff2HTH55" shape="poly" name="ff2HTH55" coords="148,390, 436,390, 436,383, 650,383, 650,427, 376,427, 376,444, 148,444" href="#">
-            <area alt="ff2STH55" shape="poly" name="ff2STH55" coords="675,393, 700,393, 700,400, 769,400, 769,396, 845,396, 845,431, 832,431, 832,439, 763,439, 763,431, 675,431" href="#">
-            <area alt="assyVCS" shape="poly" name="assyVCS" coords="886,137 ,993,137, 993,121, 1023,121, 1023,156 , 1210,156, 1210,146, 1275,146, 1275,165, 1320,165, 1321,176, 886,176" href="#">
-            <area alt="assyPaDi" shape="poly" name="assyPaDi" coords="870,385, 1158,385, 1158,396, 870,396" href="#">
-            <area alt="assyPana" shape="poly" name="assyPana" coords="870,432, 1092,432, 1092,412, 1126,412, 1126,432, 1148,432, 1148,422, 1167,422, 1167,432, 1207,432, 1207,445, 870,445" href="#">
-            @*<area alt="celery" shape="poly" name="celery" coords="147,131, 156,143, 163,146, 177,129, 175,138, 177,138, 182,144, 180,164, 148,169, 139,171, 144,180, 141,198, 139,208, 140,222, 127,237, 148,216, 163,212, 166,216, 160,223, 163,233, 153,281, 135,318, 129,313, 122,322, 117,320, 99,301, 98,293, 85,300, 80,303, 74,300,
-                    64,285, 76,272, 98,249,
-                    94,246, 72,261, 57,258, 62,251, 60,248, 47,228, 51,207, 71,195, 72,192, 38,202, 33,195, 30,173, 147,127" href="#">
-                <area alt="carrots" shape="poly" name="carrots" coords="175,74, 170,80, 154,85, 189,103, 190,111, 182,111, 179,98, 157,95, 142,111, 140,128, 38,169, 39,163, 74,143, 74,141, 56,135, 52,115, 79,111, 78,106, 63,98, 71,91, 81,88, 82,83, 91,75, 136,74, 174,70" href="#">
-                <area alt="asparagus" shape="poly" name="asparagus" coords="224,25, 239,33, 244,36, 247,32, 327,23, 344,31, 343,36, 319,41, 315,42, 302,52, 272,61, 265,64, 270,73, 256,67, 248,60, 187,55, 192,58, 192,60, 184,64, 185,67, 176,67, 173,69, 142,67, 146,63, 135,59, 123,57, 142,44, 145,42, 143,39, 145,32, 207,38, 185,18, 212,19,
-                    220,22" href="#">
-                <area alt="squash" shape="poly" name="squash" coords="388,26, 391,38, 394,43, 395,46, 425,58, 427,68, 428,92, 386,125, 371,132, 374,124, 377,118, 374,105, 371,105, 370,107, 364,102, 368,97, 356,87, 353,89, 348,86, 322,87, 314,100, 314,102, 282,85, 278,84, 273,74, 272,68, 319,46, 346,31" href="#">
-                <area alt="yellowpepper" shape="poly" name="yellowpepper" coords="237,222, 246,254, 255,291, 262,323, 271,322, 285,350, 306,352, 307,365, 298,374, 285,366, 270,375, 249,378, 244,384, 231,389, 215,373, 210,363, 203,357, 199,368, 184,361, 175,349, 162,356, 140,340, 143,305, 161,252, 168,224, 188,240, 194,223, 198,232, 213,226, 224,224,
-                    229,218" href="#">
-                <area alt="broccoli" shape="poly" name="broccoli" coords="341,89, 342,91, 360,95, 353,100, 360,104, 364,109, 368,115, 369,112, 367,110, 376,111, 373,123, 367,128, 362,128, 359,131, 348,134, 345,137, 340,138, 341,148, 334,167, 323,172, 315,165, 315,162, 312,165, 311,172, 293,167, 292,141, 298,136, 307,134, 322,129, 328,128,
-                    329,116, 319,109, 314,104,
-                    317,93, 332,84" href="#">
-                <area alt="broccoli" shape="poly" name="broccoli" coords="328,178, 338,197, 337,202, 330,215, 328,217, 325,228, 307,234, 305,239, 287,225, 287,216, 286,212, 282,216, 277,212, 277,185, 284,179, 310,175" href="#">
-                <area alt="dip" shape="poly" name="dip" coords="253,102, 277,100, 280,105, 290,107, 295,111, 304,130, 290,140, 287,147, 240,157, 238,159, 227,153, 203,146, 198,125, 200,116, 214,102, 231,102" href="#">*@
-        </map>
+<body class="bg-theme">
+    <div class="card-header" style="height: 8%;">
+        <h2 style="color: white; font-weight: 600; font-style: italic;">監控看板</h2>
+    </div>
+    <div class="card-body" style="height: 92%;">
+        <div name="alaemMap">
+            <div style="height: 8%;">
+                <h3 style="color: white;">產線地圖</h3>
+            </div>
+            <div style="display: flex; height: 55%;">
+                <div name="mapDiv" style="width:75%; display: flex; justify-content: left; align-items: center; overflow: hidden">
+                    @*<div name="mapDiv" style="display: flex; justify-content: center; align-items: center; overflow: hidden">*@
+                    @*<div style="clear: both; width: 500px; height: 50px; border: 1px solid black;" id="selections"></div>*@
+                    <img id="fabLayout2" src="~/img/FabLayout2F.png" usemap="#veg">
+                    <map id="veg_map" name="veg">
+                        <area alt="bondVCS" shape="poly" name="bondVCS" coords="209,129,  866,129, 866,174, 209,174" href="#">
+                        <area alt="FOG" shape="poly" name="FOG" coords="97,278, 486,278, 486,310, 97,310" href="#">
+                        <area alt="ff2STH" shape="poly" name="ff2STH" coords="510,289, 694,289, 694,316, 510,316" href="#">
+                        <area alt="HTHSTH20" shape="poly" name="HTHSTH20" coords="97,332, 175,332, 175,324, 495,324, 495,332, 575,332, 575,356, 97,356" href="#">
+                        <area alt="ocaVCS" shape="poly" name="ocaVCS" coords="545,214 ,1011,214, 1011,259, 545,259" href="#">
+                        <area alt="ff2HTH55" shape="poly" name="ff2HTH55" coords="148,390, 436,390, 436,383, 650,383, 650,427, 376,427, 376,444, 148,444" href="#">
+                        <area alt="ff2STH55" shape="poly" name="ff2STH55" coords="675,393, 700,393, 700,400, 769,400, 769,396, 845,396, 845,431, 832,431, 832,439, 763,439, 763,431, 675,431" href="#">
+                        <area alt="assyVCS" shape="poly" name="assyVCS" coords="886,137 ,993,137, 993,121, 1023,121, 1023,156 , 1210,156, 1210,146, 1275,146, 1275,165, 1320,165, 1321,176, 886,176" href="#">
+                        <area alt="assyPaDi" shape="poly" name="assyPaDi" coords="870,385, 1158,385, 1158,396, 870,396" href="#">
+                        <area alt="assyPana" shape="poly" name="assyPana" coords="870,422, 1092,422, 1092,412, 1126,412, 1126,432, 1148,432, 1148,422, 1167,422, 1167,432, 1207,432, 1207,445, 870,455" href="#">
+                    </map>
+                    @*</div>*@
+                </div>
+                <div style="width:25%; margin-left:5px">
+                    <div class="monitor panel">
+                        <div class="inner" style="align-items: center; justify-content: center;">
+                            <div name="cHeader" style="box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); background-color: rgba(134, 29, 204,.3); ">
+                                機況統計
+                            </div>
+                            <div style="overflow-y: auto; overflow-x: hidden;">
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <td>PCBI2010</td>
+                                            <td>流道NG</td>
+                                            <td>10:08:30</td>
+                                        </tr>
+                                        <tr>
+                                            <td>AOLB2010</td>
+                                            <td>點燈短時間發現位移 異物 無畫面 製程指示停線確認</td>
+                                            <td>10:39:00</td>
+                                        </tr>
+                                        <tr>
+                                            <td>ACOG2010</td>
+                                            <td>異常</td>
+                                            <td>12:00:59</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; height: 37%; margin-top: 10px;">
+                <div style="width: 35%; margin-right: 5px;">
+                    <div class="monitor panel">
+                        <div class="inner" style="align-items: center; justify-content: center;">
+                            <div name="cHeader" style="box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); background-color: rgba(184, 82, 18,.3); ">
+                                前段異常
+                            </div>
+                            <div style="overflow-y: auto; overflow-x: hidden; width: 95%;">
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <td>PCBI2010</td>
+                                            <td>流道NG</td>
+                                            <td>10:08:30</td>
+                                        </tr>
+                                        <tr>
+                                            <td>AOLB2010</td>
+                                            <td>PALLETTE NG</td>
+                                            <td>10:39:00</td>
+                                        </tr>
+                                        <tr>
+                                            <td>ACOG2010</td>
+                                            <td>異常</td>
+                                            <td>12:00:59</td>
+                                        </tr>
+                                        <tr>
+                                            <td>ACOG2010</td>
+                                            <td>異常</td>
+                                            <td>12:00:59</td>
+                                        </tr>
+                                        <tr>
+                                            <td>ACOG2010</td>
+                                            <td>異常</td>
+                                            <td>12:00:59</td>
+                                        </tr>
+                                        <tr>
+                                            <td>ACOG2010</td>
+                                            <td>異常</td>
+                                            <td>12:00:59</td>
+                                        </tr>
+                                        <tr>
+                                            <td>ACOG2010</td>
+                                            <td>異常</td>
+                                            <td>12:00:59</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div><!--End Row-->
+                <div style="width: 35%; margin-right: 5px;">
+                    <div class="monitor panel">
+                        <div class="inner" style="align-items: center; justify-content: center;">
+                            <div name="cHeader" style="box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); background-color: rgba(134, 29, 204,.3); ">
+                                後段異常
+                            </div>
+                            <div style="overflow-y: auto; overflow-x: hidden;">
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <td>PCBI2010</td>
+                                            <td>流道NG</td>
+                                            <td>10:08:30</td>
+                                        </tr>
+                                        <tr>
+                                            <td>AOLB2010</td>
+                                            <td>點燈短時間發現位移 異物 無畫面 製程指示停線確認</td>
+                                            <td>10:39:00</td>
+                                        </tr>
+                                        <tr>
+                                            <td>ACOG2010</td>
+                                            <td>異常</td>
+                                            <td>12:00:59</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div><!--End Row-->
+                <div style="width: 30%;">
+                    <div class="monitor panel">
+                        <div class="inner" style="align-items: center; justify-content: center;">
+                            @*51d656*@
+                            <div name="cHeader" style="box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); background-color: rgba(81, 214, 86,.3); ">
+                                CDP 未處理異常
+                            </div>
+                            <div>
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <td>PCBI2010</td>
+                                            <td>流道NG</td>
+                                            <td>10:08:30</td>
+                                        </tr>
+                                        <tr>
+                                            <td>AOLB2010</td>
+                                            <td>點燈短時間發現位移 異物 無畫面 製程指示停線確認</td>
+                                            <td>10:39:00</td>
+                                        </tr>
+                                        <tr>
+                                            <td>ACOG2010</td>
+                                            <td>異常</td>
+                                            <td>12:00:59</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div><!--End Row-->
+            </div>
+        </div>
     </div>
 </body>
 
@@ -88,12 +388,12 @@
     var image = $('#fabLayout2');
 
     var _options = {
-        fillOpacity: 0.6,
-        fillColor: "2fc44f",
-        stroke: true,
-        strokeColor: "2fc44f",
-        strokeOpacity: 0.8,
-        strokeWidth: 3,
+        fillOpacity: 0.1,
+        /*fillColor: "2fc44f",*/
+        //stroke: true,
+        //strokeColor: "2fc44f",
+        //strokeOpacity: 0.8,
+        /*strokeWidth: 3,*/
         singleSelect: false,
         mapKey: 'name',
         listKey: 'name',
@@ -122,91 +422,92 @@
         areas: [
             {
                 key: "bondVCS",
-                fillColor: "d42e16",
+                /*fillColor: "d42e16",*/
                 stroke: true,
-                strokeColor: "d42e16",
-                strokeOpacity: 0.8,
+                strokeColor: "b85212",
+                /*strokeOpacity: 0.8,*/
                 strokeWidth: 3,
+                selected: true
             },
             {
                 key: "FOG",
-                fillColor: "d42e16",
+                //fillColor: "d42e16",
                 stroke: true,
-                strokeColor: "d42e16",
-                strokeOpacity: 0.8,
+                strokeColor: "4a4a4a",
+                //strokeOpacity: 0.8,
                 strokeWidth: 3,
                 selected: true
             },
             {
                 key: "ff2STH",
-                fillColor: "d42e16",
+                //fillColor: "d42e16",
                 stroke: true,
-                strokeColor: "d42e16",
-                strokeOpacity: 0.8,
+                strokeColor: "157ac2",
+                //strokeOpacity: 0.8,
                 strokeWidth: 3,
                 selected: true
             },
             {
                 key: "HTHSTH20",
-                fillColor: "d42e16",
+                //fillColor: "d42e16",
                 stroke: true,
-                strokeColor: "d42e16",
-                strokeOpacity: 0.8,
+                strokeColor: "157ac2",
+                //strokeOpacity: 0.8,
                 strokeWidth: 3,
                 selected: true
             },
             {
                 key: "ocaVCS",
-                fillColor: "d42e16",
+                //fillColor: "d42e16",
                 stroke: true,
-                strokeColor: "d42e16",
-                strokeOpacity: 0.8,
+                strokeColor: "157ac2",
+                //strokeOpacity: 0.8,
                 strokeWidth: 3,
                 selected: true
             },
             {
                 key: "ff2HTH55",
-                fillColor: "d42e16",
+                //fillColor: "d42e16",
                 stroke: true,
-                strokeColor: "d42e16",
-                strokeOpacity: 0.8,
+                strokeColor: "157ac2",
+                //strokeOpacity: 0.8,
                 strokeWidth: 3,
                 selected: true
             },
             {
                 key: "ff2STH55",
-                fillColor: "d42e16",
+                //fillColor: "d42e16",
                 stroke: true,
-                strokeColor: "d42e16",
-                strokeOpacity: 0.8,
+                strokeColor: "157ac2",
+                //strokeOpacity: 0.8,
                 strokeWidth: 3,
                 selected: true
             },
             {
 
                 key: "assyVCS",
-                fillColor: "d42e16",
+                //fillColor: "d42e16",
                 stroke: true,
-                strokeColor: "d42e16",
-                strokeOpacity: 0.8,
+                strokeColor: "861dcc",
+                strokeOpacity: 1,
                 strokeWidth: 3,
                 selected: true
             },
             {
                 key: "assyPaDi",
-                fillColor: "d42e16",
+                //fillColor: "d42e16",
                 stroke: true,
-                strokeColor: "d42e16",
-                strokeOpacity: 0.8,
+                strokeColor: "861dcc",
+                //strokeOpacity: 0.8,
                 strokeWidth: 3,
                 selected: true
             },
             {
                 key: "assyPana",
-                fillColor: "d42e16",
+                //fillColor: "d42e16",
                 stroke: true,
-                strokeColor: "d42e16",
-                strokeOpacity: 0.8,
+                strokeColor: "861dcc",
+                //strokeOpacity: 0.8,
                 strokeWidth: 3,
                 selected: true
             },
@@ -252,7 +553,7 @@
     window.onload = function () {
         //建立一個web socket 連線
         vWebSocket = new WebSocket(server + '/CarUX/send');
-        
+
         //如果連線成功
         vWebSocket.onopen = function (e) {
             console.log('connection start ...');
@@ -263,8 +564,62 @@
             console.log('Recevied Message:' + e.data);
             if (e.data) {
                 var msgArray = e.data.split('\t');
-                alert(msgArray[msgArray.length - 1]);
+                var _response = JSON.parse(msgArray[msgArray.length - 1]);
+                alarmArea(_response);
+                /*alert(_response);*/
             }
         }
+    }
+
+    function alarmArea(areaObj) {
+
+        if (areaObj.IsAbnormal) {
+            _options.areas.push(
+                {
+                    key: areaObj.Key,
+                    fillColor: "d42e16",
+                    stroke: true,
+                    strokeColor: "d42e16",
+                    strokeOpacity: 0.8,
+                    strokeWidth: 3,
+                    selected: true,
+                    toolTip: areaObj.Desc,
+                    toolTipClose: ['image-mouseout']
+                });
+            image.mapster('set_options', _options);
+            image.mapster('set', true, areaObj.Key);
+            //$(areaObj.Key).bind('mouseon', function () {
+            //    alert('show');
+            //    /*$('img').mapster('tooltip', "key");*/
+            //});
+        }
+        else {
+            _options.areas.push(
+                {
+                    key: areaObj.Key,
+                    fillColor: "d42e16",
+                    stroke: true,
+                    strokeColor: "d42e16",
+                    strokeOpacity: 0.8,
+                    strokeWidth: 3,
+                    toolTip: null
+                });
+            image.mapster('set_options', _options);
+            image.mapster('set', false, areaObj.Key);
+        }
+
+        //map.mapster('unbind')
+        //    .mapster(opts)
+        //    .bind('mouseover', function () {
+        //        if (!inArea) {
+        //            map.mapster('set_options', all_opts)
+        //                .mapster('set', true, 'all')
+        //                .mapster('set_options', single_opts);
+        //        }
+        //    }).bind('mouseout', function () {
+        //        alert('show');
+        //    });
+
+
     }
 </script>

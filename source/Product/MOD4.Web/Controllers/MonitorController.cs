@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MOD4.Web.DomainService;
+using MOD4.Web.ViewModel;
+using Newtonsoft.Json;
 using System;
 using System.Net.WebSockets;
 using System.Text;
@@ -29,14 +31,21 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpPost("[controller]/ws")]
-        public void ReceiveWebSocket()
+        public void ReceiveWebSocket([FromBody] MonitorViewModel monitorVM)
         {
             var webSocket = new ClientWebSocket();
             webSocket.ConnectAsync(new Uri($"ws://localhost:48291/CarUX/send"), CancellationToken.None).Wait();
             ClientWebSocket socket = new ClientWebSocket();
 
             // 將訊息轉換成 byte 陣列
-            byte[] buffer = Encoding.UTF8.GetBytes("123456");
+            byte[] buffer = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new
+            {
+                Area = "ASSY",
+                Key = monitorVM.AreaId,
+                IsAbnormal = monitorVM.IsAbnormal,
+                Code = monitorVM.Code,
+                Desc = monitorVM.Desc
+            }));
 
             // 發送訊息
             webSocket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, true, CancellationToken.None).Wait();
