@@ -8,6 +8,8 @@ namespace MOD4.Web.Repostory
     {
         List<string> SelectToolList();
         List<AlarmXmlDao> SelectByConditions(string date, List<string> toolIdList);
+        List<AlarmXmlDao> SelectUnrepaired();
+        List<AlarmXmlDao> SelectDayTopRepaired(string mfgDay);
         List<AlarmXmlDao> SelectForMTD(DateTime date, List<string> toolIdList, List<string> prodList);
     }
 }

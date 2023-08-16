@@ -41,6 +41,30 @@ namespace MOD4.Web.Repostory
             return dao;
         }
 
+        public List<AlarmXmlDao> SelectUnrepaired()
+        {
+            string sql = @" select ala.*, map.AREA from alarm_xml ala 
+join equip_mapping map 
+on ala.tool_id = map.EQUIP_NBR 
+where ala.end_time is null and ala.user_id != 'AUTO' and map.isForMonitor = 1 ";
+
+            var dao = _dbHelper.ExecuteQuery<AlarmXmlDao>(sql);
+
+            return dao;
+        }
+
+        public List<AlarmXmlDao> SelectDayTopRepaired(string mfgDay)
+        {
+            string sql = @" select TOP 5 DATEDIFF(MINUTE,lm_time,end_time) 'repairedTime',* from alarm_xml 
+where DATEDIFF(MINUTE,lm_time,end_time) > 60
+order by DATEDIFF(MINUTE,lm_time,end_time) desc; ";
+
+            var dao = _dbHelper.ExecuteQuery<AlarmXmlDao>(sql);
+
+            return dao;
+        }
+
+
         public List<AlarmXmlDao> SelectForMTD(DateTime date, List<string> toolIdList, List<string> prodList)
         {
             string sql = $@"select * from (

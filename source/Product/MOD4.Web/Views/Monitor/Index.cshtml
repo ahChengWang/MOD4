@@ -1,4 +1,5 @@
-﻿
+﻿@model MOD4.Web.ViewModel.MonitorViewModel
+
 @{
     Layout = null;
 }
@@ -136,8 +137,14 @@
     div[name='cHeader'] {
         color: white;
         font-weight: 600;
-        text-align: center;
+        /*text-align: center;*/
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: absolute;
     }
+
+        div[name='cHeader'] a {
+            font-size: 20px;
+        }
 
     td {
         color: white;
@@ -184,8 +191,9 @@
 </head>
 
 <body class="bg-theme">
-    <div class="card-header" style="height: 8%;">
-        <h2 style="color: white; font-weight: 600; font-style: italic;">監控看板</h2>
+    <div class="card-header" style="height: 8%;text-align:center">
+        @*<h2 style="color: white; font-weight: 600; font-style: italic;">監控看板</h2>*@
+        <img style="width:80%" src="~/img/titleTransparent_1.png" />
     </div>
     <div class="card-body" style="height: 92%;">
         <div name="alaemMap">
@@ -211,143 +219,107 @@
                     </map>
                     @*</div>*@
                 </div>
-                <div style="width:25%; margin-left:5px">
+                <div style="width: 25%; margin-left: 5px">
+                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); left: 85%;">
+                        <a>Info</a>
+                    </div>
                     <div class="monitor panel">
-                        <div class="inner" style="align-items: center; justify-content: center;">
-                            <div name="cHeader" style="box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); background-color: rgba(134, 29, 204,.3); ">
-                                機況統計
-                            </div>
-                            <div style="overflow-y: auto; overflow-x: hidden;">
-                                <table class="table">
-                                    <tbody>
-                                        <tr>
-                                            <td>PCBI2010</td>
-                                            <td>流道NG</td>
-                                            <td>10:08:30</td>
-                                        </tr>
-                                        <tr>
-                                            <td>AOLB2010</td>
-                                            <td>點燈短時間發現位移 異物 無畫面 製程指示停線確認</td>
-                                            <td>10:39:00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>ACOG2010</td>
-                                            <td>異常</td>
-                                            <td>12:00:59</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                        <div class="inner" style="align-items: center; justify-content: start; margin-top:10%">
+                            <div id="areaInfo" style="width: 100%; height: 100%;">
+                                @*<div style="color: white; display: flex; height: 15%;">
+                                        <div class="col-4" style="font-size: 18px;">Area：</div>
+                                        <div class="col-6" style="font-size: 18px;">Assy</div>
+                                    </div>
+                                    <div style="color: white; display: flex; height: 15%;">
+                                        <div class="col-4" style="font-size: 18px;">EQ no：</div>
+                                        <div class="col-6" style="font-size: 18px;">ASSY2010</div>
+                                    </div>
+                                    <div style="color: white; display: flex; height: 15%;">
+                                        <div class="col-4" style="font-size: 18px;">機種：</div>
+                                        <div class="col-6" style="font-size: 18px;">GDD340IA0090S</div>
+                                    </div>
+                                    <div style="color: white; display: flex; height: 15%;">
+                                        <div class="col-4" style="font-size: 18px;">Pass 量：</div>
+                                        <div class="col-6" style="font-size: 18px;">300</div>
+                                    </div>*@
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div style="display: flex; height: 37%; margin-top: 10px;">
-                <div style="width: 35%; margin-right: 5px;">
+                <div style="width: 35%; height: 103%; margin-right: 5px;">
+                    <div name="cHeader" style="background-color: rgba(184, 82, 18,.3); left: 15%; ">
+                        <a>前段異常</a>
+                    </div>
                     <div class="monitor panel">
-                        <div class="inner" style="align-items: center; justify-content: center;">
-                            <div name="cHeader" style="box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); background-color: rgba(184, 82, 18,.3); ">
-                                前段異常
-                            </div>
-                            <div style="overflow-y: auto; overflow-x: hidden; width: 95%;">
+                        <div class="inner" style="align-items: center; justify-content: end;">
+                            <div style="overflow-y: auto; overflow-x: hidden; width: 95%; height: 85%;">
                                 <table class="table">
                                     <tbody>
-                                        <tr>
-                                            <td>PCBI2010</td>
-                                            <td>流道NG</td>
-                                            <td>10:08:30</td>
-                                        </tr>
-                                        <tr>
-                                            <td>AOLB2010</td>
-                                            <td>PALLETTE NG</td>
-                                            <td>10:39:00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>ACOG2010</td>
-                                            <td>異常</td>
-                                            <td>12:00:59</td>
-                                        </tr>
-                                        <tr>
-                                            <td>ACOG2010</td>
-                                            <td>異常</td>
-                                            <td>12:00:59</td>
-                                        </tr>
-                                        <tr>
-                                            <td>ACOG2010</td>
-                                            <td>異常</td>
-                                            <td>12:00:59</td>
-                                        </tr>
-                                        <tr>
-                                            <td>ACOG2010</td>
-                                            <td>異常</td>
-                                            <td>12:00:59</td>
-                                        </tr>
-                                        <tr>
-                                            <td>ACOG2010</td>
-                                            <td>異常</td>
-                                            <td>12:00:59</td>
-                                        </tr>
+                                        @{
+                                            foreach (var alarm in Model.AlarmList.Where(w => w.IsFrontEnd))
+                                            {
+                                                <tr>
+                                                    <td>@alarm.ProdNo</td>
+                                                    <td>@alarm.EqNumber</td>
+                                                    <td>@alarm.Comment</td>
+                                                    <td>@alarm.StartTime</td>
+                                                </tr>
+                                            }
+                                        }
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
                 </div><!--End Row-->
-                <div style="width: 35%; margin-right: 5px;">
+                <div style="width: 35%; height: 103%; margin-right: 5px;">
+                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); left: 49%;">
+                        <a>後段異常</a>
+                    </div>
                     <div class="monitor panel">
-                        <div class="inner" style="align-items: center; justify-content: center;">
-                            <div name="cHeader" style="box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); background-color: rgba(134, 29, 204,.3); ">
-                                後段異常
-                            </div>
-                            <div style="overflow-y: auto; overflow-x: hidden;">
+                        <div class="inner" style="align-items: center; justify-content: end;">
+                            <div style="overflow-y: auto; overflow-x: hidden; width: 95%; height: 85%; ">
                                 <table class="table">
                                     <tbody>
-                                        <tr>
-                                            <td>PCBI2010</td>
-                                            <td>流道NG</td>
-                                            <td>10:08:30</td>
-                                        </tr>
-                                        <tr>
-                                            <td>AOLB2010</td>
-                                            <td>點燈短時間發現位移 異物 無畫面 製程指示停線確認</td>
-                                            <td>10:39:00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>ACOG2010</td>
-                                            <td>異常</td>
-                                            <td>12:00:59</td>
-                                        </tr>
+                                        @{
+                                            foreach (var alarm in Model.AlarmList.Where(w => !w.IsFrontEnd))
+                                            {
+                                                <tr>
+                                                    <td>@alarm.ProdNo</td>
+                                                    <td>@alarm.EqNumber</td>
+                                                    <td>@alarm.Comment</td>
+                                                    <td>@alarm.StartTime</td>
+                                                </tr>
+                                            }
+                                        }
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
                 </div><!--End Row-->
-                <div style="width: 30%;">
+                <div style="width: 30%; height: 103%;">
+                    <div name="cHeader" style="background-color: rgba(81, 214, 86,.3); left: 82%;">
+                        <a>本日 TOP</a>
+                    </div>
                     <div class="monitor panel">
-                        <div class="inner" style="align-items: center; justify-content: center;">
-                            @*51d656*@
-                            <div name="cHeader" style="box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); background-color: rgba(81, 214, 86,.3); ">
-                                CDP 未處理異常
-                            </div>
-                            <div>
+                        <div class="inner" style="align-items: center; justify-content: end;">
+                            <div style="overflow-y: auto; overflow-x: hidden; width: 95%; height: 85%; ">
                                 <table class="table">
                                     <tbody>
-                                        <tr>
-                                            <td>PCBI2010</td>
-                                            <td>流道NG</td>
-                                            <td>10:08:30</td>
-                                        </tr>
-                                        <tr>
-                                            <td>AOLB2010</td>
-                                            <td>點燈短時間發現位移 異物 無畫面 製程指示停線確認</td>
-                                            <td>10:39:00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>ACOG2010</td>
-                                            <td>異常</td>
-                                            <td>12:00:59</td>
-                                        </tr>
+                                        @{
+                                            foreach (var alarmTop in Model.AlarmDayTop)
+                                            {
+                                                <tr>
+                                                    <td>@alarmTop.ProdNo</td>
+                                                    <td>@alarmTop.EqNumber</td>
+                                                    <td>@alarmTop.Comment</td>
+                                                    <td>@alarmTop.RepairedTime</td>
+                                                </tr>
+                                            }
+                                        }
                                     </tbody>
                                 </table>
                             </div>
@@ -366,26 +338,50 @@
 <script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
 <script src="~/js/jquery.imagemapster.js"></script>
 <script>
-    // a cross reference of area names to text to be shown for each area
-    var xref = {
-        carrots: "<b>Carrots</b> are delicious and may turn your skin orange!",
-        asparagus: "<b>Asparagus</b> is one of the first vegetables of the spring. "
-            + "Being a dark green, it's great for you, and has interesting side effects.",
-        squash: "<b>Squash</b> is a winter vegetable, and not eaten raw too much. Is that really squash?",
-        redpepper: "<b>Red peppers</b> are actually the same as green peppers, they've just been left on "
-            + "the vine longer. Delicious when fire-roasted.",
-        yellowpepper: "Similar to red peppers, <b>yellow peppers</b> are sometimes sweeter.",
-        celery: "<b>Celery</b> is a fascinating vegetable. Being mostly water, it actually takes your body "
-            + "more calories to process it than it provides.",
-        cucumbers: "<b>Cucumbers</b> are cool.",
-        broccoli: "<b>Broccoli</b> is like a forest of goodness in your mouth. And very good for you. "
-            + "Eat lots of broccoli!",
-        dip: "Everything here is good for you but this one. <b>Don't be a dip!</b>"
-    };
-
-    var defaultDipTooltip = '';
-
     var image = $('#fabLayout2');
+
+    var areaDic = {
+        bondVCS: {
+            area: 'BOND',
+            eq: 'AOLB2010'
+        },
+        FOG: {
+            area: 'FOG',
+            eq: 'AFOG2010'
+        },
+        ff2STH: {
+            area: 'LAM',
+            eq: 'CLAM2010'
+        },
+        HTHSTH20: {
+            area: 'LAM',
+            eq: 'OCAH2210'
+        },
+        ocaVCS: {
+            area: 'LAM',
+            eq: 'AOLB2010'
+        },
+        ff2HTH55: {
+            area: 'LAM',
+            eq: 'AOLB2010'
+        },
+        ff2STH55: {
+            area: 'LAM',
+            eq: 'AOLB2010'
+        },
+        assyVCS: {
+            area: 'ASSY',
+            eq: 'ASSY2010'
+        },
+        assyPaDi: {
+            area: 'ASSY',
+            eq: 'AISC2020'
+        },
+        assyPana: {
+            area: 'ASSY',
+            eq: 'BASY2010'
+        },
+    };
 
     var _options = {
         fillOpacity: 0.1,
@@ -398,6 +394,27 @@
         mapKey: 'name',
         listKey: 'name',
         isSelectable: false,
+        onMouseover: function (data) {
+            $('#areaInfo').html('<div style="color: white; display: flex; height: 15%;">' +
+                '<div class="col-4" style="font-size: 18px;">Area：</div>' +
+                '<div class="col-6" style="font-size: 18px;">' + areaDic[data.key].area + '</div>' +
+                '</div>' +
+                '<div style="color: white; display: flex; height: 15%;">' +
+                '<div class="col-4" style="font-size: 18px;">EQ no：</div>' +
+                '<div class="col-6" style="font-size: 18px;">' + areaDic[data.key].eq + '</div>' +
+                '</div>' +
+                '<div style="color: white; display: flex; height: 15%;">' +
+                '<div class="col-4" style="font-size: 18px;">機種：</div>' +
+                '<div class="col-6" style="font-size: 18px;">GDD340IA0090S</div>' +
+                '</div>' +
+                '<div style="color: white; display: flex; height: 15%;">' +
+                '<div class="col-4" style="font-size: 18px;">Pass 量：</div>' +
+                '<div class="col-6" style="font-size: 18px;">300</div>' +
+                '</div>');
+        },
+        onMouseout: function (data) {
+            $('#areaInfo').empty();
+        },
         onClick: function (e) {
             var newToolTip = defaultDipTooltip;
 
@@ -548,7 +565,7 @@
         //image.mapster('highlight', "ocaVCS");
     });
 
-    var server = 'ws://localhost:48291'; //如果开启了https则这里是wss
+    var server = 'ws://127.0.0.1:80'; //如果开启了https则这里是wss
     var vWebSocket = null;
     window.onload = function () {
         //建立一個web socket 連線
@@ -565,11 +582,15 @@
             if (e.data) {
                 var msgArray = e.data.split('\t');
                 var _response = JSON.parse(msgArray[msgArray.length - 1]);
-                alarmArea(_response);
-                /*alert(_response);*/
+                /*alarmArea(_response);*/
+                alert(_response.Area);
             }
         }
     }
+
+    $(function (e) {
+
+    });
 
     function alarmArea(areaObj) {
 

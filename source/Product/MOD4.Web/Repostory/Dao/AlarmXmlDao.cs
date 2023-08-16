@@ -21,5 +21,7 @@ namespace MOD4.Web.Repostory.Dao
         public string prod_id { get; set; }
         public string prod_sn { get; set; }
         public int spend_time { get; set; }
+        public string area { get; set; }
+        public int repairedTime { get; set; }
     }
 }
