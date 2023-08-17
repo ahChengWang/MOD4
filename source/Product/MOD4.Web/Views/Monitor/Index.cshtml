@@ -183,6 +183,8 @@
 </style>
 
 <head>
+    <link rel="icon" href="~/img/carux_logo_n.ico" type="image/x-icon" sizes="16x16" />
+    <title>CarUX監控看板👁</title>
     <link rel="stylesheet" href="~/img/monitorBG.png">
     <link rel="stylesheet" href="~/img/border.png">
     <link rel="stylesheet" href="~/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
@@ -198,7 +200,7 @@
     <div class="card-body" style="height: 92%;">
         <div name="alaemMap">
             <div style="height: 8%;">
-                <h3 style="color: white;">產線地圖</h3>
+                <h3 style="color: white;font-family:'Trebuchet MS'">Factory map</h3>
             </div>
             <div style="display: flex; height: 55%;">
                 <div name="mapDiv" style="width:75%; display: flex; justify-content: left; align-items: center; overflow: hidden">
@@ -206,16 +208,18 @@
                     @*<div style="clear: both; width: 500px; height: 50px; border: 1px solid black;" id="selections"></div>*@
                     <img id="fabLayout2" src="~/img/FabLayout2F.png" usemap="#veg">
                     <map id="veg_map" name="veg">
-                        <area alt="bondVCS" shape="poly" name="bondVCS" coords="209,129,  866,129, 866,174, 209,174" href="#">
-                        <area alt="FOG" shape="poly" name="FOG" coords="97,278, 486,278, 486,310, 97,310" href="#">
-                        <area alt="ff2STH" shape="poly" name="ff2STH" coords="510,289, 694,289, 694,316, 510,316" href="#">
-                        <area alt="HTHSTH20" shape="poly" name="HTHSTH20" coords="97,332, 175,332, 175,324, 495,324, 495,332, 575,332, 575,356, 97,356" href="#">
-                        <area alt="ocaVCS" shape="poly" name="ocaVCS" coords="545,214 ,1011,214, 1011,259, 545,259" href="#">
+                        <area alt="AOLB2010" shape="poly" name="AOLB2010" coords="209,129,  866,129, 866,174, 209,174" href="#">
+                        <area alt="AFOG2010" shape="poly" name="AFOG2010" coords="97,278, 486,278, 486,310, 97,310" href="#">
+                        <area alt="CLAM2010" shape="poly" name="CLAM2010" coords="510,289, 694,289, 694,316, 510,316" href="#">
+                        <area alt="OCAH2210" shape="poly" name="OCAH2210" coords="97,332, 175,332, 175,324, 495,324, 495,332, 575,332, 575,356, 97,356" href="#">
+                        <area alt="OCAH2010" shape="poly" name="OCAH2010" coords="545,214 ,1011,214, 1011,259, 545,259" href="#">
+
                         <area alt="ff2HTH55" shape="poly" name="ff2HTH55" coords="148,390, 436,390, 436,383, 650,383, 650,427, 376,427, 376,444, 148,444" href="#">
                         <area alt="ff2STH55" shape="poly" name="ff2STH55" coords="675,393, 700,393, 700,400, 769,400, 769,396, 845,396, 845,431, 832,431, 832,439, 763,439, 763,431, 675,431" href="#">
-                        <area alt="assyVCS" shape="poly" name="assyVCS" coords="886,137 ,993,137, 993,121, 1023,121, 1023,156 , 1210,156, 1210,146, 1275,146, 1275,165, 1320,165, 1321,176, 886,176" href="#">
-                        <area alt="assyPaDi" shape="poly" name="assyPaDi" coords="870,385, 1158,385, 1158,396, 870,396" href="#">
-                        <area alt="assyPana" shape="poly" name="assyPana" coords="870,422, 1092,422, 1092,412, 1126,412, 1126,432, 1148,432, 1148,422, 1167,422, 1167,432, 1207,432, 1207,445, 870,455" href="#">
+
+                        <area alt="ASSY2010" shape="poly" name="ASSY2010" coords="886,137 ,993,137, 993,121, 1023,121, 1023,156 , 1210,156, 1210,146, 1275,146, 1275,165, 1320,165, 1321,176, 886,176" href="#">
+                        <area alt="AISC2020" shape="poly" name="AISC2020" coords="870,385, 1158,385, 1158,396, 870,396" href="#">
+                        <area alt="BASY2010" shape="poly" name="BASY2010" coords="870,422, 1092,422, 1092,412, 1126,412, 1126,432, 1148,432, 1148,422, 1167,422, 1167,432, 1207,432, 1207,445, 870,455" href="#">
                     </map>
                     @*</div>*@
                 </div>
@@ -260,12 +264,12 @@
                                         @{
                                             foreach (var alarm in Model.AlarmList.Where(w => w.IsFrontEnd))
                                             {
-                                                <tr>
-                                                    <td>@alarm.ProdNo</td>
-                                                    <td>@alarm.EqNumber</td>
-                                                    <td>@alarm.Comment</td>
-                                                    <td>@alarm.StartTime</td>
-                                                </tr>
+                                            <tr>
+                                                <td>@alarm.ProdNo</td>
+                                                <td>@alarm.EqNumber</td>
+                                                <td>@alarm.Comment</td>
+                                                <td>@alarm.StartTime</td>
+                                            </tr>
                                             }
                                         }
                                     </tbody>
@@ -286,12 +290,12 @@
                                         @{
                                             foreach (var alarm in Model.AlarmList.Where(w => !w.IsFrontEnd))
                                             {
-                                                <tr>
-                                                    <td>@alarm.ProdNo</td>
-                                                    <td>@alarm.EqNumber</td>
-                                                    <td>@alarm.Comment</td>
-                                                    <td>@alarm.StartTime</td>
-                                                </tr>
+                                            <tr>
+                                                <td>@alarm.ProdNo</td>
+                                                <td>@alarm.EqNumber</td>
+                                                <td>@alarm.Comment</td>
+                                                <td>@alarm.StartTime</td>
+                                            </tr>
                                             }
                                         }
                                     </tbody>
@@ -312,12 +316,12 @@
                                         @{
                                             foreach (var alarmTop in Model.AlarmDayTop)
                                             {
-                                                <tr>
-                                                    <td>@alarmTop.ProdNo</td>
-                                                    <td>@alarmTop.EqNumber</td>
-                                                    <td>@alarmTop.Comment</td>
-                                                    <td>@alarmTop.RepairedTime</td>
-                                                </tr>
+                                            <tr>
+                                                <td>@alarmTop.ProdNo</td>
+                                                <td>@alarmTop.EqNumber</td>
+                                                <td>@alarmTop.Comment</td>
+                                                <td>@alarmTop.RepairedTime</td>
+                                            </tr>
                                             }
                                         }
                                     </tbody>
@@ -341,47 +345,69 @@
     var image = $('#fabLayout2');
 
     var areaDic = {
-        bondVCS: {
+        AOLB2010: {
             area: 'BOND',
-            eq: 'AOLB2010'
+            eq: 'AOLB2010',
+            desc: 'bondVCS',
+            bgColor: 'b85212'
         },
-        FOG: {
+        AFOG2010: {
             area: 'FOG',
-            eq: 'AFOG2010'
+            eq: 'AFOG2010',
+            desc: 'FOG',
+            bgColor: '4a4a4a'
         },
-        ff2STH: {
+        CLAM2010: {
             area: 'LAM',
-            eq: 'CLAM2010'
+            eq: 'CLAM2010',
+            desc: 'ff2STH',
+            bgColor: '157ac2'
         },
-        HTHSTH20: {
+        OCAH2210: {
             area: 'LAM',
-            eq: 'OCAH2210'
+            eq: 'OCAH2210',
+            desc: 'HTHSTH20',
+            bgColor: '157ac2'
         },
-        ocaVCS: {
+        OCAH2010: {
             area: 'LAM',
-            eq: 'AOLB2010'
+            eq: 'OCAH2010',
+            desc: 'ocaVCS',
+            bgColor: '157ac2'
         },
         ff2HTH55: {
             area: 'LAM',
-            eq: 'AOLB2010'
+            eq: '',
+            desc: 'ff2HTH55',
+            bgColor: '157ac2'
         },
         ff2STH55: {
             area: 'LAM',
-            eq: 'AOLB2010'
+            eq: '',
+            desc: 'ff2STH55',
+            bgColor: '157ac2'
         },
-        assyVCS: {
+        ASSY2010: {
             area: 'ASSY',
-            eq: 'ASSY2010'
+            eq: 'ASSY2010',
+            desc: 'assyVCS',
+            bgColor: '861dcc'
         },
-        assyPaDi: {
+        AISC2020: {
             area: 'ASSY',
-            eq: 'AISC2020'
+            eq: 'AISC2020',
+            desc: 'assyPaDi',
+            bgColor: '861dcc'
         },
-        assyPana: {
+        BASY2010: {
             area: 'ASSY',
-            eq: 'BASY2010'
+            eq: 'BASY2010',
+            desc: 'assyPana',
+            bgColor: '861dcc'
         },
     };
+
+    var _prodPerInfo = [];
 
     var _options = {
         fillOpacity: 0.1,
@@ -395,6 +421,14 @@
         listKey: 'name',
         isSelectable: false,
         onMouseover: function (data) {
+            var _currEq = _prodPerInfo.filter(prod => prod.eqNumber == data.key);
+            if (_currEq.length == 0) {
+                _currEq = [{
+                    prodNo: '',
+                    passQty: ''
+                }];
+            }
+
             $('#areaInfo').html('<div style="color: white; display: flex; height: 15%;">' +
                 '<div class="col-4" style="font-size: 18px;">Area：</div>' +
                 '<div class="col-6" style="font-size: 18px;">' + areaDic[data.key].area + '</div>' +
@@ -405,11 +439,11 @@
                 '</div>' +
                 '<div style="color: white; display: flex; height: 15%;">' +
                 '<div class="col-4" style="font-size: 18px;">機種：</div>' +
-                '<div class="col-6" style="font-size: 18px;">GDD340IA0090S</div>' +
+                '<div class="col-6" style="font-size: 18px;">' + _currEq[0].prodNo + '</div>' +
                 '</div>' +
                 '<div style="color: white; display: flex; height: 15%;">' +
                 '<div class="col-4" style="font-size: 18px;">Pass 量：</div>' +
-                '<div class="col-6" style="font-size: 18px;">300</div>' +
+                '<div class="col-6" style="font-size: 18px;">' + _currEq[0].passQty + '</div>' +
                 '</div>');
         },
         onMouseout: function (data) {
@@ -438,7 +472,7 @@
         toolTipClose: ["tooltip-click", "area-click"],
         areas: [
             {
-                key: "bondVCS",
+                key: "AOLB2010",
                 /*fillColor: "d42e16",*/
                 stroke: true,
                 strokeColor: "b85212",
@@ -447,7 +481,7 @@
                 selected: true
             },
             {
-                key: "FOG",
+                key: "AFOG2010",
                 //fillColor: "d42e16",
                 stroke: true,
                 strokeColor: "4a4a4a",
@@ -456,7 +490,7 @@
                 selected: true
             },
             {
-                key: "ff2STH",
+                key: "CLAM2010",
                 //fillColor: "d42e16",
                 stroke: true,
                 strokeColor: "157ac2",
@@ -465,7 +499,7 @@
                 selected: true
             },
             {
-                key: "HTHSTH20",
+                key: "OCAH2210",
                 //fillColor: "d42e16",
                 stroke: true,
                 strokeColor: "157ac2",
@@ -474,7 +508,7 @@
                 selected: true
             },
             {
-                key: "ocaVCS",
+                key: "OCAH2010",
                 //fillColor: "d42e16",
                 stroke: true,
                 strokeColor: "157ac2",
@@ -502,7 +536,7 @@
             },
             {
 
-                key: "assyVCS",
+                key: "ASSY2010",
                 //fillColor: "d42e16",
                 stroke: true,
                 strokeColor: "861dcc",
@@ -511,7 +545,7 @@
                 selected: true
             },
             {
-                key: "assyPaDi",
+                key: "AISC2020",
                 //fillColor: "d42e16",
                 stroke: true,
                 strokeColor: "861dcc",
@@ -520,7 +554,7 @@
                 selected: true
             },
             {
-                key: "assyPana",
+                key: "BASY2010",
                 //fillColor: "d42e16",
                 stroke: true,
                 strokeColor: "861dcc",
@@ -589,45 +623,55 @@
     }
 
     $(function (e) {
+        var _model = @(Html.Raw(Json.Serialize(Model)));
+        _prodPerInfo = _model.prodPerInfo;
+        $.each(_model.alarmList, function (idx, alarmData) {
+            alarmArea(alarmData);
+        });
 
+        // reload
+        window.setInterval('refresh()', 60000);
     });
+
+    function refresh() {
+        window.location.reload();
+    }
+
 
     function alarmArea(areaObj) {
 
-        if (areaObj.IsAbnormal) {
-            _options.areas.push(
-                {
-                    key: areaObj.Key,
-                    fillColor: "d42e16",
-                    stroke: true,
-                    strokeColor: "d42e16",
-                    strokeOpacity: 0.8,
-                    strokeWidth: 3,
-                    selected: true,
-                    toolTip: areaObj.Desc,
-                    toolTipClose: ['image-mouseout']
-                });
-            image.mapster('set_options', _options);
-            image.mapster('set', true, areaObj.Key);
-            //$(areaObj.Key).bind('mouseon', function () {
-            //    alert('show');
-            //    /*$('img').mapster('tooltip', "key");*/
-            //});
+        var areaIdx = _options.areas.findIndex((obj => obj.key == areaObj.eqNumber));
+
+        image.mapster('set', false, areaObj.eqNumber);
+
+        if (areaObj.isAbnormal) {
+
+            _options.areas[areaIdx] = {
+                key: areaObj.eqNumber,
+                fillColor: "d42e16",
+                stroke: true,
+                strokeColor: "d42e16",
+                strokeOpacity: 0.8,
+                strokeWidth: 3,
+                selected: true,
+                toolTip: areaObj.comment,
+                toolTipClose: ['image-mouseout']
+            };
         }
         else {
-            _options.areas.push(
-                {
-                    key: areaObj.Key,
-                    fillColor: "d42e16",
-                    stroke: true,
-                    strokeColor: "d42e16",
-                    strokeOpacity: 0.8,
-                    strokeWidth: 3,
-                    toolTip: null
-                });
-            image.mapster('set_options', _options);
-            image.mapster('set', false, areaObj.Key);
+
+            _options.areas[areaIdx] = {
+                key: areaObj.eqNumber,
+                stroke: true,
+                strokeColor: areaDic[areaObj.eqNumber],
+                strokeOpacity: 0.8,
+                strokeWidth: 3,
+                toolTip: null
+            };
         }
+
+        image.mapster('set_options', _options);
+        image.mapster('set', true, areaObj.eqNumber);
 
         //map.mapster('unbind')
         //    .mapster(opts)

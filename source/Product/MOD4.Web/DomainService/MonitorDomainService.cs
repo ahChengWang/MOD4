@@ -1,6 +1,7 @@
 ﻿using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Repostory;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MOD4.Web.DomainService
@@ -8,16 +9,12 @@ namespace MOD4.Web.DomainService
     public class MonitorDomainService : IMonitorDomainService
     {
         private readonly IAlarmXmlRepository _alarmXmlRepository;
-        private readonly IEqpInfoRepository _eqpInfoRepository;
-        private readonly IOptionDomainService _optionDomainService;
 
         public MonitorDomainService(IAlarmXmlRepository alarmXmlRepository,
             IEqpInfoRepository eqpInfoRepository,
             IOptionDomainService optionDomainService)
         {
             _alarmXmlRepository = alarmXmlRepository;
-            _eqpInfoRepository = eqpInfoRepository;
-            _optionDomainService = optionDomainService;
         }
 
         public MonitorEntity GetAlarmEq()
@@ -28,7 +25,8 @@ namespace MOD4.Web.DomainService
                 MonitorEntity monitorEntity = new MonitorEntity();
 
                 var _alarmEqList = _alarmXmlRepository.SelectUnrepaired();
-                var _alarmDayTop = _alarmXmlRepository.SelectDayTopRepaired("");
+                var _alarmDayTop = _alarmXmlRepository.SelectDayTopRepaired(_mfgDate.ToString("yyyy-MM-dd"));
+                var _prodPerInfo = _alarmXmlRepository.SelectProdInfo(_mfgDate.ToString("yyyy-MM-dd"));
 
                 monitorEntity.AlarmList = _alarmEqList.Select(alarm => new MonitorAlarmEntity
                 {
@@ -47,6 +45,13 @@ namespace MOD4.Web.DomainService
                     Comment = string.IsNullOrEmpty(alarm.comment.Trim()) ? alarm.status_cdsc : alarm.comment,
                     ProdNo = alarm.prod_id,
                     RepairedTime = $"{alarm.repairedTime}(m)"
+                }).ToList();
+
+                monitorEntity.ProdPerInfo = _prodPerInfo.Select(per => new MonitorProdPerInfoEntity
+                {
+                    EqNumber = per.tool_id,
+                    ProdNo = per.prod_id,
+                    PassQty = per.move_cnt
                 }).ToList();
 
                 return monitorEntity;

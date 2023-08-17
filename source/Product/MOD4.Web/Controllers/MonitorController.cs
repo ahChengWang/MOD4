@@ -55,10 +55,19 @@ namespace MOD4.Web.Controllers
                 RepairedTime = res.RepairedTime
             }).ToList();
 
+
+            List<MonitorProdPerInfoViewModel> _prodPerInfo = _result.ProdPerInfo.Select(res => new MonitorProdPerInfoViewModel
+            {
+                EqNumber = res.EqNumber,
+                ProdNo = res.ProdNo,
+                PassQty = res.PassQty
+            }).ToList();
+
             MonitorViewModel _responseVM = new MonitorViewModel
             {
                 AlarmList = _alarmListVM,
-                AlarmDayTop = _alarmDayTop
+                AlarmDayTop = _alarmDayTop,
+                ProdPerInfo = _prodPerInfo
             };
 
             return View(_responseVM);

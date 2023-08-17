@@ -113,10 +113,10 @@
                                     <td colspan="2" style="background-color: #e6ce87;">TTL</td>
                                     <td>{{info.ttlPassQty}}</td>
                                     <td v-if="info.efficiencyInlineTTL < 90" style="font-weight: 600; background-color: #c94040 ">{{info.efficiencyInlineTTL}}%</td>
-                                    <td v-if="info.efficiencyInlineTTL >= 90 && detail.efficiencyInline < 95" style="font-weight: 600; background-color: #dbcf48 ">{{info.efficiencyInlineTTL}}%</td>
+                                    <td v-if="info.efficiencyInlineTTL >= 90 && info.efficiencyInlineTTL < 95" style="font-weight: 600; background-color: #dbcf48 ">{{info.efficiencyInlineTTL}}%</td>
                                     <td v-if="info.efficiencyInlineTTL >= 95" style="font-weight: 600; background-color: #81b83b">{{info.efficiencyInlineTTL}}%</td>
                                     <td v-if="info.efficiencyInlineOfflineTTL < 90" style="font-weight: 600; background-color: #c94040 ">{{info.efficiencyInlineOfflineTTL}}%</td>
-                                    <td v-if="info.efficiencyInlineOfflineTTL >= 90 && detail.efficiencyInline < 95" style="font-weight: 600; background-color: #dbcf48 ">{{info.efficiencyInlineOfflineTTL}}%</td>
+                                    <td v-if="info.efficiencyInlineOfflineTTL >= 90 && info.efficiencyInlineOfflineTTL < 95" style="font-weight: 600; background-color: #dbcf48 ">{{info.efficiencyInlineOfflineTTL}}%</td>
                                     <td v-if="info.efficiencyInlineOfflineTTL >= 95" style="font-weight: 600; background-color: #81b83b">{{info.efficiencyInlineOfflineTTL}}%</td>
                                     <td></td>
                                     <td></td>

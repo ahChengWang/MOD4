@@ -239,7 +239,7 @@ namespace MOD4.Web.DomainService
                     };
 
                     var _currMonth = _mtdTodayNoPlanList.Where(w => w.Process == dt.Process && w.LcmProdId == dt.LcmProdId);
-                    var _currActualMonth = _mtdPerformanceMonth.Where(w => w.Node == dt.Node.ToString() && w.Product == dt.ProdNo);
+                    var _currMonthRpt106 = _mtdPerformanceMonth.Where(w => w.Node == dt.Node.ToString() && w.Product == dt.ProdNo);
                     var _currAlarmData = _alarmOverList.FirstOrDefault(f => f.tool_id == dt.DownEq && f.prod_id == dt.ProdNo);
 
                     MTDDashboardDetailEntity _test = new MTDDashboardDetailEntity
@@ -253,9 +253,9 @@ namespace MOD4.Web.DomainService
                         RangPlan = (_currSchedule.Value * (time / 24)).ToString("#,0"),
                         RangDiff = ((_mtdPerformanceDay.FirstOrDefault(f => f.Node == dt.Node.ToString() && f.Product == dt.ProdNo)?.Qty ?? 0) - (_currSchedule.Value * (time / 24))).ToString("#,0"),
                         MonthPlan = (_currMonth.Sum(sum => sum.Value) + _currSchedule.Value).ToString("#,0"),
-                        MTDPlan = (_currMonth.Where(mon => mon.Date == _srchDate).Sum(sum => sum.Value) + _currSchedule.Value).ToString("#,0"),
-                        MTDActual = _currActualMonth.Sum(sum => sum.Qty).ToString("#,0"),
-                        MTDDiff = (_currActualMonth.Sum(sum => sum.Qty) - (_currMonth.Where(mon => mon.Date == _srchDate).Sum(sum => sum.Value) + _currSchedule.Value)).ToString("#,0"),
+                        MTDPlan = (_currMonth.Where(mon => mon.Date <= _srchDate).Sum(sum => sum.Value) + _currSchedule.Value).ToString("#,0"),
+                        MTDActual = _currMonthRpt106.Sum(sum => sum.Qty).ToString("#,0"),
+                        MTDDiff = (_currMonthRpt106.Sum(sum => sum.Qty) - (_currMonth.Where(mon => mon.Date <= _srchDate).Sum(sum => sum.Value) + _currSchedule.Value)).ToString("#,0"),
                         EqAbnormal = _currAlarmData == null ? "" : _currAlarmData.comment,
                         RepaireTime = _currAlarmData == null ? "" : _currAlarmData.spend_time.ToString(),
                         Status = _currAlarmData == null ? "" : _currAlarmData.end_time == null ? "處理中" : "已排除"

@@ -7,5 +7,7 @@ namespace MOD4.Web.DomainService.Entity
         public List<MonitorAlarmEntity> AlarmList { get; set; }
 
         public List<MonitorAlarmTopEntity> AlarmDayTop { get; set; }
+
+        public List<MonitorProdPerInfoEntity> ProdPerInfo { get; set; }
     }
 }
