@@ -52,5 +52,9 @@ namespace MOD4.Web.Enum
         EffSetting = 30,
         [Description("Monitor")]
         Monitor = 31,
+        [Description("SAP 管報")]
+        Material = 33,
+        [Description("SAP 檔案上傳")]
+        MaterialUpload = 34,
     }
 }

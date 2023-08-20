@@ -1,0 +1,219 @@
+﻿
+
+@{
+    ViewBag.Title = "SAP 管報";
+}
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">SAP 管報</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <!-- form start -->
+                        <div class="card-body">
+                            <fieldset id="searchArea">
+                                <legend id="legend">查詢區塊</legend>
+                                <div class="form-group d-flex align-content-center flex-wrap">
+                                    <div class="col-md-1">
+                                        <label class="col-form-label">工單</label>
+                                        <span style="font-size:8px;font-weight:700" class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select class="form-control">
+                                            <option>131000008361</option>
+                                            <option>131000008362</option>
+                                            <option>131000008363</option>
+                                            <option>131000008364</option>
+                                            <option>131000008365</option>
+                                            <option>131000008366</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <label class="col-form-label">機種</label>
+                                        <span style="font-size:8px;font-weight:700" class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select class="form-control">
+                                            <option>5306M1490150M</option>
+                                            <option>GDD340IA0090S</option>
+                                            <option>GDE065IC0020S</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <label class="col-form-label">料號</label>
+                                        <span style="font-size:8px;font-weight:700" class="text-danger">*</span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select class="form-control">
+                                            <option>2131M14904019</option>
+                                            <option>2530M06532019</option>
+                                            <option>2530M080320H9</option>
+                                            <option>2530M07055059</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <input type="button" name="btn29" value="查詢" />
+                                </div>
+                                <br />
+                            </fieldset>
+                            <div>
+                                <table id="table1" class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Order</th>
+                                            <th>機種</th>
+                                            <th>工單</th>
+                                            <th>Material</th>
+                                            <th>品名</th>
+                                            <th>SAP站別</th>
+                                            <th>發料單位</th>
+                                            <th>生產數量</th>
+                                            <th>入庫數量</th>
+                                            <th>Start date</th>
+                                            <th>Finish date</th>
+                                            <th>單位用量</th>
+                                            <th>應發數量</th>
+                                            <th>發料數量</th>
+                                            <th>退料數量</th>
+                                            <th>入庫數量</th>
+                                            <th>報廢數量</th>
+                                            <th>差異數</th>
+                                            <th>差異率%</th>
+                                            <th>超發%數</th>
+                                            <th>超欠撥數</th>
+                                            <th>OPI工單狀態</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>131000009490</td>
+                                            <td>GDD080RA0110S</td>
+                                            <td>LCM,8,DD080RA-07A,1280*768</td>
+                                            <td>2530M08034059</td>
+                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
+                                            <td>0010</td>
+                                            <td>PC</td>
+                                            <td>3,260.000</td>
+                                            <td>2,827.000</td>
+                                            <td>2023/7/16</td>
+                                            <td>2023/7/25</td>
+                                            <td>1.000</td>
+                                            <td>3,260.000</td>
+                                            <td>3,260.000</td>
+                                            <td>0.000</td>
+                                            <td>2,827.000</td>
+                                            <td>0.000</td>
+                                            <td>433.00</td>
+                                            <td>13.28</td>
+                                            <td>900</td>
+                                            <td>100</td>
+                                            <td>已下線</td>
+                                        </tr>
+                                        <tr>
+                                            <td>131000009490</td>
+                                            <td>GDD080RA0110S</td>
+                                            <td>LCM,8,DD080RA-07A,1280*768</td>
+                                            <td>2530M08034059</td>
+                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
+                                            <td>0010</td>
+                                            <td>PC</td>
+                                            <td>3,260.000</td>
+                                            <td>2,827.000</td>
+                                            <td>2023/7/16</td>
+                                            <td>2023/7/25</td>
+                                            <td>1.000</td>
+                                            <td>3,260.000</td>
+                                            <td>3,260.000</td>
+                                            <td>0.000</td>
+                                            <td>2,827.000</td>
+                                            <td>0.000</td>
+                                            <td>433.00</td>
+                                            <td>13.28</td>
+                                            <td>900</td>
+                                            <td>100</td>
+                                            <td>已下線</td>
+                                        </tr>
+                                        <tr>
+                                            <td>131000009490</td>
+                                            <td>GDD080RA0110S</td>
+                                            <td>LCM,8,DD080RA-07A,1280*768</td>
+                                            <td>2530M08034059</td>
+                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
+                                            <td>0010</td>
+                                            <td>PC</td>
+                                            <td>3,260.000</td>
+                                            <td>2,827.000</td>
+                                            <td>2023/7/16</td>
+                                            <td>2023/7/25</td>
+                                            <td>1.000</td>
+                                            <td>3,260.000</td>
+                                            <td>3,260.000</td>
+                                            <td>0.000</td>
+                                            <td>2,827.000</td>
+                                            <td>0.000</td>
+                                            <td>433.00</td>
+                                            <td>13.28</td>
+                                            <td>900</td>
+                                            <td>100</td>
+                                            <td>已下線</td>
+                                        </tr>
+                                        <tr>
+                                            <td>131000009490</td>
+                                            <td>GDD080RA0110S</td>
+                                            <td>LCM,8,DD080RA-07A,1280*768</td>
+                                            <td>2530M08034059</td>
+                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
+                                            <td>0010</td>
+                                            <td>PC</td>
+                                            <td>3,260.000</td>
+                                            <td>2,827.000</td>
+                                            <td>2023/7/16</td>
+                                            <td>2023/7/25</td>
+                                            <td>1.000</td>
+                                            <td>3,260.000</td>
+                                            <td>3,260.000</td>
+                                            <td>0.000</td>
+                                            <td>2,827.000</td>
+                                            <td>0.000</td>
+                                            <td>433.00</td>
+                                            <td>13.28</td>
+                                            <td>900</td>
+                                            <td>100</td>
+                                            <td>已下線</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+@section scripts
+{
+    <script type="text/javascript">
+
+        $(function () {
+            $('#table1').DataTable({
+                "responsive": true,
+                "lengthChange": false,
+                "autoWidth": false,
+                "order": [[5, "asc"]],
+                /*"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]*/
+                "buttons": ["colvis"]
+            }).buttons().container().appendTo('#table1_wrapper .col-md-6:eq(0)');
+        });
+
+    </script>
+}
