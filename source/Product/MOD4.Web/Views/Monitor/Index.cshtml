@@ -113,13 +113,34 @@
     div[name='mapDiv'] {
         -webkit-filter: drop-shadow(12px 12px 7px rgba(0, 0, 0, 0.7));
         filter: drop-shadow(12px 12px 7px rgba(0, 0, 0, 0.7));
-        /*display: flex;
-        justify-content: center;*/
+        width: 75%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        background: repeating-conic-gradient(from var(--a),#e8e8e8 0%,#e8e8e8 5%,transparent 5%,transparent 40%,#e8e8e8 50%);
+        animation: animate 5s linear infinite;
     }
+
+    @@property --a {
+        syntax: '<angle>';
+        inherits: false;
+        initial-value: 0deg;
+    }
+
+    @@keyframes animate {
+        0% {
+            --a: 0deg;
+        }
+        100% {
+            --a: 360deg;
+        }
+    }
+
 
     img[usemap='#veg'] {
         /*width: 100%;*/
-        height: 100%;
+        height: 99%;
         object-fit: cover;
     }
 
@@ -195,7 +216,7 @@
 <body class="bg-theme">
     <div class="card-header" style="height: 8%;text-align:center">
         @*<h2 style="color: white; font-weight: 600; font-style: italic;">監控看板</h2>*@
-        <img style="width:80%" src="~/img/titleTransparent_1.png" />
+        <img class="titleImg" style="width:80%" src="~/img/titleTransparent_1.png" />
     </div>
     <div class="card-body" style="height: 92%;">
         <div name="alaemMap">
@@ -203,7 +224,7 @@
                 <h3 style="color: white;font-family:'Trebuchet MS'">Factory map</h3>
             </div>
             <div style="display: flex; height: 55%;">
-                <div name="mapDiv" style="width:75%; display: flex; justify-content: left; align-items: center; overflow: hidden">
+                <div name="mapDiv">
                     @*<div name="mapDiv" style="display: flex; justify-content: center; align-items: center; overflow: hidden">*@
                     @*<div style="clear: both; width: 500px; height: 50px; border: 1px solid black;" id="selections"></div>*@
                     <img id="fabLayout2" src="~/img/FabLayout2F.png" usemap="#veg">
@@ -223,14 +244,15 @@
                     </map>
                     @*</div>*@
                 </div>
-                <div style="width: 25%; margin-left: 5px">
+                <div class="box" style="width: 25%; margin-left: 5px">
+
                     <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); left: 85%;">
                         <a>Info</a>
                     </div>
                     <div class="monitor panel">
                         <div class="inner" style="align-items: center; justify-content: start; margin-top:10%">
                             <div id="areaInfo" style="width: 100%; height: 100%;">
-                                @*<div style="color: white; display: flex; height: 15%;">
+                                <div style="color: white; display: flex; height: 15%;">
                                         <div class="col-4" style="font-size: 18px;">Area：</div>
                                         <div class="col-6" style="font-size: 18px;">Assy</div>
                                     </div>
@@ -245,7 +267,7 @@
                                     <div style="color: white; display: flex; height: 15%;">
                                         <div class="col-4" style="font-size: 18px;">Pass 量：</div>
                                         <div class="col-6" style="font-size: 18px;">300</div>
-                                    </div>*@
+                                    </div>
                             </div>
                         </div>
                     </div>
@@ -648,10 +670,11 @@
 
             _options.areas[areaIdx] = {
                 key: areaObj.eqNumber,
-                fillColor: "d42e16",
+                fillOpacity: 0.6,
+                fillColor: "e00000",
                 stroke: true,
-                strokeColor: "d42e16",
-                strokeOpacity: 0.8,
+                strokeColor: "e00000",
+                strokeOpacity: 1,
                 strokeWidth: 3,
                 selected: true,
                 toolTip: areaObj.comment,
@@ -659,7 +682,6 @@
             };
         }
         else {
-
             _options.areas[areaIdx] = {
                 key: areaObj.eqNumber,
                 stroke: true,
