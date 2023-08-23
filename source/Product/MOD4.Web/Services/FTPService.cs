@@ -27,7 +27,7 @@ namespace MOD4.Web
         {
         }
 
-        public void FTP_Upload(IFormFile uploadFile, string parentFolder, string fileName)
+        public void FTP_Upload(IFormFile uploadFile, string parentFolder, string fileName, bool isProcessFile, string fullFilePath)
         {
             string[] _fNameAry = parentFolder.Split("/");
             string _fullPath = "";
@@ -38,21 +38,30 @@ namespace MOD4.Web
                 CreateFolder(_fullPath);
             }
 
-            var request = (FtpWebRequest)WebRequest.Create($"{_serverIP}{parentFolder}");
-            request = (FtpWebRequest)WebRequest.Create($"{_serverIP}{parentFolder}/{fileName}");
-            request.Method = WebRequestMethods.Ftp.UploadFile;
-            request.KeepAlive = true;
-            request.UseBinary = true;
-            request.Credentials = new NetworkCredential(_account, _password);
-
-            //上傳檔案
-            using (Stream requestStream = request.GetRequestStream())
+            if (isProcessFile)
+                using (WebClient client = new WebClient())
+                {
+                    client.Credentials = new NetworkCredential(_account, _password);
+                    client.UploadFile($"{_serverIP}{parentFolder}/{fileName}", WebRequestMethods.Ftp.UploadFile, fullFilePath);
+                }
+            else
             {
-                uploadFile.CopyTo(requestStream);
-            }
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create($"{_serverIP}{parentFolder}");
+                request = (FtpWebRequest)WebRequest.Create($"{_serverIP}{parentFolder}/{fileName}");
+                request.Method = WebRequestMethods.Ftp.UploadFile;
+                request.KeepAlive = true;
+                request.UseBinary = true;
+                request.Credentials = new NetworkCredential(_account, _password);
 
-            //上傳成功 (response.StatusCode = FtpStatusCode.ClosingData) // 226 successful
-            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                //上傳檔案
+                using (Stream requestStream = request.GetRequestStream())
+                {
+                    uploadFile.CopyTo(requestStream);
+                }
+
+                //上傳成功 (response.StatusCode = FtpStatusCode.ClosingData) // 226 successful
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+            }
         }
 
         public string FTP_Download(string parentFolder, string fileName)

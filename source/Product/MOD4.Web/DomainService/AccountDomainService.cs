@@ -722,6 +722,7 @@ namespace MOD4.Web.DomainService
             CatchHelper.Delete(new string[] { "accInfo" });
             CatchHelper.Delete(new string[] { "userMenuInfo" });
             CatchHelper.Delete(new string[] { $"userInfo_{updateEntity.sn}" });
+            CatchHelper.Delete(new string[] { "deptList" });
 
             return _updateRes;
         }

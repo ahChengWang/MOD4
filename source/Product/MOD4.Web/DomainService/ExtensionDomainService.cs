@@ -103,7 +103,7 @@ namespace MOD4.Web.DomainService
                 string[] _fileNameAry = uploadFile.FileName.Split(".");
                 var fileName = Path.GetFileName($"{_fileNameAry[0]}_{Guid.NewGuid().ToString("N").Substring(0, 4)}.{_fileNameAry[1]}");
 
-                _ftpService.FTP_Upload(uploadFile, "FTP_MPS", fileName);
+                _ftpService.FTP_Upload(uploadFile, "FTP_MPS", fileName, false, "");
 
                 string[] _nameAry = uploadFile.FileName.Split(".");
 

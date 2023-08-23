@@ -77,6 +77,7 @@ namespace MOD4.Web
             services.AddSingleton<ISPCReportDomainService, SPCReportDomainService>();
             services.AddSingleton<IMTDDashboardDomainService, MTDDashboardDomainService>();
             services.AddSingleton<IMonitorDomainService, MonitorDomainService>();
+            services.AddSingleton<IMaterialDomainService, MaterialDomainService>();
 
             services.AddSingleton<IAlarmXmlRepository, AlarmXmlRepository>();
             services.AddSingleton<IEqpInfoRepository, EqpInfoRepository>();

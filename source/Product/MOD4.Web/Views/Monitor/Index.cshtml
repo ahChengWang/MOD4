@@ -119,7 +119,7 @@
         align-items: center;
         overflow: hidden;
         background: repeating-conic-gradient(from var(--a),#e8e8e8 0%,#e8e8e8 5%,transparent 5%,transparent 40%,#e8e8e8 50%);
-        animation: animate 5s linear infinite;
+        animation: animate 10s linear infinite;
     }
 
     @@property --a {
@@ -132,6 +132,7 @@
         0% {
             --a: 0deg;
         }
+
         100% {
             --a: 360deg;
         }
@@ -140,7 +141,7 @@
 
     img[usemap='#veg'] {
         /*width: 100%;*/
-        height: 99%;
+        height: 98%;
         object-fit: cover;
     }
 
@@ -252,22 +253,22 @@
                     <div class="monitor panel">
                         <div class="inner" style="align-items: center; justify-content: start; margin-top:10%">
                             <div id="areaInfo" style="width: 100%; height: 100%;">
+                                @*<div style="color: white; display: flex; height: 15%;">
+                                    <div class="col-4" style="font-size: 18px;">Area：</div>
+                                    <div class="col-6" style="font-size: 18px;">Assy</div>
+                                </div>
                                 <div style="color: white; display: flex; height: 15%;">
-                                        <div class="col-4" style="font-size: 18px;">Area：</div>
-                                        <div class="col-6" style="font-size: 18px;">Assy</div>
-                                    </div>
-                                    <div style="color: white; display: flex; height: 15%;">
-                                        <div class="col-4" style="font-size: 18px;">EQ no：</div>
-                                        <div class="col-6" style="font-size: 18px;">ASSY2010</div>
-                                    </div>
-                                    <div style="color: white; display: flex; height: 15%;">
-                                        <div class="col-4" style="font-size: 18px;">機種：</div>
-                                        <div class="col-6" style="font-size: 18px;">GDD340IA0090S</div>
-                                    </div>
-                                    <div style="color: white; display: flex; height: 15%;">
-                                        <div class="col-4" style="font-size: 18px;">Pass 量：</div>
-                                        <div class="col-6" style="font-size: 18px;">300</div>
-                                    </div>
+                                    <div class="col-4" style="font-size: 18px;">EQ no：</div>
+                                    <div class="col-6" style="font-size: 18px;">ASSY2010</div>
+                                </div>
+                                <div style="color: white; display: flex; height: 15%;">
+                                    <div class="col-4" style="font-size: 18px;">機種：</div>
+                                    <div class="col-6" style="font-size: 18px;">GDD340IA0090S</div>
+                                </div>
+                                <div style="color: white; display: flex; height: 15%;">
+                                    <div class="col-4" style="font-size: 18px;">Pass 量：</div>
+                                    <div class="col-6" style="font-size: 18px;">300</div>
+                                </div>*@
                             </div>
                         </div>
                     </div>
@@ -286,12 +287,12 @@
                                         @{
                                             foreach (var alarm in Model.AlarmList.Where(w => w.IsFrontEnd))
                                             {
-                                            <tr>
-                                                <td>@alarm.ProdNo</td>
-                                                <td>@alarm.EqNumber</td>
-                                                <td>@alarm.Comment</td>
-                                                <td>@alarm.StartTime</td>
-                                            </tr>
+                                                <tr>
+                                                    <td>@alarm.ProdNo</td>
+                                                    <td>@alarm.EqNumber</td>
+                                                    <td>@alarm.Comment</td>
+                                                    <td>@alarm.StartTime</td>
+                                                </tr>
                                             }
                                         }
                                     </tbody>
@@ -312,12 +313,12 @@
                                         @{
                                             foreach (var alarm in Model.AlarmList.Where(w => !w.IsFrontEnd))
                                             {
-                                            <tr>
-                                                <td>@alarm.ProdNo</td>
-                                                <td>@alarm.EqNumber</td>
-                                                <td>@alarm.Comment</td>
-                                                <td>@alarm.StartTime</td>
-                                            </tr>
+                                                <tr>
+                                                    <td>@alarm.ProdNo</td>
+                                                    <td>@alarm.EqNumber</td>
+                                                    <td>@alarm.Comment</td>
+                                                    <td>@alarm.StartTime</td>
+                                                </tr>
                                             }
                                         }
                                     </tbody>
@@ -338,12 +339,12 @@
                                         @{
                                             foreach (var alarmTop in Model.AlarmDayTop)
                                             {
-                                            <tr>
-                                                <td>@alarmTop.ProdNo</td>
-                                                <td>@alarmTop.EqNumber</td>
-                                                <td>@alarmTop.Comment</td>
-                                                <td>@alarmTop.RepairedTime</td>
-                                            </tr>
+                                                <tr>
+                                                    <td>@alarmTop.ProdNo</td>
+                                                    <td>@alarmTop.EqNumber</td>
+                                                    <td>@alarmTop.Comment</td>
+                                                    <td>@alarmTop.RepairedTime</td>
+                                                </tr>
                                             }
                                         }
                                     </tbody>

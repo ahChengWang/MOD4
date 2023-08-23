@@ -573,7 +573,7 @@ namespace MOD4.Web.DomainService.Demand
                     string[] _fileNameAry = mESPermissionEntity.UploadFile.FileName.Split(".");
                     _fileName = Path.GetFileName($"{_fileNameAry[0]}_{_nowTime.ToString("MMdd")}_{Guid.NewGuid().ToString("N").Substring(0, 4)}.{_fileNameAry[1]}");
 
-                    _ftpService.FTP_Upload(mESPermissionEntity.UploadFile, $"MESEmpList/{userEntity.Name}", _fileName);
+                    _ftpService.FTP_Upload(mESPermissionEntity.UploadFile, $"MESEmpList/{userEntity.Name}", _fileName, false, "");
                 }
 
                 MESPermissionDao _mesPermissionDao = new MESPermissionDao

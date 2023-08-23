@@ -240,7 +240,7 @@
             data: {
                 settingList: @(Html.Raw(Json.Serialize(Model))),
                 searchStr: '',
-                nodeOptions:@(Html.Raw(Json.Serialize(ViewBag.NodeList)))
+                nodeOptions:@(Html.Raw(Json.Serialize(ViewBag.NodeList))),
             },
             methods: {
                 editClick(trId) {

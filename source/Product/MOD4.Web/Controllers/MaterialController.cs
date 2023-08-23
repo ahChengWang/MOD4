@@ -16,18 +16,17 @@ namespace MOD4.Web.Controllers
     public class MaterialController : BaseController
     {
         private readonly ILogger<ExtensionController> _logger;
-        private readonly IOptionDomainService _optionDomainService;
+        private readonly IMaterialDomainService _materialDomainService;
         private readonly IExtensionDomainService _extensionDomainService;
 
-        public MaterialController(IExtensionDomainService extensionDomainService,
+        public MaterialController(IMaterialDomainService materialDomainService,
             IHttpContextAccessor httpContextAccessor,
             IAccountDomainService accountDomainService,
             IOptionDomainService optionDomainService,
             ILogger<ExtensionController> logger)
             : base(httpContextAccessor, accountDomainService)
         {
-            _extensionDomainService = extensionDomainService;
-            _optionDomainService = optionDomainService;
+            _materialDomainService = materialDomainService;
             _logger = logger;
         }
 
@@ -82,33 +81,44 @@ namespace MOD4.Web.Controllers
             return View();
         }
 
-        //[HttpPost("[controller]/Material/Upload")]
-        //public IActionResult MaterialUpload([FromForm] ReportUploadViewModel uploadVM)
-        //{
-        //    try
-        //    {
-        //        string _uplRes = _extensionDomainService.MPSUpload(uploadVM.File, GetUserInfo());
-
-        //        if (_uplRes == "")
-        //            return Json("");
-        //        else
-        //            return Json(_uplRes);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(ex.Message);
-        //    }
-        //}
-
-        [HttpGet("[controller]/MPSDownload")]
-        public IActionResult MPSDownload()
+        [HttpPost("[controller]/MatlUpload")]
+        public IActionResult MaterialUpload(IFormFile uFile)
         {
             try
             {
-                var _dwnlRes = _extensionDomainService.Download();
+                var _uplRes = _materialDomainService.Upload(uFile, GetUserInfo());
 
-                if (_dwnlRes.Item1)
-                    return PhysicalFile(_dwnlRes.Item2, System.Net.Mime.MediaTypeNames.Application.Octet, _dwnlRes.Item3);
+                if (_uplRes.Item1)
+                    return Json(new ResponseViewModel<string>
+                    {
+                        IsSuccess = true,
+                        Data = _uplRes.Item3,
+                        Msg = "上傳成功"
+                    });
+                else
+                    return Json(new ResponseViewModel<string>
+                    {
+                        IsSuccess = false,
+                        Msg = "SAP檔上傳處理異常"
+                    });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("[controller]/MatlDownload/{fileName}")]
+        public IActionResult MPSDownload(string fileName)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(fileName))
+                    return File(System.IO.File.OpenRead($"..\\tempFileProcess\\{fileName}"), "application/octet-stream", fileName);
                 else
                     return RedirectToAction("Error", "Home", new ErrorViewModel { Message = "下載異常" });
             }
