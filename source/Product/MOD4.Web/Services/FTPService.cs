@@ -2,9 +2,12 @@
 using Microsoft.Extensions.Configuration;
 using MOD4.Web.DomainService.Entity;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 
 namespace MOD4.Web
 {
@@ -86,6 +89,74 @@ namespace MOD4.Web
             }
 
             return _resStr;
+        }
+
+        public string GetFTPLatestFile(string parentFolder)
+        {
+            List<(string, DateTime)> _ftpFileList = new List<(string, DateTime)>();
+            string pattern = @"^(\d+-\d+-\d+\s+\d+:\d+(?:AM|PM))\s+(<DIR>|\d+)\s+(.+)$";
+            Regex regex = new Regex(pattern);
+
+            var request = (FtpWebRequest)WebRequest.Create($"{_serverIP}{parentFolder}");
+            request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
+            request.Credentials = new NetworkCredential(_account, _password);
+            string _resFileName = "";
+
+            using (StreamReader strReader = new StreamReader(request.GetResponse().GetResponseStream()))
+            {
+                while (!strReader.EndOfStream)
+                {
+                    string _line = strReader.ReadLine(); 
+                    
+                    Match match = regex.Match(_line);
+                    string s = match.Groups[1].Value;
+                    DateTime modified = DateTime.ParseExact(s, "MM-dd-yy  hh:mmtt", CultureInfo.InvariantCulture);
+                    string name = match.Groups[3].Value;
+                    _ftpFileList.Add((name, modified));
+                }
+
+                //using (Stream stream = response.GetResponseStream())
+                //{
+                //    _resStr = Path.GetTempFileName();
+
+                //    using (FileStream fs = new FileStream(_resStr, FileMode.Create))
+                //    {
+                //        stream.CopyTo(fs);
+                //    }
+                //}
+            }
+
+            if (_ftpFileList.Any())
+            {
+                _ftpFileList = _ftpFileList.OrderByDescending(o => o.Item2).ToList();
+
+                _resFileName = _ftpFileList[0].Item1;
+
+                // 只保存近3日檔案
+                if (_ftpFileList.Count > 3)
+                    DeleteFTPFile(parentFolder, _ftpFileList.Select(file => file.Item1).Skip(3).ToList());
+            }
+
+            return _resFileName;
+        }
+
+        private string DeleteFTPFile(string parentFolder, List<string> fileList)
+        {
+            string _delRes = "";
+
+            foreach (string fileName in fileList)
+            {
+                var request = (FtpWebRequest)WebRequest.Create($"{_serverIP}{parentFolder}/{fileName}");
+                request.Method = WebRequestMethods.Ftp.DeleteFile;
+                request.Credentials = new NetworkCredential(_account, _password);
+
+                using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
+                {
+                    _delRes += response.StatusDescription;
+                }
+            }
+
+            return _delRes;
         }
 
         /// <summary>

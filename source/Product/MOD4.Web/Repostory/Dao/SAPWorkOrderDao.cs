@@ -1,9 +1,10 @@
 ﻿using System;
 
-namespace MOD4.Web.DomainService.Entity
+namespace MOD4.Web.Repostory.Dao
 {
-    public class SAPWorkOrderEntity
+    public class SAPWorkOrderDao
     {
+        public int Sn { get; set; }
         public string Order { get; set; }
         public string Prod { get; set; }
         public string MaterialSpec { get; set; }
@@ -15,16 +16,19 @@ namespace MOD4.Web.DomainService.Entity
         public int StorageQty { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime FinishDate { get; set; }
-        public int Unit { get; set; }
-        public int ExptQty { get; set; }
-        public int DisburseQty { get; set; }
-        public int ReturnQty { get; set; }
-        public int ActStorageQty { get; set; }
-        public int ScrapQty { get; set; }
-        public int DiffQty { get; set; }
+        public decimal Unit { get; set; }
+        public decimal ExptQty { get; set; }
+        public decimal DisburseQty { get; set; }
+        public decimal ReturnQty { get; set; }
+        public decimal ActStorageQty { get; set; }
+        public decimal ScrapQty { get; set; }
+        public decimal DiffQty { get; set; }
         public decimal DiffRate { get; set; }
         public decimal OverDisburse { get; set; }
         public decimal DiffDisburse { get; set; }
+        public decimal WOPremiumOut { get; set; }
+        public decimal CantNegative { get; set; }
         public string OPIwoStatus { get; set; }
+        public string WOType { get; set; }
     }
 }

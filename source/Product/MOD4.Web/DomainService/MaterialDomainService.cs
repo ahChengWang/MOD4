@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using System.Transactions;
 using Utility.Helper;
 
@@ -19,14 +20,113 @@ namespace MOD4.Web.DomainService
 {
     public class MaterialDomainService : BaseDomainService, IMaterialDomainService
     {
-        private readonly IUploadDomainService _uploadDomainService;
-        private readonly IMPSUploadHistoryRepository _mpsUploadHistoryRepository;
-
-        public MaterialDomainService(IUploadDomainService uploadDomainService,
-            IMPSUploadHistoryRepository mpsUploadHistoryRepository)
+        private readonly ISAPMaterialRepository _sapMaterialRepository;
+        private Dictionary<string, string> _woTypeDic = new Dictionary<string, string>
         {
-            _uploadDomainService = uploadDomainService;
-            _mpsUploadHistoryRepository = mpsUploadHistoryRepository;
+            {"PROD","P"},
+            {"QTAP","P"},
+            {"RES0","P"},
+            {"LCME","P"},
+            {"INT0","E"},
+            {"LCM0","E"},
+            {"RWKP","R"},
+            {"RWK0","R"},
+            {"RIN0","R"},
+            {"RWK1","R"},
+            {"RQR0","R"},
+            {"RWKY","R"},
+            {"RWDG","R"},
+            {"RMA0","R"},
+            {"RMB0","M"},
+            {"PRDG","P"},
+            {"RDD0","R"}
+        }; 
+        private Dictionary<MatlCodeTypeEnum, string> _codeTypeFolderDic = new Dictionary<MatlCodeTypeEnum, string>
+        {
+            {MatlCodeTypeEnum.Code5,"\\Code5"},
+            {MatlCodeTypeEnum.Code13,"\\Code13"}
+        };
+
+        public MaterialDomainService(ISAPMaterialRepository sapMaterialRepository)
+        {
+            _sapMaterialRepository = sapMaterialRepository;
+        }
+
+
+        public List<MaterialSettingEntity> GetMaterialSetting(MatlCodeTypeEnum codeTypeId)
+        {
+            try
+            {
+                List<MaterialSettingDao> _matlAllSetting = _sapMaterialRepository.SelectMatlAllSetting(codeTypeId);
+
+                return _matlAllSetting.OrderBy(o => o.MatlNo).Select(matl => new MaterialSettingEntity
+                {
+                    Sn = matl.Sn,
+                    MatlNo = matl.MatlNo,
+                    MatlCatg = matl.MatlCatg,
+                    MatlName = matl.MatlName,
+                    UseNode = matl.UseNode,
+                    LossRate = matl.LossRate * 100
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public string UpdateMaterialSetting(List<MaterialSettingEntity> updEntity, MatlCodeTypeEnum codeTypeId, UserEntity userEntity)
+        {
+            try
+            {
+                string _updRes = "";
+                DateTime _nowTime = DateTime.Now;
+
+                List<MaterialSettingDao> _oldMatlSetting = _sapMaterialRepository.SelectMatlAllSetting(codeTypeId);
+
+                List<MaterialSettingDao> _updateMatlSetting = (from old in _oldMatlSetting
+                                                               join upd in updEntity
+                                                               on old.MatlNo equals upd.MatlNo
+                                                               where old.LossRate != (upd.LossRate / 100)
+                                                               select new MaterialSettingDao
+                                                               {
+                                                                   MatlNo = old.MatlNo,
+                                                                   LossRate = (upd.LossRate / 100),
+                                                                   OldLossRate = old.LossRate
+                                                               }).ToList();
+
+                List<MaterialSettingHistoryDao> _updateMatlHis = _updateMatlSetting
+                    .Select(setting => new MaterialSettingHistoryDao
+                    {
+                        MatlNo = setting.MatlNo,
+                        LossRate = setting.OldLossRate,
+                        UpdateUser = userEntity.Name,
+                        UpdateTime = _nowTime
+                    }).ToList();
+
+                if (!_updateMatlSetting.Any())
+                    return _updRes;
+
+                using (TransactionScope scope = new TransactionScope())
+                {
+                    bool tmpRes = false;
+                    tmpRes = _sapMaterialRepository.UpdateMatlSetting(_updateMatlSetting) == _updateMatlSetting.Count;
+                    tmpRes = _sapMaterialRepository.InsertMatlSettingHistory(_updateMatlHis) == _updateMatlHis.Count;
+
+                    if (tmpRes)
+                        scope.Complete();
+                    else
+                        _updRes = "更新異常";
+                }
+
+
+                return _updRes;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         /// <summary>
@@ -42,9 +142,20 @@ namespace MOD4.Web.DomainService
                 if (uploadFile.Length > 0)   // 檢查 <input type="file"> 是否輸入檔案？
                 {
                     XSSFWorkbook workbook;
-                    List<SAPWorkOrderEntity> _insSAPWorkOrderList = new List<SAPWorkOrderEntity>();
+                    List<SAPWorkOrderDao> _insSAPWorkOrderList = new List<SAPWorkOrderDao>();
                     MTDScheduleUpdateHistoryDao _mtdScheduleUpdateHistoryDao = new MTDScheduleUpdateHistoryDao();
+                    SAPWorkOrderDao _tmpDao = new SAPWorkOrderDao();
+                    List<SAPWorkOrderDao> _updSAPwoList = new List<SAPWorkOrderDao>();
+                    List<SAPWorkOrderDao> _insSAPwoList = new List<SAPWorkOrderDao>();
                     DateTime _nowTime = DateTime.Now;
+
+                    string[] _fileNameAry = uploadFile.FileName.Split(".");
+                    var fileName = Path.GetFileName($"{_fileNameAry[0]}_{_nowTime.ToString("yyMMddHHmmss")}.{_fileNameAry[1]}");
+
+                    // 先撈取 report 4.18 工單資料
+                    var _woTask = GetZipsumReport418Async(_nowTime.ToString("yyyy/MM/dd"));
+                    List<MaterialSettingDao> _matlAllSetting = _sapMaterialRepository.SelectMatlAllSetting();
+                    List<SAPWorkOrderDao> _oldSAPwoList = _sapMaterialRepository.SelectSAPwoByConditions();
 
                     // 刪除暫存計算檔
                     string[] _dirAllFiles = Directory.GetFiles("..\\tempFileProcess\\");
@@ -52,13 +163,11 @@ namespace MOD4.Web.DomainService
                         foreach (string filePath in _dirAllFiles)
                             File.Delete(filePath);
 
-                    string[] _fileNameAry = uploadFile.FileName.Split(".");
-                    var fileName = Path.GetFileName($"{_fileNameAry[0]}_{_nowTime.ToString("yyMMddHHmmss")}.{_fileNameAry[1]}");
 
                     // 新增暫存計算檔
                     using (FileStream fs = new FileStream($"..\\tempFileProcess\\{fileName}", FileMode.Create))
                     {
-                    }                    
+                    }
 
                     using (var ms = new MemoryStream())
                     {
@@ -70,40 +179,58 @@ namespace MOD4.Web.DomainService
                         workbook = new XSSFWorkbook(stream); // 將剛剛的Excel (Stream）讀取到工作表裡面
                         // XSSFWorkbook() 只能讀取 System.IO.Stream
                     }
-                    
+
                     #region
-                    XSSFSheet _scheduleSheet = (XSSFSheet)workbook.GetSheetAt(0);
+                    XSSFSheet _sapDataSheet = (XSSFSheet)workbook.GetSheetAt(0);
 
                     // 表頭列新增"理論撥料"、"修正數"
-                    XSSFRow row = (XSSFRow)_scheduleSheet.GetRow(0);
+                    XSSFRow row = (XSSFRow)_sapDataSheet.GetRow(0);
 
                     // font red
+                    ICellStyle _headCellStyle = workbook.CreateCellStyle();
+                    _headCellStyle.FillPattern = FillPattern.SolidForeground;
+                    _headCellStyle.FillForegroundColor = IndexedColors.Grey25Percent.Index;
+
+                    ICell _theortOut = row.CreateCell(19);
+                    ICell _diffOut = row.CreateCell(20);
+                    ICell _woPremiumOut = row.CreateCell(21);
+                    ICell _cantNeg = row.CreateCell(22);
+                    ICell _shortName = row.CreateCell(23);
+                    ICell _opiStatus = row.CreateCell(24);
+                    ICell _woType = row.CreateCell(25);
+                    ICell _useNode = row.CreateCell(26);
+
+                    _theortOut.SetCellValue("理論撥料");
+                    _theortOut.CellStyle = _headCellStyle;
+                    _diffOut.SetCellValue("修正數");
+                    _diffOut.CellStyle = _headCellStyle;
+                    _woPremiumOut.SetCellValue("工單短溢領數");
+                    _woPremiumOut.CellStyle = _headCellStyle;
+                    _cantNeg.SetCellValue("不得為負");
+                    _cantNeg.CellStyle = _headCellStyle;
+                    _shortName.SetCellValue("部材簡稱");
+                    _shortName.CellStyle = _headCellStyle;
+                    _opiStatus.SetCellValue("OPI工單狀態");
+                    _opiStatus.CellStyle = _headCellStyle;
+                    _woType.SetCellValue("工單型態");
+                    _woType.CellStyle = _headCellStyle;
+                    _useNode.SetCellValue("使用站點");
+                    _useNode.CellStyle = _headCellStyle;
+
                     ICellStyle _cellStyle = workbook.CreateCellStyle();
                     IFont _font = workbook.CreateFont();
                     _font.Color = IndexedColors.Red.Index;
                     _cellStyle.SetFont(_font);
 
-                    ICell _theortOut = row.CreateCell(19);
-                    ICell _diffOut = row.CreateCell(20);
-                    _theortOut.SetCellValue("理論撥料");
-                    _diffOut.SetCellValue("修正數");
+                    List<WorkOrderEntity> _workOrderEntity = _woTask.Result;
 
                     // for迴圈的「啟始值」要加一，表示不包含 Excel表頭列
-                    for (int i = (_scheduleSheet.FirstRowNum + 1); i <= _scheduleSheet.LastRowNum; i++)
+                    for (int i = (_sapDataSheet.FirstRowNum + 1); i <= _sapDataSheet.LastRowNum; i++)
                     {
                         // 每一列做迴圈
-                        row = (XSSFRow)_scheduleSheet.GetRow(i); // 不包含 Excel表頭列
+                        row = (XSSFRow)_sapDataSheet.GetRow(i); // 不包含 Excel表頭列
 
-                        SAPWorkOrderEntity _tmpEntity = new SAPWorkOrderEntity()
-                        {
-                            Order = row.GetCell(0).StringCellValue,
-                            Prod = row.GetCell(1).StringCellValue,
-                            MaterialSpec = row.GetCell(2).StringCellValue,
-                            MaterialNo = row.GetCell(3).StringCellValue,
-                            MaterialName = row.GetCell(4).StringCellValue,
-                        };
-
-                        _insSAPWorkOrderList.Add(new SAPWorkOrderEntity
+                        _tmpDao = new SAPWorkOrderDao()
                         {
                             Order = row.GetCell(0).StringCellValue,
                             Prod = row.GetCell(1).StringCellValue,
@@ -124,26 +251,68 @@ namespace MOD4.Web.DomainService
                             ScrapQty = Convert.ToInt32(row.GetCell(16).NumericCellValue),
                             DiffQty = Convert.ToInt32(row.GetCell(17).NumericCellValue),
                             DiffRate = Convert.ToDecimal(row.GetCell(18).NumericCellValue)
-                        });
+                        };
+
+                        var _currentSetting = _matlAllSetting.FirstOrDefault(f => f.MatlNo == _tmpDao.MaterialNo.Substring(0, 5)) ?? null;
+                        var _currZipWOStatus = _workOrderEntity.FirstOrDefault(f => f.WorkOrder == _tmpDao.Order);
 
                         #region 計算"理論撥料"、"修正數"
-                        var _culQty = Convert.ToInt32(row.GetCell(12).NumericCellValue) * 1.03;
-                        var _diffCulQty = Convert.ToInt32(row.GetCell(13).NumericCellValue) - Math.Round(_culQty);
+                        var _culQty = Convert.ToInt32(row.GetCell(12).NumericCellValue) * ((_currentSetting?.LossRate ?? 0) + 1);
+                        var _diffCulQty = Convert.ToInt32(row.GetCell(13).NumericCellValue) - Math.Round(_culQty) - _tmpDao.ReturnQty - _tmpDao.ScrapQty;
 
                         _theortOut = row.CreateCell(19);
                         _theortOut.SetCellType(CellType.Numeric);
-                        _theortOut.SetCellValue(_culQty);
+                        _theortOut.SetCellValue(Convert.ToDouble(_culQty));
 
                         _diffOut = row.CreateCell(20);
                         _diffOut.SetCellType(CellType.String);
-                        _diffOut.SetCellValue(_diffCulQty);
+                        _diffOut.SetCellValue(Convert.ToDouble(_diffCulQty));
 
                         // 修正數 < 0 上紅色
                         if (_diffCulQty < 0)
                         {
                             _diffOut.CellStyle = _cellStyle;
                         }
+
+                        _tmpDao.OverDisburse = _culQty;
+                        _tmpDao.DiffDisburse = _diffCulQty;
+
                         #endregion
+
+                        #region 其他欄位計算
+
+                        _tmpDao.WOPremiumOut = _tmpDao.DisburseQty - _tmpDao.ReturnQty - _tmpDao.ScrapQty - _tmpDao.ExptQty;
+                        _woPremiumOut = row.CreateCell(21);
+                        _woPremiumOut.SetCellType(CellType.Numeric);
+                        _woPremiumOut.SetCellValue(Convert.ToDouble(_tmpDao.WOPremiumOut));
+
+                        _tmpDao.CantNegative = _tmpDao.DisburseQty - _tmpDao.ReturnQty - _tmpDao.ScrapQty;
+                        _cantNeg = row.CreateCell(22);
+                        _cantNeg.SetCellType(CellType.Numeric);
+                        _cantNeg.SetCellValue(Convert.ToDouble(_tmpDao.CantNegative));
+
+                        _shortName = row.CreateCell(23);
+                        _shortName.SetCellType(CellType.String);
+                        _shortName.SetCellValue(_currentSetting?.MatlName ?? "");
+
+                        _tmpDao.OPIwoStatus = _currZipWOStatus.WOStatus == "complete" ? "complete"
+                            : _currZipWOStatus.WOStatus == "release" && _currZipWOStatus.ActualQty > 0 ? "已下線" : "未下線";
+                        _opiStatus = row.CreateCell(24);
+                        _opiStatus.SetCellType(CellType.String);
+                        _opiStatus.SetCellValue(_tmpDao.OPIwoStatus);
+
+                        _tmpDao.WOType = _currZipWOStatus.WOType;
+                        _woType = row.CreateCell(25);
+                        _woType.SetCellType(CellType.String);
+                        _woType.SetCellValue(_currZipWOStatus.WOType);
+
+                        _useNode = row.CreateCell(26);
+                        _useNode.SetCellType(CellType.String);
+                        _useNode.SetCellValue(_currentSetting?.UseNode ?? "");
+
+                        #endregion
+
+                        _insSAPWorkOrderList.Add(_tmpDao);
                     }
                     #endregion
 
@@ -157,10 +326,163 @@ namespace MOD4.Web.DomainService
                     // FTP 上傳
                     _ftpService.FTP_Upload(uploadFile, "FTP_SAP", fileName, true, $"..\\tempFileProcess\\{fileName}");
 
+                    if (_oldSAPwoList.Any())
+                    {
+                        _updSAPwoList = (from oldSAP in _oldSAPwoList
+                                         join newSAP in _insSAPWorkOrderList
+                                         on new { oldSAP.Order, oldSAP.Prod, oldSAP.MaterialNo } equals new { newSAP.Order, newSAP.Prod, newSAP.MaterialNo }
+                                         select new SAPWorkOrderDao
+                                         {
+                                             Sn = oldSAP.Sn,
+                                             Order = oldSAP.Order,
+                                             Prod = oldSAP.Prod,
+                                             MaterialSpec = newSAP.MaterialSpec,
+                                             MaterialNo = oldSAP.MaterialNo,
+                                             MaterialName = newSAP.MaterialName,
+                                             SAPNode = newSAP.SAPNode,
+                                             Dept = newSAP.Dept,
+                                             ProdQty = newSAP.ProdQty,
+                                             StorageQty = newSAP.StorageQty,
+                                             StartDate = newSAP.StartDate,
+                                             FinishDate = newSAP.FinishDate,
+                                             Unit = newSAP.Unit,
+                                             ExptQty = newSAP.ExptQty,
+                                             DisburseQty = newSAP.DisburseQty,
+                                             ReturnQty = newSAP.ReturnQty,
+                                             ActStorageQty = newSAP.ActStorageQty,
+                                             ScrapQty = newSAP.ScrapQty,
+                                             DiffQty = newSAP.DiffQty,
+                                             DiffRate = newSAP.DiffRate,
+                                             OverDisburse = newSAP.OverDisburse,
+                                             DiffDisburse = newSAP.DiffDisburse,
+                                             WOPremiumOut = newSAP.WOPremiumOut,
+                                             CantNegative = newSAP.CantNegative,
+                                             OPIwoStatus = newSAP.OPIwoStatus,
+                                             WOType = newSAP.WOType
+                                         }).ToList();
+
+                        _insSAPwoList = _insSAPWorkOrderList.Where(sap => _oldSAPwoList.All(a => !(a.Order == sap.Order && a.Prod == sap.Prod && a.MaterialNo == sap.MaterialNo))).ToList();
+                    }
+                    else
+                    {
+                        _insSAPwoList = _insSAPWorkOrderList;
+                    }
+
+
+                    using (TransactionScope scope = new TransactionScope())
+                    {
+                        _sapMaterialRepository.InsertSAPwo(_insSAPwoList);
+                        if (_updSAPwoList.Any())
+                            _sapMaterialRepository.UpdateSAPwo(_updSAPwoList);
+
+                        scope.Complete();
+                    }
+
                     return (true, $"..\\tempFileProcess\\{fileName}", fileName);
                 }
                 else
                     return (false, "", "");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        /// <summary>
+        /// 5碼、13碼 料號耗損設定檔
+        /// </summary>
+        /// <param name="uploadFile">上傳檔案</param>
+        /// <param name="codeFolder">存放上傳檔資料夾</param>
+        /// <param name="userEntity">使用者資訊</param>
+        /// <returns></returns>
+        public string UploadCodeRate(IFormFile uploadFile, MatlCodeTypeEnum codeTypeId, UserEntity userEntity)
+        {
+            try
+            {
+                string _uplRes = "";
+
+                if (uploadFile.Length > 0)   // 檢查 <input type="file"> 是否輸入檔案？
+                {
+                    XSSFWorkbook workbook;
+                    List<SAPWorkOrderDao> _insSAPWorkOrderList = new List<SAPWorkOrderDao>();
+                    MTDScheduleUpdateHistoryDao _mtdScheduleUpdateHistoryDao = new MTDScheduleUpdateHistoryDao();
+                    MaterialSettingDao _tmpDao = new MaterialSettingDao();
+                    List<SAPWorkOrderDao> _updSAPwoList = new List<SAPWorkOrderDao>();
+                    List<MaterialSettingDao> _insMatlSettingList = new List<MaterialSettingDao>();
+                    DateTime _nowTime = DateTime.Now;
+
+                    string[] _fileNameAry = uploadFile.FileName.Split(".");
+                    var fileName = Path.GetFileName($"{_fileNameAry[0]}_{_nowTime.ToString("yyMMddHHmmss")}.{_fileNameAry[1]}");
+
+                    using (var ms = new MemoryStream())
+                    {
+                        uploadFile.CopyTo(ms);
+
+                        // NOPI 讀取檔案內容（Stream串流）
+                        Stream stream = new MemoryStream(ms.ToArray());
+
+                        workbook = new XSSFWorkbook(stream); // 將剛剛的Excel (Stream）讀取到工作表裡面
+                        // XSSFWorkbook() 只能讀取 System.IO.Stream
+                    }
+
+                    #region
+                    XSSFSheet _sapDataSheet = (XSSFSheet)workbook.GetSheetAt(0);
+
+                    // 表頭列新增"理論撥料"、"修正數"
+                    XSSFRow row = (XSSFRow)_sapDataSheet.GetRow(0);
+
+                    // 檢核 code type 和資料內容
+                    if (codeTypeId == MatlCodeTypeEnum.Code5 && ((XSSFRow)_sapDataSheet.GetRow(1)).GetCell(0).StringCellValue.Length > 6 ||
+                        codeTypeId == MatlCodeTypeEnum.Code13 && ((XSSFRow)_sapDataSheet.GetRow(1)).GetCell(0).StringCellValue.Length != 13)
+                        throw new Exception("請確認選取料號長度與上傳檔是否相符");
+
+                    // for迴圈的「啟始值」要加一，表示不包含 Excel表頭列
+                    for (int i = (_sapDataSheet.FirstRowNum + 1); i <= _sapDataSheet.LastRowNum; i++)
+                    {
+                        // 每一列做迴圈
+                        row = (XSSFRow)_sapDataSheet.GetRow(i); // 不包含 Excel表頭列
+
+                        if (row.GetCell(0) == null)
+                            break;
+
+                        _tmpDao = new MaterialSettingDao()
+                        {
+                            MatlNo = row.GetCell(0).StringCellValue,
+                            CodeTypeId = codeTypeId,
+                            MatlName = row.GetCell(1).StringCellValue,
+                            MatlCatg = row.GetCell(2).StringCellValue,
+                            UseNode = row.GetCell(3).StringCellValue,
+                            LossRate = Convert.ToDecimal(row.GetCell(4).NumericCellValue),
+                            UpdateUser = userEntity.Name,
+                            UpdateTime = _nowTime
+                        };
+
+                        _insMatlSettingList.Add(_tmpDao);
+                    }
+                    #endregion
+
+                    // FTP 上傳
+                    _ftpService.FTP_Upload(uploadFile, $"FTP_SAP{_codeTypeFolderDic[codeTypeId]}", fileName, false, $"..\\{fileName}");
+
+                    using (TransactionScope scope = new TransactionScope())
+                    {
+                        bool updRes = false;
+
+                        _sapMaterialRepository.DeleteMatlSetting(codeTypeId);
+                        updRes = _sapMaterialRepository.InsertMatlSetting(_insMatlSettingList) == _insMatlSettingList.Count;
+
+                        if (updRes)
+                            scope.Complete();
+                        else
+                            _uplRes = "上傳異常";
+                    }
+
+                    return _uplRes;
+                }
+                else
+                    return _uplRes;
             }
             catch (Exception ex)
             {
@@ -207,28 +529,62 @@ namespace MOD4.Web.DomainService
             }
         }
 
-        private string[] GetZipsumReport418(string woOrder, string dateStr)
+        public (bool, string, string) MatlSettingDownload(MatlCodeTypeEnum codeTypeId)
+        {
+            try
+            {
+                var _fileName = _ftpService.GetFTPLatestFile($"FTP_SAP{_codeTypeFolderDic[codeTypeId]}");
+
+                if (_fileName == "")
+                    return (false, "", "無上傳檔案");
+
+                var _fileStr = _ftpService.FTP_Download($"FTP_SAP{_codeTypeFolderDic[codeTypeId]}", _fileName);
+
+                return (true, _fileStr, _fileName);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private async Task<List<WorkOrderEntity>> GetZipsumReport418Async(string dateStr)
         {
 
-            string _qStr = $"wo_area=+and+status<>'3'+&wotype=ALL&iswodueday=N&Calendar1={dateStr}&calendar2={dateStr}&iswostartday=N&Calendar2_1={dateStr}&calendar2_2={dateStr}&workorder={woOrder}&prod_type=ALL&wo_status=ALL&mvin_rate=ALL&mvou_rate=ALL&G_FAC=6&Shop=MOD4&calendar_1={dateStr}&calendar_2={dateStr}&calendar_2_1={dateStr}&calendar_2_2={dateStr}";
+            string _qStr = $"wo_area=&wotype=ALL&iswodueday=N&Calendar1={dateStr}&calendar2={dateStr}&iswostartday=N&Calendar2_1={dateStr}&calendar2_2={dateStr}&workorder=&prod_type=ALL&wo_status=ALL&mvin_rate=ALL&mvou_rate=ALL&G_FAC=6&Shop=MOD4&calendar_1={dateStr}&calendar_2={dateStr}&calendar_2_1={dateStr}&calendar_2_2={dateStr}";
             var data = new StringContent(_qStr, Encoding.UTF8, "application/x-www-form-urlencodedn");
 
-            string[] array;
+            List<string> _status;
+            List<WorkOrderEntity> _wo418Entity = new List<WorkOrderEntity>();
 
             using (var client = new HttpClient())
             {
-                var response = client.PostAsync("http://zipsum/modreport/Report/MOD4/NHWoUnClose60DataSet.asp", data).Result;
+                HttpResponseMessage response = await client.PostAsync("http://zipsum/modreport/Report/MOD4/NHWoUnClose60DataSet.asp", data);
 
                 response.Content.Headers.ContentType.CharSet = "Big5";
 
                 string result = response.Content.ReadAsStringAsync().Result;
 
-                result = result.Remove(0, 33000);
+                result = result.Remove(0, 32900);
 
-                array = result.Split("<SCRIPT LANGUAGE=vbscript>");
+                _status = result.Split("<SCRIPT LANGUAGE=vbscript>").ToList();
             }
 
-            return array;
+            _status.RemoveAt(_status.Count - 1);
+
+            _status.ForEach(wo =>
+            {
+                var _tmp = wo.Split("ReportGrid1.TextMatrix");
+                _wo418Entity.Add(new WorkOrderEntity
+                {
+                    WorkOrder = _tmp[1].Split("\"")[1],
+                    WOStatus = _tmp[2].Split("\"")[1],
+                    LcmProduct = _tmp[3].Split("\"")[1],
+                    WOType = _woTypeDic[_tmp[5].Split("\"")[1]],
+                    ActualQty = Convert.ToInt32(_tmp[16].Split("\"")[1])
+                });
+            });
+
+            return _wo418Entity;
         }
     }
 }

@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using System.Net;
 using MOD4.Web.Controllers;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace MOD4.Web
 {
@@ -108,6 +109,7 @@ namespace MOD4.Web
             services.AddSingleton<IEfficiencySettingRepository, EfficiencySettingRepository>();
             services.AddSingleton<IDailyEfficiencyRepository, DailyEfficiencyRepository>();
             services.AddSingleton<IAlarmXmlRepository, AlarmXmlRepository>();
+            services.AddSingleton<ISAPMaterialRepository, SAPMaterialRepository>();
 
             services.AddScoped<MenuService>();
             services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));
@@ -121,7 +123,7 @@ namespace MOD4.Web
             services.AddSingleton<WebSocketHandler>();
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             services.AddHttpContextAccessor();
-
+            services.Configure<FormOptions>(options => options.ValueCountLimit = 1000);
             services.AddSession();
             services.AddControllersWithViews();
         }
