@@ -326,6 +326,13 @@
                 },
                 editClk(e) {
 
+                    let _chkType = $("input[name='r1']:checked").val();
+                    let firstRow = e.currentTarget.parentElement.parentElement.children[1].children[0].children[1].children[1].children[0].innerHTML;
+                    if (parseInt(_chkType) != firstRow.length) {
+                        alert('請選擇正確的料號碼數');
+                        return false;
+                    }
+
                     let _radioBtn = $("input[name='r1']");
                     _radioBtn[0].disabled = true;
                     _radioBtn[1].disabled = true;

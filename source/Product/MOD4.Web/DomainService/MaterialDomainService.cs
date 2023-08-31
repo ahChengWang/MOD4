@@ -40,7 +40,7 @@ namespace MOD4.Web.DomainService
             {"RMB0","M"},
             {"PRDG","P"},
             {"RDD0","R"}
-        }; 
+        };
         private Dictionary<MatlCodeTypeEnum, string> _codeTypeFolderDic = new Dictionary<MatlCodeTypeEnum, string>
         {
             {MatlCodeTypeEnum.Code5,"\\Code5"},
@@ -155,6 +155,8 @@ namespace MOD4.Web.DomainService
                     // 先撈取 report 4.18 工單資料
                     var _woTask = GetZipsumReport418Async(_nowTime.ToString("yyyy/MM/dd"));
                     List<MaterialSettingDao> _matlAllSetting = _sapMaterialRepository.SelectMatlAllSetting();
+                    List<MaterialSettingDao> _matlSettingCode5 = _matlAllSetting.Where(w => w.CodeTypeId == MatlCodeTypeEnum.Code5).ToList();
+                    List<MaterialSettingDao> _matlSettingCode13 = _matlAllSetting.Where(w => w.CodeTypeId == MatlCodeTypeEnum.Code13).ToList();
                     List<SAPWorkOrderDao> _oldSAPwoList = _sapMaterialRepository.SelectSAPwoByConditions();
 
                     // 刪除暫存計算檔
@@ -253,7 +255,8 @@ namespace MOD4.Web.DomainService
                             DiffRate = Convert.ToDecimal(row.GetCell(18).NumericCellValue)
                         };
 
-                        var _currentSetting = _matlAllSetting.FirstOrDefault(f => f.MatlNo == _tmpDao.MaterialNo.Substring(0, 5)) ?? null;
+                        var _currentSetting = _matlSettingCode13.FirstOrDefault(f => f.MatlNo == _tmpDao.MaterialNo)
+                                ?? _matlSettingCode5.FirstOrDefault(f => f.MatlNo == _tmpDao.MaterialNo.Substring(0, 5)) ?? null;
                         var _currZipWOStatus = _workOrderEntity.FirstOrDefault(f => f.WorkOrder == _tmpDao.Order);
 
                         #region 計算"理論撥料"、"修正數"
@@ -533,14 +536,65 @@ namespace MOD4.Web.DomainService
         {
             try
             {
-                var _fileName = _ftpService.GetFTPLatestFile($"FTP_SAP{_codeTypeFolderDic[codeTypeId]}");
+                List<MaterialSettingDao> _matlSetting = _sapMaterialRepository.SelectMatlAllSetting(codeTypeId);
 
-                if (_fileName == "")
-                    return (false, "", "無上傳檔案");
+                // 刪除暫存計算檔
+                string[] _dirAllFiles = Directory.GetFiles("..\\tempDownProcess\\");
+                if (_dirAllFiles.Length != 0)
+                    foreach (string filePath in _dirAllFiles)
+                        File.Delete(filePath);
 
-                var _fileStr = _ftpService.FTP_Download($"FTP_SAP{_codeTypeFolderDic[codeTypeId]}", _fileName);
+                // 新增暫存計算檔
+                using (FileStream fs = new FileStream($"..\\tempDownProcess\\{codeTypeId.GetDescription()}.xlsx", FileMode.Create))
+                {
+                }
 
-                return (true, _fileStr, _fileName);
+                XSSFWorkbook _workbook = new XSSFWorkbook();
+                ISheet _sheet = _workbook.CreateSheet("Sheet1");
+                IRow _hRow = _sheet.CreateRow(0);
+                ICell _mNumber = _hRow.CreateCell(0);
+                _mNumber.SetCellValue("料號");
+                ICell _name = _hRow.CreateCell(1);
+                _name.SetCellValue("品名");
+                ICell _desc = _hRow.CreateCell(2);
+                _desc.SetCellValue("料號分類說明");
+                ICell _useNode = _hRow.CreateCell(3);
+                _useNode.SetCellValue("使用站點");
+                ICell _rate = _hRow.CreateCell(4);
+                _rate.SetCellValue("耗損率");
+
+                for (int i = 1; i < _matlSetting.Count; i++)
+                {
+                    _hRow = _sheet.CreateRow(i);
+                    _mNumber = _hRow.CreateCell(0);
+                    _mNumber.SetCellValue(_matlSetting[i].MatlNo);
+                    _name = _hRow.CreateCell(1);
+                    _name.SetCellValue(_matlSetting[i].MatlName);
+                    _desc = _hRow.CreateCell(2);
+                    _desc.SetCellValue(_matlSetting[i].MatlCatg);
+                    _useNode = _hRow.CreateCell(3);
+                    _useNode.SetCellValue(_matlSetting[i].UseNode);
+                    _rate = _hRow.CreateCell(4);
+                    _rate.SetCellValue(Convert.ToDouble(_matlSetting[i].LossRate));
+                }
+
+                // 回寫本地計算檔
+                using (FileStream fs = new FileStream($"..\\tempDownProcess\\{codeTypeId.GetDescription()}.xlsx", FileMode.Open, FileAccess.Write))
+                {
+                    _workbook.Write(fs);
+                    fs.Close();
+                }
+
+                return (true, $"..\\tempDownProcess\\{codeTypeId.GetDescription()}.xlsx", $"{codeTypeId.GetDescription()}.xlsx");
+
+                //var _fileName = _ftpService.GetFTPLatestFile($"FTP_SAP{_codeTypeFolderDic[codeTypeId]}");
+
+                //if (_fileName == "")
+                //    return (false, "", "無上傳檔案");
+
+                //var _fileStr = _ftpService.FTP_Download($"FTP_SAP{_codeTypeFolderDic[codeTypeId]}", _fileName);
+
+                //return (true, _fileStr, _fileName);
             }
             catch (Exception ex)
             {

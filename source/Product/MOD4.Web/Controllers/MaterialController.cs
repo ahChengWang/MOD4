@@ -222,7 +222,8 @@ namespace MOD4.Web.Controllers
                 var _res = _materialDomainService.MatlSettingDownload(codeTypeId);
 
                 if (_res.Item1)
-                    return PhysicalFile(_res.Item2, System.Net.Mime.MediaTypeNames.Application.Octet, _res.Item3);
+                    return File(System.IO.File.OpenRead(_res.Item2), "application/octet-stream", _res.Item3);
+                //return PhysicalFile(_res.Item2, System.Net.Mime.MediaTypeNames.Application.Octet, _res.Item3);
                 else
                     return RedirectToAction("Error", "Home", new ErrorViewModel { Message = _res.Item3 });
             }
