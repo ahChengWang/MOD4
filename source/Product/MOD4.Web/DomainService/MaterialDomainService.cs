@@ -66,7 +66,7 @@ namespace MOD4.Web.DomainService
                     MatlCatg = matl.MatlCatg,
                     MatlName = matl.MatlName,
                     UseNode = matl.UseNode,
-                    LossRate = matl.LossRate * 100
+                    LossRate = matl.LossRate
                 }).ToList();
             }
             catch (Exception ex)
@@ -88,11 +88,11 @@ namespace MOD4.Web.DomainService
                 List<MaterialSettingDao> _updateMatlSetting = (from old in _oldMatlSetting
                                                                join upd in updEntity
                                                                on old.MatlNo equals upd.MatlNo
-                                                               where old.LossRate != (upd.LossRate / 100)
+                                                               where old.LossRate != upd.LossRate
                                                                select new MaterialSettingDao
                                                                {
                                                                    MatlNo = old.MatlNo,
-                                                                   LossRate = (upd.LossRate / 100),
+                                                                   LossRate = upd.LossRate,
                                                                    OldLossRate = old.LossRate
                                                                }).ToList();
 

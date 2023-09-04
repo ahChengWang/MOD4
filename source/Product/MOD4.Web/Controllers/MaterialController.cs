@@ -92,6 +92,11 @@ namespace MOD4.Web.Controllers
             }
         }
 
+        /// <summary>
+        /// 耗損設定查詢
+        /// </summary>
+        /// <param name="codeTypeId">5碼 or 13碼</param>
+        /// <returns></returns>
         [HttpGet("[controller]/MatlSearch/{codeTypeId}")]
         public IActionResult MatlSearch(MatlCodeTypeEnum codeTypeId)
         {
@@ -144,6 +149,11 @@ namespace MOD4.Web.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="uFile"></param>
+        /// <returns></returns>
         [HttpPost("[controller]/MatlUpload")]
         public IActionResult MaterialUpload(IFormFile uFile)
         {

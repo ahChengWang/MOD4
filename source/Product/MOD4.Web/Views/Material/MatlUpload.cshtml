@@ -54,25 +54,7 @@
     }
 
     .cust-control {
-        margin-left: 5px;
-        width: 45%;
-        height: calc(2.25rem + 2px);
-        padding: .375rem .75rem;
-        font-size: 1rem;
-        font-weight: 400;
-        line-height: 1.5;
-        color: #495057;
-        background-color: #fff;
-        background-clip: padding-box;
-        border: 1px solid #ced4da;
-        border-radius: .25rem;
-        box-shadow: inset 0 0 0 transparent;
-        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-    }
-
-    .cust-control-15 {
-        margin-left: 5px;
-        width: 50%;
+        width: 30%;
         height: calc(2.25rem + 2px);
         padding: .375rem .75rem;
         font-size: 1rem;
@@ -144,26 +126,31 @@
                         <fieldset id="block">
                             <legend id="blkTitle">耗損設定</legend>
                             <div class="d-flex">
-                                <div class="col-lg-8" name="settingDiv5">
-                                    <div style="padding: .75rem 1.25rem;">
-                                        <div class="form-group d-flex">
-                                            <div class="icheck-primary d-inline">
+                                <div class="col-lg-10" name="settingDiv5">
+                                    <div class="d-flex">
+                                        <div class="col-lg-4 d-flex">
+                                            <div class="col-md-4">
+                                                <label>選擇碼數：</label>
+                                            </div>
+                                            <div class="col-lg-3 icheck-primary d-inline">
                                                 <input type="radio" id="radioPrimary1" name="r1" checked value="5" />
                                                 <label for="radioPrimary1">5碼料</label>
                                             </div>
-                                            <div class="icheck-primary d-inline" style="margin-left:5px">
+                                            <div class="col-lg-4 icheck-primary d-inline" style="margin-left:5px">
                                                 <input type="radio" id="radioPrimary2" name="r1" value="13" />
                                                 <label for="radioPrimary2">13碼料</label>
                                             </div>
-                                            <div class="col-md-3" style="text-align:center">
-                                                <label class="">● 耗損檔上傳</label>
+                                        </div>
+                                        <div class="col-lg-8 d-flex">
+                                            <div class="col-lg-3" style="text-align:center">
+                                                <label>● 耗損檔上傳</label>
                                                 <span class="unit">(允許.xlsx)</span>
                                             </div>
-                                            <div class="col-md-4 custom-file">
+                                            <div class="col-lg-5 custom-file">
                                                 <input type="file" class="custom-file-input" v-on:change="onSettingFileChange" />
                                                 <label class="custom-file-label">Choose file</label>
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-lg-4">
                                                 <input type="button" class="btn btn-primary" value="上傳" style="float: left" v-on:click="settingUpdClk" />
                                                 <input type="button" class="btn btn-success" value="下載最新" style="margin-left: 5px " v-on:click="settingDownClk" />
                                             </div>
@@ -172,30 +159,35 @@
                                     <div>
                                         <div>
                                             <input class="btn btn-info" type="button" name="btn29" value="查詢" v-on:click="searchClk" />
-                                            <input id="editBtn" type="button" value="編輯" v-on:click="editClk" style="margin-left:10px" />
-                                            <input id="saveBtn" type="button" disabled value="儲存" v-on:click="saveClk" />
-                                            <input id="cancelBtn" type="button" disabled value="取消" v-on:click="cancelClk" />
-                                            <input class="cust-control" type="text" placeholder="料號查詢 ex:6906B..(輸入完請點擊框外空白處)" v-model="searchStr" v-on:change="onSearchChange" />
+                                            @*<input id="editBtn" type="button" value="編輯" v-on:click="editClk" style="margin-left:10px" />
+                                                <input id="saveBtn" type="button" disabled value="儲存" v-on:click="saveClk" />
+                                                <input id="cancelBtn" type="button" disabled value="取消" v-on:click="cancelClk" />*@
+                                            <input class="cust-control" type="text" placeholder="料號快速查詢 ex:6906B..." style="float:right" v-model="searchStr" />
                                         </div>
                                         <div style="margin-top: 0.5rem; overflow: auto; max-height: 30rem; ">
-                                            <table class="table table-bordered table-hover" name="myTable" style="width:100%">
+                                            <table class="table table-bordered table-hover" name="myTable">
                                                 <thead>
                                                     <tr>
-                                                        <th style="width:35%">料號</th>
+                                                        <th style="width:15%"></th>
+                                                        <th style="width:25%">料號</th>
                                                         <th style="width:20%">品名</th>
                                                         @*<th>料號分類</th>*@
-                                                        <th style="width:20%">使用站點</th>
-                                                        <th style="width:25%">損耗率(%)</th>
+                                                        <th style="width:15%">使用站點</th>
+                                                        <th style="width:25%">損耗率(0.0..)</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr v-for="(setting, idx) in settingList">
+                                                    <tr v-for="(setting, idx) in wrapper">
+                                                        <td>
+                                                            <input id="editBtn" type="button" value="編輯" v-on:click="editClk" />
+                                                            <input id="saveBtn" type="button" disabled value="儲存" v-on:click="saveClk" />
+                                                        </td>
                                                         <td>{{setting.matlNo}}</td>
                                                         <td>{{setting.matlName}}</td>
                                                         @*<td>{{setting.matlCatg}}</td>*@
                                                         <td>{{setting.useNode}}</td>
                                                         <td>
-                                                            <input name="rateIpt" disabled type="number" min="0" style="width: 50%; text-align: center;" v-model="settingList[idx].lossRate" />
+                                                            <input name="rateIpt" disabled type="text" style="width: 50%; text-align: center;" v-model="setting.lossRate" />
                                                         </td>
                                                     </tr>
                                                 </tbody>
@@ -327,7 +319,7 @@
                 editClk(e) {
 
                     let _chkType = $("input[name='r1']:checked").val();
-                    let firstRow = e.currentTarget.parentElement.parentElement.children[1].children[0].children[1].children[1].children[0].innerHTML;
+                    let firstRow = e.currentTarget.parentElement.parentElement.children[1].innerHTML;
                     if (parseInt(_chkType) != firstRow.length) {
                         alert('請選擇正確的料號碼數');
                         return false;
@@ -337,32 +329,33 @@
                     _radioBtn[0].disabled = true;
                     _radioBtn[1].disabled = true;
 
-                    let _currTable = e.currentTarget.parentElement.parentElement.children[1].children[0].children[1].children;
+                    let _currTd = e.currentTarget.parentElement.parentElement.children[4].children[0];
 
                     e.currentTarget.parentElement.children[0].disabled = true;
-                    e.currentTarget.parentElement.children[1].disabled = true;
-                    e.currentTarget.parentElement.children[2].disabled = false;
-                    e.currentTarget.parentElement.children[3].disabled = false;
+                    e.currentTarget.parentElement.children[1].disabled = false;
+                    //e.currentTarget.parentElement.children[2].disabled = false;
+                    //e.currentTarget.parentElement.children[3].disabled = false;
 
-                    for (var i = 0; i < _currTable.length; i++) {
-                        _currTable[i].children[_currTable[i].children.length - 1].children[0].disabled = false;
-                    }
+                    _currTd.disabled = false;
                 },
                 saveClk(e) {
+
+                    this.settingList;
+                    vue.settingList;
 
                     let _typeId = $("input[name='r1']:checked");
 
                     let _currentTarget = e.currentTarget;
-                    let _currTable = _currentTarget.parentElement.parentElement.children[1].children[0].children[1].children;
+                    let _currTd = e.currentTarget.parentElement.parentElement;
 
                     let submitData = [];
 
-                    for (var i = 0; i < _currTable.length; i++) {
-                        submitData.push({
-                            'MatlNo': _currTable[i].children[0].innerHTML,
-                            'LossRate': _currTable[i].children[_currTable[i].children.length - 1].children[0].value
-                        });
-                    }
+                    //for (var i = 0; i < _currTd.length; i++) {
+                    submitData.push({
+                        'MatlNo': _currTd.children[1].innerHTML,
+                        'LossRate': _currTd.children[4].children[0].value
+                    });
+                    //}
 
                     globalFuc.LoadingPic();
 
@@ -379,15 +372,15 @@
                                 _radioBtn[0].disabled = false;
                                 _radioBtn[1].disabled = false;
                                 _currentTarget.parentElement.children[0].disabled = false;
-                                _currentTarget.parentElement.children[1].disabled = false;
-                                _currentTarget.parentElement.children[2].disabled = true;
-                                _currentTarget.parentElement.children[3].disabled = true;
+                                _currentTarget.parentElement.children[1].disabled = true;
+                                //_currentTarget.parentElement.children[2].disabled = true;
+                                //_currentTarget.parentElement.children[3].disabled = true;
 
-                                let _currTable = _currentTarget.parentElement.parentElement.children[1].children[0].children[1].children;
+                                _currentTarget.parentElement.parentElement.children[4].children[0].disabled = true;
 
-                                for (var i = 0; i < _currTable.length; i++) {
-                                    _currTable[i].children[_currTable[i].children.length - 1].children[0].disabled = true;
-                                }
+                                //for (var i = 0; i < _currTable.length; i++) {
+                                //    _currTable[i].children[_currTable[i].children.length - 1].children[0].disabled = true;
+                                //}
                             }
                             else {
                                 alert(result.msg);
@@ -425,17 +418,21 @@
                         return this.settingList;
                     }
                     else {
-                        let _test = this.$el.children[4].children[0].children[1].children[2].children[0].children[1].children;
+                        return this.settingList.filter(item => {
+                            return item.matlNo.includes(this.searchStr)
+                        });
 
-                        for (var i = 0; i < _test.length; i++) {
-                            let _tmpqwe = _test[i];
-                            let texttt = _tmpqwe.children[0].innerHTML;
-                            if (texttt.includes(this.searchStr))
-                            { }
-                            else {
-                                _tmpqwe.children[0].parentElement.hidden = true;
-                            }
-                        }
+                        //let _test = this.$el.children[4].children[0].children[1].children[2].children[0].children[1].children;
+
+                        //for (var i = 0; i < _test.length; i++) {
+                        //    let _tmpqwe = _test[i];
+                        //    let texttt = _tmpqwe.children[0].innerHTML;
+                        //    if (texttt.includes(this.searchStr))
+                        //    { }
+                        //    else {
+                        //        _tmpqwe.children[0].parentElement.hidden = true;
+                        //    }
+                        //}
 
                         //let _testFilter = _test.forEach(function(test) {
                         //    return test.children[0].innerHTML.includes(this.searchStr);
