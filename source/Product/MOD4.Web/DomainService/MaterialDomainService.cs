@@ -4,6 +4,7 @@ using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
 using MOD4.Web.Repostory;
 using MOD4.Web.Repostory.Dao;
+using NPOI.OpenXmlFormats.Spreadsheet;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System;
@@ -21,6 +22,15 @@ namespace MOD4.Web.DomainService
     public class MaterialDomainService : BaseDomainService, IMaterialDomainService
     {
         private readonly ISAPMaterialRepository _sapMaterialRepository;
+
+        private Dictionary<string, XSSFColor> _bgColorDic = new Dictionary<string, XSSFColor>
+        {
+            {"sapH",new XSSFColor(new byte[3]{ 62, 163, 96})},
+            {"calcH",new XSSFColor(new byte[3]{ 62, 163, 96})},
+            {"rptH",new XSSFColor(new byte[3]{ 184, 121, 55})},
+            {"calcContent",new XSSFColor(new byte[3]{136, 191, 154 })},
+            {"rptContent",new XSSFColor(new byte[3]{ 194, 153, 110})},
+        };
         private Dictionary<string, string> _woTypeDic = new Dictionary<string, string>
         {
             {"PROD","P"},
@@ -52,7 +62,6 @@ namespace MOD4.Web.DomainService
             _sapMaterialRepository = sapMaterialRepository;
         }
 
-
         public List<MaterialSettingEntity> GetMaterialSetting(MatlCodeTypeEnum codeTypeId)
         {
             try
@@ -74,7 +83,6 @@ namespace MOD4.Web.DomainService
                 throw ex;
             }
         }
-
 
         public string UpdateMaterialSetting(List<MaterialSettingEntity> updEntity, MatlCodeTypeEnum codeTypeId, UserEntity userEntity)
         {
@@ -189,9 +197,17 @@ namespace MOD4.Web.DomainService
                     XSSFRow row = (XSSFRow)_sapDataSheet.GetRow(0);
 
                     // font red
+                    //XSSFCellStyle _headCellStyle = (XSSFCellStyle)workbook.CreateCellStyle();
+                    //_headCellStyle.SetFillForegroundColor(_bgColorDic["sapH"]);
                     ICellStyle _headCellStyle = workbook.CreateCellStyle();
                     _headCellStyle.FillPattern = FillPattern.SolidForeground;
-                    _headCellStyle.FillForegroundColor = IndexedColors.Grey25Percent.Index;
+                    _headCellStyle.FillForegroundColor = IndexedColors.SeaGreen.Index;
+
+                    //XSSFCellStyle _calculateCellStyle = (XSSFCellStyle)workbook.CreateCellStyle();
+                    //_calculateCellStyle.FillBackgroundXSSFColor =IndexedColors.OliveGreen.;
+                    ICellStyle _calculateCellStyle = workbook.CreateCellStyle();
+                    _calculateCellStyle.FillPattern = FillPattern.SolidForeground;
+                    _calculateCellStyle.FillForegroundColor = IndexedColors.Coral.Index;
 
                     ICell _theortOut = row.CreateCell(19);
                     ICell _diffOut = row.CreateCell(20);
@@ -201,28 +217,44 @@ namespace MOD4.Web.DomainService
                     ICell _opiStatus = row.CreateCell(24);
                     ICell _woType = row.CreateCell(25);
                     ICell _useNode = row.CreateCell(26);
+                    ICell _comment = row.CreateCell(27);
+                    ICell _mesScrap = row.CreateCell(28);
 
                     _theortOut.SetCellValue("理論撥料");
                     _theortOut.CellStyle = _headCellStyle;
                     _diffOut.SetCellValue("修正數");
                     _diffOut.CellStyle = _headCellStyle;
                     _woPremiumOut.SetCellValue("工單短溢領數");
-                    _woPremiumOut.CellStyle = _headCellStyle;
+                    _woPremiumOut.CellStyle = _calculateCellStyle;
                     _cantNeg.SetCellValue("不得為負");
-                    _cantNeg.CellStyle = _headCellStyle;
+                    _cantNeg.CellStyle = _calculateCellStyle;
                     _shortName.SetCellValue("部材簡稱");
-                    _shortName.CellStyle = _headCellStyle;
+                    _shortName.CellStyle = _calculateCellStyle;
                     _opiStatus.SetCellValue("OPI工單狀態");
-                    _opiStatus.CellStyle = _headCellStyle;
+                    _opiStatus.CellStyle = _calculateCellStyle;
                     _woType.SetCellValue("工單型態");
-                    _woType.CellStyle = _headCellStyle;
+                    _woType.CellStyle = _calculateCellStyle;
                     _useNode.SetCellValue("使用站點");
-                    _useNode.CellStyle = _headCellStyle;
+                    _useNode.CellStyle = _calculateCellStyle;
+                    _comment.SetCellValue("Comment");
+                    _comment.CellStyle = _calculateCellStyle;
+                    _mesScrap.SetCellValue("MES報廢數");
+                    _mesScrap.CellStyle = _calculateCellStyle;
 
                     ICellStyle _cellStyle = workbook.CreateCellStyle();
                     IFont _font = workbook.CreateFont();
                     _font.Color = IndexedColors.Red.Index;
                     _cellStyle.SetFont(_font);
+
+                    //_headCellStyle.FillBackgroundXSSFColor = _bgColorDic["calcContent"];
+                    //_calculateCellStyle.FillBackgroundXSSFColor = _bgColorDic["rptContent"];
+
+                    _headCellStyle = workbook.CreateCellStyle();
+                    _headCellStyle.FillPattern = FillPattern.SolidForeground;
+                    _headCellStyle.FillForegroundColor = IndexedColors.LightGreen.Index;
+                    _calculateCellStyle = workbook.CreateCellStyle();
+                    _calculateCellStyle.FillPattern = FillPattern.SolidForeground;
+                    _calculateCellStyle.FillForegroundColor = IndexedColors.LightYellow.Index;
 
                     List<WorkOrderEntity> _workOrderEntity = _woTask.Result;
 
@@ -266,10 +298,12 @@ namespace MOD4.Web.DomainService
                         _theortOut = row.CreateCell(19);
                         _theortOut.SetCellType(CellType.Numeric);
                         _theortOut.SetCellValue(Convert.ToDouble(_culQty));
+                        _theortOut.CellStyle = _headCellStyle;
 
                         _diffOut = row.CreateCell(20);
                         _diffOut.SetCellType(CellType.String);
                         _diffOut.SetCellValue(Convert.ToDouble(_diffCulQty));
+                        _diffOut.CellStyle = _headCellStyle;
 
                         // 修正數 < 0 上紅色
                         if (_diffCulQty < 0)
@@ -288,30 +322,36 @@ namespace MOD4.Web.DomainService
                         _woPremiumOut = row.CreateCell(21);
                         _woPremiumOut.SetCellType(CellType.Numeric);
                         _woPremiumOut.SetCellValue(Convert.ToDouble(_tmpDao.WOPremiumOut));
+                        _woPremiumOut.CellStyle = _calculateCellStyle;
 
                         _tmpDao.CantNegative = _tmpDao.DisburseQty - _tmpDao.ReturnQty - _tmpDao.ScrapQty;
                         _cantNeg = row.CreateCell(22);
                         _cantNeg.SetCellType(CellType.Numeric);
                         _cantNeg.SetCellValue(Convert.ToDouble(_tmpDao.CantNegative));
+                        _cantNeg.CellStyle = _calculateCellStyle;
 
                         _shortName = row.CreateCell(23);
                         _shortName.SetCellType(CellType.String);
                         _shortName.SetCellValue(_currentSetting?.MatlName ?? "");
+                        _shortName.CellStyle = _calculateCellStyle;
 
                         _tmpDao.OPIwoStatus = _currZipWOStatus.WOStatus == "complete" ? "complete"
                             : _currZipWOStatus.WOStatus == "release" && _currZipWOStatus.ActualQty > 0 ? "已下線" : "未下線";
                         _opiStatus = row.CreateCell(24);
                         _opiStatus.SetCellType(CellType.String);
                         _opiStatus.SetCellValue(_tmpDao.OPIwoStatus);
+                        _opiStatus.CellStyle = _calculateCellStyle;
 
                         _tmpDao.WOType = _currZipWOStatus.WOType;
                         _woType = row.CreateCell(25);
                         _woType.SetCellType(CellType.String);
                         _woType.SetCellValue(_currZipWOStatus.WOType);
+                        _woType.CellStyle = _calculateCellStyle;
 
                         _useNode = row.CreateCell(26);
                         _useNode.SetCellType(CellType.String);
                         _useNode.SetCellValue(_currentSetting?.UseNode ?? "");
+                        _useNode.CellStyle = _calculateCellStyle;
 
                         #endregion
 
@@ -391,7 +431,6 @@ namespace MOD4.Web.DomainService
                 throw ex;
             }
         }
-
 
         /// <summary>
         /// 5碼、13碼 料號耗損設定檔
@@ -601,6 +640,7 @@ namespace MOD4.Web.DomainService
                 throw ex;
             }
         }
+
         private async Task<List<WorkOrderEntity>> GetZipsumReport418Async(string dateStr)
         {
 
