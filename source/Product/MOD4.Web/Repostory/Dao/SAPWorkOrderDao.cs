@@ -29,6 +29,13 @@ namespace MOD4.Web.Repostory.Dao
         public decimal WOPremiumOut { get; set; }
         public decimal CantNegative { get; set; }
         public string OPIwoStatus { get; set; }
+        public string MatlShortName { get; set; }
         public string WOType { get; set; }
+        public string WOComment { get; set; }
+        public int MESScrap { get; set; }
+        public int ICScrap { get; set; }
+
+        public string UseNode { get; set; }
+
     }
 }

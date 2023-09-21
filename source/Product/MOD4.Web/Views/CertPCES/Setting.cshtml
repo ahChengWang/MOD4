@@ -1,0 +1,352 @@
+﻿
+@using System.Linq;
+@{
+    ViewBag.Title = "認證紀錄查詢";
+}
+
+<head>
+    <link rel="stylesheet" href="~/lib/bootstrap-vue/bootstrap-vue.css" />
+</head>
+
+<style>
+
+    div[name='tableDiv'] {
+        overflow-x: auto;
+    }
+
+    th, td {
+        text-align: center;
+    }
+
+    td {
+        padding: 0 5px 0 5px;
+    }
+
+    th[name='thDef'] {
+        min-width: 60px;
+    }
+
+    th[name='thSta'] {
+        min-width: 70px;
+    }
+
+    th[name='thClass'] {
+        min-width: 80px;
+    }
+
+    td[name='tdEditInp'] > input {
+        text-align: center;
+        width: 90px;
+    }
+</style>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div id="app" class="card">
+                <div class="card-header">
+                    <h3 class="card-title">認證紀錄查詢</h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <div class="card-body">
+                    <fieldset id="searchArea">
+                        <legend id="legend">查詢區塊</legend>
+                        <div class="d-flex align-content-center flex-wrap">
+                            <div class="col-lg-1">
+                                <label class="col-form-label">主製程</label>
+                                <span style="font-size:8px;font-weight:700" class="text-danger">*</span>
+                            </div>
+                            <div class="col-lg-2">
+                                <select id="dropMainOpr" class="form-control" multiple="multiple">
+                                    <option v-for="opr in oprOptions" :value="opr">{{opr}}</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-1">
+                                <label class="col-form-label">崗位</label>
+                            </div>
+                            <div class="col-lg-2">
+                                <select id="dropStation" class="form-control" multiple="multiple">
+                                    <option v-for="station in stationOptions" :value="station">{{station}}</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-1">
+                                <label class="col-form-label">產品</label>
+                            </div>
+                            <div class="col-lg-2">
+                                <select id="dropProd" class="form-control" multiple="multiple">
+                                    <option v-for="prod in prodOptions" :value="prod">{{prod}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="d-flex align-content-center flex-wrap">
+                            <div class="col-lg-1">
+                                <label class="col-form-label">狀態</label>
+                                <span style="font-size:8px;font-weight:700" class="text-danger">*</span>
+                            </div>
+                            <div class="col-lg-2">
+                                <select id="dropStatus" class="form-control" multiple="multiple">
+                                    <option v-for="status in statusOptions" :value="status.value">{{status.text}}</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-1">
+                                <label class="col-form-label">工號</label>
+                            </div>
+                            <div class="col-lg-2">
+                                <input class="form-control" type="text" v-model="jobId" />
+                            </div>
+                        </div>
+                        <div>
+                            <input type="button" name="btn29" value="查詢" @@click="onSearchClk" />
+                        </div>
+                        <br />
+                    </fieldset>
+                    <div name="tableDiv">
+                        <table id="table1" class="table-bordered table-hover" v-if="certDataPage.length > 0">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th name="thDef">工號</th>
+                                    <th name="thDef">姓名</th>
+                                    <th name="thDef">班別</th>
+                                    <th name="thDef">主製程</th>
+                                    <th name="thSta">崗位</th>
+                                    <th name="thDef">崗位別</th>
+                                    <th name="thDef">類別</th>
+                                    <th name="thClass">項目</th>
+                                    <th name="thDef">等級</th>
+                                    <th name="thDef">認證通過日</th>
+                                    <th name="thDef">認證效期</th>
+                                    <th name="thDef">學科狀態</th>
+                                    <th name="thDef">學科成績</th>
+                                    <th name="thDef">術科狀態</th>
+                                    <th name="thDef">術科成績</th>
+                                    <th name="thDef">評鑑工號</th>
+                                    <th name="thDef">評鑑姓名</th>
+                                    <th name="thClass">備註</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(cert, idx) in certDataPage">
+                                    <td>
+                                        <input type="button" @@click="editClk(idx)" :disabled="!certDataPage[idx].isDisabled" value="編輯" />
+                                        <input type="button" @@click="saveClk(idx)" :disabled="certDataPage[idx].isDisabled" value="儲存" />
+                                    </td>
+                                    <td>{{certDataPage[idx].applyNo}}</td>
+                                    <td>{{certDataPage[idx].applyName}}</td>
+                                    <td>{{certDataPage[idx].shift}}</td>
+                                    <td>{{certDataPage[idx].mainOperation}}</td>
+                                    <td>{{certDataPage[idx].station}}</td>
+                                    <td>{{certDataPage[idx].stationType}}</td>
+                                    <td>{{certDataPage[idx].mtype}}</td>
+                                    <td>{{certDataPage[idx].className}}</td>
+                                    <td>{{certDataPage[idx].licType}}</td>
+                                    <td>{{certDataPage[idx].status}}</td>
+                                    <td>{{certDataPage[idx].passDate}}</td>
+                                    <td>{{certDataPage[idx].validDate}}</td>
+                                    <td>{{certDataPage[idx].subjGrade}}</td>
+                                    <td>
+                                        <select v-model="certDataPage[idx].skillStatus" :disabled="certDataPage[idx].isDisabled" :value="certDataPage[idx].skillStatus">
+                                            <option value="0"></option>
+                                            <option value="1">通過</option>
+                                            <option value="2">未通過</option>
+                                        </select>
+                                    </td>
+                                    <td name="tdEditInp">
+                                        <input type="text" v-model="certDataPage[idx].skillGrade" :disabled="certDataPage[idx].isDisabled" :value="certDataPage[idx].skillGrade" />
+                                    </td>
+                                    <td name="tdEditInp">
+                                        <input type="text" v-model="certDataPage[idx].engNo" :disabled="certDataPage[idx].isDisabled" :value="certDataPage[idx].engNo" />
+                                    </td>
+                                    <td name="tdEditInp">
+                                        <input type="text" v-model="certDataPage[idx].engName" :disabled="certDataPage[idx].isDisabled" :value="certDataPage[idx].engName" />
+                                    </td>
+                                    <td style="min-width:80px">
+                                        <textarea cols="24" rows="2" :disabled="certDataPage[idx].isDisabled">{{certDataPage[idx].remark}}</textarea>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer" style="display: flex;" v-if="certDataPage.length > 0">
+                    <div>
+                        <label class="col-form-label">顯示筆數：{{currentSize}}</label>
+                        <select v-model="currentSize" @@change="sizeChange">
+                            <option v-for="size in pageSizeOption" :value="size">{{size}}</option>
+                        </select>
+                    </div>
+                    <template>
+                        <div class="mt-10" style="margin-left: 5px;">
+                            <b-pagination v-model="currentPage" pills :total-rows="certData.length" :per-page="currentSize" @@page-click="pageChange"></b-pagination>
+                        </div>
+                    </template>
+
+                    @*<button @@click="prevClick(-1)" :disabled="prevDisabled">上頁</button>
+                          <a>目前頁數：{{currentPage}}</a>
+                          <a>總頁數：{{ttlPage}}</a>
+                        <button @@click="nextClick(1)" :disabled="nextDisabled">下頁</button>*@
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+@section scripts
+{
+    <script src="~/lib/bootstrap-vue/bootstrap-vue.min.js"></script>
+    <script type="text/javascript">
+
+        const _table = null;
+
+        Vue.component('paginate');
+
+        const vue = new Vue({
+            el: '#app',
+            data: {
+                certData: [],
+                certDataPage: [],
+                currentPage: 1,
+                pageSizeOption: [20, 50, 100, 500],
+                currentSize: 20,
+                ttlPage: 0,
+                prevDisabled: true,
+                nextDisabled: true,
+                @*woNoOptions: @Html.Raw(Json.Serialize(ViewBag.OrderNoOptions)),
+                allSapNodeOptions: @Html.Raw(Json.Serialize(ViewBag.SapNodeOptions)),
+                sapNodeOptions: @Html.Raw(Json.Serialize(ViewBag.SapNodeOptions)),*@
+                jobId: '',
+                oprOptions: ['Bonding','FPG','LAM','ASSY','AGING','CKEN','DKEN','Offline','PACK'],
+                stationOptions: ['65"-75" CKEN', '85"Bonding機台操作員', '>=85" CKEN', 'AAFC', 'ACF專員', 'ASSY 備料', 'ASSY 快修專員', 'ASSY叫料', 'Aging', 'Assy 實驗批專員', 'BL-API', 'BLU備料',
+                    'BLU組裝', 'BT電測員', 'Bonding PCBI', 'Bonding 實驗批專員', 'Bonding備料', 'Bonding叫料', 'Bonding機台操作員', 'Borderless 外觀檢', 'Borderless 機台操作員', 'CCD檢驗員',
+                    'CDP 實驗批專員', 'CDP叫料', 'CG清潔', 'CKEN', 'CKEN API機台操作員', 'CKEN上下片', 'CV1/2 BLU點燈檢查', 'DKEN', 'DKEN2', 'DKEN上下片', 'Demura', 'E Lot(W.S)-ASSY',
+                    'E Lot(W.S)-CKEN', 'E Lot(W.S)-Leader', 'E Lot(W.S)-PACKING', 'E Lot(W.S)-SOPB', 'E Lot(W.S)-備料', 'E Lot(W.S)-拆清', 'FOG機台操作員', 'FPC專員', 'FQC品檢員', 'HTH機台操作員',
+                    'HardBox備料', 'IPQC品檢員', 'IQC品檢員', 'JIT叫料員', 'LAM 實驗批專員', 'LAM叫料', 'LOT2', 'LSRC機台操作員', 'Loader作業員', 'MES', 'MPC排程', 'MQC', 'Medical Assy', 'Medical CKEN',
+                    'Medical PCBI', 'Module組裝', 'OQC品檢員', 'OTP操作員', 'P line機台操作員', 'PACK', 'PACK to 平置倉', 'PACK 備料', 'PCBI to ASSY搬運', 'PT檢驗員', 'QS', 'RTP PACK', 'RW 實驗批專員',
+                    'RW->=75" OLB/PCB', 'RW-ACFA 貼附於 COF/TAB/FPC', 'RW-CG回收員', 'RW-COF sorting', 'RW-COF 沖切', 'RW-COGR機台操作', 'RW-IC Remove機台操作', 'RW-LASER', 'RW-OLB/PCB',
+                    'RW-RACF機台操作', 'RW-RFPC機台操作', 'RW-RLAM清膠', 'RW-Rework In', 'RW-Rework Out', 'RW-上下片作業員', 'RW-乾冰機', 'RW-外場(收料)', 'RW-拆TAB/ACF', 'RW-撕POL', 'RW-烙鐵/焊接元件',
+                    'RW-物料專員', 'RW-裂片員', 'RW-貼POL', 'RW-超低溫冰箱人員', 'STH機台操作員', 'Scrap操作員', 'Shipping', 'TPI', 'TV Assy', 'UVM / UVI', 'Unpack', '備品管理員', '光學檢驗員', '判二',
+                    '助理', '助理工程師', '半自動Hotbar機台操作', '半自動塗膠', '半自動塗膠-ASSY', '半自動塗膠-Bonding', '半自動塗膠-FOG', '小FA_整合', '工單專員', '帳籍', '戰情', '拆併箱專員', '撥料',
+                    '收片', '教育稽核員', '教育訓練員', '模組後Mylar作業', '殘影檢驗員', '治具管理員', '治工具專員', '焊接操作員', '物控員', '稽核專員', '管制口', '組長', '維修員', '線前加工-ASSY',
+                    '線前加工-Bonding', '線板材管理員', '線路檢查員', '脫泡', '解包作業員', '設備PM', '面壓操作員', '領班', '顯微鏡人員'],
+                prodOptions: ['Audi', 'BMW', 'Bosch', 'Clarion', 'Garmin', 'GM', 'Harman', 'JVCK', 'Neusoft', 'Panasonic', 'S20 9TID'],
+                statusOptions: [
+                    {
+                        text: '通過',
+                        value: 1
+                    },
+                    {
+                        text: '未通過',
+                        value: 2
+                    },
+                    {
+                        text: '認證中',
+                        value: 3
+                    },
+                    {
+                        text: '過期',
+                        value: 4
+                    }
+                ],
+                skillGrade: '',
+                selectStation: '',
+                selectProd: ''
+            },
+            methods: {
+                onSearchClk() {
+
+                    $.ajax({
+                        url: "./Setting/Search?opr=" + $("#dropMainOpr").val() + "&station=" + $("#dropStation").val() + "&prod=" + $("#dropProd").val() + "&status=" + $("#dropStatus").val() + "&jobId=" + vue.jobId,
+                        type: "GET",
+                        dataType: 'json',
+                        success: function (result) {
+                            if (result.isSuccess) {
+
+                                //$("#table1").children().remove();
+                                vue.currentPage = 1;
+                                vue.certData = result.data;
+                                vue.certDataPage = result.data.slice(0, vue.currentSize);
+                                vue.ttlPage = Math.ceil(result.data.length / vue.currentSize);
+                                if (vue.currentPage == vue.ttlPage) {
+                                    vue.prevDisabled = true;
+                                    vue.nextDisabled = true;
+                                }
+                                else
+                                {
+                                    vue.prevDisabled = true;
+                                    vue.nextDisabled = false;
+                                }
+                            }
+                            else {
+                                alert(result.msg);
+                            }
+                            $.unblockUI();
+                        }
+                    });
+                },
+                editClk(idx) {
+                    //if (vue.currentPage > 1) {
+                    //    idx += 1;
+                    //}
+                    var _row = vue.certData[(vue.currentPage - 1) * vue.currentSize + idx];
+                    _row.isDisabled = false;
+                },
+                saveClk(idx) {
+                    //if (vue.currentPage > 1) {
+                    //    idx += 1;
+                    //}
+                    var _row = vue.certData[(vue.currentPage - 1) * vue.currentSize + idx];
+                    _row.isDisabled = true;
+                },
+                sizeChange() {
+                    vue.currentPage = 1;
+                    vue.certDataPage = vue.certData.slice(0, vue.currentSize);
+                },
+                prevClick(idx) {
+                    vue.currentPage += idx;
+                    vue.certDataPage = vue.certData.slice(((vue.currentPage - 1) * vue.currentSize + 1), vue.currentPage * vue.currentSize);
+                    if (vue.currentPage == 1) {
+                        vue.prevDisabled = true;
+                        vue.nextDisabled = false;
+                    }
+                    else {
+                        vue.prevDisabled = false;
+                        vue.nextDisabled = false;
+                    }
+                },
+                nextClick(idx) {
+                    vue.currentPage += idx;
+                    vue.certDataPage = vue.certData.slice(((vue.currentPage - 1) * vue.currentSize + 1), vue.currentPage * vue.currentSize);
+                    if (vue.currentPage == vue.ttlPage) {
+                        vue.prevDisabled = false;
+                        vue.nextDisabled = true;
+                    }
+                    else {
+                        vue.prevDisabled = false;
+                        vue.nextDisabled = false;
+                    }
+                },
+                pageChange(even, pageNo) {
+                    vue.currentPage = pageNo;
+                    vue.certDataPage = vue.certData.slice(((vue.currentPage - 1) * vue.currentSize), vue.currentPage * vue.currentSize);
+                }
+            },
+            mounted: function () {
+
+                $("#dropMainOpr, #dropStation, #dropProd, #dropStatus").multiselect({
+                    buttonWidth: '150px',
+                    maxHeight: 300,
+                    enableResetButton: true,
+                    resetButtonText: '清除',
+                    enableFiltering: true,
+                    enableClickableOptGroups: true});
+            },
+            computed: {
+
+            }
+        });
+
+    </script>
+}

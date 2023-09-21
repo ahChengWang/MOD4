@@ -19,12 +19,10 @@ namespace MOD4.Web.Controllers
     {
         private readonly ILogger<ExtensionController> _logger;
         private readonly IMaterialDomainService _materialDomainService;
-        private readonly IExtensionDomainService _extensionDomainService;
 
         public MaterialController(IMaterialDomainService materialDomainService,
             IHttpContextAccessor httpContextAccessor,
             IAccountDomainService accountDomainService,
-            IOptionDomainService optionDomainService,
             ILogger<ExtensionController> logger)
             : base(httpContextAccessor, accountDomainService)
         {
@@ -34,39 +32,86 @@ namespace MOD4.Web.Controllers
 
         public IActionResult Index()
         {
+            var _res = _materialDomainService.GetSAPDropDownList().OrderBy(o => o.Order).ThenBy(tb => tb.MaterialNo);
+
+            ViewBag.AllOptions = _res.Select(s => new
+            {
+                s.Order,
+                s.Prod,
+                s.MaterialNo,
+                s.SAPNode
+            }).ToList();
+
+            ViewBag.OrderNoOptions = _res.GroupBy(g => g.Order).Select(s => s.Key).ToList();
+            ViewBag.SapNodeOptions = _res.GroupBy(g => g.SAPNode).Select(s => s.Key).OrderBy(ob => ob).ToList();
+
             return View();
         }
 
-        //[HttpPost]
-        //public IActionResult Upload([FromForm] ReportUploadViewModel uploadVM)
-        //{
-        //    try
-        //    {
-        //        //string _uplRes = _extensionDomainService.Upload(uploadVM.JobId, uploadVM.ApplyAreaId, uploadVM.ItemId, uploadVM.File, GetUserInfo());
-        //        string _uplRes = _extensionDomainService.MPSUpload(uploadVM.File, GetUserInfo());
-
-        //        if (_uplRes == "")
-        //            return Json("");
-        //        else
-        //            return Json(_uplRes);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(ex.Message);
-        //    }
-        //}
-
         [HttpGet]
-        public IActionResult Download([FromQuery] string jobId, ApplyAreaEnum applyAreaId, int itemId)
+        public IActionResult SAPSearch([FromQuery] string workOrder, string prodNo, string sapNode, string matlNo)
         {
             try
             {
-                var _uplRes = _extensionDomainService.Download(jobId, applyAreaId, itemId, GetUserInfo());
+                var _result = _materialDomainService.GetSAPWorkOredr(workOrder, prodNo, sapNode, matlNo);
 
-                if (_uplRes.Item2 == "")
-                    return File(_uplRes.Item1, System.Net.Mime.MediaTypeNames.Application.Zip, $"{jobId}_{applyAreaId.GetDescription()}.zip");
+                return Json(new ResponseViewModel<List<SAPWorkOrderViewModel>>
+                {
+                    IsSuccess = true,
+                    Data = _result.Select(res => new SAPWorkOrderViewModel
+                    {
+                        Order = res.Order,
+                        Prod = res.Prod,
+                        MaterialNo = res.MaterialNo,
+                        SAPNode = res.SAPNode,
+                        ProdQty = res.ProdQty,
+                        StorageQty = res.StorageQty,
+                        StartDate = res.StartDate.ToString("yyyy/MM/dd"),
+                        FinishDate = res.FinishDate.ToString("yyyy/MM/dd"),
+                        Unit = res.Unit,
+                        ExptQty = res.ExptQty,
+                        DisburseQty = res.DisburseQty,
+                        ReturnQty = res.ReturnQty,
+                        ActStorageQty = res.ActStorageQty,
+                        ScrapQty = res.ScrapQty,
+                        DiffQty = res.DiffQty,
+                        DiffRate = res.DiffRate,
+                        OverDisburse = res.OverDisburse,
+                        DiffDisburse = res.DiffDisburse,
+                        WOPremiumOut = res.WOPremiumOut,
+                        CantNegative = res.CantNegative,
+                        MatlShortName = res.MatlShortName,
+                        OPIwoStatus = res.OPIwoStatus,
+                        WOType = res.WOType,
+                        UseNode = res.UseNode,
+                        WOComment = res.WOComment,
+                        MESScrap = res.MESScrap,
+                        ICScrap = res.ICScrap,
+                    }).ToList()
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult WOCloseDownload([FromQuery] string workOrder, string prodNo, string sapNode, string matlNo)
+        {
+            try
+            {
+                var _res = _materialDomainService.GetSAPwoCloseDownload(workOrder, prodNo, sapNode, matlNo);
+
+                if (_res.Item1)
+                    return File(System.IO.File.OpenRead(_res.Item2), "application/octet-stream", _res.Item3);
+                //return PhysicalFile(_res.Item2, System.Net.Mime.MediaTypeNames.Application.Octet, _res.Item3);
                 else
-                    return RedirectToAction("Error", "Home", new ErrorViewModel { Message = _uplRes.Item2 });
+                    return RedirectToAction("Error", "Home", new ErrorViewModel { Message = _res.Item3 });
             }
             catch (Exception ex)
             {
@@ -74,17 +119,81 @@ namespace MOD4.Web.Controllers
             }
         }
 
+        #region === SAP upload & Material setting ===
 
-        #region === SAP upload ===
-
-        [HttpGet("[controller]/MatlUpload")]
-        public IActionResult MatlUpload()
+        [HttpGet("[controller]/Setting")]
+        public IActionResult Setting()
         {
             try
             {
                 var _result = _materialDomainService.GetMaterialSetting(MatlCodeTypeEnum.Code5);
+                
+                var _userPagePermission = GetUserInfo().UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.MaterialUpload);
+                ViewBag.UserPermission = new UserPermissionViewModel
+                {
+                    AccountSn = _userPagePermission.AccountSn,
+                    MenuSn = _userPagePermission.MenuSn,
+                    AccountPermission = _userPagePermission.AccountPermission
+                };
 
                 return View(_result.CopyAToB<MaterialSettingViewModel>());
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// 上傳 SAP 軟體下載的原始檔
+        /// </summary>
+        /// <param name="uFile"></param>
+        /// <returns></returns>
+        [HttpPost("[controller]/UploadSAP")]
+        public IActionResult UploadSAP(IFormFile uFile)
+        {
+            try
+            {
+                var _uplRes = _materialDomainService.UploadAndCalculate(uFile, GetUserInfo());
+
+                if (_uplRes.Item1)
+                    return Json(new ResponseViewModel<string>
+                    {
+                        IsSuccess = true,
+                        Data = _uplRes.Item3,
+                        Msg = "上傳成功"
+                    });
+                else
+                    return Json(new ResponseViewModel<string>
+                    {
+                        IsSuccess = false,
+                        Msg = "無選擇檔案"
+                    });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// 下載 SAP 管報
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        [HttpGet("[controller]/SAPMngRpt/{fileName}")]
+        public IActionResult SAPMngRpt(string fileName)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(fileName))
+                    return File(System.IO.File.OpenRead($"..\\tempFileProcess\\{fileName}"), "application/octet-stream", fileName);
+                else
+                    return RedirectToAction("Error", "Home", new ErrorViewModel { Message = "下載異常" });
             }
             catch (Exception ex)
             {
@@ -121,13 +230,13 @@ namespace MOD4.Web.Controllers
         }
 
         /// <summary>
-        /// 更新5碼、13碼料 耗損率
+        /// 更新 5碼、13碼料 耗損率
         /// </summary>
         /// <param name="updVM"></param>
         /// <param name="codeTypeId"></param>
         /// <returns></returns>
-        [HttpPut("[controller]/MatlUpload")]
-        public IActionResult MatlUpload(List<MaterialSettingViewModel> updVM, MatlCodeTypeEnum codeTypeId)
+        [HttpPut("[controller]/Setting")]
+        public IActionResult MatlSetting(List<MaterialSettingViewModel> updVM, MatlCodeTypeEnum codeTypeId)
         {
             try
             {
@@ -150,57 +259,11 @@ namespace MOD4.Web.Controllers
         }
 
         /// <summary>
-        /// 
+        /// 上傳 5碼、13碼料 耗損率檔
         /// </summary>
-        /// <param name="uFile"></param>
+        /// <param name="settingFile"></param>
+        /// <param name="codeTypeId"></param>
         /// <returns></returns>
-        [HttpPost("[controller]/MatlUpload")]
-        public IActionResult MaterialUpload(IFormFile uFile)
-        {
-            try
-            {
-                var _uplRes = _materialDomainService.Upload(uFile, GetUserInfo());
-
-                if (_uplRes.Item1)
-                    return Json(new ResponseViewModel<string>
-                    {
-                        IsSuccess = true,
-                        Data = _uplRes.Item3,
-                        Msg = "上傳成功"
-                    });
-                else
-                    return Json(new ResponseViewModel<string>
-                    {
-                        IsSuccess = false,
-                        Msg = "SAP檔上傳處理異常"
-                    });
-            }
-            catch (Exception ex)
-            {
-                return Json(new ResponseViewModel<string>
-                {
-                    IsSuccess = false,
-                    Msg = ex.Message
-                });
-            }
-        }
-
-        [HttpGet("[controller]/MatlDownload/{fileName}")]
-        public IActionResult MPSDownload(string fileName)
-        {
-            try
-            {
-                if (!string.IsNullOrEmpty(fileName))
-                    return File(System.IO.File.OpenRead($"..\\tempFileProcess\\{fileName}"), "application/octet-stream", fileName);
-                else
-                    return RedirectToAction("Error", "Home", new ErrorViewModel { Message = "下載異常" });
-            }
-            catch (Exception ex)
-            {
-                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
-            }
-        }
-
         [HttpPost("[controller]/MatlSettingUpload")]
         public IActionResult MatlSettingUpload([FromForm] IFormFile settingFile, MatlCodeTypeEnum codeTypeId)
         {
@@ -208,11 +271,11 @@ namespace MOD4.Web.Controllers
             {
                 var _uplRes = _materialDomainService.UploadCodeRate(settingFile, codeTypeId, GetUserInfo());
 
-                    return Json(new ResponseViewModel<string>
-                    {
-                        IsSuccess = string.IsNullOrEmpty(_uplRes),
-                        Msg = string.IsNullOrEmpty(_uplRes) ? "上傳成功" : _uplRes
-                    });
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = _uplRes.Item1,
+                    Msg = _uplRes.Item2
+                });
             }
             catch (Exception ex)
             {
@@ -224,6 +287,11 @@ namespace MOD4.Web.Controllers
             }
         }
 
+        /// <summary>
+        /// 下載當前 5碼、13碼料 耗損設定
+        /// </summary>
+        /// <param name="codeTypeId"></param>
+        /// <returns></returns>
         [HttpGet("[controller]/MatlSettingDownload/{codeTypeId}")]
         public IActionResult MatlSettingDownload(MatlCodeTypeEnum codeTypeId)
         {

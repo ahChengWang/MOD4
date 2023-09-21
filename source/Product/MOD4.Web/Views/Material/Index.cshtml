@@ -1,559 +1,153 @@
-﻿
+﻿@using System.Linq;
 
 @{
     ViewBag.Title = "SAP 管報";
 }
 
+<head>
+    <link rel="stylesheet" href="~/plugins/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="~/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" />
+</head>
+
+<style>
+    .custom-select {
+        width: 80%;
+    }
+
+    td {
+        text-align: right;
+    }
+
+    /* .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+            position: absolute;
+            top: 50%;
+            right: 55px;
+        }
+
+        .select2-container--bootstrap4 .select2-selection {
+            width: 80%;
+        }
+    */
+    .dropdown-menu {
+        max-height: 300px;
+        overflow: scroll;
+        overflow-x: hidden;
+    }
+
+    .multiselect-reset {
+        color: black;
+        background-color: white;
+    }
+
+    span[name="note"] {
+        color: indianred;
+        font-weight: 600;
+        font-size: 10px;
+    }
+</style>
+
 <div class="content-wrapper">
     <section class="content">
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">SAP 管報</h3>
-                        </div>
-                        <!-- /.card-header -->
-                        <!-- form start -->
-                        <div class="card-body">
-                            <fieldset id="searchArea">
-                                <legend id="legend">查詢區塊</legend>
-                                <div class="form-group d-flex align-content-center flex-wrap">
-                                    <div class="col-md-1">
-                                        <label class="col-form-label">工單</label>
-                                        <span style="font-size:8px;font-weight:700" class="text-danger">*</span>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <select class="form-control">
-                                            <option>131000008361</option>
-                                            <option>131000008362</option>
-                                            <option>131000008363</option>
-                                            <option>131000008364</option>
-                                            <option>131000008365</option>
-                                            <option>131000008366</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <label class="col-form-label">機種</label>
-                                        <span style="font-size:8px;font-weight:700" class="text-danger">*</span>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <select class="form-control">
-                                            <option>5306M1490150M</option>
-                                            <option>GDD340IA0090S</option>
-                                            <option>GDE065IC0020S</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <label class="col-form-label">料號</label>
-                                        <span style="font-size:8px;font-weight:700" class="text-danger">*</span>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <select class="form-control">
-                                            <option>2131M14904019</option>
-                                            <option>2530M06532019</option>
-                                            <option>2530M080320H9</option>
-                                            <option>2530M07055059</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div>
-                                    <input type="button" name="btn29" value="查詢" />
-                                </div>
-                                <br />
-                            </fieldset>
-                            <div>
-                                <table id="table1" class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Order</th>
-                                            <th>機種</th>
-                                            <th>工單</th>
-                                            <th>Material</th>
-                                            <th>品名</th>
-                                            <th>SAP站別</th>
-                                            <th>發料單位</th>
-                                            <th>生產數量</th>
-                                            <th>入庫數量</th>
-                                            <th>Start date</th>
-                                            <th>Finish date</th>
-                                            <th>單位用量</th>
-                                            <th>應發數量</th>
-                                            <th>發料數量</th>
-                                            <th>退料數量</th>
-                                            <th>入庫數量</th>
-                                            <th>報廢數量</th>
-                                            <th>差異數</th>
-                                            <th>差異率%</th>
-                                            <th>超發%數</th>
-                                            <th>超欠撥數</th>
-                                            <th>OPI工單狀態</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                        <tr>
-                                            <td>131000009490</td>
-                                            <td>GDD080RA0110S</td>
-                                            <td>LCM,8,DD080RA-07A,1280*768</td>
-                                            <td>2530M08034059</td>
-                                            <td>LCD_Panel,8.0,DD080RA-07A,183.429mm,115.</td>
-                                            <td>0010</td>
-                                            <td>PC</td>
-                                            <td>3,260.000</td>
-                                            <td>2,827.000</td>
-                                            <td>2023/7/16</td>
-                                            <td>2023/7/25</td>
-                                            <td>1.000</td>
-                                            <td>3,260.000</td>
-                                            <td>3,260.000</td>
-                                            <td>0.000</td>
-                                            <td>2,827.000</td>
-                                            <td>0.000</td>
-                                            <td>433.00</td>
-                                            <td>13.28</td>
-                                            <td>900</td>
-                                            <td>100</td>
-                                            <td>已下線</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+            <div id="app" class="card">
+                <div class="card-header">
+                    <h3 class="card-title">SAP 管報</h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <div class="card-body">
+                    <fieldset id="searchArea">
+                        <legend id="legend">查詢區塊</legend>
+                        <div class="d-flex align-content-center flex-wrap">
+                            <div class="col-lg-1">
+                                <label class="col-form-label">工單</label>
+                                <span style="font-size:8px;font-weight:700" class="text-danger">*</span>
+                            </div>
+                            <div class="col-lg-2">
+                                @*<select class="form-control select2bs4" name="woNoSel" v-model="selectWO" v-on:change="onWOChange">*@
+                                <select id="dropWONo" class="form-control" name="woNoSel" v-model="selectWO" multiple="multiple" v-on:change="onWOChange">
+                                    @*@{
+                                            <option value=""></option>
+                                            foreach (var wo in (ViewBag.OrderNoOptions as List<string>))
+                                            {
+                                                <option value="@wo">@wo</option>
+                                            }
+                                        }*@
+                                    @*<option value=""></option>*@
+                                    <option v-for="wo in woNoOptions" v-bind:value="wo">{{wo}}</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-1">
+                                <label class="col-form-label">機種</label>
+                            </div>
+                            <div class="col-lg-2">
+                                <select class="form-control" name="prodSel" v-model="selectProd">
+                                    <option value=""></option>
+                                    <option v-for="prod in prodOptions" v-bind:value="prod">{{prod}}</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-1">
+                                <label class="col-form-label">SAP站別</label>
+                            </div>
+                            <div class="col-lg-1">
+                                <select id="dropNode" class="form-control" name="sapNodeSel" v-model="selectSapNode" multiple="multiple">
+                                    <option v-for="node in sapNodeOptions" v-bind:value="node">{{node}}</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-1">
+                                <label class="col-form-label">料號</label>
+                            </div>
+                            <div class="col-lg-2">
+                                <select id="dropMatl" class="form-control" name="matlSel" v-model="selectMatl" multiple="multiple">
+                                    @*<option v-for="matl in matlNoOptions" v-bind:value="matl">{{matl}}</option>*@
+                                </select>
                             </div>
                         </div>
-                        <!-- /.card-body -->
+                        <div>
+                            <input type="button" name="btn29" value="查詢" v-on:click="searchWO" />
+                        </div>
+                        <br />
+                    </fieldset>
+                    <div class="form-group">
+                        <span name="note">⨂ 切換顯示"工單報表"和"工單撥料"欄位時，先點選"顯示全欄位"還原</span>
+                    </div>
+                    <div>
+                        <table id="table1" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Order</th>
+                                    <th>機種</th>
+                                    <th>料號</th>
+                                    <th>SAP站別</th>
+                                    <th>生產數量</th>
+                                    <th>入庫數量</th>
+                                    <th>Start date</th>
+                                    <th>Finish date</th>
+                                    <th>單位用量</th>
+                                    <th>應發數量</th>
+                                    <th>發料數量</th>
+                                    <th>退料數量</th>
+                                    <th>入庫數量</th>
+                                    <th>報廢數量</th>
+                                    <th>差異數</th>
+                                    <th>差異率%</th>
+                                    <th>理論撥料</th>
+                                    <th>超欠撥數</th>
+                                    <th>工單短溢領數</th>
+                                    <th>不得為負</th>
+                                    <th>部材簡稱</th>
+                                    <th>OPI工單狀態</th>
+                                    <th>工單型態</th>
+                                    <th>使用站點</th>
+                                    <th>Comment</th>
+                                    <th>MES報廢數</th>
+                                    <th>IC總顆數</th>
+                                </tr>
+                            </thead>
+                        </table>
                     </div>
                 </div>
+                <!-- /.card-body -->
             </div>
         </div>
     </section>
@@ -562,26 +156,347 @@
 
 @section scripts
 {
+    <script src="~/plugins/select2/js/select2.full.min.js"></script>
     <script src="~/plugins/jsgrid/jsgrid.min.js"></script>
     <script src="~/plugins/jszip/jszip.min.js"></script>
     <script type="text/javascript">
 
-        $(function () {
-            $('#table1').DataTable({
-                dom: 'Bfrtip',
-                scrollX: true,
-                buttons: [
-                    'pageLength',
-                    'colvis',
-                    {
-                        extend: 'excelHtml5',
-                        title: 'SAP 管報',
-                        text: '匯出excel',
-                        exportOptions: {
-                            columns: ':visible'
+        const _table = null;
+
+        const vue = new Vue({
+            el: '#app',
+            data: {
+                allWorkOrders: @Html.Raw(Json.Serialize(ViewBag.AllOptions)),
+                woNoOptions: @Html.Raw(Json.Serialize(ViewBag.OrderNoOptions)),
+                prodOptions: [],
+                allSapNodeOptions: @Html.Raw(Json.Serialize(ViewBag.SapNodeOptions)),
+                sapNodeOptions: @Html.Raw(Json.Serialize(ViewBag.SapNodeOptions)),
+                sapNodeOptionChk: [],
+                isInitNodeSelected: true,
+                matlNoOptions: [],
+                matlOptionChk: [],
+                selectWO: [],
+                selectProd: "",
+                selectSapNode: "",
+                selectMatl: "",
+                sapData: []
+            },
+            methods: {
+                onWOChange: function (selectWO, checked) {
+
+                    if (checked) {
+                        vue.selectWO.push(selectWO);
+                    }
+                    else {
+                        vue.selectWO = $.grep(vue.selectWO, function (v) {
+                            return v != selectWO;
+                        });
+                    }
+
+                     let _allProd = vue.allWorkOrders.filter(function (wo) {
+                         return $.inArray(wo.order, vue.selectWO) !== -1;
+                    });
+
+                    let _matlChk = [];
+                    let _nodeChk = [];
+                    vue.matlNoOptions = [];
+                    vue.sapNodeOptions = [];
+
+                    if (vue.isInitNodeSelected) {
+                        vue.sapNodeOptions = [];
+                        vue.isInitNodeSelected = false;
+                    }
+
+                    _allProd.reduce(function (options, wo) {
+                        if (vue.prodOptions.indexOf(wo.prod) == -1) {
+                            vue.prodOptions.push(wo.prod);
                         }
-                    }]
-            });
+                        if (_matlChk.indexOf(wo.materialNo) == -1) {
+                            _matlChk.push(wo.materialNo);
+                            vue.matlNoOptions.push({ label: wo.materialNo, title: wo.sapNode, value: wo.materialNo });
+                        }
+                        if (_nodeChk.indexOf(wo.sapNode) == -1) {
+                            _nodeChk.push(wo.sapNode);
+                            vue.sapNodeOptions.push({ label: wo.sapNode, title: wo.sapNode, value: wo.sapNode });
+                        }
+                        return options;
+                    }, {});
+
+                    if (vue.selectWO.length == 0) {
+                        $.each(vue.allSapNodeOptions, function (idx, val) {
+                            vue.sapNodeOptions.push({ label: val, title: val, value: val});
+                        });
+                        vue.isInitNodeSelected = true;
+                    }
+
+                    vue.resetMulti(false);
+                },
+                onWOReset: function () {
+                    vue.selectWO = [];
+                    vue.prodOptions = [];
+                    vue.matlNoOptions = [];
+                    vue.sapNodeOptions = [];
+
+                    $.each(vue.allSapNodeOptions, function (idx, val) {
+                        vue.sapNodeOptions.push({ label: val, title: val, value: val });
+                    });
+                    vue.isInitNodeSelected = true;
+
+                    vue.resetMulti(true);
+                },
+                resetMulti: function (isResetClk) {
+                    // reset 料號下拉多選
+                    $("#dropMatl, #dropNode").multiselect('destroy');
+
+                    if (isResetClk) {
+                        $("#dropMatl").multiselect({
+                            maxHeight: 300,
+                            widthSynchronizationMode: 'always',
+                            buttonWidth: '200px',
+                        });
+                    }
+                    else {
+                        $("#dropMatl").multiselect({
+                            maxHeight: 300,
+                            widthSynchronizationMode: 'always',
+                            buttonWidth: '200px',
+                            enableResetButton: true,
+                            resetButtonText: '清除',
+                            enableFiltering: true,
+                            enableClickableOptGroups: true,
+                            buttonWidth: '90%',
+                        });
+                    }
+
+                    $("#dropMatl").multiselect('dataprovider', vue.matlNoOptions);
+
+                    $("#dropNode").multiselect('dataprovider', vue.sapNodeOptions);
+
+                },
+                showColsA: function (e) {
+                    let _table = $('#table1').DataTable;
+                    let _cols = _table.colum(1);
+                },
+                searchWO: function (e) {
+
+                    //if (vue.selectWO == '') {
+                    //    alert('工單必選');
+                    //    return false;
+                    //}
+
+                    globalFuc.LoadingPic();
+
+                    // 當 sap node 選擇'空白'
+                    let _selNode = $("#dropNode").val();
+
+                    if (_selNode.length == 1 && _selNode[0] == '') {
+                        _selNode = ['0'];
+                    }
+
+                    $.ajax({
+                        url: "./Material/SAPSearch?workOrder=" + vue.selectWO + "&prodNo=" + vue.selectProd + "&sapNode=" + _selNode + "&matlNo=" + $("#dropMatl").val(),
+                        type: "GET",
+                        dataType: 'json',
+                        success: function (result) {
+                            if (result.isSuccess) {
+                                if ($.fn.dataTable.isDataTable('#table1')) {
+                                    $('#table1').DataTable().destroy();
+                                }
+
+                                new DataTable('#table1', {
+                                    dom: 'Bfrtip',
+                                    scrollX: true,
+                                    buttons: [
+                                        'pageLength',
+                                        /*'colvis',*/
+                                        {
+                                            extend: 'columnVisibility',
+                                            text: '顯示全欄位',
+                                            visibility: true
+                                        },
+                                        {
+                                            extend: 'columnVisibility',
+                                            text: '顯示工單報表欄位',
+                                            visibility: false,
+                                            columns: ".typeWOOff"
+                                        },
+                                        {
+                                            extend: 'columnVisibility',
+                                            text: '顯示工單撥料欄位',
+                                            visibility: false,
+                                            columns: ".typeDisburse"
+                                        },
+                                        {
+                                            extend: 'excelHtml5',
+                                            title: '',
+                                            text: '匯出本頁excel',
+                                            exportOptions: {
+                                                columns: ':visible'
+                                            }
+                                        },
+                                        {
+                                            extend: 'excelHtml5',
+                                            text: '匯出工單強結認列excel',
+                                            action: function (e) {
+                                                window.location = "./Material/WOCloseDownload?workOrder=" + vue.selectWO + "&prodNo=" + vue.selectProd + "&sapNode=" + _selNode + "&matlNo=" + $("#dropMatl").val();
+                                            }
+                                        }
+                                    ],
+                                    columns: [
+                                        {
+                                            data: 'order'
+                                        },
+                                        {
+                                            data: 'prod'
+                                        },
+                                        {
+                                            data: 'materialNo',
+                                        },
+                                        {
+                                            data: 'sapNode',
+                                            class: 'typeWOOff typeDisburse'
+                                        },
+                                        {
+                                            data: 'prodQty',
+                                            class: 'typeWOOff typeDisburse'
+                                        },
+                                        {
+                                            data: 'storageQty',
+                                            class: 'typeDisburse'
+                                        },
+                                        {
+                                            data: 'startDate',
+                                            class: 'typeWOOff typeDisburse'
+                                        },
+                                        {
+                                            data: 'finishDate',
+                                            class: 'typeWOOff typeDisburse'
+                                        },
+                                        {
+                                            data: 'unit',
+                                            class: 'typeDisburse'
+                                        },
+                                        {
+                                            data: 'exptQty',
+                                            class: 'typeWOOff'
+                                        },
+                                        { data: 'disburseQty' },
+                                        {
+                                            data: 'returnQty'
+                                        },
+                                        {
+                                            data: 'actStorageQty',
+                                            class: 'typeWOOff typeDisburse'
+                                        },
+                                        {
+                                            data: 'scrapQty',
+                                            class: 'typeDisburse'
+                                        },
+                                        {
+                                            data: 'diffQty',
+                                            class: 'typeDisburse'
+                                        },
+                                        {
+                                            data: 'diffRate',
+                                            class: 'typeWOOff typeDisburse'
+                                        },
+                                        {
+                                            data: 'overDisburse',
+                                            class: 'typeWOOff typeDisburse'
+                                        },
+                                        {
+                                            data: 'diffDisburse',
+                                            class: 'typeWOOff typeDisburse'
+                                        },
+                                        {
+                                            data: 'woPremiumOut',
+                                            class: 'typeWOOff typeDisburse'
+                                        },
+                                        {
+                                            data: 'cantNegative',
+                                            class: 'typeDisburse'
+                                        },
+                                        {
+                                            data: 'matlShortName',
+                                            class: 'typeDisburse'
+                                        },
+                                        {
+                                            data: 'opIwoStatus',
+                                            class: 'typeDisburse'
+                                        },
+                                        {
+                                            data: 'woType',
+                                            class: 'typeWOOff typeDisburse'
+                                        },
+                                        {
+                                            data: 'useNode',
+                                            class: 'typeWOOff typeDisburse'
+                                        },
+                                        {
+                                            data: 'woComment',
+                                            class: 'typeWOOff typeDisburse'
+                                        },
+                                        {
+                                            data: 'mesScrap',
+                                            class: 'typeWOOff typeDisburse'
+                                        },
+                                        {
+                                            data: 'icScrap',
+                                            class: 'typeDisburse'
+                                        },
+                                    ],
+                                    data: result.data,
+                                });
+                            }
+                            else {
+                                alert(result.msg);
+                            }
+
+                            $.unblockUI();
+                        }
+                    });
+
+                }
+            },
+            mounted: function () {
+
+                //this.woNoOptions = this.allWorkOrders.reduce(function (options, wo) {
+                //    const _wo = wo.order;
+                //    if (!options[_wo]) {
+                //        options[_wo] = [];
+                //    }
+                //    options[_wo].push(wo);
+                //    return options;
+                //}, {});
+
+                $("#dropNode, #dropMatl").multiselect();
+
+                $("#dropWONo").multiselect({
+                    enableResetButton: true,
+                    resetButtonText: '清除',
+                    enableFiltering: true,
+                    enableClickableOptGroups: true,
+                    buttonWidth: '90%',
+                    onChange: function (option, checked, select) {
+                        vue.onWOChange(option[0].value, checked);
+                    }
+                });
+            },
+            computed: {
+            }
+        });
+
+
+        $("select[name='woNoSel']").on('select:select', function (e) {
+            vue.onWOChange(e.params.data.text);
+        });
+
+        $('.select2bs4').on('select2:select', function (e) {
+            vue.onWOChange(e.params.data.text);
+        });
+
+        $('.multiselect-reset').on('click', function (e) {
+            vue.onWOReset();
         });
 
     </script>

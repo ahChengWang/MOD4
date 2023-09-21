@@ -1,0 +1,461 @@
+﻿
+@{
+    ViewBag.Title = "檔案上傳&耗損設定";
+}
+
+<style>
+
+    .div-title {
+        font-family: "Microsoft JhengHei";
+        font-weight: 900;
+        font-style: italic;
+        font-size: 18px;
+    }
+
+    #block {
+        border-top: solid #666666 1px;
+        border-right: none;
+        border-left: none;
+        border-bottom: solid #666666 1px;
+        border-radius: 15px;
+        margin-bottom: 5px;
+    }
+
+    #blkTitle {
+        padding-left: 1rem;
+        width: auto;
+        font-size: 20px;
+        font-weight: 600;
+        color: #666666;
+    }
+
+    .card {
+        background-color: #c3cadb;
+    }
+
+    table[name='myTable'] {
+        border-collapse: collapse;
+    }
+
+        table[name='myTable'] th, table[name='myTable'] td {
+            padding: .5rem;
+            border: 1px solid #a5abb0;
+            /*border-top: 1px solid #a5abb0;*/
+            vertical-align: top;
+            text-align: center;
+            width: 5%;
+        }
+
+    th {
+        position: sticky;
+        z-index: 2;
+        background: #3e7bb8;
+        top: 0;
+    }
+
+    .cust-control {
+        width: 30%;
+        height: calc(2.25rem + 2px);
+        padding: .375rem .75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        box-shadow: inset 0 0 0 transparent;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+
+    .unit {
+        font-size: 8px;
+        color: darkred;
+    }
+
+    [class*=icheck-] > input:first-child + label::before {
+        border: 1px solid #3d3d3d;
+    }
+</style>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div id="app" class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">檔案上傳&耗損設定</h3>
+                        </div>
+                        <br />
+                        <!-- /.card-header -->
+                        <!-- form start -->
+                        <div>
+                            <fieldset id="block">
+                                <legend id="blkTitle">SAP檔上傳</legend>
+                                <form id="fileForm" enctype="multipart/form-data">
+                                    <div class="card-body">
+                                        <div class="form-group d-flex align-content-center flex-wrap">
+                                            <div class="col-md-1">
+                                                @*<span style="font-size:8px;font-weight:700" class="text-danger">*</span>*@
+                                                @*<span asp-validation-for="File" style="font-size:10px;font-weight:700" class="text-danger"></span>*@
+                                                <div>
+                                                    <span>(允許 .xlsx)</span>
+                                                    @*<span class="unit">單檔最大2MB</span>*@
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-3 custom-file">
+                                                <input type="file" class="custom-file-input" v-on:change="onFileChange" />
+                                                <label class="custom-file-label">Choose file</label>
+                                            </div>
+                                            <br />
+                                            <div class="col-lg-2">
+                                                <input type="button" class="btn btn-primary" value="上傳" style="float:right" v-on:click="uploadSAPClk" />
+                                            </div>
+                                            @*<div class="col-lg-1">
+                                                    <input id="btnDownload" type="button" class="btn btn-outline-secondary" value="下載" style="float: right" />
+                                                </div>*@
+                                        </div>
+                                    </div>
+                                    <!-- /.card-body -->
+                                </form>
+                            </fieldset>
+                        </div>
+                        <br />
+                        <fieldset id="block">
+                            <legend id="blkTitle">耗損設定</legend>
+                            <div class="d-flex">
+                                <div class="col-lg-10" name="settingDiv5">
+                                    <div class="d-flex">
+                                        <div class="col-lg-4 d-flex">
+                                            <div class="col-md-4">
+                                                <label>選擇碼數：</label>
+                                            </div>
+                                            <div class="col-lg-3 icheck-primary d-inline">
+                                                <input type="radio" id="radioPrimary1" name="r1" checked value="5" />
+                                                <label for="radioPrimary1">5碼料</label>
+                                            </div>
+                                            <div class="col-lg-4 icheck-primary d-inline" style="margin-left:5px">
+                                                <input type="radio" id="radioPrimary2" name="r1" value="13" />
+                                                <label for="radioPrimary2">13碼料</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8 d-flex">
+                                            <div class="col-lg-3" style="text-align:center">
+                                                <label>● 耗損檔上傳</label>
+                                                <span class="unit">(允許.xlsx)</span>
+                                            </div>
+                                            <div class="col-lg-5 custom-file">
+                                                <input type="file" class="custom-file-input" v-on:change="onSettingFileChange" />
+                                                <label class="custom-file-label">Choose file</label>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <input type="button" class="btn btn-primary" value="上傳" style="float: left" v-on:click="settingUpdClk" />
+                                                <input type="button" class="btn btn-success" value="下載最新" style="margin-left: 5px " v-on:click="settingDownClk" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div v-if="permision.accountPermission & 32">
+                                        <div>
+                                            <input class="btn btn-info" type="button" name="btn29" value="查詢" v-on:click="searchClk" />
+                                            <input class="cust-control" type="text" placeholder="料號快速查詢 ex:6906B..." style="float:right" v-model="searchStr" />
+                                        </div>
+                                        <div style="margin-top: 0.5rem; overflow: auto; max-height: 30rem; ">
+                                            <table class="table table-bordered table-hover" name="myTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:15%"></th>
+                                                        <th style="width:25%">料號</th>
+                                                        <th style="width:20%">部材簡稱</th>
+                                                        @*<th>料號分類</th>*@
+                                                        <th style="width:15%">使用站點</th>
+                                                        <th style="width:25%">損耗率(0.0..)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="(setting, idx) in wrapper">
+                                                        <td>
+                                                            <input id="editBtn" type="button" value="編輯" v-on:click="editClk" />
+                                                            <input id="saveBtn" type="button" disabled value="儲存" v-on:click="saveClk" />
+                                                        </td>
+                                                        <td>{{setting.matlNo}}</td>
+                                                        <td>{{setting.matlName}}</td>
+                                                        @*<td>{{setting.matlCatg}}</td>*@
+                                                        <td>{{setting.useNode}}</td>
+                                                        <td>
+                                                            <input name="rateIpt" disabled type="text" style="width: 50%; text-align: center;" v-model="setting.lossRate" />
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+                            <!-- /.card-body -->
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section scripts{
+
+    <script type="text/javascript">
+
+        const vue = new Vue({
+            el: '#app',
+            data: {
+                sapFile: null,
+                settingFile: null,
+                settingList: [],
+                searchStr: '',
+                permision: @Html.Raw(Json.Serialize(ViewBag.UserPermission))
+            },
+            methods: {
+                onFileChange(e) {
+                    if (this.verifyFile(e.target.files[0])) {
+                        this.sapFile = e.target.files[0]
+                    }
+                },
+                onSettingFileChange(e) {
+                    this.settingFile = e.target.files[0]
+                },
+                verifyFile(e) {
+                    var validExtensions = ['xlsx'];
+                    let fileEx = e.name.replace(/^.*\./, '');
+
+                    if ($.inArray(fileEx, validExtensions) == -1) {
+                        alert("無效檔案類型, 請確認是否為 excel(.xlsx)");
+                        e.value = "";
+                        return false;
+                    }
+                    return true;
+                },
+                onSearchChange() {
+                    let _tbody = this.$el.children[4].children[1].children[0].children[1].children[1].children[0].children[1].children;
+
+                    for (var i = 0; i < _tbody.length; i++) {
+                        let _tr = _tbody[i];
+                        let _num = _tr.children[0].innerHTML;
+                        if (_num.includes(this.searchStr)) {
+                            _tr.children[0].parentElement.hidden = false;
+                        }
+                        else {
+                            _tr.children[0].parentElement.hidden = true;
+                        }
+                    }
+                },
+                uploadSAPClk(e) {
+
+                    globalFuc.LoadingPic();
+
+                    let formData = new FormData();
+                    formData.append('uFile', this.sapFile);
+
+                    $.ajax({
+                        url: "./UploadSAP",
+                        type: "POST",
+                        dataType: 'json',
+                        processData: false,
+                        contentType: false,
+                        data: formData,
+                        success: function (result) {
+                            $.unblockUI();
+                            if (result.isSuccess) {
+                                alert(result.msg);
+                                window.location = "./SAPMngRpt/" + result.data;
+                            }
+                            else {
+                                alert(result.msg);
+                            }
+                        }
+                    });
+                },
+                settingUpdClk(e) {
+
+                    globalFuc.LoadingPic();
+
+                    let formData = new FormData();
+                    formData.append('settingFile', this.settingFile);
+                    formData.append('codeTypeId', $("input[name='r1']:checked").val());
+
+                    $.ajax({
+                        url: "./MatlSettingUpload",
+                        type: "POST",
+                        dataType: 'json',
+                        processData: false,
+                        contentType: false,
+                        data: formData,
+                        success: function (result) {
+                            $.unblockUI();
+                            if (result.isSuccess) {
+                                alert(result.msg);
+                                location.reload();
+                            }
+                            else {
+                                alert(result.msg);
+                            }
+                        }
+                    });
+                },
+                settingDownClk(e) {
+                    let _typeId = $("input[name='r1']:checked");
+                    window.location = "./MatlSettingDownload/" + _typeId.val();
+                },
+                searchClk(e) {
+
+                    let _typeId = $("input[name='r1']:checked");
+                    globalFuc.LoadingPic();
+
+                    $.ajax({
+                        url: "./MatlSearch/" + _typeId.val(),
+                        type: "GET",
+                        dataType: 'json',
+                        success: function (result) {
+                            $.unblockUI();
+                            if (result.isSuccess) {
+                                vue.settingList = result.data;
+                            }
+                            else {
+                                alert(result.msg);
+                            }
+                        }
+                    });
+                },
+                editClk(e) {
+
+                    let _chkType = $("input[name='r1']:checked").val();
+                    let firstRow = e.currentTarget.parentElement.parentElement.children[1].innerHTML;
+                    if (parseInt(_chkType) != firstRow.length) {
+                        alert('請選擇正確的料號碼數');
+                        return false;
+                    }
+
+                    let _radioBtn = $("input[name='r1']");
+                    _radioBtn[0].disabled = true;
+                    _radioBtn[1].disabled = true;
+
+                    let _currTd = e.currentTarget.parentElement.parentElement.children[4].children[0];
+
+                    e.currentTarget.parentElement.children[0].disabled = true;
+                    e.currentTarget.parentElement.children[1].disabled = false;
+                    //e.currentTarget.parentElement.children[2].disabled = false;
+                    //e.currentTarget.parentElement.children[3].disabled = false;
+
+                    _currTd.disabled = false;
+                },
+                saveClk(e) {
+
+                    this.settingList;
+                    vue.settingList;
+
+                    let _typeId = $("input[name='r1']:checked");
+
+                    let _currentTarget = e.currentTarget;
+                    let _currTd = e.currentTarget.parentElement.parentElement;
+
+                    let submitData = [];
+
+                    //for (var i = 0; i < _currTd.length; i++) {
+                    submitData.push({
+                        'MatlNo': _currTd.children[1].innerHTML,
+                        'LossRate': _currTd.children[4].children[0].value
+                    });
+                    //}
+
+                    globalFuc.LoadingPic();
+
+                    $.ajax({
+                        url: "./Setting",
+                        type: "PUT",
+                        dataType: 'json',
+                        data: { updVM: submitData, codeTypeId: _typeId.val()},
+                        success: function (result) {
+                            $.unblockUI();
+                            if (result.isSuccess) {
+                                alert(result.msg);
+                                let _radioBtn = $("input[name='r1']");
+                                _radioBtn[0].disabled = false;
+                                _radioBtn[1].disabled = false;
+                                _currentTarget.parentElement.children[0].disabled = false;
+                                _currentTarget.parentElement.children[1].disabled = true;
+                                //_currentTarget.parentElement.children[2].disabled = true;
+                                //_currentTarget.parentElement.children[3].disabled = true;
+
+                                _currentTarget.parentElement.parentElement.children[4].children[0].disabled = true;
+
+                                //for (var i = 0; i < _currTable.length; i++) {
+                                //    _currTable[i].children[_currTable[i].children.length - 1].children[0].disabled = true;
+                                //}
+                            }
+                            else {
+                                alert(result.msg);
+                            }
+                        }
+                    });
+                },
+                cancelClk(e) {
+
+                    let _radioBtn = $("input[name='r1']");
+                    _radioBtn[0].disabled = false;
+                    _radioBtn[1].disabled = false;
+
+                    let _currentTarget = e.currentTarget;
+                    let _currTable = _currentTarget.parentElement.parentElement.children[1].children[0].children[1].children;
+
+                    _currentTarget.parentElement.children[0].disabled = false;
+                    _currentTarget.parentElement.children[1].disabled = false;
+                    _currentTarget.parentElement.children[2].disabled = true;
+                    _currentTarget.parentElement.children[3].disabled = true;
+
+                    for (var i = 0; i < _currTable.length; i++) {
+                        _currTable[i].children[_currTable[i].children.length - 1].children[0].disabled = true;
+                    }
+                },
+            },
+            mounted: function () {
+                bsCustomFileInput.init();
+
+                this.settingList = @Html.Raw(Json.Serialize(Model));
+            },
+            computed: {
+                wrapper() {
+                    if (this.searchStr == '') {
+                        return this.settingList;
+                    }
+                    else {
+                        return this.settingList.filter(item => {
+                            return item.matlNo.includes(this.searchStr)
+                        });
+
+                        //let _test = this.$el.children[4].children[0].children[1].children[2].children[0].children[1].children;
+
+                        //for (var i = 0; i < _test.length; i++) {
+                        //    let _tmpqwe = _test[i];
+                        //    let texttt = _tmpqwe.children[0].innerHTML;
+                        //    if (texttt.includes(this.searchStr))
+                        //    { }
+                        //    else {
+                        //        _tmpqwe.children[0].parentElement.hidden = true;
+                        //    }
+                        //}
+
+                        //let _testFilter = _test.forEach(function(test) {
+                        //    return test.children[0].innerHTML.includes(this.searchStr);
+                        //});
+
+                        //return this.settingList.filter(item => {
+                        //    return item.matlNo.includes(this.searchStr)
+                        //});
+                    }
+                }
+            }
+        });
+
+    </script>
+}

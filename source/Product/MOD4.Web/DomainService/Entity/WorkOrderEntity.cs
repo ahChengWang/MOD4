@@ -7,5 +7,7 @@
         public string LcmProduct { get; set; }
         public string WOType { get; set; }
         public int ActualQty { get; set; }
+        public string WOComment { get; set; }
+        public int Scrap { get; set; }
     }
 }

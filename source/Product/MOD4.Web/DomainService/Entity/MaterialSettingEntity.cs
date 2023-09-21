@@ -8,5 +8,8 @@
         public string MatlCatg { get; set; }
         public string UseNode { get; set; }
         public decimal LossRate { get; set; }
+
+        // 偷渡修改前"耗損率", for history
+        public decimal OldLossRate { get; set; }
     }
 }

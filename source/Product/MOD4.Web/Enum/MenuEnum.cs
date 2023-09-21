@@ -56,5 +56,9 @@ namespace MOD4.Web.Enum
         Material = 33,
         [Description("SAP 檔案上傳")]
         MaterialUpload = 34,
+        [Description("認證紀錄查詢")]
+        CertificationPCES = 36,
+        [Description("資料設定")]
+        CertificationPCESSetting = 37,
     }
 }

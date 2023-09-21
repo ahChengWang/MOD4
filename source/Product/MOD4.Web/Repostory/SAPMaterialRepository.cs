@@ -2,32 +2,100 @@
 using MOD4.Web.Repostory.Dao;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MOD4.Web.Repostory
 {
     public class SAPMaterialRepository : BaseRepository, ISAPMaterialRepository
     {
-        public List<MaterialSettingDao> SelectMatlAllSetting(MatlCodeTypeEnum? codeTypId = MatlCodeTypeEnum.Code5)
+
+        public List<SAPWorkOrderDao> SelectSAPwoByConditions(List<string> workOrder = null, string prodNo = "", List<string> sapNode = null, List<string> matrlNo = null)
         {
-            string sql = "select * from [dbo].material_setting where 1=1 ";
-
-            if (codeTypId != null)
+            try
             {
-                sql += " and codeTypeId=@CodeTypeId ";
+                string sql = @"select sap.*,def.useNode from sap_work_order sap 
+left join definition_material def 
+on sap.materialNo = def.matlNo where 1=1 ";
+
+                if (workOrder != null && workOrder.Any())
+                    sql += " and sap.[order] IN @Order ";
+
+                if (!string.IsNullOrEmpty(prodNo))
+                    sql += " and sap.prod=@Prod ";
+
+                if (sapNode != null && sapNode.Any())
+                    sql += " and sap.sapNode IN @SAPNode ";
+
+                if (matrlNo != null && matrlNo.Any())
+                    sql += " and sap.materialNo IN @MaterialNo ";
+
+                var dao = _dbHelper.ExecuteQuery<SAPWorkOrderDao>(sql, new
+                {
+                    Order = workOrder,
+                    Prod = prodNo,
+                    SAPNode = sapNode,
+                    MaterialNo = matrlNo
+                });
+
+                return dao;
             }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-            var dao = _dbHelper.ExecuteQuery<MaterialSettingDao>(sql,new {
-                CodeTypeId = codeTypId
-            });
+        public List<DefinitionMaterialDao> SelectAllMatlDef(MatlCodeTypeEnum? codeTypeId = null)
+        {
+            try
+            {
+                string sql = "select * from [dbo].[definition_material] where 1=1 ";
 
-            return dao;
+                if (codeTypeId != null)
+                    sql += " and codeTypeId = @CodeTypeId ";
+
+                var dao = _dbHelper.ExecuteQuery<DefinitionMaterialDao>(sql, new
+                {
+                    CodeTypeId = codeTypeId
+                });
+
+                return dao;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<MaterialSettingDao> SelectMatlAllSetting(List<int> matlSnList)
+        {
+            try
+            {
+                string sql = "select * from [dbo].material_setting where 1=1 ";
+
+                if (matlSnList != null && matlSnList.Any())
+                {
+                    sql += " and matlSn IN @MatlSn ";
+                }
+
+                var dao = _dbHelper.ExecuteQuery<MaterialSettingDao>(sql, new
+                {
+                    MatlSn = matlSnList
+                });
+
+                return dao;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public int UpdateMatlSetting(List<MaterialSettingDao> updDao)
         {
             try
             {
-                string sql = @"UPDATE [dbo].[material_setting] SET [lossRate] = @lossRate WHERE [matlNo]=@matlNo ;";
+                string sql = @"UPDATE [dbo].[material_setting] SET [lossRate] = @lossRate WHERE [matlSn]=@matlSn ;";
 
                 var dao = _dbHelper.ExecuteNonQuery(sql, updDao);
 
@@ -45,12 +113,12 @@ namespace MOD4.Web.Repostory
             {
                 string sql = @"
 INSERT INTO [dbo].[material_setting_history]
-([matlNo]
+([matlSn]
 ,[lossRate]
 ,[UpdateUser]
 ,[UpdateTime])
 VALUES
-(@matlNo
+(@matlSn
 ,@lossRate
 ,@UpdateUser
 ,@UpdateTime); ";
@@ -63,15 +131,6 @@ VALUES
             {
                 throw ex;
             }
-        }
-
-        public List<SAPWorkOrderDao> SelectSAPwoByConditions()
-        {
-            string sql = "select * from [dbo].sap_work_order where 1=1 ";
-
-            var dao = _dbHelper.ExecuteQuery<SAPWorkOrderDao>(sql);
-
-            return dao;
         }
 
         public int UpdateSAPwo(List<SAPWorkOrderDao> updSAPwo)
@@ -98,6 +157,15 @@ VALUES
  WHERE [sn]=@sn ;";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, updSAPwo);
+
+            return dao;
+        }
+
+        public int TruncateSAPwo()
+        {
+            string sql = @"Truncate table [dbo].[sap_work_order]; ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql);
 
             return dao;
         }
@@ -132,7 +200,11 @@ INSERT INTO [dbo].[sap_work_order]
 ,[woPremiumOut]
 ,[cantNegative]
 ,[opiWOStatus]
-,[woType])
+,[matlShortName]
+,[woType]
+,[woComment]
+,[mesScrap]
+,[icScrap])
 VALUES
 (@order
 ,@prod
@@ -158,7 +230,11 @@ VALUES
 ,@woPremiumOut
 ,@cantNegative
 ,@opiWOStatus
-,@woType); ";
+,@matlShortName
+,@woType
+,@woComment
+,@mesScrap
+,@icScrap); ";
 
                 var dao = _dbHelper.ExecuteNonQuery(sql, insSAPMatlList);
 
@@ -174,20 +250,12 @@ VALUES
         {
             string sql = @"
 INSERT INTO [dbo].[material_setting]
-([matlNo]
-,[codeTypeId]
-,[matlName]
-,[matlCatg]
-,[useNode]
+([matlSn]
 ,[lossRate]
 ,[updateUser]
 ,[updateTime])
 VALUES
-(@matlNo
-,@codeTypeId
-,@matlName
-,@matlCatg
-,@useNode
+(@matlSn
 ,@lossRate
 ,@updateUser
 ,@updateTime); ";
@@ -199,8 +267,11 @@ VALUES
 
         public int DeleteMatlSetting(MatlCodeTypeEnum codeTypeId)
         {
-            string sql = @"
- Delete [dbo].[material_setting] where codeTypeId = @CodeTypeId ; ";
+            string sql = @" Delete matl
+ from material_setting matl
+ join definition_material def
+   on matl.matlSn = def.sn  
+where def.codeTypeId = @CodeTypeId ;";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, new
             {

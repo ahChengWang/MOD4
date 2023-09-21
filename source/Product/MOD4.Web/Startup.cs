@@ -79,6 +79,7 @@ namespace MOD4.Web
             services.AddSingleton<IMTDDashboardDomainService, MTDDashboardDomainService>();
             services.AddSingleton<IMonitorDomainService, MonitorDomainService>();
             services.AddSingleton<IMaterialDomainService, MaterialDomainService>();
+            services.AddSingleton<IPCESCertificationDomainService, PCESCertificationDomainService>();
 
             services.AddSingleton<IAlarmXmlRepository, AlarmXmlRepository>();
             services.AddSingleton<IEqpInfoRepository, EqpInfoRepository>();
@@ -108,8 +109,9 @@ namespace MOD4.Web
             services.AddSingleton<IDefinitionNodeDescRepository, DefinitionNodeDescRepository>();
             services.AddSingleton<IEfficiencySettingRepository, EfficiencySettingRepository>();
             services.AddSingleton<IDailyEfficiencyRepository, DailyEfficiencyRepository>();
-            services.AddSingleton<IAlarmXmlRepository, AlarmXmlRepository>();
+            services.AddSingleton<IAlarmXmlRepository, AlarmXmlRepository>(); 
             services.AddSingleton<ISAPMaterialRepository, SAPMaterialRepository>();
+            services.AddSingleton<IPCESCertificationRepository, PCESCertificationRepository>();
 
             services.AddScoped<MenuService>();
             services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));
