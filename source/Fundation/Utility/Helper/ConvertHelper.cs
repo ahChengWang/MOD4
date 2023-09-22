@@ -31,6 +31,26 @@ namespace Utility.Helper
             return targetBList;
         }
 
+
+        public static T CopyAToB<T>(this object InObj) where T : new()
+        {
+            if (InObj == null)
+                return new T();
+
+            // copy fields
+            var typeOfFrom = InObj.GetType();
+            var targetOut = new T();
+            foreach (var fieldOfFrom in typeOfFrom.GetProperties())
+            {
+                var fieldOfB = targetOut.GetType().GetProperty(fieldOfFrom.Name);
+                if (fieldOfB == null)
+                    continue;
+                fieldOfB.SetValue(targetOut, typeOfFrom.GetProperty(fieldOfFrom.Name).GetValue(InObj));
+            }
+
+            return targetOut;
+        }
+
         /*
          * B b = new B();
             // copy fields

@@ -140,78 +140,91 @@ namespace MOD4.Web.DomainService
                     workbook = new XSSFWorkbook(fs); // 將剛剛的Excel (Stream）讀取到工作表裡面
                 }
 
-                ISheet _sheet = workbook.GetSheet("工作表1");
-                IRow _row;
-                ICell _cell;
-                ICellStyle _cellSpecStyle = workbook.CreateCellStyle();
-                IFont _fontSpec = workbook.CreateFont();
-                _fontSpec.Color = IndexedColors.Red.Index;
-                _fontSpec.FontName = "新細明體";
-                _cellSpecStyle.SetFont(_fontSpec);
-                _cellSpecStyle.VerticalAlignment = VerticalAlignment.Center;
-                _cellSpecStyle.Alignment = HorizontalAlignment.Center;
-                _cellSpecStyle.BorderTop = BorderStyle.Thin;
-                _cellSpecStyle.BorderRight = BorderStyle.Thin;
-                _cellSpecStyle.BorderBottom = BorderStyle.Thin;
-                _cellSpecStyle.BorderLeft = BorderStyle.Thin;
-
-                ICellStyle _cellStyle = workbook.CreateCellStyle();
-                IFont _font = workbook.CreateFont();
-                _font.Color = IndexedColors.Black.Index;
-                _font.FontName = "新細明體";
-                _cellStyle.SetFont(_font);
-                _cellStyle.VerticalAlignment = VerticalAlignment.Center;
-                _cellStyle.Alignment = HorizontalAlignment.Center;
-                _cellStyle.BorderTop = BorderStyle.Thin;
-                _cellStyle.BorderRight = BorderStyle.Thin;
-                _cellStyle.BorderBottom = BorderStyle.Thin;
-                _cellStyle.BorderLeft = BorderStyle.Thin;
-
-                _row = _sheet.GetRow(1);
-                _cell = _row.GetCell(19);
-                _cell.SetCellValue(DateTime.Now.ToString("yyyy/M/d HH:mm:ss"));
-
-                for (int i = 0; i < _sapWOList.Count; i++)
+                if (_sapWOList.Any())
                 {
-                    _row = _sheet.GetRow(i + 4);
-                    _cell = _row.GetCell(1);
-                    _cell.SetCellValue(_sapWOList[i].Order);
-                    _cell.CellStyle = _cellStyle;
-                    _cell = _row.GetCell(2);
-                    _cell.SetCellValue(_sapWOList[i].Prod);
-                    _cell.CellStyle = _cellStyle;
-                    _cell = _row.GetCell(3);
-                    _cell.SetCellValue(_sapWOList[i].StartDate);
-                    //_cell.CellStyle = _cellStyle;
-                    _cell = _row.GetCell(4);
-                    _cell.SetCellValue(_sapWOList[i].FinishDate);
-                    //_cell.CellStyle = _cellStyle;
-                    _cell = _row.GetCell(5);
-                    _cell.SetCellValue(_sapWOList[i].ScrapQty.ToString("#,0.#"));
-                    _cell.CellStyle = _cellStyle;
-                    _cell = _row.GetCell(6);
-                    _cell.SetCellValue(_sapWOList[i].MatlShortName);
-                    _cell.CellStyle = _cellStyle;
-                    _cell = _row.GetCell(7);
-                    _cell.SetCellValue(_sapWOList[i].MaterialNo);
-                    _cell.CellStyle = _cellStyle;
-                    if (_sapWOList[i].DiffQty > 0)
+                    float _tllCont = _sapWOList.Count();
+
+                    if (Math.Ceiling(_tllCont / 25) > 20)
+                        throw new Exception("總比數 > 500, 請減少單次匯出輸出筆數");
+
+                    for (int i = 0; i < Math.Ceiling(_tllCont / 25); i++)
                     {
-                        _cell = _row.GetCell(8);
-                        _cell.SetCellValue("超撥");
-                        _cell.CellStyle = _cellSpecStyle;
-                        _cell = _row.GetCell(10);
-                        _cell.SetCellValue(_sapWOList[i].DiffQty.ToString("#,0.#"));
-                        _cell.CellStyle = _cellStyle;
-                    }
-                    else
-                    {
-                        _cell = _row.GetCell(8);
-                        _cell.SetCellValue("欠撥");
-                        _cell.CellStyle = _cellStyle;
-                        _cell = _row.GetCell(10);
-                        _cell.SetCellValue(_sapWOList[i].DiffQty.ToString("#,0.#"));
-                        _cell.CellStyle = _cellSpecStyle;
+                        List<SAPWorkOrderDao> _exportWOList = _sapWOList.OrderBy(o => o.MaterialNo).Skip(25 * i).Take(25).ToList();
+
+                        ISheet _sheet = workbook.GetSheet($"Sheet{i + 1}");
+                        IRow _row;
+                        ICell _cell;
+                        ICellStyle _cellSpecStyle = workbook.CreateCellStyle();
+                        IFont _fontSpec = workbook.CreateFont();
+                        _fontSpec.Color = IndexedColors.Red.Index;
+                        _fontSpec.FontName = "新細明體";
+                        _cellSpecStyle.SetFont(_fontSpec);
+                        _cellSpecStyle.VerticalAlignment = VerticalAlignment.Center;
+                        _cellSpecStyle.Alignment = HorizontalAlignment.Center;
+                        _cellSpecStyle.BorderTop = BorderStyle.Thin;
+                        _cellSpecStyle.BorderRight = BorderStyle.Thin;
+                        _cellSpecStyle.BorderBottom = BorderStyle.Thin;
+                        _cellSpecStyle.BorderLeft = BorderStyle.Thin;
+
+                        ICellStyle _cellStyle = workbook.CreateCellStyle();
+                        IFont _font = workbook.CreateFont();
+                        _font.Color = IndexedColors.Black.Index;
+                        _font.FontName = "新細明體";
+                        _cellStyle.SetFont(_font);
+                        _cellStyle.VerticalAlignment = VerticalAlignment.Center;
+                        _cellStyle.Alignment = HorizontalAlignment.Center;
+                        _cellStyle.BorderTop = BorderStyle.Thin;
+                        _cellStyle.BorderRight = BorderStyle.Thin;
+                        _cellStyle.BorderBottom = BorderStyle.Thin;
+                        _cellStyle.BorderLeft = BorderStyle.Thin;
+
+                        _row = _sheet.GetRow(1);
+                        _cell = _row.GetCell(19);
+                        _cell.SetCellValue(DateTime.Now.ToString("yyyy/M/d HH:mm:ss"));
+
+                        for (int r = 0; r < _exportWOList.Count; r++)
+                        {
+                            _row = _sheet.GetRow(r + 4);
+                            _cell = _row.GetCell(1);
+                            _cell.SetCellValue(_exportWOList[r].Order);
+                            _cell.CellStyle = _cellStyle;
+                            _cell = _row.GetCell(2);
+                            _cell.SetCellValue(_exportWOList[r].Prod);
+                            _cell.CellStyle = _cellStyle;
+                            _cell = _row.GetCell(3);
+                            _cell.SetCellValue(_exportWOList[r].StartDate);
+                            //_cell.CellStyle = _cellStyle;
+                            _cell = _row.GetCell(4);
+                            _cell.SetCellValue(_exportWOList[r].FinishDate);
+                            //_cell.CellStyle = _cellStyle;
+                            _cell = _row.GetCell(5);
+                            _cell.SetCellValue(Convert.ToDouble(_exportWOList[r].ScrapQty));
+                            _cell.CellStyle = _cellStyle;
+                            _cell = _row.GetCell(6);
+                            _cell.SetCellValue(_exportWOList[r].MatlShortName);
+                            _cell.CellStyle = _cellStyle;
+                            _cell = _row.GetCell(7);
+                            _cell.SetCellValue(_exportWOList[r].MaterialNo);
+                            _cell.CellStyle = _cellStyle;
+                            if (_exportWOList[r].DiffQty > 0)
+                            {
+                                _cell = _row.GetCell(8);
+                                _cell.SetCellValue("超撥");
+                                _cell.CellStyle = _cellSpecStyle;
+                                _cell = _row.GetCell(10);
+                                _cell.SetCellValue(Convert.ToDouble(_exportWOList[r].DiffQty));
+                                _cell.CellStyle = _cellStyle;
+                            }
+                            else
+                            {
+                                _cell = _row.GetCell(8);
+                                _cell.SetCellValue("欠撥");
+                                _cell.CellStyle = _cellStyle;
+                                _cell = _row.GetCell(10);
+                                _cell.SetCellValue(Convert.ToDouble(_exportWOList[r].DiffQty));
+                                _cell.CellStyle = _cellSpecStyle;
+                            }
+                        }
                     }
                 }
 

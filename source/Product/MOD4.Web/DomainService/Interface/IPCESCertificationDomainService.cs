@@ -6,5 +6,7 @@ namespace MOD4.Web.DomainService
     public interface IPCESCertificationDomainService
     {
         List<PCESCertRecordEntity> GetRecordPCES(string opr, string station, string prod, string status, string jobId);
+
+        string UpdateCertSkill(PCESCertRecordEntity updCertEntity, UserEntity userInfo);
     }
 }

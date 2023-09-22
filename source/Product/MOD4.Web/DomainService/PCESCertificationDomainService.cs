@@ -10,6 +10,8 @@ using System.Linq;
 using MOD4.Web.DomainService.Entity;
 using Utility.Helper;
 using MOD4.Web.Enum;
+using MOD4.Web.Repostory.Dao;
+using System.Transactions;
 
 namespace MOD4.Web.DomainService
 {
@@ -56,6 +58,7 @@ namespace MOD4.Web.DomainService
                             //PassDate = cert.pass_date != null ? ((DateTime)cert.pass_date).ToString("yyyy/MM/dd") : "",
                             //ValidDate = cert.valid_date != null ? ((DateTime)cert.valid_date).ToString("yyyy/MM/dd") : "",
                             SkillGrade = cert.skill_grade ?? 0,
+                            SkillStatusId = cert.skill_status,
                             SkillStatus = cert.skill_status != null ? ((CertStatusEnum)cert.skill_status).GetDescription() : "",
                             EngNo = cert.eng_no ?? "",
                             EngName = cert.eng_name ?? "",
@@ -122,6 +125,62 @@ namespace MOD4.Web.DomainService
                     }).ToList();
 
                 return _pcesCertRecordEntityList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string UpdateCertSkill(PCESCertRecordEntity updCertEntity, UserEntity userInfo)
+        {
+            try
+            {
+                string _updRes = "";
+
+                var _origPCESCertList = _pcesCertificationRepository.SelectByConditions(
+                        oprList: new List<string> { updCertEntity.MainOperation },
+                        stationList: new List<string> { updCertEntity.Station },
+                        jobId: updCertEntity.ApplyNo,
+                        className: updCertEntity.ClassName,
+                        mtype: updCertEntity.Mtype,
+                        licType: updCertEntity.LicType);
+
+                if (_origPCESCertList == null || _origPCESCertList.Count() > 1)
+                    return "查無認證紀錄";
+
+                var _origPCESCertData = _origPCESCertList.FirstOrDefault();
+
+                PCESCertificationRecordDao _updPCESDao = new PCESCertificationRecordDao
+                {
+                    apply_no = _origPCESCertData.apply_no,
+                    main_oper = _origPCESCertData.main_oper,
+                    station = _origPCESCertData.station,
+                    type = _origPCESCertData.type,
+                    mtype = _origPCESCertData.mtype,
+                    class_name = _origPCESCertData.class_name,
+                    lic_type = _origPCESCertData.lic_type,
+                    skill_grade = updCertEntity.SkillGrade,
+                    skill_status = System.Enum.GetValues(typeof(CertStatusEnum)).Cast<CertStatusEnum>().FirstOrDefault(f => ((int)f).ToString() == updCertEntity.SkillStatus) ,
+                    eng_no = updCertEntity.EngNo,
+                    eng_name = updCertEntity.EngName,
+                    remark = updCertEntity.Remark,
+                };
+
+                if (_origPCESCertData.status == CertStatusEnum.Pass && _updPCESDao.skill_status == CertStatusEnum.Pass)
+                    _updPCESDao.certStatus = CertStatusEnum.Pass;
+                else
+                    _updPCESDao.certStatus = CertStatusEnum.Failed;
+
+                using (TransactionScope scope = new TransactionScope())
+                {
+                    if (_pcesCertificationRepository.UpdateCertSkill(_updPCESDao) == 1)
+                        scope.Complete();
+                    else
+                        _updRes = "更新異常";
+                }
+
+                return _updRes;
             }
             catch (Exception ex)
             {

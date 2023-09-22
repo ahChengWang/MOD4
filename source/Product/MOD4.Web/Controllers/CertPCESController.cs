@@ -4,12 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MOD4.Web.DomainService;
 using MOD4.Web.DomainService.Entity;
-using MOD4.Web.Enum;
 using MOD4.Web.Models;
 using MOD4.Web.ViewModel;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Utility.Helper;
 
 namespace MOD4.Web.Controllers
@@ -51,7 +49,7 @@ namespace MOD4.Web.Controllers
             {
                 var _pcesCertList = _certificationPCESDomainService.GetRecordPCES(opr, station, prod, status, jobId);
 
-                return Json(new ResponseViewModel<List<PCESCertRecordViewModel>> 
+                return Json(new ResponseViewModel<List<PCESCertRecordViewModel>>
                 {
                     IsSuccess = true,
                     Data = _pcesCertList.CopyAToB<PCESCertRecordViewModel>()
@@ -92,6 +90,29 @@ namespace MOD4.Web.Controllers
             catch (Exception ex)
             {
                 return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpPost("[controller]/Setting")]
+        public IActionResult Setting(PCESCertRecordViewModel updateVM)
+        {
+            try
+            {
+                var _updRes = _certificationPCESDomainService.UpdateCertSkill(updateVM.CopyAToB<PCESCertRecordEntity>(), GetUserInfo());
+
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = string.IsNullOrEmpty(_updRes),
+                    Msg = _updRes
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
             }
         }
     }

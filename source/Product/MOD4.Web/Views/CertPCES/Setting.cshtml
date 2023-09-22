@@ -19,7 +19,7 @@
     }
 
     td {
-        padding: 0 5px 0 5px;
+        padding: 5px;
     }
 
     th[name='thDef'] {
@@ -129,8 +129,9 @@
                             <tbody>
                                 <tr v-for="(cert, idx) in certDataPage">
                                     <td>
-                                        <input type="button" @@click="editClk(idx)" :disabled="!certDataPage[idx].isDisabled" value="編輯" />
-                                        <input type="button" @@click="saveClk(idx)" :disabled="certDataPage[idx].isDisabled" value="儲存" />
+                                        <input type="button" v-if="certDataPage[idx].statusId == 1" @@click="editClk(idx)" :disabled="certDataPage[idx].isEditDisabled" value="編輯" />
+                                        <input type="button" v-if="certDataPage[idx].statusId == 1 && !certDataPage[idx].isSaveDisabled && !certDataPage[idx].isCancelDisabled" @@click="cancelClk(idx)" :disabled="certDataPage[idx].isCancelDisabled" value="取消" />
+                                        <input type="button" v-if="certDataPage[idx].statusId == 1" @@click="saveClk(idx)" :disabled="certDataPage[idx].isSaveDisabled" value="儲存" />
                                     </td>
                                     <td>{{certDataPage[idx].applyNo}}</td>
                                     <td>{{certDataPage[idx].applyName}}</td>
@@ -146,23 +147,24 @@
                                     <td>{{certDataPage[idx].validDate}}</td>
                                     <td>{{certDataPage[idx].subjGrade}}</td>
                                     <td>
-                                        <select v-model="certDataPage[idx].skillStatus" :disabled="certDataPage[idx].isDisabled" :value="certDataPage[idx].skillStatus">
+                                        <select v-model="certDataPage[idx].skillStatusId" :disabled="certDataPage[idx].isSaveDisabled" :value="certDataPage[idx].skillStatusId">
                                             <option value="0"></option>
                                             <option value="1">通過</option>
                                             <option value="2">未通過</option>
+                                            <option value="4">過期</option>
                                         </select>
                                     </td>
                                     <td name="tdEditInp">
-                                        <input type="text" v-model="certDataPage[idx].skillGrade" :disabled="certDataPage[idx].isDisabled" :value="certDataPage[idx].skillGrade" />
+                                        <input type="text" v-model="certDataPage[idx].skillGrade" :disabled="certDataPage[idx].isSaveDisabled" :value="certDataPage[idx].skillGrade" />
                                     </td>
                                     <td name="tdEditInp">
-                                        <input type="text" v-model="certDataPage[idx].engNo" :disabled="certDataPage[idx].isDisabled" :value="certDataPage[idx].engNo" />
+                                        <input type="text" v-model="certDataPage[idx].engNo" :disabled="certDataPage[idx].isSaveDisabled" :value="certDataPage[idx].engNo" />
                                     </td>
                                     <td name="tdEditInp">
-                                        <input type="text" v-model="certDataPage[idx].engName" :disabled="certDataPage[idx].isDisabled" :value="certDataPage[idx].engName" />
+                                        <input type="text" v-model="certDataPage[idx].engName" :disabled="certDataPage[idx].isSaveDisabled" :value="certDataPage[idx].engName" />
                                     </td>
                                     <td style="min-width:80px">
-                                        <textarea cols="24" rows="2" :disabled="certDataPage[idx].isDisabled">{{certDataPage[idx].remark}}</textarea>
+                                        <textarea cols="24" rows="2" v-model="certDataPage[idx].remark" :disabled="certDataPage[idx].isSaveDisabled">{{certDataPage[idx].remark}}</textarea>
                                     </td>
                                 </tr>
                             </tbody>
@@ -171,17 +173,23 @@
                 </div>
                 <!-- /.card-body -->
                 <div class="card-footer" style="display: flex;" v-if="certDataPage.length > 0">
-                    <div>
-                        <label class="col-form-label">顯示筆數：{{currentSize}}</label>
+                    <div style="width: 12%;">
+                        <label class="col-form-label">總筆數：{{certData.length}}</label>
+                    </div>
+                    <div style="width: 15%; ">
+                        <label class="col-form-label">每頁</label>
                         <select v-model="currentSize" @@change="sizeChange">
                             <option v-for="size in pageSizeOption" :value="size">{{size}}</option>
                         </select>
+                        <label class="col-form-label">筆</label>
                     </div>
-                    <template>
-                        <div class="mt-10" style="margin-left: 5px;">
-                            <b-pagination v-model="currentPage" pills :total-rows="certData.length" :per-page="currentSize" @@page-click="pageChange"></b-pagination>
-                        </div>
-                    </template>
+                    <div style="width: 73%;">
+                        <template>
+                            <div class="mt-10" style="float: right;">
+                                <b-pagination v-model="currentPage" pills :total-rows="certData.length" :per-page="currentSize" @@page-click="pageChange"></b-pagination>
+                            </div>
+                        </template>
+                    </div>
 
                     @*<button @@click="prevClick(-1)" :disabled="prevDisabled">上頁</button>
                           <a>目前頁數：{{currentPage}}</a>
@@ -250,9 +258,13 @@
                         value: 4
                     }
                 ],
-                skillGrade: '',
-                selectStation: '',
-                selectProd: ''
+                drafCertData: {
+                    skillStatus : '',
+                    skillGrade: '',
+                    engNo: '',
+                    engName: '',
+                    remark: '',
+                }
             },
             methods: {
                 onSearchClk() {
@@ -266,18 +278,27 @@
 
                                 //$("#table1").children().remove();
                                 vue.currentPage = 1;
+
+                                result.data.forEach(function (item, index, array) {
+                                    item['isEditDisabled'] = false;
+                                    item['isCancelDisabled'] = true;
+                                    item['isSaveDisabled'] = true;
+                                });
+
                                 vue.certData = result.data;
                                 vue.certDataPage = result.data.slice(0, vue.currentSize);
                                 vue.ttlPage = Math.ceil(result.data.length / vue.currentSize);
-                                if (vue.currentPage == vue.ttlPage) {
-                                    vue.prevDisabled = true;
-                                    vue.nextDisabled = true;
-                                }
-                                else
-                                {
-                                    vue.prevDisabled = true;
-                                    vue.nextDisabled = false;
-                                }
+
+
+                                //if (vue.currentPage == vue.ttlPage) {
+                                //    vue.prevDisabled = true;
+                                //    vue.nextDisabled = true;
+                                //}
+                                //else
+                                //{
+                                //    vue.prevDisabled = true;
+                                //    vue.nextDisabled = false;
+                                //}
                             }
                             else {
                                 alert(result.msg);
@@ -290,15 +311,87 @@
                     //if (vue.currentPage > 1) {
                     //    idx += 1;
                     //}
+
+                    vue.certData.forEach(function (item, index, array) {
+                        item.isEditDisabled = true;
+                    });
+
                     var _row = vue.certData[(vue.currentPage - 1) * vue.currentSize + idx];
-                    _row.isDisabled = false;
+                    _row.isSaveDisabled = false;
+                    _row.isCancelDisabled = false;
+
+                    vue.drafCertData.skillStatus = _row.skillStatus;
+                    vue.drafCertData.skillGrade = _row.skillGrade;
+                    vue.drafCertData.engNo = _row.engNo;
+                    vue.drafCertData.engName = _row.engName;
+                    vue.drafCertData.remark = _row.remark;
+
                 },
                 saveClk(idx) {
                     //if (vue.currentPage > 1) {
                     //    idx += 1;
                     //}
+
+                    var Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+
                     var _row = vue.certData[(vue.currentPage - 1) * vue.currentSize + idx];
-                    _row.isDisabled = true;
+
+                    if (_row.skillStatus == '' || _row.engNo == '' || _row.engName == '') {
+                        Toast.fire({
+                            icon: 'error',
+                            title: '有未填欄位'
+                        });
+                        return false;
+                    }
+
+                    globalFuc.LoadingPic();
+
+                    $.ajax({
+                        url: "./Setting",
+                        type: "POST",
+                        dataType: 'json',
+                        data: _row,
+                        success: function (result) {
+                            if (result.isSuccess) {
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: '更新成功'
+                                });
+                                _row.isEditDisabled = false;
+                                _row.isSaveDisabled = true;
+                            }
+                            else {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: result.msg
+                                });
+                            }
+                            $.unblockUI();
+                        }
+                    });
+                },
+                cancelClk(idx) {
+                    //if (vue.currentPage > 1) {
+                    //    idx += 1;
+                    //}
+
+                    vue.certData.forEach(function (item, index, array) {
+                        item.isEditDisabled = false;
+                    });
+
+                    var _row = vue.certData[(vue.currentPage - 1) * vue.currentSize + idx];
+                    _row.isSaveDisabled = true;
+                    _row.isCancelDisabled = true;
+                    _row.skillStatus = vue.drafCertData.skillStatus;
+                    _row.skillGrade = vue.drafCertData.skillGrade;
+                    _row.engNo = vue.drafCertData.engNo;
+                    _row.engName = vue.drafCertData.engName;
+                    _row.remark = vue.drafCertData.remark;
                 },
                 sizeChange() {
                     vue.currentPage = 1;
