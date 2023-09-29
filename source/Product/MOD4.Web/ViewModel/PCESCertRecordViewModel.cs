@@ -13,6 +13,8 @@ namespace MOD4.Web.ViewModel
         public string Mtype { get; set; }
         public string ClassName { get; set; }
         public string LicType { get; set; }
+        public CertStatusEnum CertStatusId { get; set; }
+        public string CertStatus { get; set; }
         public CertStatusEnum StatusId { get; set; }
         public string Status { get; set; }
         public string PassDate { get; set; }

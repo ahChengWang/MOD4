@@ -183,6 +183,9 @@ namespace MOD4.Web.DomainService
                 // call zipsum 1.08 1.09 report 查詢 & 解析
                 Parallel.ForEach(_mtdProdScheduleList.GroupBy(gb => gb.DownEq), (prod) =>
                 {
+                    if (string.IsNullOrEmpty(prod.Key))
+                        return;
+
                     var _temp108List = GetZipsum108Today(_srchDate.ToString("yyyy-MM-dd"), prod.Key);
                     foreach (var zip108Data in _temp108List)
                     {
@@ -248,14 +251,14 @@ namespace MOD4.Web.DomainService
                         Equipment = dt.DownEq,
                         BigProduct = dt.Model,
                         PlanProduct = dt.ProdNo,
-                        Output = _mtdPerformanceDay.FirstOrDefault(f => f.Node == dt.Node.ToString() && f.Product == dt.ProdNo)?.Qty.ToString("#,0") ?? "0",
-                        DayPlan = _currSchedule.Value.ToString("#,0"),
-                        RangPlan = (_currSchedule.Value * (time / 24)).ToString("#,0"),
-                        RangDiff = ((_mtdPerformanceDay.FirstOrDefault(f => f.Node == dt.Node.ToString() && f.Product == dt.ProdNo)?.Qty ?? 0) - (_currSchedule.Value * (time / 24))).ToString("#,0"),
-                        MonthPlan = (_currMonth.Sum(sum => sum.Value) + _currSchedule.Value).ToString("#,0"),
-                        MTDPlan = (_currMonth.Where(mon => mon.Date <= _srchDate).Sum(sum => sum.Value) + _currSchedule.Value).ToString("#,0"),
-                        MTDActual = _currMonthRpt106.Sum(sum => sum.Qty).ToString("#,0"),
-                        MTDDiff = (_currMonthRpt106.Sum(sum => sum.Qty) - (_currMonth.Where(mon => mon.Date <= _srchDate).Sum(sum => sum.Value) + _currSchedule.Value)).ToString("#,0"),
+                        Output = _mtdPerformanceDay.FirstOrDefault(f => f.Node == dt.Node.ToString() && f.Product == dt.ProdNo)?.Qty ?? 0,
+                        DayPlan = _currSchedule.Value,
+                        RangPlan = Convert.ToInt32(_currSchedule.Value * (time / 24)),
+                        RangDiff = Convert.ToInt32((_mtdPerformanceDay.FirstOrDefault(f => f.Node == dt.Node.ToString() && f.Product == dt.ProdNo)?.Qty ?? 0) - (_currSchedule.Value * (time / 24))),
+                        MonthPlan = _currMonth.Sum(sum => sum.Value) + _currSchedule.Value,
+                        MTDPlan = _currMonth.Where(mon => mon.Date <= _srchDate).Sum(sum => sum.Value) + _currSchedule.Value,
+                        MTDActual = _currMonthRpt106.Sum(sum => sum.Qty),
+                        MTDDiff = _currMonthRpt106.Sum(sum => sum.Qty) - (_currMonth.Where(mon => mon.Date <= _srchDate).Sum(sum => sum.Value) + _currSchedule.Value),
                         EqAbnormal = _currAlarmData == null ? "" : _currAlarmData.comment,
                         RepaireTime = _currAlarmData == null ? "" : _currAlarmData.spend_time.ToString(),
                         Status = _currAlarmData == null ? "" : _currAlarmData.end_time == null ? "處理中" : "已排除"
@@ -264,23 +267,23 @@ namespace MOD4.Web.DomainService
                     return _test;
                 }).ToList();
 
-                var _currDownTime = _processDownDic[detail.Key.DownEq];
-
                 lock (this)
                 {
+                    var _eqNo = _tempDetailList.FirstOrDefault(f => !string.IsNullOrEmpty(f.Equipment))?.Equipment.Substring(4, 4) ?? "0";
+
                     _mtdDashboardList.Add(new MTDDashboardSubEntity
                     {
                         Sn = detail.FirstOrDefault().Sn,
-                        EqNo = Convert.ToInt32(_tempDetailList.FirstOrDefault().Equipment.Substring(4, 4)),
+                        EqNo = Convert.ToInt32(_eqNo),
                         Process = detail.Key.Process,
-                        Plan = _tempDetailList.Sum(sum => Convert.ToInt32(sum.RangPlan.Replace(",", ""))),
-                        Actual = _tempDetailList.Sum(sum => Convert.ToInt32(sum.Output.Replace(",", ""))),
-                        DownTime = _currDownTime.ToString(),
-                        DownPercent = $"{_currDownTime / 1440 * 100:0.00}%",
-                        UPPercent = _process109Dic[$"{detail.Key.DownEq}-UP"],
-                        RUNPercent = _process109Dic[$"{detail.Key.DownEq}-RUN"],
-                        UPHPercent = _process109Dic[$"{detail.Key.DownEq}-UPH"],
-                        OEEPercent = _process109Dic[$"{detail.Key.DownEq}-OEE"],
+                        Plan = _tempDetailList.Sum(sum => sum.RangPlan),
+                        Actual = _tempDetailList.Sum(sum => sum.Output),
+                        DownTime = _processDownDic.ContainsKey(detail.Key.DownEq) ? _processDownDic[detail.Key.DownEq].ToString() : "",
+                        DownPercent = _processDownDic.ContainsKey(detail.Key.DownEq) ? $"{_processDownDic[detail.Key.DownEq] / 1440 * 100:0.00}%" : "",
+                        UPPercent = _process109Dic.ContainsKey($"{detail.Key.DownEq}-UP") ? _process109Dic[$"{detail.Key.DownEq}-UP"] : "",
+                        RUNPercent = _process109Dic.ContainsKey($"{detail.Key.DownEq}-RUN") ? _process109Dic[$"{detail.Key.DownEq}-RUN"] : "",
+                        UPHPercent = _process109Dic.ContainsKey($"{detail.Key.DownEq}-UPH") ? _process109Dic[$"{detail.Key.DownEq}-UPH"] : "",
+                        OEEPercent = _process109Dic.ContainsKey($"{detail.Key.DownEq}-OEE") ? _process109Dic[$"{detail.Key.DownEq}-OEE"] : "",
                         MTDDetail = _tempDetailList.OrderByDescending(o => o.BigProduct).ToList()
                     });
                 }
@@ -289,7 +292,7 @@ namespace MOD4.Web.DomainService
             _mtdDashboardList = _mtdDashboardList.Select(data =>
             {
                 data.Diff = data.Actual - data.Plan;
-                data.MTDDetail = data.MTDDetail.Where(detail => detail.MonthPlan != "0" || detail.Output != "0").ToList();
+                data.MTDDetail = data.MTDDetail.Where(detail => detail.MonthPlan != 0 || detail.Output != 0).ToList();
 
                 return data;
             }).OrderBy(ob => ob.Sn).ThenBy(tb => tb.EqNo).ToList();
@@ -753,6 +756,8 @@ namespace MOD4.Web.DomainService
                     return (4, "1460");
                 case "CDP":
                     return (5, "1700");
+                case "SHIP":
+                    return (6, "1910");
                 default:
                     return (0, "");
             }

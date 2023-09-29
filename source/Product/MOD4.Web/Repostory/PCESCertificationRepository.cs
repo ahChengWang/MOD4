@@ -75,5 +75,64 @@ namespace MOD4.Web.Repostory
                 throw ex;
             }
         }
+
+
+        public int InsertPCESRecord(List<PCESCertificationRecordDao> daoList)
+        {
+            string sql = @"INSERT INTO [carUX_2f].[dbo].[pces_certification_record]
+([apply_no]
+,[apply_name]
+,[shift]
+,[main_oper]
+,[station]
+,[type]
+,[mtype]
+,[class_name]
+,[lic_type]
+,[certStatus]
+,[status]
+,[pass_date]
+,[valid_date]
+,[subj_grade])
+VALUES
+(@apply_no
+,@apply_name
+,@shift
+,@main_oper
+,@station
+,@type
+,@mtype
+,@class_name
+,@lic_type
+,@certStatus
+,@status
+,@pass_date
+,@valid_date
+,@subj_grade); ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, daoList);
+
+            return dao;
+        }
+
+        public int UpdatePCESRecord(List<PCESCertificationRecordDao> daoList)
+        {
+            string sql = @"Update [carUX_2f].[dbo].[pces_certification_record] set 
+ [certStatus] = @CertStatus
+,[status] = @Status
+,[pass_date] = @pass_date
+,[valid_date] = @valid_date 
+,[subj_grade] = @subj_grade 
+,[skill_grade] = @skill_grade 
+,[eng_no] = @eng_no 
+,[eng_name] = @eng_name 
+,[skill_status] = @skill_status 
+,[remark] = @remark 
+Where apply_no=@apply_no and apply_name=@apply_name and main_oper=@main_oper and station=@station and class_name=@class_name and lic_type=@lic_type ; ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, daoList);
+
+            return dao;
+        }
     }
 }

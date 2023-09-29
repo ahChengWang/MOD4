@@ -12,21 +12,21 @@ namespace MOD4.Web.DomainService.Entity
 
         public string PlanProduct { get; set; }
 
-        public string Output { get; set; }
+        public int Output { get; set; }
 
-        public string DayPlan { get; set; }
+        public int DayPlan { get; set; }
 
-        public string RangPlan { get; set; }
+        public int RangPlan { get; set; }
 
-        public string RangDiff { get; set; }
+        public int RangDiff { get; set; }
 
-        public string MonthPlan { get; set; }
+        public int MonthPlan { get; set; }
 
-        public string MTDPlan { get; set; }
+        public int MTDPlan { get; set; }
 
-        public string MTDActual { get; set; }
+        public int MTDActual { get; set; }
 
-        public string MTDDiff { get; set; }
+        public int MTDDiff { get; set; }
 
         public string EqAbnormal { get; set; }
 

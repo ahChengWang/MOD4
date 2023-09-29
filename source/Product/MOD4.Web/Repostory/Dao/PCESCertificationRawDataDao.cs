@@ -1,22 +1,27 @@
-﻿using System;
+﻿using MOD4.Web.Enum;
+using System;
 
 namespace MOD4.Web.Repostory.Dao
 {
     public class PCESCertificationRawDataDao
     {
-        public string JobId { get; set; }
-        public string Name { get; set; }
-        public string Shift { get; set; }
-        public string MainOperation { get; set; }
-        public string Station { get; set; }
-        public string StationType { get; set; }
-        public string Category { get; set; }
-        public string Item { get; set; }
-        public string Level { get; set; }
-        public string Status { get; set; }
-        public DateTime? PassDate { get; set; }
-        public DateTime? ExpireDate { get; set; }
-        public int SubjectScore { get; set; }
-        public int TrainingScore { get; set; }
+        public string apply_no { get; set; }
+        public string apply_name { get; set; }
+        public string shift { get; set; }
+        public string main_oper { get; set; }
+        public string station { get; set; }
+        public string type { get; set; }
+        public string mtype { get; set; }
+        public string class_name { get; set; }
+        public string lic_type { get; set; }
+        public string status { get; set; }
+        public DateTime? pass_date { get; set; }
+        public DateTime? valid_date { get; set; }
+        public int? subj_grade { get; set; }
+        public int? skill_grade { get; set; }
+        public string eng_no { get; set; }
+        public string eng_name { get; set; }
+        public CertStatusEnum? skill_status { get; set; }
+        public string remark { get; set; }
     }
 }

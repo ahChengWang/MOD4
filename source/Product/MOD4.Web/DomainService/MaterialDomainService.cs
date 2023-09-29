@@ -149,7 +149,7 @@ namespace MOD4.Web.DomainService
 
                     for (int i = 0; i < Math.Ceiling(_tllCont / 25); i++)
                     {
-                        List<SAPWorkOrderDao> _exportWOList = _sapWOList.OrderBy(o => o.MaterialNo).Skip(25 * i).Take(25).ToList();
+                        List<SAPWorkOrderDao> _exportWOList = _sapWOList.OrderBy(no => no.Order).ThenBy(o => o.MaterialNo).Skip(25 * i).Take(25).ToList();
 
                         ISheet _sheet = workbook.GetSheet($"Sheet{i + 1}");
                         IRow _row;
@@ -179,48 +179,48 @@ namespace MOD4.Web.DomainService
                         _cellStyle.BorderLeft = BorderStyle.Thin;
 
                         _row = _sheet.GetRow(1);
-                        _cell = _row.GetCell(19);
+                        _cell = _row.GetCell(18);
                         _cell.SetCellValue(DateTime.Now.ToString("yyyy/M/d HH:mm:ss"));
 
                         for (int r = 0; r < _exportWOList.Count; r++)
                         {
                             _row = _sheet.GetRow(r + 4);
-                            _cell = _row.GetCell(1);
+                            _cell = _row.GetCell(0);
                             _cell.SetCellValue(_exportWOList[r].Order);
                             _cell.CellStyle = _cellStyle;
-                            _cell = _row.GetCell(2);
+                            _cell = _row.GetCell(1);
                             _cell.SetCellValue(_exportWOList[r].Prod);
                             _cell.CellStyle = _cellStyle;
-                            _cell = _row.GetCell(3);
+                            _cell = _row.GetCell(2);
                             _cell.SetCellValue(_exportWOList[r].StartDate);
                             //_cell.CellStyle = _cellStyle;
-                            _cell = _row.GetCell(4);
+                            _cell = _row.GetCell(3);
                             _cell.SetCellValue(_exportWOList[r].FinishDate);
                             //_cell.CellStyle = _cellStyle;
-                            _cell = _row.GetCell(5);
+                            _cell = _row.GetCell(4);
                             _cell.SetCellValue(Convert.ToDouble(_exportWOList[r].ScrapQty));
                             _cell.CellStyle = _cellStyle;
-                            _cell = _row.GetCell(6);
+                            _cell = _row.GetCell(5);
                             _cell.SetCellValue(_exportWOList[r].MatlShortName);
                             _cell.CellStyle = _cellStyle;
-                            _cell = _row.GetCell(7);
+                            _cell = _row.GetCell(6);
                             _cell.SetCellValue(_exportWOList[r].MaterialNo);
                             _cell.CellStyle = _cellStyle;
                             if (_exportWOList[r].DiffQty > 0)
                             {
-                                _cell = _row.GetCell(8);
+                                _cell = _row.GetCell(7);
                                 _cell.SetCellValue("超撥");
                                 _cell.CellStyle = _cellSpecStyle;
-                                _cell = _row.GetCell(10);
+                                _cell = _row.GetCell(9);
                                 _cell.SetCellValue(Convert.ToDouble(_exportWOList[r].DiffQty));
                                 _cell.CellStyle = _cellStyle;
                             }
                             else
                             {
-                                _cell = _row.GetCell(8);
+                                _cell = _row.GetCell(7);
                                 _cell.SetCellValue("欠撥");
                                 _cell.CellStyle = _cellStyle;
-                                _cell = _row.GetCell(10);
+                                _cell = _row.GetCell(9);
                                 _cell.SetCellValue(Convert.ToDouble(_exportWOList[r].DiffQty));
                                 _cell.CellStyle = _cellSpecStyle;
                             }
@@ -551,7 +551,6 @@ namespace MOD4.Web.DomainService
 
                     // FTP 上傳
                     _ftpService.FTP_Upload(uploadFile, "FTP_SAP", fileName, true, $"..\\tempFileProcess\\{fileName}");
-
 
                     using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, new TimeSpan(0, 2, 0)))
                     {

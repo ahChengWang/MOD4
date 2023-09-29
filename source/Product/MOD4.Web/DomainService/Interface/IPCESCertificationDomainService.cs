@@ -8,5 +8,7 @@ namespace MOD4.Web.DomainService
         List<PCESCertRecordEntity> GetRecordPCES(string opr, string station, string prod, string status, string jobId);
 
         string UpdateCertSkill(PCESCertRecordEntity updCertEntity, UserEntity userInfo);
+
+        (bool, string) UpdatePCESRecord();
     }
 }

@@ -205,6 +205,10 @@
                     tr.parentElement.children[1].style.background = '#b2edb4';
                     tr.parentElement.children[2].style.background = '#b2edb4';
                 }
+                else if (tr.children[0].innerHTML == 'SHIP') {
+                    tr.parentElement.children[1].style.background = '#eef26b';
+                    tr.parentElement.children[2].style.background = '#eef26b';
+                }
             });
         });
 
@@ -257,6 +261,10 @@
                                 else if (tr.children[0].innerHTML == 'CDP') {
                                     tr.parentElement.children[1].style.background = '#b2edb4';
                                     tr.parentElement.children[2].style.background = '#b2edb4';
+                                }
+                                else if (tr.children[0].innerHTML == 'SHIP') {
+                                    tr.parentElement.children[1].style.background = '#eef26b';
+                                    tr.parentElement.children[2].style.background = '#eef26b';
                                 }
                             });
                         }

@@ -13,7 +13,7 @@ namespace MOD4.Web.DomainService.Entity
         {
             get
             {
-                _plan = this.MTDDetail.Sum(sum => Convert.ToInt32(sum.RangPlan.Replace(",", "")));
+                _plan = this.MTDDetail.Sum(sum => sum.RangPlan);
                 return _plan.ToString("#,0");
             }
             set
@@ -27,7 +27,7 @@ namespace MOD4.Web.DomainService.Entity
         {
             get
             {
-                _actual = this.MTDDetail.Sum(sum => Convert.ToInt32(sum.Output.Replace(",", "")));
+                _actual = this.MTDDetail.Sum(sum => sum.Output);
                 return _actual.ToString("#,0");
             }
             set

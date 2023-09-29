@@ -58,7 +58,7 @@ namespace MOD4.Web.Enum
         MaterialUpload = 34,
         [Description("認證紀錄查詢")]
         CertificationPCES = 36,
-        [Description("資料設定")]
+        [Description("術科管理")]
         CertificationPCESSetting = 37,
     }
 }

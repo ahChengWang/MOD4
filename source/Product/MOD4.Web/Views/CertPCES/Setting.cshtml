@@ -1,7 +1,7 @@
 ﻿
 @using System.Linq;
 @{
-    ViewBag.Title = "認證紀錄查詢";
+    ViewBag.Title = "術科管理";
 }
 
 <head>
@@ -38,6 +38,67 @@
         text-align: center;
         width: 90px;
     }
+
+    .cutBtnNon {
+        float: right;
+        top: 0;
+        left: 0;
+        border-radius: 16px;
+        position: relative;
+        padding: 8px 10px;
+        color: white;
+        background-color: #415375;
+    }
+
+        .cutBtnNon:hover {
+            color: white;
+        }
+
+    .cutBtn {
+        float: right;
+        top: 0;
+        left: 0;
+        border-radius: 16px;
+        position: relative;
+        transition: all .15s linear 0s;
+        padding: 8px 10px;
+        color: white;
+        background-color: #003087;
+        box-shadow: -3px 3px 0 #417ce8;
+    }
+
+        .cutBtn:hover {
+            top: 3px;
+            left: -3px;
+            color: white;
+            box-shadow: -2px 2px 0 #417ce8;
+        }
+
+        .cutBtn::after {
+            top: 1px;
+            left: -2px;
+        }
+
+        .cutBtn::before {
+            bottom: -2px;
+            right: 1px;
+        }
+
+        .cutBtn:active {
+            top: 6px;
+            left: -6px;
+            box-shadow: none;
+        }
+
+            .cutBtn:active:before {
+                bottom: 1px;
+                right: 1px;
+            }
+
+            .cutBtn:active:after {
+                top: 1px;
+                left: 1px;
+            }
 </style>
 
 <div class="content-wrapper">
@@ -45,7 +106,11 @@
         <div class="container-fluid">
             <div id="app" class="card">
                 <div class="card-header">
-                    <h3 class="card-title">認證紀錄查詢</h3>
+                    <h3 class="card-title">術科管理</h3>
+                    <div>
+                        <a :hidden="syncBtn.hidden" href="#" class="cutBtn fa fa-redo" @@click="syncClk">成績同步</a>
+                        <a :hidden="!syncBtn.hidden" class="cutBtnNon fa fa-redo">{{syncBtn.text}}</a>
+                    </div>
                 </div>
                 <!-- /.card-header -->
                 <!-- form start -->
@@ -64,6 +129,7 @@
                             </div>
                             <div class="col-lg-1">
                                 <label class="col-form-label">崗位</label>
+                                <span style="font-size:8px;font-weight:700" class="text-danger">*</span>
                             </div>
                             <div class="col-lg-2">
                                 <select id="dropStation" class="form-control" multiple="multiple">
@@ -82,7 +148,6 @@
                         <div class="d-flex align-content-center flex-wrap">
                             <div class="col-lg-1">
                                 <label class="col-form-label">狀態</label>
-                                <span style="font-size:8px;font-weight:700" class="text-danger">*</span>
                             </div>
                             <div class="col-lg-2">
                                 <select id="dropStatus" class="form-control" multiple="multiple">
@@ -115,9 +180,9 @@
                                     <th name="thDef">類別</th>
                                     <th name="thClass">項目</th>
                                     <th name="thDef">等級</th>
+                                    <th name="thDef">學科狀態</th>
                                     <th name="thDef">認證通過日</th>
                                     <th name="thDef">認證效期</th>
-                                    <th name="thDef">學科狀態</th>
                                     <th name="thDef">學科成績</th>
                                     <th name="thDef">術科狀態</th>
                                     <th name="thDef">術科成績</th>
@@ -226,7 +291,7 @@
                 allSapNodeOptions: @Html.Raw(Json.Serialize(ViewBag.SapNodeOptions)),
                 sapNodeOptions: @Html.Raw(Json.Serialize(ViewBag.SapNodeOptions)),*@
                 jobId: '',
-                oprOptions: ['Bonding','FPG','LAM','ASSY','AGING','CKEN','DKEN','Offline','PACK'],
+                oprOptions: ['Bonding', 'FPG', 'LAM', 'ASSY', 'AGING', 'CKEN', 'DKEN', 'Offline', 'PACK'],
                 stationOptions: ['65"-75" CKEN', '85"Bonding機台操作員', '>=85" CKEN', 'AAFC', 'ACF專員', 'ASSY 備料', 'ASSY 快修專員', 'ASSY叫料', 'Aging', 'Assy 實驗批專員', 'BL-API', 'BLU備料',
                     'BLU組裝', 'BT電測員', 'Bonding PCBI', 'Bonding 實驗批專員', 'Bonding備料', 'Bonding叫料', 'Bonding機台操作員', 'Borderless 外觀檢', 'Borderless 機台操作員', 'CCD檢驗員',
                     'CDP 實驗批專員', 'CDP叫料', 'CG清潔', 'CKEN', 'CKEN API機台操作員', 'CKEN上下片', 'CV1/2 BLU點燈檢查', 'DKEN', 'DKEN2', 'DKEN上下片', 'Demura', 'E Lot(W.S)-ASSY',
@@ -259,15 +324,29 @@
                     }
                 ],
                 drafCertData: {
-                    skillStatus : '',
+                    skillStatus: '',
                     skillGrade: '',
                     engNo: '',
                     engName: '',
                     remark: '',
-                }
+                },
+                syncBtn: {
+                    text: '成績同步',
+                    class: 'cutBtn fa fa-redo',
+                    disSec: 60,
+                    hidden: false
+                },
+                intervalid: null
             },
             methods: {
                 onSearchClk() {
+
+                    if ($("#dropMainOpr").val() == '' && $("#dropStation").val() == '') {
+                        alert('主製程、崗位 須選一項');
+                        return false;
+                    }
+
+                    globalFuc.LoadingPic();
 
                     $.ajax({
                         url: "./Setting/Search?opr=" + $("#dropMainOpr").val() + "&station=" + $("#dropStation").val() + "&prod=" + $("#dropProd").val() + "&status=" + $("#dropStatus").val() + "&jobId=" + vue.jobId,
@@ -341,7 +420,7 @@
 
                     var _row = vue.certData[(vue.currentPage - 1) * vue.currentSize + idx];
 
-                    if (_row.skillStatus == '' || _row.engNo == '' || _row.engName == '') {
+                    if (_row.skillStatusId == '' || _row.engNo == '' || _row.engName == '') {
                         Toast.fire({
                             icon: 'error',
                             title: '有未填欄位'
@@ -424,6 +503,42 @@
                 pageChange(even, pageNo) {
                     vue.currentPage = pageNo;
                     vue.certDataPage = vue.certData.slice(((vue.currentPage - 1) * vue.currentSize), vue.currentPage * vue.currentSize);
+                },
+                syncClk() {
+
+                    var Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+
+                    globalFuc.LoadingPic();
+
+                    $.ajax({
+                        url: "./UpdatePCES",
+                        type: "PUT",
+                        success: function (result) {
+                            if (result.isSuccess) {
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: '更新成功'
+                                });
+
+                                vue.syncBtn.disSec = 60;
+                                vue.syncBtn.hidden = true;
+                                vue.syncBtn.text = '等(60s)再同步';
+                                vue.intervalid = setInterval(countDown, 1000);
+                            }
+                            else {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: result.msg
+                                });
+                            }
+                            $.unblockUI();
+                        }
+                    });
                 }
             },
             mounted: function () {
@@ -440,6 +555,18 @@
 
             }
         });
+
+        function countDown() {
+            if (vue.syncBtn.disSec == 0) {
+                vue.syncBtn.hidden = false;
+                vue.syncBtn.disSec = 60;
+                clearInterval(vue.intervalid);
+            }
+            else {
+                vue.syncBtn.text = '等(' + vue.syncBtn.disSec + 's)再同步';
+                vue.syncBtn.disSec--;
+            }
+        }
 
     </script>
 }

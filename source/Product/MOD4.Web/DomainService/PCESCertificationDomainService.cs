@@ -12,6 +12,7 @@ using Utility.Helper;
 using MOD4.Web.Enum;
 using MOD4.Web.Repostory.Dao;
 using System.Transactions;
+using Newtonsoft.Json;
 
 namespace MOD4.Web.DomainService
 {
@@ -52,6 +53,7 @@ namespace MOD4.Web.DomainService
                             ClassName = cert.class_name,
                             LicType = cert.lic_type,
                             CertStatusId = cert.certStatus,
+                            CertStatus = cert.certStatus.GetDescription(),
                             StatusId = cert.status,
                             Status = cert.status.GetDescription(),
                             SubjGrade = cert.subj_grade ?? 0,
@@ -161,7 +163,7 @@ namespace MOD4.Web.DomainService
                     class_name = _origPCESCertData.class_name,
                     lic_type = _origPCESCertData.lic_type,
                     skill_grade = updCertEntity.SkillGrade,
-                    skill_status = System.Enum.GetValues(typeof(CertStatusEnum)).Cast<CertStatusEnum>().FirstOrDefault(f => ((int)f).ToString() == updCertEntity.SkillStatus) ,
+                    skill_status = updCertEntity.SkillStatusId,
                     eng_no = updCertEntity.EngNo,
                     eng_name = updCertEntity.EngName,
                     remark = updCertEntity.Remark,
@@ -185,6 +187,171 @@ namespace MOD4.Web.DomainService
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+
+        public (bool, string) UpdatePCESRecord()
+        {
+            try
+            {
+                bool _syncStatus = false;
+                string _syncRes = "";
+
+                List<PCESCertificationRawDataDao> _pcesRawData = GetAllPCESRawData();
+
+                List<PCESCertificationRecordDao> _updExpDatePCESCertRecords = new List<PCESCertificationRecordDao>();
+                List<PCESCertificationRecordDao> _insExpDatePCESCertRecords = new List<PCESCertificationRecordDao>();
+                List<PCESCertificationRecordDao> _pcesCertRecordList = _pcesCertificationRepository.SelectByConditions();
+                List<PCESCertificationRawDataDao> _pcesCertRawData = new List<PCESCertificationRawDataDao>();
+
+                // 已通過認證
+                List<PCESCertificationRecordDao> _pcesCertRawPass = _pcesRawData
+                        .Select(cert => new PCESCertificationRecordDao
+                        {
+                            apply_no = cert.apply_no,
+                            apply_name = cert.apply_name,
+                            shift = cert.shift,
+                            main_oper = cert.main_oper,
+                            station = cert.station,
+                            type = cert.type,
+                            mtype = cert.mtype,
+                            class_name = cert.class_name,
+                            lic_type = cert.lic_type,
+                            status = System.Enum.GetValues(typeof(CertStatusEnum)).Cast<CertStatusEnum>().FirstOrDefault(f => f.GetDescription() == cert.status),
+                            pass_date = cert.pass_date,
+                            valid_date = cert.valid_date,
+                            subj_grade = cert.subj_grade
+                        }).ToList();
+
+                // 認證狀態變更 (認證中 => 通過、通過 => 過期)
+                _updExpDatePCESCertRecords = (from raw in _pcesRawData
+                                              join record in _pcesCertRecordList
+                                             on new { raw.apply_no, raw.apply_name, raw.main_oper, raw.station, raw.mtype, raw.class_name, raw.lic_type }
+                                             equals new { record.apply_no, record.apply_name, record.main_oper, record.station, record.mtype, record.class_name, record.lic_type }
+                                              where raw.status != record.status.GetDescription()
+                                              select new PCESCertificationRecordDao
+                                              {
+                                                  apply_no = raw.apply_no,
+                                                  apply_name = raw.apply_name,
+                                                  shift = raw.shift,
+                                                  main_oper = raw.main_oper,
+                                                  station = raw.station,
+                                                  type = raw.type,
+                                                  mtype = raw.mtype,
+                                                  class_name = raw.class_name,
+                                                  lic_type = raw.lic_type,
+                                                  status = System.Enum.GetValues(typeof(CertStatusEnum)).Cast<CertStatusEnum>().FirstOrDefault(f => f.GetDescription() == raw.status),
+                                                  pass_date = raw.pass_date,
+                                                  valid_date = raw.valid_date,
+                                                  subj_grade = raw.subj_grade
+                                              }).ToList();
+
+                _updExpDatePCESCertRecords.ForEach(c =>
+                {
+                    switch (c.status)
+                    {
+                        case CertStatusEnum.Pass:
+                            c.certStatus = CertStatusEnum.InProgress;
+                            break;
+                        case CertStatusEnum.Failed:
+                            c.certStatus = CertStatusEnum.Failed;
+                            c.skill_grade = null;
+                            c.eng_no = null;
+                            c.skill_status = null;
+                            c.remark = null;
+                            break;
+                        case CertStatusEnum.InProgress:
+                            c.certStatus = CertStatusEnum.InProgress;
+                            c.skill_grade = null;
+                            c.eng_no = null;
+                            c.skill_status = null;
+                            c.remark = null;
+                            break;
+                        case CertStatusEnum.Expied:
+                            c.certStatus = CertStatusEnum.Expied;
+                            //c.skill_grade = null;
+                            //c.eng_no = null;
+                            //c.skill_status = null;
+                            //c.remark = null;
+                            break;
+                        default:
+                            break;
+                    }
+                });
+
+
+                // 認證狀態變更 (認證中 => 通過、通過 => 過期)
+                _insExpDatePCESCertRecords = (from raw in _pcesRawData
+                                              join record in _pcesCertRecordList
+                                             on new { raw.apply_no, raw.apply_name, raw.main_oper, raw.station, raw.mtype, raw.class_name, raw.lic_type }
+                                             equals new { record.apply_no, record.apply_name, record.main_oper, record.station, record.mtype, record.class_name, record.lic_type } into r
+                                              from record in r.DefaultIfEmpty()
+                                              where record is null
+                                              select new PCESCertificationRecordDao
+                                              {
+                                                  apply_no = raw.apply_no,
+                                                  apply_name = raw.apply_name,
+                                                  shift = raw.shift,
+                                                  main_oper = raw.main_oper,
+                                                  station = raw.station,
+                                                  type = raw.type,
+                                                  mtype = raw.mtype,
+                                                  class_name = raw.class_name,
+                                                  lic_type = raw.lic_type,
+                                                  certStatus = CertStatusEnum.InProgress,
+                                                  status = System.Enum.GetValues(typeof(CertStatusEnum)).Cast<CertStatusEnum>().FirstOrDefault(f => f.GetDescription() == raw.status),
+                                                  pass_date = raw.pass_date,
+                                                  valid_date = raw.valid_date,
+                                                  subj_grade = raw.subj_grade
+                                              }).ToList();
+
+                using (TransactionScope _scope = new TransactionScope())
+                {
+                    //_pcesCertificationRepository.TruncatePCESRaw();
+                    if (/*_pcesCertificationRepository.InsertPCESRaw(_pcesRawData) == _pcesRawData.Count &&*/
+                        _pcesCertificationRepository.InsertPCESRecord(_insExpDatePCESCertRecords) == _insExpDatePCESCertRecords.Count &&
+                        _pcesCertificationRepository.UpdatePCESRecord(_updExpDatePCESCertRecords) == _updExpDatePCESCertRecords.Count)
+                    {
+                        _scope.Complete();
+                        _syncRes = $"raw data 筆數：{_pcesRawData.Count}, 更新紀錄筆數：{_updExpDatePCESCertRecords.Count}";
+                        _syncStatus = true;
+                    }
+                    else
+                        _syncRes = "資料更新異常";
+                }
+
+                return (_syncStatus, _syncRes);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private List<PCESCertificationRawDataDao> GetAllPCESRawData()
+        {
+            try
+            {
+                var _request = new HttpRequestMessage(HttpMethod.Get, "http://pmfgform/pces_api/api/Data/GetPCESApplyCV?fab=M4");
+
+                List<PCESCertificationRawDataDao> _response = new List<PCESCertificationRawDataDao>();
+
+                using (HttpClient client = new HttpClient())
+                {
+                    var _res = client.SendAsync(_request).Result;
+
+                    using (HttpContent content = _res.Content)
+                    {
+                        _response = JsonConvert.DeserializeObject<List<PCESCertificationRawDataDao>>(content.ReadAsStringAsync().Result);
+                    }
+                }
+
+                return _response;
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
     }

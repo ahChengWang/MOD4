@@ -57,7 +57,11 @@ namespace MOD4.Web.Controllers
             }
             catch (Exception ex)
             {
-                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = true,
+                    Msg = ex.Message
+                });
             }
         }
 
@@ -89,7 +93,11 @@ namespace MOD4.Web.Controllers
             }
             catch (Exception ex)
             {
-                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = true,
+                    Msg = ex.Message
+                });
             }
         }
 
@@ -104,6 +112,29 @@ namespace MOD4.Web.Controllers
                 {
                     IsSuccess = string.IsNullOrEmpty(_updRes),
                     Msg = _updRes
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
+            }
+        }
+
+        [HttpPut("[controller]/UpdatePCES")]
+        public IActionResult UpdatePCES()
+        {
+            try
+            {
+                var _updRes = _certificationPCESDomainService.UpdatePCESRecord();
+
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = _updRes.Item1,
+                    Msg = _updRes.Item2
                 });
             }
             catch (Exception ex)

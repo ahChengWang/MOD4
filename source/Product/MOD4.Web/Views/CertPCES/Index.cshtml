@@ -80,6 +80,7 @@
                                     <th>工號</th>
                                     <th>姓名</th>
                                     <th>班別</th>
+                                    <th>核發狀態</th>
                                     <th>主製程</th>
                                     <th>崗位</th>
                                     <th>崗位別</th>
@@ -196,6 +197,9 @@
                                             data: 'shift'
                                         },
                                         {
+                                            data: 'certStatus',
+                                        },
+                                        {
                                             data: 'mainOperation'
                                         },
                                         {
@@ -241,6 +245,18 @@
                                             data: 'remark'
                                         }
                                     ],
+                                    createdRow: function (row, data, index) {
+                                        if (data.certStatus == '認證中') {
+                                            $('td:eq(3)', row).css('background-color', '#e6e640');
+                                        }
+                                        else if (data.certStatus == '通過') {
+                                            $('td:eq(3)', row).css('background-color', '#44ad1a');
+                                        }
+                                        else if (data.certStatus == '過期') {
+                                            $('td:eq(3)', row).css('background-color', '#ad7521');
+                                        }
+
+                                    },
                                     data: result.data,
                                 });
                             }
