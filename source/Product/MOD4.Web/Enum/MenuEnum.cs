@@ -60,5 +60,9 @@ namespace MOD4.Web.Enum
         CertificationPCES = 36,
         [Description("術科管理")]
         CertificationPCESSetting = 37,
+        [Description("公告")]
+        Kanban = 39,
+        [Description("公告管理")]
+        KanbanSetting = 40,
     }
 }

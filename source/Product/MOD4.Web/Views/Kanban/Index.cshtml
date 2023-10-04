@@ -1,0 +1,354 @@
+﻿@using System.Linq;
+@{
+    ViewBag.Title = "公告";
+}
+
+<head>
+    <link rel="stylesheet" href="~/lib/bootstrap-vue/bootstrap-vue.css" />
+</head>
+
+<style>
+    table {
+        width: 800px;
+        border-collapse: collapse;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    th {
+        padding: 10px;
+        color: #fff;
+        text-align: center;
+        background-color: #55608f;
+    }
+
+    td {
+        padding: 10px;
+        text-align: center;
+        background-color: rgba(255,255,255,0.2);
+    }
+
+    .badge {
+        position: absolute;
+        /*top: -0.75em;
+        right: -0.75em;
+        width: 1.5em;
+        height: 1.5em;*/
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        background-color: red;
+        color: white;
+    }
+
+    .unread {
+        position: absolute;
+        /*top: -0.75em;
+        right: -0.75em;
+        width: 1.5em;
+        height: 1.5em;*/
+        background-color: transparent;
+        color: red;
+        font-size: 25px;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        font-weight: 800;
+        font-style: italic;
+        top: -13px;
+        right: -5px;
+    }
+
+    .star {
+        position: absolute;
+        /*margin-left: .9em;
+        margin-right: .9em;
+        margin-bottom: 1.2em;*/
+        border-right: .3em solid transparent;
+        border-bottom: .7em solid #FC0;
+        border-left: .3em solid transparent;
+        /* Controlls the size of the stars. */
+        opacity: 0.7;
+        font-size: 8px;
+    }
+
+        .star:before, .star:after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 0;
+            position: absolute;
+            top: .6em;
+            left: -1em;
+            border-right: 1em solid transparent;
+            border-bottom: .7em solid #FC0;
+            border-left: 1em solid transparent;
+            transform: rotate(-35deg);
+        }
+
+        .star:after {
+            transform: rotate(35deg);
+        }
+
+    td > div {
+        position: relative;
+        border-color: transparent;
+    }
+
+</style>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div id="app" class="card">
+                <div class="card-header">
+                    <h3 class="card-title">認證紀錄查詢</h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <div class="card-body">
+                    <fieldset id="searchArea">
+                        <legend id="legend">查詢區塊</legend>
+                        <div class="d-flex align-content-center flex-wrap">
+                            <div class="col-lg-1">
+                                <label class="col-form-label">公告日</label>
+                                <span style="font-size:8px;font-weight:700" class="text-danger">*</span>
+                            </div>
+                            <div class="col-lg-3">
+                                <input class="form-control" name="datepicker" v-model="dateRange" />
+                            </div>
+                            <div class="col-lg-1">
+                                <label class="col-form-label">狀態</label>
+                            </div>
+                            <div class="col-lg-1">
+                                <select id="dropStatus" class="form-control">
+                                    <option v-for="status in statusOptions" :value="status.value">{{status.text}}</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-2">
+                                <input type="button" name="btn29" value="查詢" v-on:click="onSearchClk" />
+                            </div>
+                        </div>
+                        <br />
+                    </fieldset>
+                    <div>
+                        <table id="table1" class="table table-bordered table-hover" v-if="rawData.length != 0">
+                            <thead>
+                                <tr>
+                                    <th>公告日</th>
+                                    <th>公告人</th>
+                                    <th>主旨</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(raw,idx) in rawData">
+                                    @*<td width="10%"><span class="badge">5</span>{{raw.date}}</td>*@
+                                    @*<td width="10%"><i class="star"></i>{{raw.date}}</td>*@
+                                    <td width="10%"><div>{{raw.date}}<span class="unread">！</span></div></td>
+                                    <td width="10%">{{raw.name}}</td>
+                                    <td>{{raw.subject}}</td>
+                                    <td width="10%"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.card-body -->
+                    <div class="card-footer" style="display: flex;" v-if="rawData.length > 0">
+                        <div style="width: 12%;">
+                            <label class="col-form-label">總筆數：{{rawData.length}}</label>
+                        </div>
+                        <div style="width: 15%; ">
+                            <label class="col-form-label">每頁</label>
+                            <select v-model="currentSize" @@change="sizeChange">
+                                <option v-for="size in pageSizeOption" :value="size">{{size}}</option>
+                            </select>
+                            <label class="col-form-label">筆</label>
+                        </div>
+                        <div style="width: 73%;">
+                            <template>
+                                <div class="mt-10" style="float: right;">
+                                    <b-pagination v-model="currentPage" pills :total-rows="rawData.length" :per-page="currentSize" @@page-click="pageChange"></b-pagination>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+@section scripts
+{
+    <script src="~/lib/bootstrap-vue/bootstrap-vue.min.js"></script>
+    <script type="text/javascript">
+
+        const _table = null;
+
+        const vue = new Vue({
+            el: '#app',
+            data: {
+                rawData: [{ date: '2023-10-04', name: 'admin', subject: 'test' },
+                { date: '2023-10-03', name: 'admin', subject: 'test1' },
+                { date: '2023-10-02', name: 'admin', subject: 'test2' },
+                { date: '2023-10-01', name: 'admin', subject: 'test3' },
+                { date: '2023-09-30', name: 'admin', subject: 'test4' },
+                { date: '2023-09-29', name: 'admin', subject: 'test5' }],
+                rawDataPage: [],
+                currentPage: 1,
+                pageSizeOption: [10, 50, 100],
+                currentSize: 10,
+                ttlPage: 0,
+                dateRange: '',
+                statusOptions: [
+                    {
+                        text: '',
+                        value: 0
+                    },
+                    {
+                        text: '未讀',
+                        value: 1
+                    },
+                    {
+                        text: '已讀',
+                        value: 2
+                    }
+                ],
+                selectOpr: '',
+                selectStation: '',
+                selectProd: ''
+            },
+            methods: {
+                onSearchClk() {
+
+                    $.ajax({
+                        url: "./CertPCES/Search?opr=" + $("#dropMainOpr").val() + "&station=" + $("#dropStation").val() + "&prod=" + $("#dropProd").val() + "&status=" + $("#dropStatus").val() + "&jobId=" + vue.jobId,
+                        type: "GET",
+                        dataType: 'json',
+                        success: function (result) {
+                            if (result.isSuccess) {
+                                if ($.fn.dataTable.isDataTable('#table1')) {
+                                    $('#table1').DataTable().destroy();
+                                }
+
+                                new DataTable('#table1', {
+                                    dom: 'Bfrtip',
+                                    scrollX: true,
+                                    buttons: [
+                                        'pageLength'
+                                    ],
+                                    columnDefs: [
+                                        { width: 50, targets: 0 },
+                                        { width: 30, targets: 1 },
+                                        { width: 50, targets: 4 },
+                                        { width: 30, targets: 11 },
+                                    ],
+                                    columns: [
+                                        {
+                                            data: 'applyNo'
+                                        },
+                                        {
+                                            data: 'applyName'
+                                        },
+                                        {
+                                            data: 'shift'
+                                        },
+                                        {
+                                            data: 'certStatus',
+                                        },
+                                        {
+                                            data: 'mainOperation'
+                                        },
+                                        {
+                                            data: 'station'
+                                        },
+                                        {
+                                            data: 'stationType'
+                                        },
+                                        {
+                                            data: 'mtype'
+                                        },
+                                        {
+                                            data: 'className'
+                                        },
+                                        {
+                                            data: 'licType'
+                                        },
+                                        {
+                                            data: 'passDate'
+                                        },
+                                        {
+                                            data: 'validDate'
+                                        },
+                                        {
+                                            data: 'status'
+                                        },
+                                        {
+                                            data: 'subjGrade'
+                                        },
+                                        {
+                                            data: 'skillStatus'
+                                        },
+                                        {
+                                            data: 'skillGrade'
+                                        },
+                                        {
+                                            data: 'engNo'
+                                        },
+                                        {
+                                            data: 'engName'
+                                        },
+                                        {
+                                            data: 'remark'
+                                        }
+                                    ],
+                                    createdRow: function (row, data, index) {
+                                        if (data.certStatus == '認證中') {
+                                            $('td:eq(3)', row).css('background-color', '#e6e640');
+                                        }
+                                        else if (data.certStatus == '通過') {
+                                            $('td:eq(3)', row).css('background-color', '#44ad1a');
+                                        }
+                                        else if (data.certStatus == '過期') {
+                                            $('td:eq(3)', row).css('background-color', '#ad7521');
+                                        }
+
+                                    },
+                                    data: result.data,
+                                });
+                            }
+                            else {
+                                alert(result.msg);
+                            }
+                            $.unblockUI();
+                        }
+                    });
+                },
+                sizeChange() {
+                    vue.currentPage = 1;
+                    vue.certDataPage = vue.certData.slice(0, vue.currentSize);
+                },
+                pageChange(even, pageNo) {
+                    vue.currentPage = pageNo;
+                    vue.certDataPage = vue.certData.slice(((vue.currentPage - 1) * vue.currentSize), vue.currentPage * vue.currentSize);
+                }
+            },
+            mounted: function () {
+
+                $('input[name="datepicker"]').daterangepicker({
+                    timePicker: false,
+                    startDate: moment().startOf('month').add(-1, 'month'),
+                    endDate: moment(),
+                    locale: {
+                        format: 'yyyy/MM/DD'
+                    }
+                });
+            },
+            computed: {
+            }
+        });
+
+    </script>
+}
