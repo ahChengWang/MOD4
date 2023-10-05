@@ -28,35 +28,19 @@
         background-color: rgba(255,255,255,0.2);
     }
 
-    .badge {
-        position: absolute;
+    /*.badge {
+        position: absolute;*/
         /*top: -0.75em;
         right: -0.75em;
         width: 1.5em;
         height: 1.5em;*/
-        display: flex;
+        /*display: flex;
         justify-content: center;
         align-items: center;
         border-radius: 50%;
         background-color: red;
         color: white;
-    }
-
-    .unread {
-        position: absolute;
-        /*top: -0.75em;
-        right: -0.75em;
-        width: 1.5em;
-        height: 1.5em;*/
-        background-color: transparent;
-        color: red;
-        font-size: 25px;
-        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-        font-weight: 800;
-        font-style: italic;
-        top: -13px;
-        right: -5px;
-    }
+    }*/
 
     .star {
         position: absolute;
@@ -94,6 +78,76 @@
         border-color: transparent;
     }
 
+    .unread {
+        position: absolute;
+        /*top: -0.75em;
+        right: -0.75em;
+        width: 1.5em;
+        height: 1.5em;*/
+        background-color: transparent;
+        color: #ff1919;
+        font-size: 20px;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        font-weight: 800;
+        font-style: italic;
+        top: -16px;
+        left: 0px;
+        animation: neon 1.5s ease-in-out infinite alternate;
+    }
+
+    @@keyframes neon {
+        0% {
+            /*text-shadow: 0 0 20px #ffabab, 0 0 100px #ffabab, 0 0 20px #ffabab;*/
+            color: #ffabab;
+            transform: rotate(-50grad);
+        }
+
+        50% {
+            /*text-shadow: 0 0 50px #ff6363, 0 0 150px #ff6363, 0 0 50px #ff6363;*/
+            color: #ff6363;
+            transform: rotate(30grad);
+        }
+
+        100% {
+            /*text-shadow: 0 0 20px #ff1919, 0 0 100px #ff1919, 0 0 20px #ff1919;*/
+            color: #ff1919;
+        }
+    }
+
+    .row > [class^="col-"] {
+        border: 1px solid rgba(86,61,124,0.2);
+        padding: 1rem;
+    }
+
+    .row > [name="title"] {
+        background-color: rgba(86,61,124,0.15);
+    }
+
+
+    div[name='remark'] {
+        color: #ff1919;
+        font-size: 15px;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        font-weight: 700;
+        animation: remark 1.5s ease-in-out infinite alternate;
+    }
+
+    @@keyframes remark {
+        0% {
+            text-shadow: 0 0 20px #ffabab, 0 0 100px #ffabab, 0 0 20px #ffabab;
+            color: #ffabab;
+        }
+
+        50% {
+            text-shadow: 0 0 50px #ff6363, 0 0 150px #ff6363, 0 0 50px #ff6363;
+            color: #ff6363;
+        }
+
+        100% {
+            text-shadow: 0 0 20px #ff1919, 0 0 100px #ff1919, 0 0 20px #ff1919;
+            color: #ff1919;
+        }
+    }
 </style>
 
 <div class="content-wrapper">
@@ -101,7 +155,7 @@
         <div class="container-fluid">
             <div id="app" class="card">
                 <div class="card-header">
-                    <h3 class="card-title">認證紀錄查詢</h3>
+                    <h3 class="card-title">最新公告</h3>
                 </div>
                 <!-- /.card-header -->
                 <!-- form start -->
@@ -137,6 +191,8 @@
                                     <th>公告日</th>
                                     <th>公告人</th>
                                     <th>主旨</th>
+                                    <th>狀態</th>
+                                    <th>閱讀人數進度</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -144,10 +200,25 @@
                                 <tr v-for="(raw,idx) in rawData">
                                     @*<td width="10%"><span class="badge">5</span>{{raw.date}}</td>*@
                                     @*<td width="10%"><i class="star"></i>{{raw.date}}</td>*@
-                                    <td width="10%"><div>{{raw.date}}<span class="unread">！</span></div></td>
-                                    <td width="10%">{{raw.name}}</td>
+                                    <td width="12%"><div><span class="unread">new</span>{{raw.date}}</div></td>
+                                    <td width="12%">{{raw.name}}</td>
                                     <td>{{raw.subject}}</td>
-                                    <td width="10%"></td>
+                                    <td width="8%">
+                                        <span class="badge bg-danger" style="font-size: 90%">未讀</span>
+                                    </td>
+                                    <td width="15%">
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </td>
+                                    <td width="12%">
+                                        <a class="btn btn-sm" data-toggle="modal" style="font-size:15px" data-target="#detailModal">
+                                            <i class="far fa-eye" href="#" title="detail"></i>
+                                        </a>
+                                        <a class="btn btn-sm">
+                                            <i class="fas fa-download" href="#" title="下載未讀名單"></i>
+                                        </a>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -173,6 +244,41 @@
                         </div>
                     </div>
                     <!-- /.card-body -->
+                </div>
+
+                <!-- Modal -->
+                <div class="modal fade" id="detailModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                @*<h5 class="modal-title" id="gridModalLabel"></h5>*@
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-3" name="title">主旨</div>
+                                    <div class="col-md-9">test</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3" name="title">公告人</div>
+                                    <div class="col-md-3">admin</div>
+                                    <div class="col-md-3" name="title">日期</div>
+                                    <div class="col-md-3">2023-10-05</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3" name="title">內容</div>
+                                    <div class="col-md-9">123456</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3" name="title">附件</div>
+                                    <div class="col-md-9"><a href="#">文件.pdf</a></div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <div class="col-md-12" name="remark">※ 若無點選下載附件, 系統將視作未讀 ※</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -229,95 +335,7 @@
                         dataType: 'json',
                         success: function (result) {
                             if (result.isSuccess) {
-                                if ($.fn.dataTable.isDataTable('#table1')) {
-                                    $('#table1').DataTable().destroy();
-                                }
-
-                                new DataTable('#table1', {
-                                    dom: 'Bfrtip',
-                                    scrollX: true,
-                                    buttons: [
-                                        'pageLength'
-                                    ],
-                                    columnDefs: [
-                                        { width: 50, targets: 0 },
-                                        { width: 30, targets: 1 },
-                                        { width: 50, targets: 4 },
-                                        { width: 30, targets: 11 },
-                                    ],
-                                    columns: [
-                                        {
-                                            data: 'applyNo'
-                                        },
-                                        {
-                                            data: 'applyName'
-                                        },
-                                        {
-                                            data: 'shift'
-                                        },
-                                        {
-                                            data: 'certStatus',
-                                        },
-                                        {
-                                            data: 'mainOperation'
-                                        },
-                                        {
-                                            data: 'station'
-                                        },
-                                        {
-                                            data: 'stationType'
-                                        },
-                                        {
-                                            data: 'mtype'
-                                        },
-                                        {
-                                            data: 'className'
-                                        },
-                                        {
-                                            data: 'licType'
-                                        },
-                                        {
-                                            data: 'passDate'
-                                        },
-                                        {
-                                            data: 'validDate'
-                                        },
-                                        {
-                                            data: 'status'
-                                        },
-                                        {
-                                            data: 'subjGrade'
-                                        },
-                                        {
-                                            data: 'skillStatus'
-                                        },
-                                        {
-                                            data: 'skillGrade'
-                                        },
-                                        {
-                                            data: 'engNo'
-                                        },
-                                        {
-                                            data: 'engName'
-                                        },
-                                        {
-                                            data: 'remark'
-                                        }
-                                    ],
-                                    createdRow: function (row, data, index) {
-                                        if (data.certStatus == '認證中') {
-                                            $('td:eq(3)', row).css('background-color', '#e6e640');
-                                        }
-                                        else if (data.certStatus == '通過') {
-                                            $('td:eq(3)', row).css('background-color', '#44ad1a');
-                                        }
-                                        else if (data.certStatus == '過期') {
-                                            $('td:eq(3)', row).css('background-color', '#ad7521');
-                                        }
-
-                                    },
-                                    data: result.data,
-                                });
+                                vue.rawData = result.data;
                             }
                             else {
                                 alert(result.msg);
