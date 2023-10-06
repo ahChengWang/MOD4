@@ -90,22 +90,25 @@ namespace MOD4.Web.DomainService
         }
 
         public AccountInfoEntity GetAccInfoByDepartment(UserEntity userEntity)
-        {
-            var _dao = _accountInfoRepository.SelectByConditions(deptSn: userEntity.DeptSn).FirstOrDefault();
+            => GetAccInfoListByDepartment(new List<int> { userEntity.DeptSn }).FirstOrDefault();
 
-            return new AccountInfoEntity
+        public List<AccountInfoEntity> GetAccInfoListByDepartment(List<int> deptList)
+        {
+            var _daoList = _accountInfoRepository.SelectByConditions(deptList: deptList);
+
+            return _daoList.Select(acc => new AccountInfoEntity
             {
-                sn = _dao.sn,
-                Account = _dao.account,
-                Name = _dao.name,
-                Password = _dao.password,
-                RoleId = _dao.role,
-                JobId = _dao.jobId,
-                Level_id = _dao.level_id,
-                ApiKey = _dao.apiKey,
-                DeptSn = _dao.deptSn,
-                Mail = _dao.mail
-            };
+                sn = acc.sn,
+                Account = acc.account,
+                Name = acc.name,
+                Password = acc.password,
+                RoleId = acc.role,
+                JobId = acc.jobId,
+                Level_id = acc.level_id,
+                ApiKey = acc.apiKey,
+                DeptSn = acc.deptSn,
+                Mail = acc.mail
+            }).ToList();
         }
 
         public List<AccountDeptEntity> GetAccountDepartmentList()
@@ -427,7 +430,7 @@ namespace MOD4.Web.DomainService
                 string _encryptPw = Encrypt(loginEntity.Password, shaKey);
 
                 loginEntity.EncryptPw = _encryptPw;
-                                
+
                 if (requiredVerify && loginEntity.Account.ToUpper() != "MFG")
                 {
                     _accInfoEntity = DoInxSSOVerify(loginEntity);

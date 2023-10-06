@@ -9,8 +9,8 @@ namespace MOD4.Web.Repostory
     {
         List<AccountInfoDao> SelectByConditions(string account = "", 
             string password = "", 
-            List<int> accountSnList = null, 
-            int deptSn = 0, 
+            List<int> accountSnList = null,
+            List<int> deptList = null, 
             List<RoleEnum> roleIdList = null,
             string name = "",
             string jobId = "");

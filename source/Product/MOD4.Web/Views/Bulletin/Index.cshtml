@@ -5,6 +5,7 @@
 
 <head>
     <link rel="stylesheet" href="~/lib/bootstrap-vue/bootstrap-vue.css" />
+    <link rel="stylesheet" href="~/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" />
 </head>
 
 <style>
@@ -30,11 +31,11 @@
 
     /*.badge {
         position: absolute;*/
-        /*top: -0.75em;
+    /*top: -0.75em;
         right: -0.75em;
         width: 1.5em;
         height: 1.5em;*/
-        /*display: flex;
+    /*display: flex;
         justify-content: center;
         align-items: center;
         border-radius: 50%;
@@ -111,6 +112,7 @@
         100% {
             /*text-shadow: 0 0 20px #ff1919, 0 0 100px #ff1919, 0 0 20px #ff1919;*/
             color: #ff1919;
+            transform: rotate(-50grad);
         }
     }
 
@@ -148,6 +150,25 @@
             color: #ff1919;
         }
     }
+
+    #createModal .modal-header {
+        background-color: #616a8f;
+    }
+
+    #createModal .modal-body, #createModal .modal-footer {
+        background-color: #c3cadb;
+    }
+
+    .dropdown-menu {
+        max-height: 300px;
+        overflow: scroll;
+        overflow-x: hidden;
+    }
+
+    .unit {
+        font-size: 8px;
+        color: darkred;
+    }
 </style>
 
 <div class="content-wrapper">
@@ -179,11 +200,14 @@
                                 </select>
                             </div>
                             <div class="col-lg-2">
-                                <input type="button" name="btn29" value="查詢" v-on:click="onSearchClk" />
+                                <input type="button" name="btn29" value="查詢" @@click="onSearchClk" />
                             </div>
                         </div>
                         <br />
                     </fieldset>
+                    <div>
+                        <input id="btnCreate" type="button" style="margin-bottom: 8px;" class="btn" name="btn30" value="+建立新公告" data-toggle="modal" data-target="#createModal" />
+                    </div>
                     <div>
                         <table id="table1" class="table table-bordered table-hover" v-if="rawData.length != 0">
                             <thead>
@@ -192,7 +216,9 @@
                                     <th>公告人</th>
                                     <th>主旨</th>
                                     <th>狀態</th>
-                                    <th>閱讀人數進度</th>
+                                    <th>對象</th>
+                                    @*<th>閱讀人數進度</th>*@
+                                    <th>閱讀人數</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -200,17 +226,19 @@
                                 <tr v-for="(raw,idx) in rawData">
                                     @*<td width="10%"><span class="badge">5</span>{{raw.date}}</td>*@
                                     @*<td width="10%"><i class="star"></i>{{raw.date}}</td>*@
-                                    <td width="12%"><div><span class="unread">new</span>{{raw.date}}</div></td>
+                                    <td width="12%"><div><span class="unread">New</span>{{raw.date}}</div></td>
                                     <td width="12%">{{raw.name}}</td>
                                     <td>{{raw.subject}}</td>
                                     <td width="8%">
                                         <span class="badge bg-danger" style="font-size: 90%">未讀</span>
                                     </td>
-                                    <td width="15%">
-                                        <div class="progress">
-                                            <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                    </td>
+                                    @*<td width="15%">
+                                            <div class="progress">
+                                                <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        </td>*@
+                                    <td width="15%"><div style="font-size: 12px;">製造三部/製造課</div><div style="font-size: 12px;">製造四部/工程一課</div></td>
+                                    <td width="10%">100</td>
                                     <td width="12%">
                                         <a class="btn btn-sm" data-toggle="modal" style="font-size:15px" data-target="#detailModal">
                                             <i class="far fa-eye" href="#" title="detail"></i>
@@ -246,7 +274,61 @@
                     <!-- /.card-body -->
                 </div>
 
-                <!-- Modal -->
+                <!-- Modal Creaete -->
+                <div class="modal fade" id="createModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="createModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="card-title">建立公告</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">✕</span></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="createForm">
+                                    <div class="col-lg-12 d-flex">
+                                        <div class="col-lg-2">
+                                            <label class="form-label" style="font-size: 20px;">主旨</label>
+                                        </div>
+                                        <div class="col-lg-10">
+                                            <input style="border: 1px solid rgba(86,61,124,0.7); width: 100%;" v-model="createModel.subject" />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 d-flex">
+                                        <div class="col-lg-2">
+                                            <label class="form-label" style="font-size: 20px;">內容</label>
+                                        </div>
+                                        <div class="col-lg-10">
+                                            <textarea style="border: 1px solid rgba(86,61,124,0.7); width: 100%;" rows="4" v-model="createModel.content"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 d-flex">
+                                        <div class="col-lg-2">
+                                            <label class="form-label" style="font-size: 20px;">對象</label>
+                                        </div>
+                                        <div class="col-lg-10">
+                                            <select id="dropTarget" v-model="selectTarget" multiple="multiple">
+                                                <option v-for="section in sectionOptions" v-bind:value="section.id">{{section.value}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 d-flex">
+                                        <div class="col-lg-2">
+                                            <label class="form-label" style="font-size: 20px;" v-model="createModel.uploadFile">檔案</label>
+                                            <span class="unit">(允許.xlsx)</span>
+                                        </div>
+                                        <div class="col-lg-10">
+                                            <input class="custom-file" type="file" placeholder="選取公告檔案" v-on:change="onFileChange" />
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <input class="btn btn-sm btn-outline-primary" type="button" value="建立" @@click="createClk" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Detail -->
                 <div class="modal fade" id="detailModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -288,6 +370,9 @@
 
 @section scripts
 {
+    <script src="~/plugins/select2/js/select2.full.min.js"></script>
+    <script src="~/plugins/jsgrid/jsgrid.min.js"></script>
+    <script src="~/plugins/jszip/jszip.min.js"></script>
     <script src="~/lib/bootstrap-vue/bootstrap-vue.min.js"></script>
     <script type="text/javascript">
 
@@ -322,9 +407,15 @@
                         value: 2
                     }
                 ],
-                selectOpr: '',
+                sectionOptions: @Html.Raw(Json.Serialize(ViewBag.SectionOption)),
+                selectTarget: '',
                 selectStation: '',
-                selectProd: ''
+                createModel: {
+                    subject: '',
+                    content: '',
+                    target: '',
+                    uploadFile: '',
+                }
             },
             methods: {
                 onSearchClk() {
@@ -344,6 +435,9 @@
                         }
                     });
                 },
+                onFileChange(e) {
+                    vue.createModel.uploadFile = e.target.files[0]
+                },
                 sizeChange() {
                     vue.currentPage = 1;
                     vue.certDataPage = vue.certData.slice(0, vue.currentSize);
@@ -351,9 +445,37 @@
                 pageChange(even, pageNo) {
                     vue.currentPage = pageNo;
                     vue.certDataPage = vue.certData.slice(((vue.currentPage - 1) * vue.currentSize), vue.currentPage * vue.currentSize);
+                },
+                createClk() {
+
+                    let formData = new FormData();
+                    formData.append('subject', vue.createModel.subject);
+                    formData.append('content', vue.createModel.content);
+                    formData.append('target', $("#dropTarget").val());
+                    formData.append('uploadFile', vue.createModel.uploadFile);
+
+                    $.ajax({
+                        url: "./Bulletin/Create",
+                        type: "POST",
+                        dataType: 'json',
+                        processData: false,
+                        contentType: false,
+                        data: formData,
+                        success: function (result) {
+                            if (result.isSuccess) {
+                                vue.rawData = result.data;
+                            }
+                            else {
+                                alert(result.msg);
+                            }
+                            $.unblockUI();
+                        }
+                    });
                 }
             },
             mounted: function () {
+
+                $("#dropTarget").multiselect();
 
                 $('input[name="datepicker"]').daterangepicker({
                     timePicker: false,

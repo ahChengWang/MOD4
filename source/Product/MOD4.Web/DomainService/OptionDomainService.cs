@@ -23,6 +23,7 @@ namespace MOD4.Web.DomainService
         private readonly ICertifiedAreaMappingRepository _certifiedAreaMappingRepository;
         private readonly ISPCChartSettingRepository _spcChartSettingRepository;
         private readonly IDefinitionNodeDescRepository _definitionNodeDescRepository;
+        private readonly IDefinitionDepartmentRepository _definitionDepartmentRepository;
 
         public OptionDomainService(IEqSituationMappingRepository eqSituationMappingRepository,
             IEqEvanCodeMappingRepository eqEvanCodeMappingRepository,
@@ -32,7 +33,8 @@ namespace MOD4.Web.DomainService
             ILcmProductRepository lcmProductRepository,
             ICertifiedAreaMappingRepository certifiedAreaMappingRepository,
             ISPCChartSettingRepository spcChartSettingRepository,
-            IDefinitionNodeDescRepository definitionNodeDescRepository)
+            IDefinitionNodeDescRepository definitionNodeDescRepository,
+            IDefinitionDepartmentRepository definitionDepartmentRepository)
         {
             _eqSituationMappingRepository = eqSituationMappingRepository;
             _eqEvanCodeMappingRepository = eqEvanCodeMappingRepository;
@@ -43,6 +45,7 @@ namespace MOD4.Web.DomainService
             _certifiedAreaMappingRepository = certifiedAreaMappingRepository;
             _spcChartSettingRepository = spcChartSettingRepository;
             _definitionNodeDescRepository = definitionNodeDescRepository;
+            _definitionDepartmentRepository = definitionDepartmentRepository;
         }
 
 
@@ -491,6 +494,15 @@ namespace MOD4.Web.DomainService
             {
                 Id = (int)type,
                 Value = type.GetDescription()
+            }).ToList();
+        }
+
+        public List<OptionEntity> GetAllSections()
+        {
+            return _definitionDepartmentRepository.SelectByConditions().Select(s => new OptionEntity
+            { 
+                Id = s.DeptSn,
+                Value = s.DepartmentName
             }).ToList();
         }
 

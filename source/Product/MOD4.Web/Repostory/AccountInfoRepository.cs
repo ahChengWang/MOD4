@@ -14,7 +14,7 @@ namespace MOD4.Web.Repostory
         public List<AccountInfoDao> SelectByConditions(string account = "", 
             string password = "", 
             List<int> accountSnList = null, 
-            int deptSn = 0,
+            List<int> deptList = null,
             List<RoleEnum> roleIdList = null,
             string name = "",
             string jobId = "")
@@ -33,9 +33,9 @@ namespace MOD4.Web.Repostory
             {
                 sql += " and sn in @SnList ";
             }
-            if (deptSn != 0)
+            if (deptList != null && deptList.Any())
             {
-                sql += " and deptSn = @deptSn ";
+                sql += " and deptSn in @deptList ";
             }
             if (roleIdList != null)
             {
@@ -55,7 +55,7 @@ namespace MOD4.Web.Repostory
                 account = account,
                 password = password,
                 SnList = accountSnList,
-                deptSn = deptSn,
+                deptSn = deptList,
                 role = roleIdList,
                 name = name,
                 jobId = jobId

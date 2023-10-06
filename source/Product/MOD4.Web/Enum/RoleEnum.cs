@@ -16,7 +16,7 @@ namespace MOD4.Web.Enum
         [Description("工程師")]
         Engineer = 4,
 
-        [Description("PM")]
+        [Description("設備副工程師")]
         PM = 5,
 
         [Description("User")]
@@ -27,5 +27,14 @@ namespace MOD4.Web.Enum
 
         [Description("管制口人員")]
         GateEmployee = 8,
+
+        [Description("TA")]
+        TechnicalAssistant = 9,
+
+        [Description("組長")]
+        TeamLeader = 10,
+
+        [Description("領班")]
+        Foreman = 11,
     }
 }

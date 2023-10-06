@@ -16,6 +16,8 @@ namespace MOD4.Web.DomainService
 
         AccountInfoEntity GetAccInfoByDepartment(UserEntity userEntity);
 
+        List<AccountInfoEntity> GetAccInfoListByDepartment(List<int> deptList);
+
         List<AccountMenuInfoEntity> GetUserAllMenuPermission(int userAccountSn);
 
         List<AccountDeptEntity> GetAccountDepartmentList();

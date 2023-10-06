@@ -13,12 +13,12 @@ using Utility.Helper;
 namespace MOD4.Web.Controllers
 {
     [Authorize]
-    public class KanbanController : BaseController
+    public class BulletinController : BaseController
     {
         private readonly ILogger<ExtensionController> _logger;
         private readonly IOptionDomainService _optionDomainService;
 
-        public KanbanController(IHttpContextAccessor httpContextAccessor,
+        public BulletinController(IHttpContextAccessor httpContextAccessor,
             IAccountDomainService accountDomainService,
             IOptionDomainService optionDomainService,
             ILogger<ExtensionController> logger)
@@ -39,19 +39,17 @@ namespace MOD4.Web.Controllers
                 AccountPermission = _userCurrentPagePermission.AccountPermission
             };
 
-            ViewBag.ApplyAreaOption = _optionDomainService.GetCertifiedAreaOptions().Select(s => new
+            ViewBag.SectionOption = _optionDomainService.GetAllSections().Select(s => new
             {
-                Area = s.AreaId.GetDescription(),
-                AreaId = s.AreaId,
-                SubjectId = s.SubjectId,
-                Subject = s.Subject
+                Id = s.Id,
+                Value = s.Value
             });
 
             return View();
         }
 
         [HttpPost]
-        public IActionResult MPSUpload([FromForm] ReportUploadViewModel uploadVM)
+        public IActionResult Create(BulletinCreateViewModel createVM)
         {
             try
             {

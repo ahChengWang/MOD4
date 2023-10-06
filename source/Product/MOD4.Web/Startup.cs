@@ -78,8 +78,9 @@ namespace MOD4.Web
             services.AddSingleton<ISPCReportDomainService, SPCReportDomainService>();
             services.AddSingleton<IMTDDashboardDomainService, MTDDashboardDomainService>();
             services.AddSingleton<IMonitorDomainService, MonitorDomainService>();
-            services.AddSingleton<IMaterialDomainService, MaterialDomainService>();
+            services.AddSingleton<IMaterialDomainService, MaterialDomainService>(); 
             services.AddSingleton<IPCESCertificationDomainService, PCESCertificationDomainService>();
+            services.AddSingleton<IBulletinDomainService, BulletinDomainService>();
 
             services.AddSingleton<IAlarmXmlRepository, AlarmXmlRepository>();
             services.AddSingleton<IEqpInfoRepository, EqpInfoRepository>();
@@ -110,8 +111,10 @@ namespace MOD4.Web
             services.AddSingleton<IEfficiencySettingRepository, EfficiencySettingRepository>();
             services.AddSingleton<IDailyEfficiencyRepository, DailyEfficiencyRepository>();
             services.AddSingleton<IAlarmXmlRepository, AlarmXmlRepository>(); 
-            services.AddSingleton<ISAPMaterialRepository, SAPMaterialRepository>();
-            services.AddSingleton<IPCESCertificationRepository, PCESCertificationRepository>();
+            services.AddSingleton<ISAPMaterialRepository, SAPMaterialRepository>(); 
+            services.AddSingleton<IPCESCertificationRepository, PCESCertificationRepository>(); CarUXBulletinRepository
+            services.AddSingleton<ICarUXBulletinRepository, CarUXBulletinRepository>();
+            services.AddSingleton<IDefinitionDepartmentRepository, DefinitionDepartmentRepository>();
 
             services.AddScoped<MenuService>();
             services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));

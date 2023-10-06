@@ -50,5 +50,7 @@ namespace MOD4.Web.DomainService
         List<OptionEntity> GetMESPermission();
 
         List<OptionEntity> GetMESType();
+
+        List<OptionEntity> GetAllSections();
     }
 }

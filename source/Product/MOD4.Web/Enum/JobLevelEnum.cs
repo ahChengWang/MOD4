@@ -15,5 +15,8 @@ namespace MOD4.Web.Enum
 
         [Description("工程師")]
         Employee = 4,
+
+        [Description("DL")]
+        DL = 5,
     }
 }
