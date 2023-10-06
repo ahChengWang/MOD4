@@ -47,7 +47,6 @@ namespace MOD4.Web.DomainService
                     Mymessage.Subject = mailEntity.Subject;
                     Mymessage.IsBodyHtml = true;
                     Mymessage.Body = mailEntity.Content;
-                    Mymessage.Attachments.Add(new Attachment(""));
 
                     if (mailEntity.CCUserList != null && mailEntity.CCUserList.Any())
                         foreach (string _ccUser in mailEntity.CCUserList)
