@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -39,6 +40,27 @@ namespace Utility.Helper
         {
             for (var day = from; day.Date < thru.Date; day = day.AddDays(1))
                 yield return day;
+        }
+
+        public static (DateTime? startDate, DateTime? endDate) DetaRangeConvert(this string dateRange, string format = "yyyy/MM/dd HH:mm")
+        {
+            DateTime _startDate;
+            DateTime _endDate;
+
+            if (string.IsNullOrEmpty(dateRange))
+                return (null, null);
+
+            string[] _dateAry = dateRange.Split("-");
+
+            if (!DateTime.TryParseExact(_dateAry[0].Trim(), format, null, DateTimeStyles.None, out _) ||
+                !DateTime.TryParseExact(_dateAry[1].Trim(), format, null, DateTimeStyles.None, out _))
+            {
+                return (null, null);
+            }
+            DateTime.TryParseExact(_dateAry[0].Trim(), format, null, DateTimeStyles.None, out _startDate);
+            DateTime.TryParseExact(_dateAry[1].Trim(), format, null, DateTimeStyles.None, out _endDate);
+
+            return (_startDate, _endDate);
         }
     }
 }

@@ -67,9 +67,9 @@ namespace MOD4.Web
             }
         }
 
-        public string FTP_Download(string parentFolder, string fileName)
+        public string FTP_Download(string parentFolder, string filePathName)
         {
-            var request = (FtpWebRequest)WebRequest.Create($"{_serverIP}{parentFolder}/{fileName}");
+            var request = (FtpWebRequest)WebRequest.Create($"{_serverIP}{parentFolder}/{filePathName}");
             request.Method = WebRequestMethods.Ftp.DownloadFile;
             request.Credentials = new NetworkCredential(_account, _password);
 

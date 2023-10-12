@@ -7,11 +7,12 @@ namespace MOD4.Web.Repostory
 {
     public interface ICarUXBulletinRepository
     {
-        int Delete(int meetingSn);
+        List<CarUXBulletinDao> SelectByConditions(List<int> snList = null, long orderNo = 0, DateTime? startDate = null, DateTime? endDate = null);
+        List<CarUXBulletinDetailDao> SelectDetailByConditions(List<int> bulletinSn = null, string jobId = "", string readStatus = "");
         int Insert(CarUXBulletinDao bulletinDao);
         int InsertDetail(List<CarUXBulletinDetailDao> bulletinDetailDao);
-        List<CarUXBulletinDao> SelectByConditions(int sn = 0);
-        int Update(BookingMeetingDao updDao);
+        int UpdateDetail(CarUXBulletinDetailDao updDao);
         List<BookingMeetingDao> VerifyOverlap(MeetingRoomEnum roomId, DateTime startTime, DateTime endTime);
+        int Delete(int meetingSn);
     }
 }

@@ -2,22 +2,51 @@
 using MOD4.Web.Repostory.Dao;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MOD4.Web.Repostory
 {
     public class CarUXBulletinRepository : BaseRepository, ICarUXBulletinRepository
     {
 
-        public List<CarUXBulletinDao> SelectByConditions(int sn = 0)
+        public List<CarUXBulletinDao> SelectByConditions(List<int> snList = null, long orderNo = 0, DateTime? startDate = null, DateTime? endDate = null)
         {
-            string sql = "select * from booking_meeting where 1=1 ";
+            string sql = "select * from carux_bulletin where 1=1 ";
 
-            if (sn != 0)
-                sql += " and sn = @sn ";
+            if (snList != null && snList.Any())
+                sql += " and serialNo IN @SerialNo ";
+            if (orderNo != 0)
+                sql += " and orderNo = @OrderNo ";
+            if (startDate != null && endDate != null)
+                sql += " and date between @StartDate and @EndDate ";
 
             var dao = _dbHelper.ExecuteQuery<CarUXBulletinDao>(sql, new
             {
-                sn = sn
+                SerialNo = snList,
+                OrderNo = orderNo,
+                StartDate = startDate,
+                EndDate = endDate
+            });
+
+            return dao;
+        }
+
+        public List<CarUXBulletinDetailDao> SelectDetailByConditions(List<int> bulletinSn = null, string jobId = "", string readStatus = "")
+        {
+            string sql = @" select * from carux_bulletin_detail where 1=1 ";
+
+            if (bulletinSn != null && bulletinSn.Any())
+                sql += " and bulletinSn in @BulletinSn ";
+            if (!string.IsNullOrEmpty(jobId))
+                sql += " and jobId = @JobId ";
+            if (!string.IsNullOrEmpty(readStatus) && readStatus != "0" && int.TryParse(readStatus, out _))
+                sql += " and status = @Status ";
+
+            var dao = _dbHelper.ExecuteQuery<CarUXBulletinDetailDao>(sql, new
+            {
+                BulletinSn = bulletinSn,
+                JobId = jobId,
+                Status = readStatus
             });
 
             return dao;
@@ -27,18 +56,22 @@ namespace MOD4.Web.Repostory
         {
             string sql = @"INSERT INTO [dbo].[carux_bulletin]
            ([date]
+           ,[orderNo]
            ,[authorAccountId]
            ,[subject]
            ,[content]
+           ,[fileName]
            ,[filePath]
            ,[targetSections]
            ,[createUser]
            ,[createTime])
      VALUES
            (@date
+           ,@orderNo
            ,@authorAccountId
            ,@subject
            ,@content
+           ,@fileName
            ,@filePath
            ,@targetSections
            ,@createUser
@@ -49,15 +82,29 @@ namespace MOD4.Web.Repostory
             return dao;
         }
 
+        public int UpdateDetail(CarUXBulletinDetailDao updDao)
+        {
+            string sql = @" UPDATE [dbo].[carux_bulletin_detail]
+   SET [status] = @status
+      ,[readDate] = @readDate
+      ,[ip] = ''
+      ,[updateTime] = @updateTime
+ WHERE [bulletinSn] = @bulletinSn and jobId = @jobId ; ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, updDao);
+
+            return dao;
+        }
+
         public int InsertDetail(List<CarUXBulletinDetailDao> bulletinDetailDao)
         {
             string sql = @"INSERT INTO [dbo].[carux_bulletin_detail]
            ([bulletinSn]
-           ,[accountId]
+           ,[jobId]
            ,[status])
      VALUES
            (@bulletinSn
-           ,@accountId
+           ,@jobId
            ,@status); ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, bulletinDetailDao);
@@ -83,18 +130,6 @@ or (@StartTime < startTime and endTime < @EndTime)) ";
             return dao;
         }
 
-
-        public int Update(BookingMeetingDao updDao)
-        {
-            string sql = @" UPDATE [dbo].[booking_meeting]
-   SET [startTime] = @StartTime
-      ,[endTime] = @EndTime
- WHERE Sn=@Sn ; ";
-
-            var dao = _dbHelper.ExecuteNonQuery(sql, updDao);
-
-            return dao;
-        }
 
         public int Delete(int meetingSn)
         {

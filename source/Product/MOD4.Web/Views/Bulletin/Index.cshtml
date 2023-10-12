@@ -79,7 +79,7 @@
         border-color: transparent;
     }
 
-    .unread {
+    .newSwing {
         position: absolute;
         /*top: -0.75em;
         right: -0.75em;
@@ -93,10 +93,10 @@
         font-style: italic;
         top: -16px;
         left: 0px;
-        animation: neon 1.5s ease-in-out infinite alternate;
+        animation: swing 1.5s ease-in-out infinite alternate;
     }
 
-    @@keyframes neon {
+    @@keyframes swing {
         0% {
             /*text-shadow: 0 0 20px #ffabab, 0 0 100px #ffabab, 0 0 20px #ffabab;*/
             color: #ffabab;
@@ -113,6 +113,32 @@
             /*text-shadow: 0 0 20px #ff1919, 0 0 100px #ff1919, 0 0 20px #ff1919;*/
             color: #ff1919;
             transform: rotate(-50grad);
+        }
+    }
+
+    .newShining {
+        position: absolute;
+        background-color: transparent;
+        transform: rotate(-20grad);
+        color: #ff1919;
+        font-size: 20px;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        font-weight: 800;
+        font-style: italic;
+        top: -16px;
+        left: 0px;
+        -webkit-mask-image: linear-gradient(-75deg, rgba(255, 17, 0,.3) 0%, rgba(255, 17, 0,.8) 30%, rgba(255, 17, 0) 100%);
+        -webkit-mask-size: 200%;
+        animation: shine 2s linear infinite;
+    }
+
+    @@keyframes shine {
+        from {
+            -webkit-mask-position: 150%;
+        }
+
+        to {
+            -webkit-mask-position: -50%;
         }
     }
 
@@ -169,6 +195,24 @@
         font-size: 8px;
         color: darkred;
     }
+
+    div[name='tgSection'] {
+        width: 200px;
+        padding: 1px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        /*display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;*/
+    }
+
+        div[name='tgSection']:hover {
+            overflow:visible;
+            white-space:normal;
+            text-overflow: initial;
+            /*display: block;*/
+        }
 </style>
 
 <div class="content-wrapper">
@@ -189,13 +233,13 @@
                                 <span style="font-size:8px;font-weight:700" class="text-danger">*</span>
                             </div>
                             <div class="col-lg-3">
-                                <input class="form-control" name="datepicker" v-model="dateRange" />
+                                <input class="form-control" name="datepicker" />
                             </div>
                             <div class="col-lg-1">
                                 <label class="col-form-label">狀態</label>
                             </div>
                             <div class="col-lg-1">
-                                <select id="dropStatus" class="form-control">
+                                <select id="dropStatus" class="form-control" v-model="readStatus">
                                     <option v-for="status in statusOptions" :value="status.value">{{status.text}}</option>
                                 </select>
                             </div>
@@ -205,7 +249,7 @@
                         </div>
                         <br />
                     </fieldset>
-                    <div>
+                    <div v-if="permision.accountPermission & 32">
                         <input id="btnCreate" type="button" style="margin-bottom: 8px;" class="btn" name="btn30" value="+建立新公告" data-toggle="modal" data-target="#createModal" />
                     </div>
                     <div>
@@ -223,24 +267,30 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(raw,idx) in rawData">
+                                <tr v-for="(raw,idx) in rawDataPage">
                                     @*<td width="10%"><span class="badge">5</span>{{raw.date}}</td>*@
                                     @*<td width="10%"><i class="star"></i>{{raw.date}}</td>*@
-                                    <td width="12%"><div><span class="unread">New</span>{{raw.date}}</div></td>
-                                    <td width="12%">{{raw.name}}</td>
+                                    <td width="12%"><div><span v-if="raw.isNewPost" class="newShining">New</span>{{raw.date}}</div></td>
+                                    <td width="12%">{{raw.authorName}}</td>
                                     <td>{{raw.subject}}</td>
                                     <td width="8%">
-                                        <span class="badge bg-danger" style="font-size: 90%">未讀</span>
+                                        <span v-if="raw.status == '未讀'" class="badge bg-danger" style="font-size: 90%">{{raw.status}}</span>
+                                        <span v-if="raw.status == '已讀'" class="badge bg-success" style="font-size: 90%">{{raw.status}}</span>
+                                        <span v-if="raw.status == ''"></span>
                                     </td>
                                     @*<td width="15%">
                                             <div class="progress">
                                                 <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
                                         </td>*@
-                                    <td width="15%"><div style="font-size: 12px;">製造三部/製造課</div><div style="font-size: 12px;">製造四部/工程一課</div></td>
-                                    <td width="10%">100</td>
+                                <td width="15%">
+                                    @*<div name="tgSection" v-for="(section, idx) in raw.targetSections" style="font-size: 12px;">{{section}}</div>*@
+                                    <div name="tgSection" style="font-size: 12px;">{{raw.targetSectionStr}}</div>
+                                </td>
+                                    <td width="10%">{{raw.readCount}}</td>
                                     <td width="12%">
-                                        <a class="btn btn-sm" data-toggle="modal" style="font-size:15px" data-target="#detailModal">
+                                        <a class="btn btn-sm" data-toggle="modal" style="font-size:15px" :data-target="detailModalShow" @@click="detailClk(raw.serialNo, raw.isNeedUpdate, idx)">
+                                            @*data-target="#detailModal"*@
                                             <i class="far fa-eye" href="#" title="detail"></i>
                                         </a>
                                         <a class="btn btn-sm">
@@ -280,7 +330,7 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="card-title">建立公告</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">✕</span></button>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close" @@click="closeCreateModal"><span aria-hidden="true">✕</span></button>
                             </div>
                             <div class="modal-body">
                                 <form id="createForm">
@@ -339,21 +389,21 @@
                             <div class="modal-body">
                                 <div class="row">
                                     <div class="col-md-3" name="title">主旨</div>
-                                    <div class="col-md-9">test</div>
+                                    <div class="col-md-9">{{detailModel.subject}}</div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3" name="title">公告人</div>
-                                    <div class="col-md-3">admin</div>
+                                    <div class="col-md-3">{{detailModel.authorName}}</div>
                                     <div class="col-md-3" name="title">日期</div>
-                                    <div class="col-md-3">2023-10-05</div>
+                                    <div class="col-md-3">{{detailModel.date}}</div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3" name="title">內容</div>
-                                    <div class="col-md-9">123456</div>
+                                    <div class="col-md-9" style="white-space: pre-line;">{{detailModel.content}}</div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3" name="title">附件</div>
-                                    <div class="col-md-9"><a href="#">文件.pdf</a></div>
+                                    <div class="col-md-9"><a href="#" target="_blank" @@click="fileDownloadClk(detailModel.serialNo, detailModel.isNeedUpdate, detailModel.rawIndex)">{{detailModel.fileName}}</a></div>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -381,18 +431,14 @@
         const vue = new Vue({
             el: '#app',
             data: {
-                rawData: [{ date: '2023-10-04', name: 'admin', subject: 'test' },
-                { date: '2023-10-03', name: 'admin', subject: 'test1' },
-                { date: '2023-10-02', name: 'admin', subject: 'test2' },
-                { date: '2023-10-01', name: 'admin', subject: 'test3' },
-                { date: '2023-09-30', name: 'admin', subject: 'test4' },
-                { date: '2023-09-29', name: 'admin', subject: 'test5' }],
+                rawData: [],
                 rawDataPage: [],
+                permision: @Html.Raw(Json.Serialize(ViewBag.UserPermission)),
                 currentPage: 1,
                 pageSizeOption: [10, 50, 100],
                 currentSize: 10,
                 ttlPage: 0,
-                dateRange: '',
+                readStatus: '',
                 statusOptions: [
                     {
                         text: '',
@@ -415,18 +461,24 @@
                     content: '',
                     target: '',
                     uploadFile: '',
-                }
+                },
+                detailModel: {},
+                detailModalShow: '#detailModal'
             },
             methods: {
                 onSearchClk() {
 
+                    globalFuc.LoadingPic();
+
                     $.ajax({
-                        url: "./CertPCES/Search?opr=" + $("#dropMainOpr").val() + "&station=" + $("#dropStation").val() + "&prod=" + $("#dropProd").val() + "&status=" + $("#dropStatus").val() + "&jobId=" + vue.jobId,
+                        url: "./Bulletin/Search?dateRange=" + $("input[name='datepicker']").val() + '&readStatus=' + vue.readStatus,
                         type: "GET",
                         dataType: 'json',
                         success: function (result) {
                             if (result.isSuccess) {
                                 vue.rawData = result.data;
+                                vue.rawDataPage = result.data.slice(0, vue.currentSize);
+                                vue.ttlPage = Math.ceil(result.data.length / vue.currentSize);
                             }
                             else {
                                 alert(result.msg);
@@ -436,23 +488,53 @@
                     });
                 },
                 onFileChange(e) {
-                    vue.createModel.uploadFile = e.target.files[0]
+                    if (this.verifyFile(e.target.files[0])) {
+                        vue.createModel.uploadFile = e.target.files[0]
+                    }
+                },
+                verifyFile(e) {
+                    var validExtensions = ['xls', 'xlsx', 'pptx', 'pdf', 'docx'];
+                    let fileEx = e.name.replace(/^.*\./, '');
+
+                    if ($.inArray(fileEx, validExtensions) == -1) {
+                        alert("無效檔案類型, 請確認是否為 .xls, .xlsx, .pptx .pdf .docx");
+                        return false;
+                    }
+                    /* 暫訂上限 30MB */
+                    else if (e.size > 31457280) {
+                        alert("檔案過大");
+                        return false;
+                    }
+
+                    return true;
                 },
                 sizeChange() {
                     vue.currentPage = 1;
-                    vue.certDataPage = vue.certData.slice(0, vue.currentSize);
+                    vue.rawDataPage = vue.rawData.slice(0, vue.currentSize);
                 },
                 pageChange(even, pageNo) {
                     vue.currentPage = pageNo;
-                    vue.certDataPage = vue.certData.slice(((vue.currentPage - 1) * vue.currentSize), vue.currentPage * vue.currentSize);
+                    vue.rawDataPage = vue.rawData.slice(((vue.currentPage - 1) * vue.currentSize), vue.currentPage * vue.currentSize);
                 },
                 createClk() {
+
+                    if (vue.createModel.subject == '' || vue.createModel.content == '' || $("#dropTarget").val() == '') {
+                        alert('欄位皆必填');
+                        return false;
+                    }
+
+                    if (vue.createModel.uploadFile == '') {
+                        alert('請選取公告檔案');
+                        return false;
+                    }
 
                     let formData = new FormData();
                     formData.append('subject', vue.createModel.subject);
                     formData.append('content', vue.createModel.content);
                     formData.append('target', $("#dropTarget").val());
                     formData.append('uploadFile', vue.createModel.uploadFile);
+
+                    globalFuc.LoadingPic();
 
                     $.ajax({
                         url: "./Bulletin/Create",
@@ -463,7 +545,8 @@
                         data: formData,
                         success: function (result) {
                             if (result.isSuccess) {
-                                vue.rawData = result.data;
+                                alert("公告成功");
+                                location.reload();
                             }
                             else {
                                 alert(result.msg);
@@ -471,11 +554,68 @@
                             $.unblockUI();
                         }
                     });
+                },
+                detailClk(bulletinSn, needUpd, idx) {
+
+                    $.ajax({
+                        url: "./Bulletin/Detail?bulletinSn=" + bulletinSn,
+                        type: "GET",
+                        dataType: 'json',
+                        success: function (result) {
+                            if (result.isSuccess) {
+                                vue.detailModel = result.data;
+                                vue.detailModel.isNeedUpdate = needUpd;
+                                vue.detailModel['rawIndex'] = idx;
+                                vue.detailModalShow = '#detailModal';
+                            }
+                            else {
+                                vue.detailModel = {};
+                                vue.detailModalShow = '';
+                                alert(result.msg);
+                            }
+                        }
+                    });
+                },
+                fileDownloadClk(bulletinSn, needUpd, rawIndex) {
+
+                    if (needUpd) {
+                        $.ajax({
+                            url: "./Bulletin/UpdateDetail?bulletinSn=" + bulletinSn,
+                            type: "PUT",
+                            dataType: 'json',
+                            success: function (result) {
+                                if (result.isSuccess) {
+
+                                    vue.rawData[(vue.currentPage - 1) * vue.currentSize + rawIndex].status = '已讀';
+                                    vue.rawData[(vue.currentPage - 1) * vue.currentSize + rawIndex].readCount += 1;
+
+                                }
+                                else {
+                                    alert(result.msg);
+                                }
+                            }
+                        });
+                    }
+                    window.location = "./Bulletin/DownloadFile?bulletinSn=" + bulletinSn;
+                },
+                closeCreateModal() {
+                    vue.createModel.subject = '';
+                    vue.createModel.content = '';
+                    vue.createModel.target = '';
+                    $('option', $('#dropTarget')).each(function (element) {
+                        $(this).removeAttr('selected').prop('selected', false);
+                    });
+                    $("#dropTarget").multiselect('refresh');
+                    vue.createModel.uploadFile = '';
                 }
             },
             mounted: function () {
 
                 $("#dropTarget").multiselect();
+
+                this.rawData = @Html.Raw(Json.Serialize(Model));
+                this.rawDataPage = this.rawData.slice(0, 10);
+                this.ttlPage = Math.ceil(this.rawData.length / 10);
 
                 $('input[name="datepicker"]').daterangepicker({
                     timePicker: false,

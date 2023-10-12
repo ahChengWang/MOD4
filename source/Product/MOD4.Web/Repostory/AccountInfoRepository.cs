@@ -55,7 +55,7 @@ namespace MOD4.Web.Repostory
                 account = account,
                 password = password,
                 SnList = accountSnList,
-                deptSn = deptList,
+                deptList = deptList,
                 role = roleIdList,
                 name = name,
                 jobId = jobId
@@ -238,7 +238,6 @@ VALUES
         {
             string sql = @"Update [dbo].[account_info] 
 SET name = @name,
-role = @role,
 level_id = @level_id,
 jobId = @jobId,
 apiKey = @apiKey,

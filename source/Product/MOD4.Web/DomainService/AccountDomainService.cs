@@ -676,7 +676,6 @@ namespace MOD4.Web.DomainService
                 name = updateEntity.Name,
                 jobId = updateEntity.JobId,
                 mail = updateEntity.Mail,
-                role = RoleEnum.User,
                 apiKey = updateEntity.ApiKey,
                 deptSn = updateEntity.SectionId != 0
                        ? updateEntity.SectionId

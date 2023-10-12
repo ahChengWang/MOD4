@@ -289,6 +289,7 @@ namespace MOD4.Web.DomainService
                 new OptionEntity { Id = (int)JobLevelEnum.DepartmentManager, Value = JobLevelEnum.DepartmentManager.GetDescription() },
                 new OptionEntity { Id = (int)JobLevelEnum.SectionManager, Value = JobLevelEnum.SectionManager.GetDescription() },
                 new OptionEntity { Id = (int)JobLevelEnum.Employee, Value = JobLevelEnum.Employee.GetDescription() },
+                new OptionEntity { Id = (int)JobLevelEnum.DL, Value = JobLevelEnum.DL.GetDescription() },
             };
 
         public List<OptionEntity> GetDepartmentOptionList(int parentDeptId, int levelId)
