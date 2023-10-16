@@ -19,13 +19,14 @@ namespace MOD4.Web.DomainService
     public class PCESCertificationDomainService : BaseDomainService, IPCESCertificationDomainService
     {
         private readonly IPCESCertificationRepository _pcesCertificationRepository;
+        private readonly string[] _generalClassDic = new string[] { "IATF 16949", "IECQ QC 080000", "TISAX Prototype保護認知", "VDA6.3", "品質與安全意識", "管制計畫", "靜電防護" };
 
         public PCESCertificationDomainService(IPCESCertificationRepository pcesCertificationRepository)
         {
             _pcesCertificationRepository = pcesCertificationRepository;
         }
 
-        public List<PCESCertRecordEntity> GetRecordPCES(string opr, string station, string prod, string status, string jobId)
+        public List<PCESCertRecordEntity> GetRecordPCES(string opr, string station, string prod, string certStatus, string jobId, string status = null)
         {
             try
             {
@@ -33,9 +34,10 @@ namespace MOD4.Web.DomainService
                 List<PCESCertRecordEntity> _pcesCertRecordEntityList = new List<PCESCertRecordEntity>();
 
                 var _pcesCertRecordList = _pcesCertificationRepository.SelectByConditions(
-                    oprList: opr?.Split(",").ToList(),
-                    stationList: station?.Split(",").ToList(),
-                    certStatusList: status?.Split(",").ToList(),
+                    oprList: opr?.Split(",").ToList() ?? null,
+                    stationList: station?.Split(",").ToList() ?? null,
+                    certStatusList: certStatus?.Split(",").ToList() ?? null,
+                    statusList: status?.Split(",").ToList() ?? null,
                     jobId: jobId);
 
                 if (string.IsNullOrEmpty(prod))
@@ -64,7 +66,8 @@ namespace MOD4.Web.DomainService
                             SkillStatus = cert.skill_status != null ? ((CertStatusEnum)cert.skill_status).GetDescription() : "",
                             EngNo = cert.eng_no ?? "",
                             EngName = cert.eng_name ?? "",
-                            Remark = cert.remark ?? ""
+                            Remark = cert.remark ?? "",
+                            IsGeneealClass = _generalClassDic.Contains(cert.class_name)
                         };
 
                         if (_tmpPCES.CertStatusId == CertStatusEnum.Pass || _tmpPCES.CertStatusId == CertStatusEnum.Expied)
@@ -100,7 +103,8 @@ namespace MOD4.Web.DomainService
                             SkillStatus = cert.skill_status != null ? ((CertStatusEnum)cert.skill_status).GetDescription() : "",
                             EngNo = cert.eng_no ?? "",
                             EngName = cert.eng_name ?? "",
-                            Remark = cert.remark ?? ""
+                            Remark = cert.remark ?? "",
+                            IsGeneealClass = _generalClassDic.Contains(cert.class_name)
                         };
 
                         if (_tmpPCES.CertStatusId == CertStatusEnum.Pass || _tmpPCES.CertStatusId == CertStatusEnum.Expied)
@@ -126,7 +130,7 @@ namespace MOD4.Web.DomainService
 
                     }).ToList();
 
-                return _pcesCertRecordEntityList;
+                return _pcesCertRecordEntityList.OrderBy(ob => ob.ApplyNo).ToList();
             }
             catch (Exception ex)
             {
@@ -251,6 +255,9 @@ namespace MOD4.Web.DomainService
                 {
                     switch (c.status)
                     {
+                        case CertStatusEnum.Pass when _generalClassDic.Contains(c.class_name):
+                            c.certStatus = CertStatusEnum.Pass;
+                            break;
                         case CertStatusEnum.Pass:
                             c.certStatus = CertStatusEnum.InProgress;
                             break;
@@ -281,7 +288,7 @@ namespace MOD4.Web.DomainService
                 });
 
 
-                // 認證狀態變更 (認證中 => 通過、通過 => 過期)
+                // 新認證
                 _insExpDatePCESCertRecords = (from raw in _pcesRawData
                                               join record in _pcesCertRecordList
                                              on new { raw.apply_no, raw.apply_name, raw.main_oper, raw.station, raw.mtype, raw.class_name, raw.lic_type }
@@ -305,6 +312,42 @@ namespace MOD4.Web.DomainService
                                                   valid_date = raw.valid_date,
                                                   subj_grade = raw.subj_grade
                                               }).ToList();
+
+                _insExpDatePCESCertRecords.ForEach(c =>
+                {
+                    switch (c.status)
+                    {
+                        case CertStatusEnum.Pass when _generalClassDic.Contains(c.class_name):
+                            c.certStatus = CertStatusEnum.Pass;
+                            break;
+                        case CertStatusEnum.Pass:
+                            c.certStatus = CertStatusEnum.InProgress;
+                            break;
+                        case CertStatusEnum.Failed:
+                            c.certStatus = CertStatusEnum.Failed;
+                            c.skill_grade = null;
+                            c.eng_no = null;
+                            c.skill_status = null;
+                            c.remark = null;
+                            break;
+                        case CertStatusEnum.InProgress:
+                            c.certStatus = CertStatusEnum.InProgress;
+                            c.skill_grade = null;
+                            c.eng_no = null;
+                            c.skill_status = null;
+                            c.remark = null;
+                            break;
+                        case CertStatusEnum.Expied:
+                            c.certStatus = CertStatusEnum.Expied;
+                            //c.skill_grade = null;
+                            //c.eng_no = null;
+                            //c.skill_status = null;
+                            //c.remark = null;
+                            break;
+                        default:
+                            break;
+                    }
+                });
 
                 using (TransactionScope _scope = new TransactionScope())
                 {

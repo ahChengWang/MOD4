@@ -10,7 +10,8 @@ namespace MOD4.Web.Repostory
 
         public List<PCESCertificationRecordDao> SelectByConditions(List<string> oprList = null, 
                 List<string> stationList = null, 
-                List<string> certStatusList = null, 
+                List<string> certStatusList = null,
+                List<string> statusList = null,
                 string jobId = "",
                 string className = "",
                 string mtype = "",
@@ -26,6 +27,9 @@ namespace MOD4.Web.Repostory
 
             if (certStatusList != null && certStatusList.Any())
                 sql += " and certStatus IN @CertStatus ";
+
+            if (statusList != null && statusList.Any())
+                sql += " and status IN @Status ";
 
             if (!string.IsNullOrEmpty(jobId))
                 sql += " and apply_no = @Apply_no ";
@@ -44,6 +48,7 @@ namespace MOD4.Web.Repostory
                 Main_oper = oprList,
                 Station = stationList,
                 CertStatus = certStatusList,
+                Status = statusList,
                 Apply_no = jobId,
                 class_name = className,
                 lic_Type = licType,

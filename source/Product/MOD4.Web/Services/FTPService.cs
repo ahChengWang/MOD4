@@ -49,8 +49,8 @@ namespace MOD4.Web
                 }
             else
             {
-                FtpWebRequest request = (FtpWebRequest)WebRequest.Create($"{_serverIP}{parentFolder}");
-                request = (FtpWebRequest)WebRequest.Create($"{_serverIP}{parentFolder}/{fileName}");
+                //FtpWebRequest request = (FtpWebRequest)WebRequest.Create($"{_serverIP}{parentFolder}");
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create($"{_serverIP}{parentFolder}/{fileName}");
                 request.Method = WebRequestMethods.Ftp.UploadFile;
                 request.KeepAlive = true;
                 request.UseBinary = true;

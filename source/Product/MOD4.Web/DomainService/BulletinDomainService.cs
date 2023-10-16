@@ -194,7 +194,7 @@ namespace MOD4.Web.DomainService
 
 
                 // FTP 上傳
-                //_ftpService.FTP_Upload(createEntity.UploadFile, "FTP_Bulletin", $"{userEntity.JobId}\\{_nowTime.ToString("yyMMdd")}", false, "");
+                _ftpService.FTP_Upload(createEntity.UploadFile, $"FTP_Bulletin/{userEntity.JobId}/{_nowTime.ToString("yyMMdd")}", createEntity.UploadFile.FileName, false, "");
 
                 //if (string.IsNullOrEmpty(createEntity.Subject) || string.IsNullOrEmpty(createEntity.Content) || string.IsNullOrEmpty(createEntity.Target))
                 //    throw new Exception("欄未必填");
@@ -302,9 +302,9 @@ namespace MOD4.Web.DomainService
                 if (_bulletin == null)
                     return _response;
 
-                _response = new Tuple<bool, string, string>(true, $"D:\\{_bulletin.FilePath}\\{ _bulletin.FileName}", _bulletin.FileName);
+                var fileStr = _ftpService.FTP_Download($"FTP_Bulletin{_bulletin.FilePath}", _bulletin.FileName);
 
-                //_ftpService.FTP_Download("D:\\", $"{_bulletin.FilePath}\\{_bulletin.FileName}");
+                _response = new Tuple<bool, string, string>(true, fileStr, _bulletin.FileName);
 
                 return _response;
             }

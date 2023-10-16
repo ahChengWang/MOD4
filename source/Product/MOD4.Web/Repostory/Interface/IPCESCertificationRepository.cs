@@ -8,6 +8,7 @@ namespace MOD4.Web.Repostory
         List<PCESCertificationRecordDao> SelectByConditions(List<string> oprList = null,
                 List<string> stationList = null,
                 List<string> certStatusList = null,
+                List<string> statusList = null,
                 string jobId = "",
                 string className = "",
                 string mtype = "",

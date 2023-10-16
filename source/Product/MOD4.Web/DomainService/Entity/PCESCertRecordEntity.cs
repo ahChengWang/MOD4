@@ -26,5 +26,8 @@ namespace MOD4.Web.DomainService.Entity
         public string SkillStatus { get; set; }
         public CertStatusEnum? SkillStatusId { get; set; }
         public string Remark { get; set; }
+
+        // setting page 判斷"車用通識"編輯按鈕顯示
+        public bool IsGeneealClass { get; set; }
     }
 }

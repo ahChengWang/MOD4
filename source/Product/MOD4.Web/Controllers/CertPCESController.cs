@@ -83,7 +83,7 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                var _pcesCertList = _certificationPCESDomainService.GetRecordPCES(opr, station, prod, status, jobId);
+                var _pcesCertList = _certificationPCESDomainService.GetRecordPCES(opr, station, prod, null, jobId, status: status);
 
                 return Json(new ResponseViewModel<List<PCESCertRecordViewModel>>
                 {

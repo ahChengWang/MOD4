@@ -28,7 +28,7 @@ namespace MOD4.Web.ViewModel
         public string Remark { get; set; }
 
         // 給前端判斷按鈕狀態用
-        //public bool IsEditDisabled { get; set; } = false;
+        public bool IsGeneealClass { get; set; }
         //public bool IsCancelDisabled { get; set; } = true;
         //public bool IsSaveDisabled { get; set; } = true;
     }

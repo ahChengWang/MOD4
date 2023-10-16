@@ -5,6 +5,7 @@ namespace MOD4.Web.Repostory
     public class BaseRepository
     {
         protected MSSqlDBHelper _dbHelper;
+        protected OracleDBHelper _oracleDBHelper;
 
         //protected LoggerWrapper _loggerWrapper;
 
@@ -18,6 +19,7 @@ namespace MOD4.Web.Repostory
         public BaseRepository()
         {
             _dbHelper = new MSSqlDBHelper();
+            _oracleDBHelper = new OracleDBHelper();
         }
     }
 }
