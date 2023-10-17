@@ -62,7 +62,5 @@ namespace MOD4.Web.Enum
         CertificationPCESSetting = 37,
         [Description("公告欄")]
         Bulletin = 39,
-        [Description("公告管理")]
-        BulletinSetting = 40,
     }
 }

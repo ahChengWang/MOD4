@@ -198,5 +198,23 @@ namespace MOD4.Web.Controllers
                 return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
             }
         }
+
+        [HttpGet]
+        public IActionResult DownloadReadInfoFile([FromQuery] int bulletinSn)
+        {
+            try
+            {
+                var _dwnlRes = _bulletinDomainService.DownloadReadInfoFile(bulletinSn);
+
+                if (_dwnlRes.Item1)
+                    return File(System.IO.File.OpenRead(_dwnlRes.Item2), "application/octet-stream", _dwnlRes.Item3);
+                else
+                    return RedirectToAction("Error", "Home", new ErrorViewModel { Message = "下載異常" });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
     }
 }

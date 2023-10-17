@@ -40,7 +40,7 @@ namespace MOD4.Web
                 {
                     sn = s.sn,
                     UserMenuList = s.UserMenuList
-                })), 604800);
+                })), 432000);
             }
 
             var noSub = _currentUserInfo.FirstOrDefault(f => f.sn == accountSn).UserMenuList

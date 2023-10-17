@@ -20,6 +20,6 @@ namespace MOD4.Web.DomainService
 
         Tuple<bool, string, string> Download(int bulletinSn, UserEntity userEntity);
 
-        (byte[], string) Download(string jobId, ApplyAreaEnum applyAreaId, int itemId, UserEntity userEntity);
+        (bool, string, string) DownloadReadInfoFile(int bulletinSn);
     }
 }

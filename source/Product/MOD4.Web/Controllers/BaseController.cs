@@ -28,7 +28,7 @@ namespace MOD4.Web.Controllers
         {
             var _userClaims = _httpContextAccessor.HttpContext.User.Claims;
 
-            var _catchUserInfo = CatchHelper.Get($"userInfo_{Convert.ToInt32(_userClaims.FirstOrDefault(m => m.Type == "sn").Value)}");
+            var _catchUserInfo = CatchHelper.Get($"userInfo_{_userClaims.FirstOrDefault(m => m.Type == "JobId").Value}");
             UserEntity _userInfo = new UserEntity();
 
             if (_catchUserInfo == null)
@@ -48,7 +48,7 @@ namespace MOD4.Web.Controllers
                 _userInfo.UserMenuPermissionList = _userPermission;
 
 
-                CatchHelper.Set($"userInfo_{_userInfo.sn}", JsonConvert.SerializeObject(_userInfo), 604800);
+                CatchHelper.Set($"userInfo_{_userInfo.JobId}", JsonConvert.SerializeObject(_userInfo), 432000);
 
                 return _userInfo;
             }

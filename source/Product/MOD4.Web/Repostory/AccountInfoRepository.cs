@@ -17,7 +17,9 @@ namespace MOD4.Web.Repostory
             List<int> deptList = null,
             List<RoleEnum> roleIdList = null,
             string name = "",
-            string jobId = "")
+            string jobId = "",
+            int levelId = 0,
+            List<string> accountList = null)
         {
             string sql = "select * from account_info where 1=1 ";
 
@@ -49,6 +51,14 @@ namespace MOD4.Web.Repostory
             {
                 sql += " and jobId = @jobId ";
             }
+            if (levelId != 0)
+            {
+                sql += " and level_id = @Level_id ";
+            }
+            if (accountList != null && accountList.Any())
+            {
+                sql += " and account in @AccountList ";
+            }
 
             var dao = _dbHelper.ExecuteQuery<AccountInfoDao>(sql, new
             {
@@ -58,7 +68,9 @@ namespace MOD4.Web.Repostory
                 deptList = deptList,
                 role = roleIdList,
                 name = name,
-                jobId = jobId
+                jobId = jobId,
+                Level_id = levelId,
+                AccountList = accountList
             });
 
             return dao;
@@ -171,6 +183,42 @@ VALUES
             return dao;
         }
 
+        public int InsertUserAccountList(List<AccountInfoDao> insAccInfoList)
+        {
+            try
+            {
+
+                string sql = @"INSERT INTO [dbo].[account_info]
+([account],
+[password],
+[name],
+[role],
+[level_id],
+[jobId],
+[apiKey],
+[deptSn],
+[mail])
+VALUES
+(@account,
+@password,
+@name,
+@role,
+@level_id,
+@jobId,
+@apiKey,
+@deptSn,
+@mail); ";
+
+                var dao = _dbHelper.ExecuteNonQuery(sql, insAccInfoList);
+
+                return dao;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public int InsertUserPermission(List<AccountMenuInfoDao> insAccountMenuInfo)
         {
             try
@@ -250,7 +298,6 @@ where sn = @sn ; ";
             return dao;
         }
 
-
         public int DeleteAccountPermission(int accountSn)
         {
             string sql = "DELETE [dbo].[account_menu_info] WHERE account_sn = @account_sn and menu_sn != 15; ";
@@ -262,5 +309,50 @@ where sn = @sn ; ";
 
             return dao;
         }
+
+        public List<HcmVwEmp01Dao> GetHcmVwEmp01List()
+        {
+            try
+            {
+                string sql = @" select * from hcm_vw_emp01 where STAT2TXT = '在職中' and PKTXT not like '%IDL%' and PTEXT = '群豐駿南科'
+ and OSHORT in ('9O431500','9O432500','9O433500','9J410500','9J410500','9P128500',
+'9O431501','9O431502','9O431503','9O431504','9O432501','9O432502',
+'9O432503','9O432504','9O433501','9O433502','9O434501','9O434502',
+'9O435501','9O435502','9O436501','9O436502','9O434503','9O432505','9O431505') ";
+
+                var dao = _oracleDBHelper.ExecuteQuery<HcmVwEmp01Dao>(sql);
+
+                return dao;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public int DeleteAccountInfo(List<int> accountSnList)
+        {
+            string sql = "DELETE [dbo].[account_info] WHERE sn in @Sn ; ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, new
+            {
+                Sn = accountSnList
+            });
+
+            return dao;
+        }
+
+        public int DeleteAccountPermissionByList(List<int> accountSnList)
+        {
+            string sql = "DELETE [dbo].[account_menu_info] WHERE account_sn IN @account_sn ; ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, new
+            {
+                account_sn = accountSnList
+            });
+
+            return dao;
+        }
+
     }
 }

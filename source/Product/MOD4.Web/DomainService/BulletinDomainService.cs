@@ -1,16 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
-using MOD4.Web.DomainService.Entity;
+﻿using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
-using System;
-using System.IO;
-using Ionic.Zip;
-using Utility.Helper;
-using System.Net;
-using MOD4.Web.Repostory.Dao;
 using MOD4.Web.Repostory;
-using System.Transactions;
+using MOD4.Web.Repostory.Dao;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Transactions;
+using Utility.Helper;
 
 namespace MOD4.Web.DomainService
 {
@@ -41,10 +40,10 @@ namespace MOD4.Web.DomainService
                 List<CarUXBulletinDetailDao> _bulletinDetailList = new List<CarUXBulletinDetailDao>();
                 List<BulletinEntity> _bulletinRep = new List<BulletinEntity>();
                 var _defDepartment = _departmentDomainService.GetDeptSectionList();
-                
+
                 if (userInfo.Level_id == JobLevelEnum.DL)
                 {
-                    _bulletinDetailList = _carUXBulletinRepository.SelectDetailByConditions(jobId: userInfo.JobId,readStatus: readStatus);
+                    _bulletinDetailList = _carUXBulletinRepository.SelectDetailByConditions(jobId: userInfo.JobId, readStatus: readStatus);
                     _bulletinList = _carUXBulletinRepository.SelectByConditions(_bulletinDetailList.Select(s => s.BulletinSn).ToList(), startDate: startDate, endDate: endDate);
                     var _authorAccInfoList = _accountDomainService.GetAccountInfo(_bulletinList.Select(s => s.AuthorAccountId).ToList());
                     _bulletinRep.AddRange(from bulletin in _bulletinList
@@ -64,9 +63,9 @@ namespace MOD4.Web.DomainService
                                                                 on dept.DeptSn equals Convert.ToInt16(target)
                                                                 select dept.DepartmentName).ToList(),
                                               TargetSectionStr = string.Join(" ○ ", (from dept in _defDepartment
-                                                                  join target in bulletin.TargetSections.Split(",").ToList()
-                                                                  on dept.DeptSn equals Convert.ToInt16(target)
-                                                                  select dept.DepartmentName).ToList()),
+                                                                                     join target in bulletin.TargetSections.Split(",").ToList()
+                                                                                     on dept.DeptSn equals Convert.ToInt16(target)
+                                                                                     select dept.DepartmentName).ToList()),
                                               Status = detail.Status == 1 ? "未讀" : "已讀",
                                               IsNeedUpdate = detail.Status == 1
                                           });
@@ -88,6 +87,10 @@ namespace MOD4.Web.DomainService
                                           join target in s.TargetSections.Split(",").ToList()
                                           on dept.DeptSn equals Convert.ToInt16(target)
                                           select dept.DepartmentName).ToList(),
+                        TargetSectionStr = string.Join(" ○ ", (from dept in _defDepartment
+                                                               join target in s.TargetSections.Split(",").ToList()
+                                                               on dept.DeptSn equals Convert.ToInt16(target)
+                                                               select dept.DepartmentName).ToList()),
                         Status = "",
                         IsNeedUpdate = false
                     }));
@@ -120,7 +123,7 @@ namespace MOD4.Web.DomainService
                 if (_dateRange.startDate == null || _dateRange.endDate == null)
                     throw new Exception("起訖日異常");
 
-                return GetBulletinList(userInfo,startDate: _dateRange.startDate,endDate: _dateRange.endDate, readStatus);
+                return GetBulletinList(userInfo, startDate: _dateRange.startDate, endDate: _dateRange.endDate, readStatus);
             }
             catch (Exception ex)
             {
@@ -169,7 +172,7 @@ namespace MOD4.Web.DomainService
 
                 // 取得公告人員
                 var _destSectionEmpList = _accountDomainService.GetAccInfoListByDepartment(createEntity.Target.Split(",").Select(sec => Convert.ToInt32(sec)).ToList())
-                        .Where(w => w.Level_id == JobLevelEnum.DL && new List<RoleEnum> { RoleEnum.PM, RoleEnum.TechnicalAssistant, RoleEnum.TeamLeader, RoleEnum.Foreman }.Contains(w.RoleId));
+                        .Where(w => w.Level_id == JobLevelEnum.DL);
 
                 CarUXBulletinDao _bulletin = new CarUXBulletinDao
                 {
@@ -314,43 +317,80 @@ namespace MOD4.Web.DomainService
             }
         }
 
-
-        public (byte[], string) Download(string jobId, ApplyAreaEnum applyAreaId, int itemId, UserEntity userEntity)
+        public (bool, string, string) DownloadReadInfoFile(int bulletinSn)
         {
             try
             {
-                var _url = "D:\\";
-                var _folder = $@"CertifiedUpload\{jobId}\{applyAreaId.GetDescription()}\{itemId}";
-                string[] _allFiles = Directory.GetFiles($@"{_url}\{_folder}");
-                var bytes = default(byte[]);
+                List<CarUXBulletinDetailDao> _bulletinDetailList = _carUXBulletinRepository.SelectDetailByConditions(bulletinSn: new List<int> { bulletinSn });
+                List<CarUXBulletinDao> _bulletinList = _carUXBulletinRepository.SelectByConditions(snList: new List<int> { bulletinSn });
+                List<AccountInfoEntity> _readAccList = _accountDomainService.GetAccountInfoByConditions(null, null, null, null, accountList: _bulletinDetailList.Select(s => s.JobId).ToList());
+                var _dfDepartmentLit = _departmentDomainService.GetDeptSectionList();
 
-                if (!Directory.Exists($@"{_url}\{_folder}") || _allFiles.Length == 0)
+                var _readDetailList = (from detail in _bulletinDetailList
+                                       join accInfo in _readAccList
+                                       on detail.JobId equals accInfo.JobId
+                                       select new
+                                       {
+                                           detail.JobId,
+                                           accInfo.Name,
+                                           detail.Status,
+                                           detail.ReadDate,
+                                           accInfo.DeptSn,
+                                           Dept = _dfDepartmentLit.FirstOrDefault(f => f.DeptSn == accInfo.DeptSn).DepartmentName
+                                       }).OrderBy(o => o.DeptSn).ToList();
+
+                // 刪除暫存計算檔
+                string[] _dirAllFiles = Directory.GetFiles("..\\tempDownBulletin\\");
+                if (_dirAllFiles.Length != 0)
+                    foreach (string filePath in _dirAllFiles)
+                        File.Delete(filePath);
+
+                // 新增暫存計算檔
+                using (FileStream fs = new FileStream("..\\tempDownBulletin\\公告閱讀.xlsx", FileMode.Create))
                 {
-                    return (null, "人員無相關上傳檔案");
                 }
 
-                using (var zip = new ZipFile())
+                XSSFWorkbook _workbook = new XSSFWorkbook();
+                ISheet _sheet = _workbook.CreateSheet("Sheet1");
+                IRow _hRow = _sheet.CreateRow(0);
+                ICell _jobID = _hRow.CreateCell(0);
+                _jobID.SetCellValue("工號");
+                ICell _name = _hRow.CreateCell(1);
+                _name.SetCellValue("姓名");
+                ICell _dept = _hRow.CreateCell(2);
+                _dept.SetCellValue("部門");
+                ICell _readStatus = _hRow.CreateCell(3);
+                _readStatus.SetCellValue("閱讀狀態");
+                ICell _readTime = _hRow.CreateCell(4);
+                _readTime.SetCellValue("閱讀時間");
+
+                for (int i = 1; i < _readDetailList.Count; i++)
                 {
-                    //zip.Password = "P@ssW0rd";
-
-                    foreach (var file in _allFiles)
-                    {
-                        string[] _pathArray = file.Split("\\");
-                        zip.AddEntry(_pathArray[_pathArray.Length - 1], new byte[] { });
-                    }
-
-                    using (var ms = new MemoryStream())
-                    {
-                        zip.Save(ms);
-                        bytes = ms.ToArray();
-                    }
+                    _hRow = _sheet.CreateRow(i);
+                    _jobID = _hRow.CreateCell(0);
+                    _jobID.SetCellValue(_readDetailList[i].JobId);
+                    _name = _hRow.CreateCell(1);
+                    _name.SetCellValue(_readDetailList[i].Name);
+                    _dept = _hRow.CreateCell(2);
+                    _dept.SetCellValue(_readDetailList[i].Dept);
+                    _readStatus = _hRow.CreateCell(3);
+                    _readStatus.SetCellValue(_readDetailList[i].Status == 1 ? "未讀" : "已讀");
+                    _readTime = _hRow.CreateCell(4);
+                    _readTime.SetCellValue(_readDetailList[i].ReadDate?.ToString("yyyy-MM-dd HH:mm") ?? "");
                 }
 
-                return (bytes, "");
+                // 回寫本地計算檔
+                using (FileStream fs = new FileStream("..\\tempDownBulletin\\公告閱讀.xlsx", FileMode.Open, FileAccess.Write))
+                {
+                    _workbook.Write(fs);
+                    fs.Close();
+                }
+
+                return (true, "..\\tempDownBulletin\\公告閱讀.xlsx", "公告閱讀.xlsx");
             }
             catch (Exception ex)
             {
-                return (null, ex.Message);
+                throw ex;
             }
         }
     }

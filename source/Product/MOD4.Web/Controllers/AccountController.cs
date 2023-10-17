@@ -57,7 +57,7 @@ namespace MOD4.Web.Controllers
                         new Claim("Psw", _verifyResult.Item2.Password),
                         new Claim(ClaimTypes.Role, Convert.ToString((int)_verifyResult.Item2.RoleId)),
                         new Claim("LevelId", Convert.ToString((int)_verifyResult.Item2.Level_id)),
-                        new Claim("DeptSn", Convert.ToString((int)_verifyResult.Item2.DeptSn)),
+                        new Claim("DeptSn", Convert.ToString(_verifyResult.Item2.DeptSn)),
                         new Claim("JobId", _verifyResult.Item2.JobId),
                         new Claim(ClaimTypes.Email, _verifyResult.Item2.Mail)
                     };
@@ -69,7 +69,7 @@ namespace MOD4.Web.Controllers
                     //SignInAsync is a Extension method for Sign in a principal for the specified scheme.    
                     HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties()
                     {
-                        ExpiresUtc = DateTime.UtcNow.AddDays(2),
+                        ExpiresUtc = DateTime.UtcNow.AddDays(1),
                         IsPersistent = loginViewMode.RememberMe //IsPersistent = false：瀏覽器關閉立馬登出；IsPersistent = true 就變成常見的Remember Me功能
                     }).Wait();
 

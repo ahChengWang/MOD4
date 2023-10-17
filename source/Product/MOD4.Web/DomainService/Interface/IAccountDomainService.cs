@@ -12,7 +12,7 @@ namespace MOD4.Web.DomainService
 
         AccessFabOrderFlowEntity GetAuditFlowInfo(UserEntity userEntity);
 
-        List<AccountInfoEntity> GetAccountInfoByConditions(List<RoleEnum> roleIdList, string name, string jobId, string account);
+        List<AccountInfoEntity> GetAccountInfoByConditions(List<RoleEnum> roleIdList, string name, string jobId, string account, int levelId = 0, List<string> accountList = null);
 
         AccountInfoEntity GetAccInfoByDepartment(UserEntity userEntity);
 
@@ -38,5 +38,7 @@ namespace MOD4.Web.DomainService
         bool VerifyInxSSO(string account, string password);
 
         string Decrypt(string password, string key = "MOD4_Saikou");
+
+        string SyncDLEmp(string shaKey);
     }
 }

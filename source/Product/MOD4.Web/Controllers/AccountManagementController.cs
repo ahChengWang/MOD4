@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MOD4.Web.DomainService;
 using MOD4.Web.DomainService.Entity;
@@ -21,15 +22,18 @@ namespace MOD4.Web.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IOptionDomainService _optionDomainService;
         private readonly IAccountDomainService _accountDomainService;
+        private readonly string _shaKey = string.Empty;
 
         public AccountManagementController(IHttpContextAccessor httpContextAccessor,
             IAccountDomainService accountDomainService,
             IOptionDomainService optionDomainService,
+            IConfiguration connectionString,
             ILogger<HomeController> logger)
             : base(httpContextAccessor, accountDomainService)
         {
             _optionDomainService = optionDomainService;
             _accountDomainService = accountDomainService;
+            _shaKey = connectionString.GetSection("SHAKey").Value;
             _logger = logger;
         }
 
@@ -230,6 +234,29 @@ namespace MOD4.Web.Controllers
                     RelatedId = s.SubId,
                     Value = s.Value
                 }));
+        }
+
+        [HttpGet]
+        public IActionResult SyncDLEmp()
+        {
+            try
+            {
+                string _response = _accountDomainService.SyncDLEmp(_shaKey);
+
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = string.IsNullOrEmpty(_response),
+                    Msg = _response
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
+            }
         }
     }
 }

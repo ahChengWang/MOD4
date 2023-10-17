@@ -302,7 +302,7 @@ namespace MOD4.Web.DomainService
             if (_catchDeptInfo == null)
             {
                 _allDepartmentList = _accountInfoRepository.SelectDefinitionDepartment();
-                CatchHelper.Set("deptList", JsonConvert.SerializeObject(_allDepartmentList), 604800);
+                CatchHelper.Set("deptList", JsonConvert.SerializeObject(_allDepartmentList), 432000);
             }
             else
                 _allDepartmentList = JsonConvert.DeserializeObject<List<DefinitionDepartmentDao>>(_catchDeptInfo);
@@ -337,7 +337,7 @@ namespace MOD4.Web.DomainService
             {
                 var _allMenuList = _menuRepository.SelectAllMenu();
 
-                CatchHelper.Set("menuList", JsonConvert.SerializeObject(_allMenuList), 604800);
+                CatchHelper.Set("menuList", JsonConvert.SerializeObject(_allMenuList), 432000);
 
                 _menuOptionList = _allMenuList.Where(w => w.href != "#")
                     .Select(s => new OptionEntity
@@ -372,7 +372,7 @@ namespace MOD4.Web.DomainService
             {
                 var _allMenuList = _menuRepository.SelectAllMenu();
 
-                CatchHelper.Set("menuList", JsonConvert.SerializeObject(_allMenuList), 604800);
+                CatchHelper.Set("menuList", JsonConvert.SerializeObject(_allMenuList), 432000);
 
                 _response = _allMenuList.Select(menu => new MenuPermissionViewModel
                 {

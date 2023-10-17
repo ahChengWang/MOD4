@@ -13,13 +13,17 @@ namespace MOD4.Web.Repostory
             List<int> deptList = null, 
             List<RoleEnum> roleIdList = null,
             string name = "",
-            string jobId = "");
+            string jobId = "",
+            int levelId = 0,
+            List<string> accountList = null);
 
         AccessFabOrderFlowEntity SelectAccessAuditFlow(int accSn, JobLevelEnum accLevelId, int levelId);
 
         int UpdateUserAccount(string account, string password);
 
         int InsertUserAccount(AccountInfoDao insAccountInfo);
+
+        int InsertUserAccountList(List<AccountInfoDao> insAccInfoList);
 
         int InsertUserPermission(List<AccountMenuInfoDao> insAccountMenuInfo);
 
@@ -30,5 +34,11 @@ namespace MOD4.Web.Repostory
         int UpdateUserAccount(AccountInfoDao updAccountInfo);
 
         int DeleteAccountPermission(int accountSn);
+
+        List<HcmVwEmp01Dao> GetHcmVwEmp01List();
+
+        int DeleteAccountInfo(List<int> accountSnList);
+
+        int DeleteAccountPermissionByList(List<int> accountSnList);
     }
 }

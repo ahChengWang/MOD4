@@ -65,9 +65,9 @@ namespace MOD4.Web.DomainService
             }).ToList();
         }
 
-        public List<AccountInfoEntity> GetAccountInfoByConditions(List<RoleEnum> roleIdList, string name, string jobId, string account)
+        public List<AccountInfoEntity> GetAccountInfoByConditions(List<RoleEnum> roleIdList, string name, string jobId, string account, int levelId = 0, List<string> accountList = null)
         {
-            return _accountInfoRepository.SelectByConditions(account: account, roleIdList: roleIdList, name: name, jobId: jobId).Select(s => new AccountInfoEntity
+            return _accountInfoRepository.SelectByConditions(account: account, roleIdList: roleIdList, name: name, jobId: jobId, levelId: levelId, accountList: accountList).Select(s => new AccountInfoEntity
             {
                 sn = s.sn,
                 Account = s.account,
@@ -148,7 +148,7 @@ namespace MOD4.Web.DomainService
             if (_catchDeptInfo == null)
             {
                 _allDepartmentList = _accountInfoRepository.SelectDefinitionDepartment();
-                CatchHelper.Set("deptList", JsonConvert.SerializeObject(_allDepartmentList), 604800);
+                CatchHelper.Set("deptList", JsonConvert.SerializeObject(_allDepartmentList), 432000);
             }
             else
                 _allDepartmentList = JsonConvert.DeserializeObject<List<DefinitionDepartmentDao>>(_catchDeptInfo);
@@ -446,7 +446,7 @@ namespace MOD4.Web.DomainService
                 }
 
                 CatchHelper.Delete(new string[] { $"accInfo" });
-                CatchHelper.Set("accInfo", JsonConvert.SerializeObject(_accInfoList.Any() ? _accInfoList : GetAllAccountInfo()), 604800);
+                CatchHelper.Set("accInfo", JsonConvert.SerializeObject(_accInfoList.Any() ? _accInfoList : GetAllAccountInfo()), 432000);
 
                 _logHelper.WriteLog(LogLevel.Info, this.GetType().Name, $"使用者登錄:{_accInfoEntity.Name}({_accInfoEntity.JobId})");
 
@@ -534,7 +534,7 @@ namespace MOD4.Web.DomainService
                 if (_catchDeptInfo == null)
                 {
                     _allDepartmentList = _accountInfoRepository.SelectDefinitionDepartment();
-                    CatchHelper.Set("deptList", JsonConvert.SerializeObject(_allDepartmentList), 604800);
+                    CatchHelper.Set("deptList", JsonConvert.SerializeObject(_allDepartmentList), 432000);
                 }
                 else
                     _allDepartmentList = JsonConvert.DeserializeObject<List<DefinitionDepartmentDao>>(_catchDeptInfo);
@@ -727,6 +727,110 @@ namespace MOD4.Web.DomainService
             CatchHelper.Delete(new string[] { "deptList" });
 
             return _updateRes;
+        }
+
+        public string SyncDLEmp(string shaKey)
+        {
+            try
+            {
+                //List<AccountInfoEntity> _oldDLAccountInfoList = GetAccountInfoByConditions(null, null, null, null, levelId: 5);
+
+                string _res = "";
+                List<AccountInfoEntity> _oldDLAccountInfoList = GetAllAccountInfo();
+                List<HcmVwEmp01Dao> _empDLList = _accountInfoRepository.GetHcmVwEmp01List();
+                var _defDeptList = _accountInfoRepository.SelectDefinitionDepartment();
+
+                var _newEmpList = (from hr in _empDLList
+                                   join old in _oldDLAccountInfoList
+                                   on hr.PERNR equals old.JobId into r
+                                   from newEmp in r.DefaultIfEmpty()
+                                   where newEmp is null
+                                   select new AccountInfoDao
+                                   {
+                                       account = hr.PERNR,
+                                       password = Encrypt(hr.PERNR, shaKey),
+                                       deptSn = _defDeptList.FirstOrDefault(f => f.DeptId == hr.OSHORT).DeptSn,
+                                       jobId = hr.PERNR,
+                                       level_id = JobLevelEnum.DL,
+                                       name = hr.NACHN + hr.VORNA,
+                                       mail = ""
+                                   }).ToList();
+
+
+                var _deletEmpList = (from old in _oldDLAccountInfoList.Where(w => w.Level_id == JobLevelEnum.DL)
+                                     join hr in _empDLList
+                                     on old.JobId equals hr.PERNR into r
+                                     from delEmp in r.DefaultIfEmpty()
+                                     where delEmp is null
+                                     select old).ToList();
+
+                if (_newEmpList.Any())
+                {
+                    using (var scope = new TransactionScope())
+                    {
+                        bool _insAccInfoRes = false;
+                        bool _insAccMenuInfoRes = false;
+
+                        _insAccInfoRes = _accountInfoRepository.InsertUserAccountList(_newEmpList) == _newEmpList.Count;
+
+                        var _tmpNewAccountList = _accountInfoRepository.SelectByConditions(accountList: _newEmpList.Select(s => s.account).ToList());
+
+                        List<AccountMenuInfoDao> _insAccMenuInfo = new List<AccountMenuInfoDao>();
+
+                        foreach (AccountInfoDao _newAcc in _tmpNewAccountList)
+                        {
+                            _insAccMenuInfo.AddRange(new List<AccountMenuInfoDao>
+                            {
+                                new AccountMenuInfoDao
+                                {
+                                    account_sn = _newAcc.sn,
+                                    menu_sn = 38,
+                                    account_permission = 0,
+                                    menu_group_sn = 0
+                                },
+                                new AccountMenuInfoDao
+                                {
+                                    account_sn = _newAcc.sn,
+                                    menu_sn = 39,
+                                    account_permission = 0,
+                                    menu_group_sn = 0
+                                }
+                            });
+                        }
+
+                        _insAccMenuInfoRes = _accountInfoRepository.InsertUserPermission(_insAccMenuInfo) == _insAccMenuInfo.Count;
+
+                        if (_insAccInfoRes && _insAccMenuInfoRes)
+                            scope.Complete();
+                        else
+                            _res = "DL資料新增異常";
+                    }
+                }
+
+                if (_deletEmpList.Any())
+                {
+                    using (var scope = new TransactionScope())
+                    {
+                        bool _delAccInfoRes = false;
+                        bool _delAccMenuInfoRes = false;
+
+                        _delAccInfoRes = _accountInfoRepository.DeleteAccountInfo(_deletEmpList.Select(acc => acc.sn).ToList()) == _deletEmpList.Count;
+
+                        _delAccMenuInfoRes = _accountInfoRepository.DeleteAccountPermissionByList(_deletEmpList.Select(acc => acc.sn).ToList()) == (_deletEmpList.Count * 2);
+
+                        if (_delAccInfoRes && _delAccMenuInfoRes)
+                            scope.Complete();
+                        else
+                            _res += "DL資料刪除異常";
+                    }
+                }
+
+                return _res;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
         #endregion
 

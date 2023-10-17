@@ -208,8 +208,8 @@
     }
 
         div[name='tgSection']:hover {
-            overflow:visible;
-            white-space:normal;
+            overflow: visible;
+            white-space: normal;
             text-overflow: initial;
             /*display: block;*/
         }
@@ -283,18 +283,17 @@
                                                 <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
                                         </td>*@
-                                <td width="15%">
-                                    @*<div name="tgSection" v-for="(section, idx) in raw.targetSections" style="font-size: 12px;">{{section}}</div>*@
-                                    <div name="tgSection" style="font-size: 12px;">{{raw.targetSectionStr}}</div>
-                                </td>
+                                    <td width="15%">
+                                        @*<div name="tgSection" v-for="(section, idx) in raw.targetSections" style="font-size: 12px;">{{section}}</div>*@
+                                        <div name="tgSection" style="font-size: 12px;">{{raw.targetSectionStr}}</div>
+                                    </td>
                                     <td width="10%">{{raw.readCount}}</td>
                                     <td width="12%">
                                         <a class="btn btn-sm" data-toggle="modal" style="font-size:15px" :data-target="detailModalShow" @@click="detailClk(raw.serialNo, raw.isNeedUpdate, idx)">
-                                            @*data-target="#detailModal"*@
                                             <i class="far fa-eye" href="#" title="detail"></i>
                                         </a>
-                                        <a class="btn btn-sm">
-                                            <i class="fas fa-download" href="#" title="下載未讀名單"></i>
+                                        <a class="btn btn-sm" v-if="permision.accountPermission & 32">
+                                            <i class="fas fa-download" href="#" title="下載閱讀名單" @@click="readFileDownload(raw.serialNo)"></i>
                                         </a>
                                     </td>
                                 </tr>
@@ -360,10 +359,12 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-lg-12 d-flex">
+                                    <div class="col-lg-12 d-flex" style="margin-top:5px">
                                         <div class="col-lg-2">
                                             <label class="form-label" style="font-size: 20px;" v-model="createModel.uploadFile">檔案</label>
-                                            <span class="unit">(允許.xlsx)</span>
+                                            <div>
+                                                <span class="unit">(允許 excel,word,ppt,圖片)</span>
+                                            </div>
                                         </div>
                                         <div class="col-lg-10">
                                             <input class="custom-file" type="file" placeholder="選取公告檔案" v-on:change="onFileChange" />
@@ -493,11 +494,11 @@
                     }
                 },
                 verifyFile(e) {
-                    var validExtensions = ['xls', 'xlsx', 'pptx', 'pdf', 'docx'];
+                    var validExtensions = ['xls', 'xlsx', 'pptx', 'pdf', 'docx', 'jpg', 'png'];
                     let fileEx = e.name.replace(/^.*\./, '');
 
-                    if ($.inArray(fileEx, validExtensions) == -1) {
-                        alert("無效檔案類型, 請確認是否為 .xls, .xlsx, .pptx .pdf .docx");
+                    if ($.inArray(fileEx.toLowerCase(), validExtensions) == -1) {
+                        alert("無效檔案類型, 請確認檔案類型 .xls, .xlsx, .pptx .pdf .docx .jpg .png");
                         return false;
                     }
                     /* 暫訂上限 30MB */
@@ -597,6 +598,9 @@
                         });
                     }
                     window.location = "./Bulletin/DownloadFile?bulletinSn=" + bulletinSn;
+                },
+                readFileDownload(bulletinSn) {
+                    window.location = "./Bulletin/DownloadReadInfoFile?bulletinSn=" + bulletinSn;
                 },
                 closeCreateModal() {
                     vue.createModel.subject = '';
