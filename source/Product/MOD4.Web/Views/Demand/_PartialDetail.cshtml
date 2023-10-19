@@ -60,78 +60,77 @@
         </div>
         <div class="modal-body">
             <form>
-                <div class="card-body">
-                    <div class="form-group" style="display:flex">
-                        <div class="col-2">
-                            <label class="col-form-label" asp-for="OrderId"></label>
-                        </div>
-                        <div class="col-3">
-                            <label class="col-form-label" name="underline">@Model.OrderId</label>
-                        </div>
-                        <div class="col-2">
-                            <label class="col-form-label" asp-for="CreateDate"></label>
-                        </div>
-                        <div class="col-3">
-                            <label class="col-form-label" name="underline">@Model.CreateDate</label>
-                        </div>
+                <div class="form-group" style="display:flex">
+                    <div class="col-2">
+                        <label class="col-form-label" asp-for="OrderId"></label>
                     </div>
-                    <div class="form-group" style="display:flex">
-                        <div class="col-2">
-                            <label class="col-form-label" asp-for="DemandStatus"></label>
-                        </div>
-                        <div class="col-3">
-                            <label class="col-form-label" name="underline">@Model.DemandStatus</label>
-                        </div>
-                        <div class="col-2">
-                            <label class="col-form-label" asp-for="DemandCategoryId"></label>
-                        </div>
-                        <div class="col-6">
-                            <select class="custom-select" disabled style="width:30%" asp-for="DemandCategoryId">
-                                @{
-                                    foreach (var category in ViewBag.CategoryOptions)
-                                    {
-                                    <option value="@category.Id">@category.Value</option>
-                                    }
-                                }
-                            </select>
-                        </div>
+                    <div class="col-3">
+                        <label class="col-form-label" name="underline">@Model.OrderId</label>
                     </div>
-                    <div class="form-group" style="display:flex">
-                        <div class="col-2">
-                            <label class="col-form-label" asp-for="Subject"></label>
-                        </div>
-                        <div class="col-9">
-                            <label class="col-form-label" name="underline">@Model.Subject</label>
-                        </div>
+                    <div class="col-2">
+                        <label class="col-form-label" asp-for="CreateDate"></label>
                     </div>
-                    <div class="form-group" style="display: flex;">
-                        <div class="col-2">
-                            <label class="col-form-label" asp-for="Content"></label>
-                        </div>
-                        <div class="col-9">
-                            <textarea disabled class="form-control" rows="4" asp-for="Content"></textarea>
-                        </div>
+                    <div class="col-3">
+                        <label class="col-form-label" name="underline">@Model.CreateDate</label>
                     </div>
-                    <div class="form-group" style="display:flex">
-                        <div class="col-2">
-                            <label class="col-form-label" asp-for="Applicant"></label>
-                        </div>
-                        <div class="col-2">
-                            <input type="text" disabled class="form-control" asp-for="Applicant">
-                        </div>
-                        <div class="col-2">
-                            <label class="col-form-label" asp-for="JobNo"></label>
-                        </div>
-                        <div class="col-2">
-                            <input type="text" disabled class="form-control" maxlength="8" asp-for="JobNo">
-                        </div>
+                </div>
+                <div class="form-group" style="display:flex">
+                    <div class="col-2">
+                        <label class="col-form-label" asp-for="DemandStatus"></label>
                     </div>
-                    <div class="form-group" style="display:flex">
-                        <div class="col-2">
-                            <label class="col-form-label" style="font-size:15px" asp-for="UploadFile1"></label>
-                        </div>
-                        <div class="col-3 divUploadFile">
+                    <div class="col-3">
+                        <label class="col-form-label" name="underline">@Model.DemandStatus</label>
+                    </div>
+                    <div class="col-2">
+                        <label class="col-form-label" asp-for="DemandCategoryId"></label>
+                    </div>
+                    <div class="col-6">
+                        <select class="custom-select" disabled style="width:30%" asp-for="DemandCategoryId">
                             @{
+                                foreach (var category in ViewBag.CategoryOptions)
+                                {
+                                    <option value="@category.Id">@category.Value</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" style="display:flex">
+                    <div class="col-2">
+                        <label class="col-form-label" asp-for="Subject"></label>
+                    </div>
+                    <div class="col-9">
+                        <label class="col-form-label" name="underline">@Model.Subject</label>
+                    </div>
+                </div>
+                <div class="form-group" style="display: flex;">
+                    <div class="col-2">
+                        <label class="col-form-label" asp-for="Content"></label>
+                    </div>
+                    <div class="col-9">
+                        <textarea disabled class="form-control" rows="4" asp-for="Content"></textarea>
+                    </div>
+                </div>
+                <div class="form-group" style="display:flex">
+                    <div class="col-2">
+                        <label class="col-form-label" asp-for="Applicant"></label>
+                    </div>
+                    <div class="col-2">
+                        <input type="text" disabled class="form-control" asp-for="Applicant">
+                    </div>
+                    <div class="col-2">
+                        <label class="col-form-label" asp-for="JobNo"></label>
+                    </div>
+                    <div class="col-2">
+                        <input type="text" disabled class="form-control" maxlength="8" asp-for="JobNo">
+                    </div>
+                </div>
+                <div class="form-group" style="display:flex">
+                    <div class="col-2">
+                        <label class="col-form-label" style="font-size:15px" asp-for="UploadFile1"></label>
+                    </div>
+                    <div class="col-3 divUploadFile">
+                        @{
                             if (Model.UploadFile1 == "")
                             {
                                 <a href="#">@Model.UploadFile1</a>
@@ -140,10 +139,10 @@
                             {
                                 <a class="uploadFile" target="_blank" href="./Demand/Download?orderSn=@Model.OrderSn&typeId=1&fileNo=0">@Model.UploadFile1</a>
                             }
-                            }
-                        </div>
-                        <div class="col-3 divUploadFile">
-                            @{
+                        }
+                    </div>
+                    <div class="col-3 divUploadFile">
+                        @{
                             if (Model.UploadFile2 == "")
                             {
                                 <a href="#">@Model.UploadFile2</a>
@@ -152,10 +151,10 @@
                             {
                                 <a class="uploadFile" target="_blank" href="./Demand/Download?orderSn=@Model.OrderSn&typeId=1&fileNo=1">@Model.UploadFile2</a>
                             }
-                            }
-                        </div>
-                        <div class="col-3 divUploadFile">
-                            @{
+                        }
+                    </div>
+                    <div class="col-3 divUploadFile">
+                        @{
                             if (Model.UploadFile3 == "")
                             {
                                 <a>@Model.UploadFile3</a>
@@ -164,16 +163,24 @@
                             {
                                 <a class="uploadFile" target="_blank" href="./Demand/Download?orderSn=@Model.OrderSn&typeId=1&fileNo=2">@Model.UploadFile3</a>
                             }
-                            }
-                        </div>
+                        }
                     </div>
-                    <hr style="border-width:3px;border-color:gray" />
-                    <div class="form-group" style="display:flex">
-                        <div class="col-2">
-                            <label class="col-form-label" style="font-size:15px" asp-for="CompleteUploadFile1"></label>
-                        </div>
-                        <div class="col-3 divUploadFile">
-                            @{
+                </div>
+                <hr style="border-width:3px;border-color:gray" />
+                <div class="form-group" style="display:flex">
+                    <div class="col-2">
+                        <label class="col-form-label" asp-for="RejectReason"></label>
+                    </div>
+                    <div class="col-2">
+                        <label class="col-form-label" name="underline">@Model.RejectReason</label>
+                    </div>
+                </div>
+                <div class="form-group" style="display:flex">
+                    <div class="col-2">
+                        <label class="col-form-label" style="font-size:15px" asp-for="CompleteUploadFile1"></label>
+                    </div>
+                    <div class="col-3 divUploadFile">
+                        @{
                             if (Model.CompleteUploadFile1 == "")
                             {
                                 <a href="#">@Model.CompleteUploadFile1</a>
@@ -182,10 +189,10 @@
                             {
                                 <a class="uploadFile" target="_blank" href="./Demand/Download?orderSn=@Model.OrderSn&typeId=2&fileNo=0">@Model.CompleteUploadFile1</a>
                             }
-                            }
-                        </div>
-                        <div class="col-3 divUploadFile">
-                            @{
+                        }
+                    </div>
+                    <div class="col-3 divUploadFile">
+                        @{
                             if (Model.CompleteUploadFile2 == "")
                             {
                                 <a href="#">@Model.CompleteUploadFile2</a>
@@ -194,10 +201,10 @@
                             {
                                 <a class="uploadFile" target="_blank" href="./Demand/Download?orderSn=@Model.OrderSn&typeId=2&fileNo=1">@Model.CompleteUploadFile2</a>
                             }
-                            }
-                        </div>
-                        <div class="col-3 divUploadFile">
-                            @{
+                        }
+                    </div>
+                    <div class="col-3 divUploadFile">
+                        @{
                             if (Model.CompleteUploadFile3 == "")
                             {
                                 <a>@Model.CompleteUploadFile3</a>
@@ -206,16 +213,15 @@
                             {
                                 <a class="uploadFile" target="_blank" href="./Demand/Download?orderSn=@Model.OrderSn&typeId=2&fileNo=2">@Model.CompleteUploadFile3</a>
                             }
-                            }
-                        </div>
+                        }
                     </div>
-                    <div class="form-group" style="display: flex;">
-                        <div class="col-2">
-                            <label class="col-form-label" asp-for="Remark"></label>
-                        </div>
-                        <div class="col-9">
-                            <textarea class="form-control" disabled rows="3" asp-for="Remark"></textarea>
-                        </div>
+                </div>
+                <div class="form-group" style="display: flex;">
+                    <div class="col-2">
+                        <label class="col-form-label" asp-for="Remark"></label>
+                    </div>
+                    <div class="col-9">
+                        <textarea class="form-control" disabled rows="3" asp-for="Remark"></textarea>
                     </div>
                 </div>
             </form>

@@ -24,6 +24,7 @@ namespace MOD4.Web.ViewModel
 
         [Display(Name = "類別")]
         public string MESOrderType { get; set; }
+        public MESOrderTypeEnum MESOrderTypeId { get; set; }
 
         [Display(Name = "申請人")]
         public string Applicant { get; set; }

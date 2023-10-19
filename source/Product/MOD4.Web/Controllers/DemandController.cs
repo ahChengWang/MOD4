@@ -49,7 +49,7 @@ namespace MOD4.Web.Controllers
                     AccountPermission = _userCurrentPagePermission.AccountPermission
                 };
 
-                var _demands = _demandDomainService.GetDemands(_userInfo, dateStart: DateTime.Now.AddMonths(-1).ToString("yyyy-MM-dd"), dateEnd: DateTime.Now.ToString("yyyy-MM-dd"));
+                var _demands = _demandDomainService.GetDemands(_userInfo, dateStart: DateTime.Now.AddMonths(-6).ToString("yyyy-MM-dd"), dateEnd: DateTime.Now.ToString("yyyy-MM-dd"));
 
                 List<DemanMainViewModel> _response = _demands.Select(s => new DemanMainViewModel
                 {
@@ -64,7 +64,7 @@ namespace MOD4.Web.Controllers
                     JobNo = s.JobNo,
                     CreateDate = s.CreateTime.ToString("yyyy-MM-dd"),
                     UserEditable = s.UserEditable,
-                    RoleId = _userInfo.RoleId
+                    //RoleId = _userInfo.RoleId
                 }).ToList();
 
                 return View(_response);
@@ -104,7 +104,7 @@ namespace MOD4.Web.Controllers
                     JobNo = s.JobNo,
                     CreateDate = s.CreateTime.ToString("yyyy-MM-dd"),
                     UserEditable = s.UserEditable,
-                    RoleId = _userInfo.RoleId
+                    //RoleId = _userInfo.RoleId
                 }).ToList();
 
                 return PartialView("_PartialTable", _response);
@@ -557,6 +557,7 @@ namespace MOD4.Web.Controllers
                     MenuSn = _userCurrentPagePermission.MenuSn,
                     AccountPermission = _userCurrentPagePermission.AccountPermission
                 };
+                ViewBag.MESOrderType = new SelectList(_optionDomainService.GetMESType(), "Id", "Value");
 
                 MESPermissionEntity _result = _demandDomainService.GetAudit(orderSn, _userInfo);
 
@@ -569,6 +570,7 @@ namespace MOD4.Web.Controllers
                     Department = _result.Department,
                     SubUnit = _result.SubUnit,
                     MESOrderType = _result.MESOrderType,
+                    MESOrderTypeId = _result.MESOrderTypeId,
                     Applicant = _result.Applicant,
                     JobId = _result.JobId,
                     Phone = _result.Phone,
@@ -596,7 +598,14 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                string _result = _demandDomainService.AuditMES(approveViewModel.OrderSn, approveViewModel.StatusId, approveViewModel.Remark, approveViewModel.ApplicantReason, GetUserInfo());
+                string _result = _demandDomainService.AuditMES(approveViewModel.Remark, 
+                    new MESPermissionEntity
+                    {
+                        OrderSn = approveViewModel.OrderSn,
+                        StatusId = approveViewModel.StatusId,
+                        ApplicantReason = approveViewModel.ApplicantReason,
+                        MESOrderTypeId = approveViewModel.MESOrderTypeId
+                    }, GetUserInfo());
 
                 if (_result == "")
                     return Json(new { IsSuccess = true, Msg = "" });

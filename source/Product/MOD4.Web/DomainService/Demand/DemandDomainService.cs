@@ -461,7 +461,7 @@ namespace MOD4.Web.DomainService.Demand
                             Url = mes.statusId == DemandStatusEnum.Rejected && mes.applicantAccountSn == userEntity.sn
                                     ? $"./MES/Update/{mes.orderSn}"
                                     : mes.auditAccountSn == userEntity.sn
-                                        ? $"./MES/Audit/{mes.orderSn}"
+                                        ? $"./MES/{(mes.statusId == DemandStatusEnum.Completed ? "Detail" : "Audit")}/{mes.orderSn}"
                                         : $"./MES/Detail/{mes.orderSn}"
                         }).ToList();
 
@@ -772,11 +772,11 @@ namespace MOD4.Web.DomainService.Demand
             }
         }
 
-        public string AuditMES(int orderSn, DemandStatusEnum statusId, string remark, string applicatReason, UserEntity userEntity)
+        public string AuditMES(string remark, MESPermissionEntity updMESEntity, UserEntity userEntity)
         {
             try
             {
-                MESPermissionDao _mesOrder = _mesPermissionRepository.SelectByConditions(null, null, orderSn: orderSn).FirstOrDefault();
+                MESPermissionDao _mesOrder = _mesPermissionRepository.SelectByConditions(null, null, orderSn: updMESEntity.OrderSn).FirstOrDefault();
                 List<MESPermissionAuditHistoryDao> _accessOrderAuditHisList = _mesPermissionAuditHistoryRepository.SelectList(_mesOrder.orderSn).OrderBy(ob => ob.auditSn).ToList();
                 var _currentAuditFlow = _accessOrderAuditHisList.FirstOrDefault(f => f.auditAccountSn == userEntity.sn && f.auditTime == null);
 
@@ -793,38 +793,42 @@ namespace MOD4.Web.DomainService.Demand
                     auditAccountSn = 0,
                     updateUser = userEntity.Name,
                     applicantReason = _mesOrder.applicantReason,
+                    mesOrderTypeId = _mesOrder.mesOrderTypeId,
                     updateTime = _nowTime
                 };
                 if (Convert.ToBoolean(userEntity.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.MESPermission).AccountPermission & (int)PermissionEnum.Management) &&
-                    !string.IsNullOrEmpty(applicatReason))
-                    _updMESOrder.applicantReason = applicatReason;
+                    !string.IsNullOrEmpty(updMESEntity.ApplicantReason))
+                {
+                    _updMESOrder.applicantReason = updMESEntity.ApplicantReason;
+                    _updMESOrder.mesOrderTypeId = updMESEntity.MESOrderTypeId;
+                }
 
                 List<MESPermissionAuditHistoryDao> _updMESPermAuditHis = new List<MESPermissionAuditHistoryDao>();
                 MESPermissionAuditHistoryDao _currentRecord = _accessOrderAuditHisList.FirstOrDefault(f => f.auditAccountSn == userEntity.sn && f.auditTime == null);
                 MESPermissionAuditHistoryDao _nextRecord = _accessOrderAuditHisList.FirstOrDefault(f => f.receivedTime == null);
 
-                switch (statusId)
+                switch (updMESEntity.StatusId)
                 {
                     case DemandStatusEnum.Rejected:
-                        _updMESOrder.statusId = statusId;
-                        _currentRecord.statusId = statusId;
+                        _updMESOrder.statusId = updMESEntity.StatusId;
+                        _currentRecord.statusId = updMESEntity.StatusId;
                         _currentRecord.auditTime = _nowTime;
                         _currentRecord.auditRemark = remark;
                         break;
                     case DemandStatusEnum.Approve when _nextRecord == null:
                         _updMESOrder.statusId = DemandStatusEnum.Setting;
                         _updMESOrder.auditAccountSn = 6;
-                        _currentRecord.statusId = statusId;
+                        _currentRecord.statusId = updMESEntity.StatusId;
                         _currentRecord.auditTime = _nowTime;
                         _currentRecord.auditRemark = remark;
                         break;
                     case DemandStatusEnum.Completed when _nextRecord == null:
-                        _updMESOrder.statusId = statusId;
+                        _updMESOrder.statusId = updMESEntity.StatusId;
                         _updMESOrder.auditAccountSn = 6;
                         break;
                     default:
                         _updMESOrder.auditAccountSn = _nextRecord.auditAccountSn;
-                        _currentRecord.statusId = statusId;
+                        _currentRecord.statusId = updMESEntity.StatusId;
                         _currentRecord.auditTime = _nowTime;
                         _currentRecord.auditRemark = remark;
                         _nextRecord.receivedTime = _nowTime;

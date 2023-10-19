@@ -397,9 +397,9 @@ namespace MOD4.Web.Controllers
                 ViewBag.FabInCategoryList = new SelectList(_optionList.FirstOrDefault(f => f.Item1 == "fabInCategoryList").Item2, "Id", "Value");
 
                 List<AccessFabOrderEntity> _result = _accessFabDomainService.GetAuditList(
-                    GetUserInfo(), 
-                    new AccessFabSelectOptionEntity() 
-                    { 
+                    GetUserInfo(),
+                    new AccessFabSelectOptionEntity()
+                    {
                         IsDefaultPage = true
                     });
 
@@ -425,9 +425,7 @@ namespace MOD4.Web.Controllers
             {
                 return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
             }
-
         }
-
 
         [HttpGet("[controller]/Audit/Search")]
         public IActionResult AuditSearch([FromQuery] string startFabInDate, string endFabInDate, int fabInTypeId, string guestName, string applicant)

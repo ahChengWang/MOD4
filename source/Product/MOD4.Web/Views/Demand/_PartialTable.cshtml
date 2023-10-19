@@ -47,6 +47,9 @@
                                 Convert.ToBoolean(_test.AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management)) ||
                                 demand.UserEditable)
                             {
+                                <a class="btn btn-sm" data-toggle="modal" style="font-size:15px" data-target="#detailModal" onclick="detailClick(@demand.OrderSn)">
+                                    <i class="fa fa-search">明細</i>
+                                </a>
                                 <button class="btn btn-sm btn-primary" style="position:relative" onclick="editClick(@demand.OrderSn,'@(demand.OrderId)')">
                                     <span style="font-size:5px">編輯</span>
                                 </button>

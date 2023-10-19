@@ -51,7 +51,7 @@ namespace MOD4.Web.DomainService.Demand
             // 發送MApp & mail 給申請人
             if (_updateRes.Item1)
             {
-                var _createAccInfo = flowDataEntity.AccountDomainService.GetAccountInfoByConditions(null, null, null, flowDataEntity.OldDemandOrder.createUser).FirstOrDefault();
+                var _createAccInfo = flowDataEntity.AccountDomainService.GetAccountInfoByConditions(0, null, null, flowDataEntity.OldDemandOrder.createUser).FirstOrDefault();
                 flowDataEntity.MailService.Send(new MailEntity
                 {
                     To = _createAccInfo.Mail,
@@ -215,7 +215,7 @@ namespace MOD4.Web.DomainService.Demand
                     _updateRes = DoUpdateToComplete(flowDataEntity.DemandsRepository, flowDataEntity.UpdateDemandOrder);
 
                     // 需求單 "驗證"&"完成" 發送 MApp & mail 給相關人員
-                    var _createAccInfo = flowDataEntity.AccountDomainService.GetAccountInfoByConditions(null, null, null, flowDataEntity.OldDemandOrder.createUser).FirstOrDefault();
+                    var _createAccInfo = flowDataEntity.AccountDomainService.GetAccountInfoByConditions(0, null, null, flowDataEntity.OldDemandOrder.createUser).FirstOrDefault();
 
                     if (_createAccInfo == null)
                         return (true, "查無申請人, mail 無法發送");
@@ -262,7 +262,7 @@ namespace MOD4.Web.DomainService.Demand
                     return _updateRes;
 
                 case DemandStatusEnum.Completed:
-
+                case DemandStatusEnum.Verify when Convert.ToBoolean(flowDataEntity.UserInfo.RoleId & (int)RoleEnum.DemandSysMgr):
                     return DoManagerUpdOrder(ref flowDataEntity, _nowTime);
 
                 case DemandStatusEnum.Verify:
@@ -273,7 +273,7 @@ namespace MOD4.Web.DomainService.Demand
                     _updateRes = DoUpdateToComplete(flowDataEntity.DemandsRepository, flowDataEntity.UpdateDemandOrder);
 
                     // 需求單 "驗證"&"完成" 發送 MApp & mail 給相關人員
-                    _createAccInfo = flowDataEntity.AccountDomainService.GetAccountInfoByConditions(null, null, null, flowDataEntity.OldDemandOrder.createUser).FirstOrDefault();
+                    _createAccInfo = flowDataEntity.AccountDomainService.GetAccountInfoByConditions(0, null, null, flowDataEntity.OldDemandOrder.createUser).FirstOrDefault();
 
                     if (_createAccInfo == null)
                         return (true, "查無申請人, mail 無法發送");
@@ -315,6 +315,7 @@ namespace MOD4.Web.DomainService.Demand
                 nowTime);
 
             flowEntity.UpdateDemandOrder.remark = flowEntity.InEntity.Remark;
+            flowEntity.UpdateDemandOrder.statusId = flowEntity.OldDemandOrder.statusId;
 
             return DoUpdateToComplete(flowEntity.DemandsRepository, flowEntity.UpdateDemandOrder);
         }

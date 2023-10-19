@@ -1,7 +1,9 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 
 namespace MOD4.Web.Enum
 {
+    [Flags]
     public enum RoleEnum
     {
         [Description("系統管理者")]
@@ -11,30 +13,30 @@ namespace MOD4.Web.Enum
         Manager = 2,
 
         [Description("課長")]
-        Leader = 3,
+        Leader = 4,
 
         [Description("工程師")]
-        Engineer = 4,
+        Engineer = 8,
 
         [Description("設備副工程師")]
-        PM = 5,
+        PM = 16,
 
         [Description("User")]
-        User = 6,
+        User = 32,
 
         [Description("需求系統管理者")]
-        DemandSysMgr = 7,
+        DemandSysMgr = 64,
 
         [Description("管制口人員")]
-        GateEmployee = 8,
+        GateEmployee = 128,
 
         [Description("TA")]
-        TechnicalAssistant = 9,
+        TechnicalAssistant = 256,
 
         [Description("組長")]
-        TeamLeader = 10,
+        TeamLeader = 512,
 
         [Description("領班")]
-        Foreman = 11,
+        Foreman = 1024,
     }
 }

@@ -34,46 +34,22 @@ namespace MOD4.Web.DomainService
         }
 
         public List<AccountInfoEntity> GetAllAccountInfo()
-            => _accountInfoRepository.SelectByConditions().Select(s => new AccountInfoEntity
-            {
-                sn = s.sn,
-                Account = s.account,
-                Name = s.name,
-                Password = s.password,
-                RoleId = s.role,
-                JobId = s.jobId,
-                Level_id = s.level_id,
-                ApiKey = s.apiKey,
-                DeptSn = s.deptSn,
-                Mail = s.mail
-            }).ToList();
+            => GetAllAccountWithCatch();
 
         public List<AccountInfoEntity> GetAccountInfo(List<int> accountSnList)
         {
-            return _accountInfoRepository.SelectByConditions(accountSnList: accountSnList).Select(s => new AccountInfoEntity
-            {
-                sn = s.sn,
-                Account = s.account,
-                Name = s.name,
-                Password = s.password,
-                RoleId = s.role,
-                JobId = s.jobId,
-                Level_id = s.level_id,
-                ApiKey = s.apiKey,
-                DeptSn = s.deptSn,
-                Mail = s.mail
-            }).ToList();
+            return GetAllAccountWithCatch().Where(acc => accountSnList.Contains(acc.sn)).ToList();
         }
 
-        public List<AccountInfoEntity> GetAccountInfoByConditions(List<RoleEnum> roleIdList, string name, string jobId, string account, int levelId = 0, List<string> accountList = null)
+        public List<AccountInfoEntity> GetAccountInfoByConditions(int roleId, string name, string jobId, string account, int levelId = 0, List<string> accountList = null)
         {
-            return _accountInfoRepository.SelectByConditions(account: account, roleIdList: roleIdList, name: name, jobId: jobId, levelId: levelId, accountList: accountList).Select(s => new AccountInfoEntity
+            return _accountInfoRepository.SelectByConditions(account: account, roleId: roleId, name: name, jobId: jobId, levelId: levelId, accountList: accountList).Select(s => new AccountInfoEntity
             {
                 sn = s.sn,
                 Account = s.account,
                 Name = s.name,
                 Password = s.password,
-                RoleId = s.role,
+                Role = s.role,
                 JobId = s.jobId,
                 Level_id = s.level_id,
                 ApiKey = s.apiKey,
@@ -102,7 +78,7 @@ namespace MOD4.Web.DomainService
                 Account = acc.account,
                 Name = acc.name,
                 Password = acc.password,
-                RoleId = acc.role,
+                Role = acc.role,
                 JobId = acc.jobId,
                 Level_id = acc.level_id,
                 ApiKey = acc.apiKey,
@@ -113,7 +89,7 @@ namespace MOD4.Web.DomainService
 
         public List<AccountDeptEntity> GetAccountDepartmentList()
         {
-            var _allAccountInfo = GetAccountInfo(null);
+            var _allAccountInfo = GetAllAccountInfo();
             _allAccountInfo = _allAccountInfo.OrderBy(o => o.Name, StringComparer.Create(new System.Globalization.CultureInfo(0x00030404), false)).ToList();
             var _allDepartmentInfo = _accountInfoRepository.SelectDefinitionDepartment();
 
@@ -123,7 +99,7 @@ namespace MOD4.Web.DomainService
                 Account = acc.Account,
                 Name = acc.Name,
                 Password = acc.Password,
-                RoleId = acc.RoleId,
+                Role = acc.Role,
                 JobId = acc.JobId,
                 Level_id = acc.Level_id,
                 ApiKey = acc.ApiKey,
@@ -186,7 +162,7 @@ namespace MOD4.Web.DomainService
                 Account = _accountInfo.Account,
                 Password = Decrypt(_accountInfo.Password, "MOD4_Saikou"),
                 Name = _accountInfo.Name,
-                RoleId = _accountInfo.RoleId,
+                Role = _accountInfo.Role,
                 ApiKey = _accountInfo.ApiKey,
                 JobId = _accountInfo.JobId,
                 Level_id = _accountInfo.Level_id,
@@ -445,9 +421,6 @@ namespace MOD4.Web.DomainService
                     _accInfoEntity = _accInfoList.FirstOrDefault(f => f.Account.ToLower() == loginEntity.Account.ToLower() && f.Password == _encryptPw);
                 }
 
-                CatchHelper.Delete(new string[] { $"accInfo" });
-                CatchHelper.Set("accInfo", JsonConvert.SerializeObject(_accInfoList.Any() ? _accInfoList : GetAllAccountInfo()), 432000);
-
                 _logHelper.WriteLog(LogLevel.Info, this.GetType().Name, $"使用者登錄:{_accInfoEntity.Name}({_accInfoEntity.JobId})");
 
                 return (true, _accInfoEntity);
@@ -549,7 +522,7 @@ namespace MOD4.Web.DomainService
                     _accountInfoEntity.JobId = certificateResult[1].Split("</string")[0];
                     _accountInfoEntity.Name = certificateResult[4].Split("</string")[0];
                     _accountInfoEntity.Mail = certificateResult[6].Split("</string")[0];
-                    _accountInfoEntity.RoleId = RoleEnum.User;
+                    _accountInfoEntity.Role = (int)RoleEnum.User;
                     _accountInfoEntity.Level_id = JobLevelEnum.Employee;
                     _accountInfoEntity.DeptSn = _allDepartmentList.FirstOrDefault(f => f.DeptId == certificateResult[8].Split("</string")[0] && f.LevelId == 3)?.DeptSn ?? 0;
                     _accountInfoEntity.sn = InsertUserAndPermission(_accountInfoEntity);
@@ -563,7 +536,7 @@ namespace MOD4.Web.DomainService
                     _accountInfoEntity.JobId = _alreadyAcc.jobId;
                     _accountInfoEntity.Name = _alreadyAcc.name;
                     _accountInfoEntity.Mail = _alreadyAcc.mail;
-                    _accountInfoEntity.RoleId = _alreadyAcc.role;
+                    _accountInfoEntity.Role = _alreadyAcc.role;
                     _accountInfoEntity.Level_id = _alreadyAcc.level_id;
                     _accountInfoEntity.DeptSn = _alreadyAcc.deptSn;
                 }
@@ -573,7 +546,7 @@ namespace MOD4.Web.DomainService
                     _accountInfoEntity.JobId = _alreadyAcc.jobId;
                     _accountInfoEntity.Name = _alreadyAcc.name;
                     _accountInfoEntity.Mail = _alreadyAcc.mail;
-                    _accountInfoEntity.RoleId = _alreadyAcc.role;
+                    _accountInfoEntity.Role = _alreadyAcc.role;
                     _accountInfoEntity.Level_id = _alreadyAcc.level_id;
                     _accountInfoEntity.DeptSn = _alreadyAcc.deptSn;
                 }
@@ -610,7 +583,7 @@ namespace MOD4.Web.DomainService
                 name = createEntity.Name,
                 jobId = createEntity.JobId,
                 mail = createEntity.Mail,
-                role = RoleEnum.User,
+                role = (int)RoleEnum.User,
                 apiKey = createEntity.ApiKey,
                 deptSn = createEntity.SectionId != 0
                     ? createEntity.SectionId
@@ -723,7 +696,7 @@ namespace MOD4.Web.DomainService
 
             CatchHelper.Delete(new string[] { "accInfo" });
             CatchHelper.Delete(new string[] { "userMenuInfo" });
-            CatchHelper.Delete(new string[] { $"userInfo_{updateEntity.sn}" });
+            CatchHelper.Delete(new string[] { $"userInfo_{updateEntity.JobId}" });
             CatchHelper.Delete(new string[] { "deptList" });
 
             return _updateRes;
@@ -832,8 +805,42 @@ namespace MOD4.Web.DomainService
                 throw ex;
             }
         }
-        #endregion
 
+        private List<AccountInfoEntity> GetAllAccountWithCatch()
+        {
+            try
+            {
+                List<AccountInfoEntity> _accuntInfoList = new List<AccountInfoEntity>();
+                var _allAccInfo = CatchHelper.Get("accInfo");
+
+                if (string.IsNullOrEmpty(_allAccInfo))
+                {
+                    _accuntInfoList = _accountInfoRepository.SelectAllAccountInfo().Select(s => new AccountInfoEntity
+                    {
+                        sn = s.sn,
+                        Account = s.account,
+                        Name = s.name,
+                        Password = s.password,
+                        Role = s.role,
+                        JobId = s.jobId,
+                        Level_id = s.level_id,
+                        ApiKey = s.apiKey,
+                        DeptSn = s.deptSn,
+                        Mail = s.mail
+                    }).ToList();
+
+                    return _accuntInfoList;
+                }
+                else
+                   return JsonConvert.DeserializeObject<List<AccountInfoEntity>>(_allAccInfo);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
 
         #region Private
 
@@ -850,7 +857,7 @@ namespace MOD4.Web.DomainService
                         account = accountInfoEntity.Account,
                         password = accountInfoEntity.Password,
                         name = accountInfoEntity.Name,
-                        role = accountInfoEntity.RoleId,
+                        role = accountInfoEntity.Role,
                         level_id = accountInfoEntity.Level_id,
                         mail = accountInfoEntity.Mail,
                         jobId = accountInfoEntity.JobId,

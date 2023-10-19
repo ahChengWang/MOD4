@@ -117,6 +117,7 @@ VALUES
       ,[updateUser] = @updateUser
       ,[updateTime] = @updateTime
       ,[applicantReason] = @applicantReason
+      ,[mesOrderTypeId] = @mesOrderTypeId
  WHERE orderSn=@orderSn ;";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, updDao);

@@ -85,8 +85,22 @@
                                     <div class="col-2" style="text-align:center">
                                         <label class="col-form-label" asp-for="MESOrderType"></label>
                                     </div>
+                                    @*<div class="col-2">
+                                            <input class="myInputStyle1" type="text" disabled value="@Model.MESOrderType" />
+                                        </div>*@
                                     <div class="col-2">
-                                        <input class="myInputStyle1" type="text" disabled value="@Model.MESOrderType" />
+                                        @{
+                                            if (Convert.ToBoolean(((UserPermissionViewModel)ViewBag.UserPermission).AccountPermission & (int)MOD4.Web.Enum.PermissionEnum.Management))
+                                            {
+                                                <select asp-for="MESOrderTypeId" class="myInputStyle1" asp-items="@ViewBag.MESOrderType">
+                                                </select>
+                                            }
+                                            else
+                                            {
+                                                <select asp-for="MESOrderTypeId" class="myInputStyle1" disabled asp-items="@ViewBag.MESOrderType">
+                                                </select>
+                                            }
+                                        }
                                     </div>
                                 </div>
                                 <div class="form-group" style="display:flex">
@@ -518,6 +532,7 @@
         _requestModel['StatusId'] = statusId;
         _requestModel['Remark'] = $("#remark").val();
         _requestModel['ApplicantReason'] = $("#ApplicantReason").val();
+        _requestModel['MESOrderTypeId'] = $("#MESOrderTypeId").find(":selected").val();;
 
         //e.preventDefault();
         $.blockUI({

@@ -50,7 +50,7 @@ namespace MOD4.Web.DomainService
 
                 // 查詢待簽核人員姓名
                 List<AccountInfoEntity> _accInfoList = _accountDomainService.GetAccountInfo(_accessFabOrderList.Select(s => s.AuditAccountSn).ToList());
-                _accessFabOrderList.ForEach(fe => fe.AuditAccountName = _accInfoList.FirstOrDefault(f => f.sn == fe.AuditAccountSn).Name);
+                _accessFabOrderList.ForEach(fe => fe.AuditAccountName = (fe.StatusId == FabInOutStatusEnum.Completed ? "" : _accInfoList.FirstOrDefault(f => f.sn == fe.AuditAccountSn).Name));
 
                 return _accessFabOrderList;
             }
@@ -63,7 +63,7 @@ namespace MOD4.Web.DomainService
         public AccessFabOrderEntity GetDetail(int accessFabOrderSn)
         {
             try
-            {                
+            {
                 AccessFabOrderDao _accessOrder = _accessFabOrderRepository.SelectList(orderSn: accessFabOrderSn).FirstOrDefault();
                 List<AccessFabOrderDetailDao> _accessOrderDetail = _accessFabOrderDetailRepository.SelectList(accessFabOrderSn: _accessOrder.OrderSn);
                 List<AccessFabOrderAuditHistoryDao> _accessOrderAuditHisList = _accessFabOrderAuditHistoryRepository.SelectList(_accessOrder.OrderSn);
@@ -132,7 +132,7 @@ namespace MOD4.Web.DomainService
                 // 判斷填單人是否為申請人
                 if (orderEntity.FillOutPerson.Trim() != orderEntity.Applicant.Trim())
                 {
-                    var _tempApplicant = _accountDomainService.GetAccountInfoByConditions(null, orderEntity.Applicant, orderEntity.JobId, null).FirstOrDefault();
+                    var _tempApplicant = _accountDomainService.GetAccountInfoByConditions(0, orderEntity.Applicant, orderEntity.JobId, null).FirstOrDefault();
                     if (_tempApplicant == null)
                         return "查無申請人資訊, 確認姓名及工號";
 
@@ -251,7 +251,7 @@ namespace MOD4.Web.DomainService
 
                 if (orderEntity.FillOutPerson.Trim() != orderEntity.Applicant.Trim())
                 {
-                    var _tempApplicant = _accountDomainService.GetAccountInfoByConditions(null, orderEntity.Applicant, orderEntity.JobId, null).FirstOrDefault();
+                    var _tempApplicant = _accountDomainService.GetAccountInfoByConditions(0, orderEntity.Applicant, orderEntity.JobId, null).FirstOrDefault();
                     if (_tempApplicant == null)
                         return "查無申請人資訊, 確認姓名及工號";
 
@@ -409,24 +409,27 @@ namespace MOD4.Web.DomainService
         {
             List<AccessFabOrderEntity> _accessFabOrderAuditList = new List<AccessFabOrderEntity>();
             List<AccessFabOrderDetailDao> _accseeFabDetail = new List<AccessFabOrderDetailDao>();
+            AccountInfoEntity _gateSysAccount = _accountDomainService.GetAccountInfoByConditions(0, null, null, account: "gateadmin").FirstOrDefault();
 
             // 取得該使用者待簽核申請單
 
             // 管制口人員
-            if (userEntity.RoleId == RoleEnum.GateEmployee)
+            if (Convert.ToBoolean(userEntity.RoleId & (int)RoleEnum.GateEmployee))
             {
                 selectOption.StatusId = (int)FabInOutStatusEnum.Completed;
 
                 if (selectOption.IsDefaultPage)
                 {
-                    selectOption.StartFabInDate = DateTime.Now.AddMonths(-1).ToString("yyyy-MM-dd");
-                    selectOption.EndFabInDate = DateTime.Now.ToString("yyyy-MM-dd");
+                    selectOption.StartFabInDate = DateTime.Now.AddMonths(-2).ToString("yyyy-MM-dd");
+                    selectOption.EndFabInDate = DateTime.Now.AddMonths(1).ToString("yyyy-MM-dd");
                 }
+                selectOption.AuditAccountSn = _gateSysAccount.sn;
             }
             else
+            {
                 selectOption.StatusId = (int)FabInOutStatusEnum.Processing;
-
-            selectOption.AuditAccountSn = userEntity.sn;
+                selectOption.AuditAccountSn = userEntity.sn;
+            }
 
             _accessFabOrderAuditList = GetAccessFabOrderList(selectOption);
             _accseeFabDetail = _accessFabOrderDetailRepository.SelectList(accessFabSnList: _accessFabOrderAuditList.Select(s => s.OrderSn).ToList());
@@ -489,9 +492,12 @@ namespace MOD4.Web.DomainService
                 // 簽核已完成, 無下個簽核人員
                 else if (orderEntity.StatusId != FabInOutStatusEnum.Rejected && _nextAuditFlow == null)
                 {
-                    var _gateEmployee = _accountDomainService.GetAccountInfoByConditions(new List<RoleEnum> { RoleEnum.GateEmployee }, "", "", null).FirstOrDefault();
+                    var _gateEmployee = _accountDomainService.GetAccountInfoByConditions((int)RoleEnum.GateEmployee, null, "13078959", null).FirstOrDefault();
+
+                    var _gateSysAccount = _accountDomainService.GetAccountInfoByConditions(0, "管制口帳號", null, "gateadmin").FirstOrDefault();
+
                     _updAccessFabOrderDao.StatusId = FabInOutStatusEnum.Completed;
-                    _updAccessFabOrderDao.AuditAccountSn = _gateEmployee.sn;
+                    _updAccessFabOrderDao.AuditAccountSn = _gateSysAccount.sn;
                     _nextAuditAccountInfo.Mail = _gateEmployee.Mail;
                 }
                 // 簽核未完成, 更新下個簽核人員資訊
@@ -574,13 +580,21 @@ namespace MOD4.Web.DomainService
 
         public string VerifyAuditStatus(int orderSn, UserEntity userEntity)
         {
-            var _orderAccessFabOrder = _accessFabOrderRepository.SelectList(orderSn: orderSn).FirstOrDefault();
+            try
+            {
+                var _orderAccessFabOrder = _accessFabOrderRepository.SelectList(orderSn: orderSn).FirstOrDefault();
+                var _gateSysAccount = _accountDomainService.GetAccountInfoByConditions(0, "管制口帳號", null, "gateadmin").FirstOrDefault();
 
-            if ((_orderAccessFabOrder.StatusId == FabInOutStatusEnum.Completed && _orderAccessFabOrder.AuditAccountSn == userEntity.sn && userEntity.RoleId == RoleEnum.GateEmployee) ||
-                (_orderAccessFabOrder.StatusId == FabInOutStatusEnum.Processing && _orderAccessFabOrder.AuditAccountSn == userEntity.sn))
-                return "";
-            else
-                return "申請單已變更, 將重新整理頁面";
+                if ((_orderAccessFabOrder.StatusId == FabInOutStatusEnum.Completed && _orderAccessFabOrder.AuditAccountSn == _gateSysAccount.sn && Convert.ToBoolean(_gateSysAccount.Role & (int)RoleEnum.GateEmployee)) ||
+                    (_orderAccessFabOrder.StatusId == FabInOutStatusEnum.Processing && _orderAccessFabOrder.AuditAccountSn == userEntity.sn))
+                    return "";
+                else
+                    return "申請單已變更, 將重新整理頁面";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         private List<AccessFabOrderEntity> GetAccessFabOrderList(AccessFabSelectOptionEntity selectOption = null)

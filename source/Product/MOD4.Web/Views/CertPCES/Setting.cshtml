@@ -445,6 +445,10 @@
                                 });
                                 _row.isEditDisabled = false;
                                 _row.isSaveDisabled = true;
+
+                                vue.certData.forEach(function (item, index, array) {
+                                    item.isEditDisabled = false;
+                                });
                             }
                             else {
                                 Toast.fire({

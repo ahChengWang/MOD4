@@ -323,7 +323,7 @@ namespace MOD4.Web.DomainService
             {
                 List<CarUXBulletinDetailDao> _bulletinDetailList = _carUXBulletinRepository.SelectDetailByConditions(bulletinSn: new List<int> { bulletinSn });
                 List<CarUXBulletinDao> _bulletinList = _carUXBulletinRepository.SelectByConditions(snList: new List<int> { bulletinSn });
-                List<AccountInfoEntity> _readAccList = _accountDomainService.GetAccountInfoByConditions(null, null, null, null, accountList: _bulletinDetailList.Select(s => s.JobId).ToList());
+                List<AccountInfoEntity> _readAccList = _accountDomainService.GetAccountInfoByConditions(0, null, null, null, accountList: _bulletinDetailList.Select(s => s.JobId).ToList());
                 var _dfDepartmentLit = _departmentDomainService.GetDeptSectionList();
 
                 var _readDetailList = (from detail in _bulletinDetailList

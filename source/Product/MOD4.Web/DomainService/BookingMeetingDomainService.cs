@@ -144,7 +144,7 @@ namespace MOD4.Web.DomainService
             if (!DateTime.TryParse($"{bookingEntity.Date}", out _))
                 return (null, "預約時間異常");
 
-            var _accountInfoList = _accountDomainService.GetAccountInfoByConditions(null, bookingEntity.Name.Trim(), bookingEntity.JobId.Trim(), null);
+            var _accountInfoList = _accountDomainService.GetAccountInfoByConditions(0, bookingEntity.Name.Trim(), bookingEntity.JobId.Trim(), null);
 
             if (_accountInfoList == null || !_accountInfoList.Any())
                 return (null, "請確認預約人姓名及工號");
@@ -291,7 +291,7 @@ namespace MOD4.Web.DomainService
             if (_booking == null)
                 return ("排程異常", null);
 
-            var _accountInfoList = _accountDomainService.GetAccountInfoByConditions(null, updBookingEntity.Name.Trim(), updBookingEntity.JobId.Trim(), null);
+            var _accountInfoList = _accountDomainService.GetAccountInfoByConditions(0, updBookingEntity.Name.Trim(), updBookingEntity.JobId.Trim(), null);
 
             if (_accountInfoList == null || !_accountInfoList.Any())
                 return ("請確認預約人姓名及工號", null);

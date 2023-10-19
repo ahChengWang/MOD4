@@ -20,6 +20,9 @@ using Microsoft.AspNetCore.Http;
 using System.Net;
 using MOD4.Web.Controllers;
 using Microsoft.AspNetCore.Http.Features;
+using Utility.Attributes;
+using AspectCore.Extensions.DependencyInjection;
+using AspectCore.Configuration;
 
 namespace MOD4.Web
 {
@@ -128,11 +131,16 @@ namespace MOD4.Web
             services.AddSingleton<IMTDProcessFactory, MTDProcessFactory>();
             //加入WebSocket處理服務
             services.AddSingleton<WebSocketHandler>();
+            services.AddSingleton<CacheAttribute>();
+            services.AddSingleton<CacheListAttribute>();
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             services.AddHttpContextAccessor();
             services.Configure<FormOptions>(options => options.ValueCountLimit = 1000);
             services.AddSession();
             services.AddControllersWithViews();
+            //services.ConfigureDynamicProxy(config => { config.Interceptors.AddTyped<CacheAttribute>(Predicates.ForMethod("Ececute*")); });
+            services.ConfigureDynamicProxy();
+            services.BuildDynamicProxyProvider();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

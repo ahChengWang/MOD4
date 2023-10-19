@@ -5,17 +5,29 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Utility.Attributes;
 
 namespace MOD4.Web.Repostory
 {
     public class AccountInfoRepository : BaseRepository, IAccountInfoRepository
     {
+        [Cache]
+        [CacheOption(Second = 60 * 60 * 24 * 3)]
+        public virtual List<AccountInfoDao> SelectAllAccountInfo()
+        {
+            string sql = "select * from account_info where 1=1 ";
 
-        public List<AccountInfoDao> SelectByConditions(string account = "", 
-            string password = "", 
-            List<int> accountSnList = null, 
+            var dao = _dbHelper.ExecuteQuery<AccountInfoDao>(sql);
+
+            return dao;
+        }
+
+
+        public List<AccountInfoDao> SelectByConditions(string account = "",
+            string password = "",
+            List<int> accountSnList = null,
             List<int> deptList = null,
-            List<RoleEnum> roleIdList = null,
+            int roleId = 0,
             string name = "",
             string jobId = "",
             int levelId = 0,
@@ -39,9 +51,9 @@ namespace MOD4.Web.Repostory
             {
                 sql += " and deptSn in @deptList ";
             }
-            if (roleIdList != null)
+            if (roleId != 0)
             {
-                sql += " and role in @role ";
+                sql += " and role = @role ";
             }
             if (!string.IsNullOrEmpty(name))
             {
@@ -66,7 +78,7 @@ namespace MOD4.Web.Repostory
                 password = password,
                 SnList = accountSnList,
                 deptList = deptList,
-                role = roleIdList,
+                role = roleId,
                 name = name,
                 jobId = jobId,
                 Level_id = levelId,
@@ -302,7 +314,7 @@ where sn = @sn ; ";
         {
             string sql = "DELETE [dbo].[account_menu_info] WHERE account_sn = @account_sn and menu_sn != 15; ";
 
-            var dao = _dbHelper.ExecuteNonQuery(sql, new 
+            var dao = _dbHelper.ExecuteNonQuery(sql, new
             {
                 account_sn = accountSn
             });

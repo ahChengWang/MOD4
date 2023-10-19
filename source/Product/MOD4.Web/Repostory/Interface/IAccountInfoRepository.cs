@@ -7,11 +7,14 @@ namespace MOD4.Web.Repostory
 {
     public interface IAccountInfoRepository
     {
+
+        List<AccountInfoDao> SelectAllAccountInfo();
+
         List<AccountInfoDao> SelectByConditions(string account = "", 
             string password = "", 
             List<int> accountSnList = null,
-            List<int> deptList = null, 
-            List<RoleEnum> roleIdList = null,
+            List<int> deptList = null,
+            int roleId = 0,
             string name = "",
             string jobId = "",
             int levelId = 0,
