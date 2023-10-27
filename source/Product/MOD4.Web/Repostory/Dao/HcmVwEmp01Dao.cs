@@ -22,5 +22,7 @@
         public string VORNA { get; set; }
         // 國別
         public string NATIO { get; set; }
+        // 公司郵件
+        public string COMID2 { get; set; }
     }
 }

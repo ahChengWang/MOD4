@@ -41,9 +41,9 @@ namespace MOD4.Web.DomainService
             return GetAllAccountWithCatch().Where(acc => accountSnList.Contains(acc.sn)).ToList();
         }
 
-        public List<AccountInfoEntity> GetAccountInfoByConditions(int roleId, string name, string jobId, string account, int levelId = 0, List<string> accountList = null)
+        public List<AccountInfoEntity> GetAccountInfoByConditions(int roleId, string name, string jobId, string account, int levelId = 0, List<string> accountList = null, List<string> jobIdList = null)
         {
-            return _accountInfoRepository.SelectByConditions(account: account, roleId: roleId, name: name, jobId: jobId, levelId: levelId, accountList: accountList).Select(s => new AccountInfoEntity
+            return _accountInfoRepository.SelectByConditions(account: account, roleId: roleId, name: name, jobId: jobId, levelId: levelId, accountList: accountList, jobIdList: jobIdList).Select(s => new AccountInfoEntity
             {
                 sn = s.sn,
                 Account = s.account,
@@ -407,7 +407,7 @@ namespace MOD4.Web.DomainService
 
                 loginEntity.EncryptPw = _encryptPw;
 
-                if (requiredVerify && loginEntity.Account.ToUpper() != "MFG")
+                if (requiredVerify && loginEntity.Account.ToUpper() != "MFG" && !int.TryParse(loginEntity.Account, out _))
                 {
                     _accInfoEntity = DoInxSSOVerify(loginEntity);
                 }
@@ -419,6 +419,7 @@ namespace MOD4.Web.DomainService
                         return (false, null);
 
                     _accInfoEntity = _accInfoList.FirstOrDefault(f => f.Account.ToLower() == loginEntity.Account.ToLower() && f.Password == _encryptPw);
+                    _accInfoEntity.TokenTicket = "|";
                 }
 
                 _logHelper.WriteLog(LogLevel.Info, this.GetType().Name, $"使用者登錄:{_accInfoEntity.Name}({_accInfoEntity.JobId})");
@@ -430,6 +431,23 @@ namespace MOD4.Web.DomainService
                 throw ex;
             }
         }
+
+        private void TestWebEng()
+        {
+            string _url = "http://10.59.210.73:8087/WebEng/zkau";
+
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Cookie", "JSESSIONID=1BC2E47F6706F055760CF19E16327F37");
+
+                var response = client.GetAsync(_url + "?dtid=z_z8z&cmd_0=onChange&uuid_0=fDKQn1&data_0={\"value\":\"$z!t%23d:2023.10.20.0.0.0.0\",\"start\":10}&cmd_1=onClick&uuid_1=fDKQ8&data_1={\"pageX\":116,\"pageY\":139,\"which\":1,\"x\":100.09090995788574,\"y\":13.74432373046875}").Result;
+
+                var data = response.Content.ReadAsStringAsync().Result;
+
+                var dataArray = data.Split("<script class=\"z-runonce\" type=\"text/javascript\">/");
+            }
+        }
+
 
         private AccountInfoEntity DoInxSSOVerify(LoginEntity loginEntity)
         {
@@ -720,13 +738,13 @@ namespace MOD4.Web.DomainService
                                    where newEmp is null
                                    select new AccountInfoDao
                                    {
-                                       account = hr.PERNR,
+                                       account = string.IsNullOrEmpty(hr.COMID2.Trim()) ? hr.PERNR : (hr.COMID2.Split("@")[0]).ToLower(),
                                        password = Encrypt(hr.PERNR, shaKey),
-                                       deptSn = _defDeptList.FirstOrDefault(f => f.DeptId == hr.OSHORT).DeptSn,
+                                       deptSn = _defDeptList.FirstOrDefault(f => f.DeptId == hr.OSHORT)?.DeptSn ?? 00,
                                        jobId = hr.PERNR,
                                        level_id = JobLevelEnum.DL,
                                        name = hr.NACHN + hr.VORNA,
-                                       mail = ""
+                                       mail = hr.COMID2.Trim()
                                    }).ToList();
 
 
@@ -789,13 +807,19 @@ namespace MOD4.Web.DomainService
 
                         _delAccInfoRes = _accountInfoRepository.DeleteAccountInfo(_deletEmpList.Select(acc => acc.sn).ToList()) == _deletEmpList.Count;
 
-                        _delAccMenuInfoRes = _accountInfoRepository.DeleteAccountPermissionByList(_deletEmpList.Select(acc => acc.sn).ToList()) == (_deletEmpList.Count * 2);
+                        _accountInfoRepository.DeleteAccountPermissionByList(_deletEmpList.Select(acc => acc.sn).ToList());
 
                         if (_delAccInfoRes && _delAccMenuInfoRes)
                             scope.Complete();
                         else
                             _res += "DL資料刪除異常";
                     }
+                }
+
+                if (string.IsNullOrEmpty(_res))
+                {
+                    CatchHelper.Delete(new string[] { "accInfo" });
+                    CatchHelper.Delete(new string[] { "userMenuInfo" });
                 }
 
                 return _res;
@@ -832,7 +856,7 @@ namespace MOD4.Web.DomainService
                     return _accuntInfoList;
                 }
                 else
-                   return JsonConvert.DeserializeObject<List<AccountInfoEntity>>(_allAccInfo);
+                    return JsonConvert.DeserializeObject<List<AccountInfoEntity>>(_allAccInfo);
             }
             catch (Exception ex)
             {

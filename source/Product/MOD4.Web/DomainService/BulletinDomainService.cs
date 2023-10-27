@@ -66,7 +66,7 @@ namespace MOD4.Web.DomainService
                                                                                      join target in bulletin.TargetSections.Split(",").ToList()
                                                                                      on dept.DeptSn equals Convert.ToInt16(target)
                                                                                      select dept.DepartmentName).ToList()),
-                                              Status = detail.Status == 1 ? "未讀" : "已讀",
+                                              Status = detail.Status == 1 ? "未讀(unread)" : "已讀(read)",
                                               IsNeedUpdate = detail.Status == 1
                                           });
                 }
@@ -323,7 +323,7 @@ namespace MOD4.Web.DomainService
             {
                 List<CarUXBulletinDetailDao> _bulletinDetailList = _carUXBulletinRepository.SelectDetailByConditions(bulletinSn: new List<int> { bulletinSn });
                 List<CarUXBulletinDao> _bulletinList = _carUXBulletinRepository.SelectByConditions(snList: new List<int> { bulletinSn });
-                List<AccountInfoEntity> _readAccList = _accountDomainService.GetAccountInfoByConditions(0, null, null, null, accountList: _bulletinDetailList.Select(s => s.JobId).ToList());
+                List<AccountInfoEntity> _readAccList = _accountDomainService.GetAccountInfoByConditions(0, null, null, null, jobIdList: _bulletinDetailList.Select(s => s.JobId).ToList());
                 var _dfDepartmentLit = _departmentDomainService.GetDeptSectionList();
 
                 var _readDetailList = (from detail in _bulletinDetailList

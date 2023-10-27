@@ -18,7 +18,8 @@ namespace MOD4.Web.Repostory
             string name = "",
             string jobId = "",
             int levelId = 0,
-            List<string> accountList = null);
+            List<string> accountList = null,
+            List<string> jobIdList = null);
 
         AccessFabOrderFlowEntity SelectAccessAuditFlow(int accSn, JobLevelEnum accLevelId, int levelId);
 

@@ -31,7 +31,8 @@ namespace MOD4.Web.Repostory
             string name = "",
             string jobId = "",
             int levelId = 0,
-            List<string> accountList = null)
+            List<string> accountList = null,
+            List<string> jobIdList = null)
         {
             string sql = "select * from account_info where 1=1 ";
 
@@ -71,6 +72,10 @@ namespace MOD4.Web.Repostory
             {
                 sql += " and account in @AccountList ";
             }
+            if (jobIdList != null && jobIdList.Any())
+            {
+                sql += " and jobId in @JobIdList ";
+            }
 
             var dao = _dbHelper.ExecuteQuery<AccountInfoDao>(sql, new
             {
@@ -82,7 +87,8 @@ namespace MOD4.Web.Repostory
                 name = name,
                 jobId = jobId,
                 Level_id = levelId,
-                AccountList = accountList
+                AccountList = accountList,
+                JobIdList = jobIdList
             });
 
             return dao;
@@ -326,11 +332,11 @@ where sn = @sn ; ";
         {
             try
             {
-                string sql = @" select * from hcm_vw_emp01 where STAT2TXT = '在職中' and PKTXT not like '%IDL%' and PTEXT = '群豐駿南科'
+                string sql = @" select * from hcm_vw_emp01 where STAT2TXT = '在職中' and PKTXT not like '%IDL%' and ((PTEXT = '群豐駿南科'
  and OSHORT in ('9O431500','9O432500','9O433500','9J410500','9J410500','9P128500',
 '9O431501','9O431502','9O431503','9O431504','9O432501','9O432502',
 '9O432503','9O432504','9O433501','9O433502','9O434501','9O434502',
-'9O435501','9O435502','9O436501','9O436502','9O434503','9O432505','9O431505') ";
+'9O435501','9O435502','9O436501','9O436502','9O434503','9O432505','9O431505')) or OSHORT = '9J412504') ";
 
                 var dao = _oracleDBHelper.ExecuteQuery<HcmVwEmp01Dao>(sql);
 

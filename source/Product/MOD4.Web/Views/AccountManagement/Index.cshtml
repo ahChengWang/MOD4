@@ -219,7 +219,6 @@
                 dataType: "json",
                 success: function (res) {
                     if (res.isSuccess) {
-
                         Toast.fire({
                             icon: 'success',
                             title: '更新成功'
@@ -228,7 +227,7 @@
                     else {
                         Toast.fire({
                             icon: 'error',
-                            title: result.msg
+                            title: res.msg
                         });
                     }
                     $.unblockUI();

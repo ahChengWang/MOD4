@@ -148,6 +148,7 @@
     }
 
     .row > [name="title"] {
+        font-size: 14px;
         background-color: rgba(86,61,124,0.15);
     }
 
@@ -256,13 +257,13 @@
                         <table id="table1" class="table table-bordered table-hover" v-if="rawData.length != 0">
                             <thead>
                                 <tr>
-                                    <th>公告日</th>
-                                    <th>公告人</th>
-                                    <th>主旨</th>
-                                    <th>狀態</th>
-                                    <th>對象</th>
+                                    <th>公告日(Date)</th>
+                                    <th>公告人(Author)</th>
+                                    <th>主旨(Subject)</th>
+                                    <th>狀態(Status)</th>
+                                    <th>對象(Dept.)</th>
                                     @*<th>閱讀人數進度</th>*@
-                                    <th>閱讀人數</th>
+                                    <th style="font-size: 15px">閱讀人數(Read cnt)</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -274,8 +275,8 @@
                                     <td width="12%">{{raw.authorName}}</td>
                                     <td>{{raw.subject}}</td>
                                     <td width="8%">
-                                        <span v-if="raw.status == '未讀'" class="badge bg-danger" style="font-size: 90%">{{raw.status}}</span>
-                                        <span v-if="raw.status == '已讀'" class="badge bg-success" style="font-size: 90%">{{raw.status}}</span>
+                                        <span v-if="raw.status == '未讀(unread)'" class="badge bg-danger" style="font-size: 90%">{{raw.status}}</span>
+                                        <span v-if="raw.status == '已讀(read)'" class="badge bg-success" style="font-size: 90%">{{raw.status}}</span>
                                         <span v-if="raw.status == ''"></span>
                                     </td>
                                     @*<td width="15%">
@@ -389,26 +390,27 @@
                             </div>
                             <div class="modal-body">
                                 <div class="row">
-                                    <div class="col-md-3" name="title">主旨</div>
+                                    <div class="col-md-3" name="title">主旨(Subject)</div>
                                     <div class="col-md-9">{{detailModel.subject}}</div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-3" name="title">公告人</div>
+                                    <div class="col-md-3" name="title">公告人(Author)</div>
                                     <div class="col-md-3">{{detailModel.authorName}}</div>
-                                    <div class="col-md-3" name="title">日期</div>
+                                    <div class="col-md-3" name="title">日期(Date)</div>
                                     <div class="col-md-3">{{detailModel.date}}</div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-3" name="title">內容</div>
+                                    <div class="col-md-3" name="title">內容(Content)</div>
                                     <div class="col-md-9" style="white-space: pre-line;">{{detailModel.content}}</div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-3" name="title">附件</div>
+                                    <div class="col-md-3" name="title">附件(Attachment)</div>
                                     <div class="col-md-9"><a href="#" target="_blank" @@click="fileDownloadClk(detailModel.serialNo, detailModel.isNeedUpdate, detailModel.rawIndex)">{{detailModel.fileName}}</a></div>
                                 </div>
                             </div>
                             <div class="modal-footer">
                                 <div class="col-md-12" name="remark">※ 若無點選下載附件, 系統將視作未讀 ※</div>
+                                <div class="col-md-12" name="remark">※ If no clicked attachment download, system marked unread ※</div>
                             </div>
                         </div>
                     </div>
