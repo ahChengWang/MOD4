@@ -10,6 +10,8 @@ namespace MOD4.Web.ViewModel
 
         public string Target { get; set; }
 
+        public bool IsIncludeIDL { get; set; }
+
         public IFormFile UploadFile { get; set; }
     }
 }

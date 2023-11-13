@@ -72,27 +72,33 @@ namespace MOD4.Web.DomainService
                 }
                 else
                 {
-                    _bulletinList = _carUXBulletinRepository.SelectByConditions(_bulletinDetailList.Select(s => s.BulletinSn).ToList(), startDate: startDate, endDate: endDate);
+                    _bulletinDetailList = _carUXBulletinRepository.SelectDetailByConditions(jobId: userInfo.JobId, readStatus: readStatus);
+                    _bulletinList = _carUXBulletinRepository.SelectByConditions(snList: null, startDate: startDate, endDate: endDate);
+                    if (!string.IsNullOrEmpty(readStatus))
+                        _bulletinList = _bulletinList.Where(b => _bulletinDetailList.Select(s => s.BulletinSn).Contains(b.SerialNo)).ToList();
                     var _authorAccInfoList = _accountDomainService.GetAccountInfo(_bulletinList.Select(s => s.AuthorAccountId).ToList());
-                    _bulletinRep.AddRange(_bulletinList.Select(s => new BulletinEntity
+
+                    _bulletinRep.AddRange(_bulletinList.Select(bulletin => new BulletinEntity
                     {
-                        SerialNo = s.SerialNo,
-                        Subject = s.Subject,
-                        Date = s.Date.ToString("yyyy-MM-dd"),
-                        AuthorName = _authorAccInfoList.FirstOrDefault(f => f.sn == s.AuthorAccountId)?.Name ?? "",
-                        //Content = s.Content,
+                        SerialNo = bulletin.SerialNo,
+                        Subject = bulletin.Subject,
+                        Date = bulletin.Date.ToString("yyyy-MM-dd"),
+                        AuthorName = _authorAccInfoList.FirstOrDefault(f => f.sn == bulletin.AuthorAccountId)?.Name ?? "",
+                        //Content = bulletin.Content,
                         //FileName = bulletin.FileName,
-                        IsNewPost = s.Date >= _nowTime.Date.AddDays(-7),
+                        IsNewPost = bulletin.Date >= _nowTime.Date.AddDays(-7),
                         TargetSections = (from dept in _defDepartment
-                                          join target in s.TargetSections.Split(",").ToList()
+                                          join target in bulletin.TargetSections.Split(",").ToList()
                                           on dept.DeptSn equals Convert.ToInt16(target)
                                           select dept.DepartmentName).ToList(),
                         TargetSectionStr = string.Join(" ○ ", (from dept in _defDepartment
-                                                               join target in s.TargetSections.Split(",").ToList()
+                                                               join target in bulletin.TargetSections.Split(",").ToList()
                                                                on dept.DeptSn equals Convert.ToInt16(target)
                                                                select dept.DepartmentName).ToList()),
-                        Status = "",
-                        IsNeedUpdate = false
+                        Status = _bulletinDetailList.FirstOrDefault(f => f.BulletinSn == bulletin.SerialNo) == null ? ""
+                               : _bulletinDetailList.FirstOrDefault(f => f.BulletinSn == bulletin.SerialNo).Status == 1 ? "未讀(unread)" : "已讀(read)",
+                        IsNeedUpdate = _bulletinDetailList.FirstOrDefault(f => f.BulletinSn == bulletin.SerialNo) == null ? false
+                                     : _bulletinDetailList.FirstOrDefault(f => f.BulletinSn == bulletin.SerialNo).Status == 1
                     }));
                 }
 
@@ -170,9 +176,11 @@ namespace MOD4.Web.DomainService
                 string _uplRes = "";
                 DateTime _nowTime = DateTime.Now;
 
-                // 取得公告人員
-                var _destSectionEmpList = _accountDomainService.GetAccInfoListByDepartment(createEntity.Target.Split(",").Select(sec => Convert.ToInt32(sec)).ToList())
-                        .Where(w => w.Level_id == JobLevelEnum.DL);
+                // 取得公告對象同仁
+                var _destSectionEmpList = _accountDomainService.GetAccInfoListByDepartment(createEntity.Target.Split(",").Select(sec => Convert.ToInt32(sec)).ToList());
+
+                if (!createEntity.IsIncludeIDL)
+                    _destSectionEmpList = _destSectionEmpList.Where(w => w.Level_id == JobLevelEnum.DL).ToList();
 
                 CarUXBulletinDao _bulletin = new CarUXBulletinDao
                 {

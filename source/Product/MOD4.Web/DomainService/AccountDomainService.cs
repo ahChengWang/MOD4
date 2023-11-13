@@ -742,8 +742,9 @@ namespace MOD4.Web.DomainService
                                        password = Encrypt(hr.PERNR, shaKey),
                                        deptSn = _defDeptList.FirstOrDefault(f => f.DeptId == hr.OSHORT)?.DeptSn ?? 00,
                                        jobId = hr.PERNR,
-                                       level_id = JobLevelEnum.DL,
+                                       level_id = hr.PKTXT.Contains("IDL") ? JobLevelEnum.Employee : JobLevelEnum.DL,
                                        name = hr.NACHN + hr.VORNA,
+                                       role = hr.PKTXT.Contains("IDL") ? 40 : 0,
                                        mail = hr.COMID2.Trim()
                                    }).ToList();
 
@@ -767,10 +768,11 @@ namespace MOD4.Web.DomainService
                         var _tmpNewAccountList = _accountInfoRepository.SelectByConditions(accountList: _newEmpList.Select(s => s.account).ToList());
 
                         List<AccountMenuInfoDao> _insAccMenuInfo = new List<AccountMenuInfoDao>();
+                        List<AccountMenuInfoDao> _tmpInsAccMenuInfo = new List<AccountMenuInfoDao>();
 
                         foreach (AccountInfoDao _newAcc in _tmpNewAccountList)
                         {
-                            _insAccMenuInfo.AddRange(new List<AccountMenuInfoDao>
+                            _tmpInsAccMenuInfo = new List<AccountMenuInfoDao>
                             {
                                 new AccountMenuInfoDao
                                 {
@@ -786,7 +788,19 @@ namespace MOD4.Web.DomainService
                                     account_permission = 0,
                                     menu_group_sn = 0
                                 }
-                            });
+                            };
+
+                            if (_newAcc.level_id == JobLevelEnum.Employee)
+                                _tmpInsAccMenuInfo.AddRange(new List<AccountMenuInfoDao>
+                                {
+                                    new AccountMenuInfoDao { account_sn = _newAcc.sn, menu_sn = 11, account_permission = 0, menu_group_sn = 0 },
+                                    new AccountMenuInfoDao { account_sn = _newAcc.sn, menu_sn = 12, account_permission = 0, menu_group_sn = 0 },
+                                    new AccountMenuInfoDao { account_sn = _newAcc.sn, menu_sn = 13, account_permission = 3, menu_group_sn = 0 },
+                                    new AccountMenuInfoDao { account_sn = _newAcc.sn, menu_sn = 21, account_permission = 3, menu_group_sn = 0 },
+                                    new AccountMenuInfoDao { account_sn = _newAcc.sn, menu_sn = 22, account_permission = 3, menu_group_sn = 0 }
+                                });
+
+                            _insAccMenuInfo.AddRange(_tmpInsAccMenuInfo);
                         }
 
                         _insAccMenuInfoRes = _accountInfoRepository.InsertUserPermission(_insAccMenuInfo) == _insAccMenuInfo.Count;
@@ -803,13 +817,12 @@ namespace MOD4.Web.DomainService
                     using (var scope = new TransactionScope())
                     {
                         bool _delAccInfoRes = false;
-                        bool _delAccMenuInfoRes = false;
 
                         _delAccInfoRes = _accountInfoRepository.DeleteAccountInfo(_deletEmpList.Select(acc => acc.sn).ToList()) == _deletEmpList.Count;
 
                         _accountInfoRepository.DeleteAccountPermissionByList(_deletEmpList.Select(acc => acc.sn).ToList());
 
-                        if (_delAccInfoRes && _delAccMenuInfoRes)
+                        if (_delAccInfoRes)
                             scope.Complete();
                         else
                             _res += "DL資料刪除異常";

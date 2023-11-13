@@ -41,7 +41,7 @@
                                 @*<a class="btn btn-secondary" style="width:50px;height:15px;font-size:8px;" onclick="editClick(@eqinfo.sn,1,0,this)"><img class="eqimg" src="~/img/icons/pencil-2-128.gif" />PM</a>*@
                                 @*<input class="btn-sm btn-outline-primary" type="button" disabled value="工程師" />*@
                             }
-                            else if (eqinfo.StatusId == MOD4.Web.Enum.EqIssueStatusEnum.PendingENG && ViewBag.RoleId == Convert.ToBoolean(ViewBag.RoleId & (int)MOD4.Web.Enum.RoleEnum.Engineer))
+                            else if (eqinfo.StatusId == MOD4.Web.Enum.EqIssueStatusEnum.PendingENG && Convert.ToBoolean(ViewBag.RoleId & (int)MOD4.Web.Enum.RoleEnum.Engineer))
                             {
                                 <button name="Eng" class="btn btn-sm btn-primary" onclick="editClick(@eqinfo.sn,@((int)eqinfo.StatusId),this)" style="position:relative">
                                     <img class="eqimg" src="~/img/icons/pencil-2-128.gif" />

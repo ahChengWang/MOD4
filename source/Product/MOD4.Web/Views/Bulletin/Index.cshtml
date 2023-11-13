@@ -324,7 +324,7 @@
                     <!-- /.card-body -->
                 </div>
 
-                <!-- Modal Creaete -->
+                <!-- Modal Create -->
                 <div class="modal fade" id="createModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="createModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-lg">
                         <div class="modal-content">
@@ -358,6 +358,14 @@
                                             <select id="dropTarget" v-model="selectTarget" multiple="multiple">
                                                 <option v-for="section in sectionOptions" v-bind:value="section.id">{{section.value}}</option>
                                             </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 d-flex">
+                                        <div class="col-lg-2">
+                                            <label class="form-label" style="font-size: 17px;">是否包含IDL?</label>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <input class="form-control-sm" type="checkbox" v-model="createModel.isIncludeIDL" @@click="onIncludeChange" />
                                         </div>
                                     </div>
                                     <div class="col-lg-12 d-flex" style="margin-top:5px">
@@ -464,6 +472,7 @@
                     content: '',
                     target: '',
                     uploadFile: '',
+                    isIncludeIDL: false
                 },
                 detailModel: {},
                 detailModalShow: '#detailModal'
@@ -494,6 +503,9 @@
                     if (this.verifyFile(e.target.files[0])) {
                         vue.createModel.uploadFile = e.target.files[0]
                     }
+                },
+                onIncludeChange(e) {
+                    vue.createModel.isIncludeIDL = e.currentTarget.checked;
                 },
                 verifyFile(e) {
                     var validExtensions = ['xls', 'xlsx', 'pptx', 'pdf', 'docx', 'jpg', 'png'];
@@ -536,6 +548,7 @@
                     formData.append('content', vue.createModel.content);
                     formData.append('target', $("#dropTarget").val());
                     formData.append('uploadFile', vue.createModel.uploadFile);
+                    formData.append('isIncludeIDL', vue.createModel.isIncludeIDL);
 
                     globalFuc.LoadingPic();
 
@@ -589,7 +602,7 @@
                             success: function (result) {
                                 if (result.isSuccess) {
 
-                                    vue.rawData[(vue.currentPage - 1) * vue.currentSize + rawIndex].status = '已讀';
+                                    vue.rawData[(vue.currentPage - 1) * vue.currentSize + rawIndex].status = '已讀(read)';
                                     vue.rawData[(vue.currentPage - 1) * vue.currentSize + rawIndex].readCount += 1;
 
                                 }

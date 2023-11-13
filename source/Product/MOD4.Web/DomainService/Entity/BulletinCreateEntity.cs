@@ -13,6 +13,8 @@ namespace MOD4.Web.DomainService.Entity
 
         public string Target { get; set; }
 
+        public bool IsIncludeIDL { get; set; }
+
         public IFormFile UploadFile { get; set; }
     }
 }

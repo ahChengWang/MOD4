@@ -227,7 +227,7 @@ namespace MOD4.Web.DomainService
                 _mappDomainService.SendMsgWithTagAsync(new MAppTagUserEntity
                 {
                     url = "http://mapp.local/teamplus_innolux/EIM/Messenger/MessengerMain.aspx",
-                    chatId = "6cdef893-0d02-4f39-ab2b-9f6521c3f9cb",
+                    chatId = "CarUX串CIM群",
                     account = userEntity.Account,
                     password = _accountDomainService.Decrypt(userEntity.Password),
                     sendInfo = new List<MAppTagDetailEntity> {
@@ -360,7 +360,7 @@ namespace MOD4.Web.DomainService
                 _mappDomainService.SendMsgWithTagAsync(new MAppTagUserEntity
                 {
                     url = "http://mapp.local/teamplus_innolux/EIM/Messenger/MessengerMain.aspx",
-                    chatId = "6cdef893-0d02-4f39-ab2b-9f6521c3f9cb",
+                    chatId = "CarUX串CIM群",
                     account = userEntity.Account,
                     password = _accountDomainService.Decrypt(userEntity.Password),
                     sendInfo = new List<MAppTagDetailEntity> {

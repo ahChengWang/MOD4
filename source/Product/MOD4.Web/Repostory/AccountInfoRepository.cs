@@ -332,7 +332,8 @@ where sn = @sn ; ";
         {
             try
             {
-                string sql = @" select * from hcm_vw_emp01 where STAT2TXT = '在職中' and PKTXT not like '%IDL%' and ((PTEXT = '群豐駿南科'
+                //PKTXT not like '%IDL%' and 
+                string sql = @" select * from hcm_vw_emp01 where STAT2TXT = '在職中' and ((PTEXT = '群豐駿南科'
  and OSHORT in ('9O431500','9O432500','9O433500','9J410500','9J410500','9P128500',
 '9O431501','9O431502','9O431503','9O431504','9O432501','9O432502',
 '9O432503','9O432504','9O433501','9O433502','9O434501','9O434502',
