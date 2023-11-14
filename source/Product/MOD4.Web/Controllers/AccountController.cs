@@ -55,7 +55,7 @@ namespace MOD4.Web.Controllers
                         new Claim(ClaimTypes.Sid, _verifyResult.Item2.Account.ToLower()),
                         new Claim(ClaimTypes.Name, _verifyResult.Item2.Name),
                         new Claim("Psw", _verifyResult.Item2.Password),
-                        new Claim(ClaimTypes.Role, Convert.ToString((int)_verifyResult.Item2.Role)),
+                        new Claim(ClaimTypes.Role, Convert.ToString(_verifyResult.Item2.Role)),
                         new Claim("LevelId", Convert.ToString((int)_verifyResult.Item2.Level_id)),
                         new Claim("DeptSn", Convert.ToString(_verifyResult.Item2.DeptSn)),
                         new Claim("JobId", _verifyResult.Item2.JobId),

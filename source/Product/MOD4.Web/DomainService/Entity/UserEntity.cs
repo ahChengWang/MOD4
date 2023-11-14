@@ -9,7 +9,7 @@ namespace MOD4.Web.DomainService.Entity
         public string Account { get; set; }
         public string Password { get; set; }
         public string Name { get; set; }
-        public int RoleId { get; set; }
+        public int Role { get; set; }
         public JobLevelEnum Level_id { get; set; }
         public int DeptSn { get; set; }
         public string Mail { get; set; }

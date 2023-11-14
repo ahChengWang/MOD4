@@ -414,7 +414,7 @@ namespace MOD4.Web.DomainService
             // 取得該使用者待簽核申請單
 
             // 管制口人員
-            if (Convert.ToBoolean(userEntity.RoleId & (int)RoleEnum.GateEmployee))
+            if (Convert.ToBoolean(userEntity.Role & (int)RoleEnum.GateEmployee))
             {
                 selectOption.StatusId = (int)FabInOutStatusEnum.Completed;
 

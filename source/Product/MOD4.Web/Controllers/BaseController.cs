@@ -47,7 +47,7 @@ namespace MOD4.Web.Controllers
                         sn = _userInfoEntity.sn,
                         Account = _userInfoEntity.Account,
                         Name = _userInfoEntity.Name,
-                        RoleId = _userInfoEntity.Role,
+                        Role = _userInfoEntity.Role,
                         Level_id = _userInfoEntity.Level_id,
                         DeptSn = _userInfoEntity.DeptSn,
                         Mail = _userInfoEntity.Mail,
@@ -67,19 +67,7 @@ namespace MOD4.Web.Controllers
                     //_userInfo.Password = _userClaims.FirstOrDefault(m => m.Type == "Psw").Value;
                     //_userInfo.UserMenuPermissionList = _userPermission;
 
-                    CatchHelper.Set($"userInfo_{_userEntity.JobId}", JsonConvert.SerializeObject(new UserEntity
-                    {
-                        sn = _userInfoEntity.sn,
-                        Account = _userInfoEntity.Account,
-                        Name = _userInfoEntity.Name,
-                        RoleId = _userInfoEntity.Role,
-                        Level_id = _userInfoEntity.Level_id,
-                        DeptSn = _userInfoEntity.DeptSn,
-                        Mail = _userInfoEntity.Mail,
-                        JobId = _userInfoEntity.JobId,
-                        Password = _userInfoEntity.Password,
-                        UserMenuPermissionList = _userPermission
-                    }), 432000);
+                    CatchHelper.Set($"userInfo_{_userEntity.JobId}", JsonConvert.SerializeObject(_userEntity), 432000);
 
                     return _userEntity;
                 }

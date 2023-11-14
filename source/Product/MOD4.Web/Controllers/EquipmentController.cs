@@ -37,7 +37,7 @@ namespace MOD4.Web.Controllers
             try
             {
                 var res = _equipmentDomainService.GetUnrepairedEqList(date, toolIdList);
-                ViewBag.RoleId = GetUserInfo().RoleId;
+                ViewBag.RoleId = GetUserInfo().Role;
 
                 List<EquipmentDetailModel> response = res.Select(s =>
                 {
@@ -70,7 +70,7 @@ namespace MOD4.Web.Controllers
             try
             {
                 var res = _equipmentDomainService.GetRepairedEqList(date, toolIdList, statusIdList, showAuto: showAuto);
-                ViewBag.RoleId = GetUserInfo().RoleId;
+                ViewBag.RoleId = GetUserInfo().Role;
 
                 //ViewBag.LineList = res.GroupBy(gb => gb.ToolId).Select(s => s.Key).ToList();
 
@@ -112,7 +112,7 @@ namespace MOD4.Web.Controllers
 
                 ViewBag.ToolId = _equipmentDomainService.GetUnRepaireEqOptions();
                 ViewBag.RepairedToolId = _equipmentDomainService.GetRepairedEqOptions(null);  //_equipmentDomainService.GetEqPageDropdown();
-                ViewBag.RoleId = GetUserInfo().RoleId;
+                ViewBag.RoleId = GetUserInfo().Role;
 
                 List<EquipmentEntity> _repairedEqList = new List<EquipmentEntity>();
                 int _pmPending = 0;

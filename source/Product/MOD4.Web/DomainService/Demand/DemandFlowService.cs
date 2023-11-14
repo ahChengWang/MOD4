@@ -262,7 +262,7 @@ namespace MOD4.Web.DomainService.Demand
                     return _updateRes;
 
                 case DemandStatusEnum.Completed:
-                case DemandStatusEnum.Verify when Convert.ToBoolean(flowDataEntity.UserInfo.RoleId & (int)RoleEnum.DemandSysMgr):
+                case DemandStatusEnum.Verify when Convert.ToBoolean(flowDataEntity.UserInfo.Role & (int)RoleEnum.DemandSysMgr):
                     return DoManagerUpdOrder(ref flowDataEntity, _nowTime);
 
                 case DemandStatusEnum.Verify:
