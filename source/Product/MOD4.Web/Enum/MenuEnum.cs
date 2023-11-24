@@ -50,8 +50,6 @@ namespace MOD4.Web.Enum
         Efficiency = 29,
         [Description("各部效率-設定")]
         EffSetting = 30,
-        [Description("Monitor")]
-        Monitor = 31,
         [Description("SAP 管報")]
         Material = 33,
         [Description("SAP 檔案上傳")]
@@ -62,5 +60,9 @@ namespace MOD4.Web.Enum
         CertificationPCESSetting = 37,
         [Description("公告欄")]
         Bulletin = 39,
+        [Description("Monitor")]
+        Monitor = 40,
+        [Description("參數設定")]
+        MonitorSetting = 41,
     }
 }

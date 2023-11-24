@@ -14,5 +14,9 @@ namespace MOD4.Web.Repostory
         List<MTDProcessSettingDao> SelectForMTDSetting(List<int> prodList);
 
         List<MTDProcessSettingDao> SelectForUploadMTD(IEnumerable<string> prodNoList, IEnumerable<string> processList);
+
+        List<TargetSettingDao> SelectForMonitor(int prodSn);
+
+        int UpdateTT(List<TargetSettingDao> updSettingList);
     }
 }

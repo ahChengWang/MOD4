@@ -41,12 +41,24 @@
                             <ul class="nav nav-treeview">
                                 @foreach (var sub in menu.SubMenuList)
                                 {
-                                    <li class="nav-item">
-                                        <a href="@sub.Href" class="nav-link">
-                                            <i class="@sub.ClassName"></i>
-                                            <p>@sub.PageName</p>
-                                        </a>
-                                    </li>
+                                    if (sub.PageName == "Monitor")
+                                    {
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="@sub.Href" target="_blank">
+                                                <i class="@sub.ClassName"></i>
+                                                <p>@sub.PageName</p>
+                                            </a>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li class="nav-item">
+                                            <a href="@sub.Href" class="nav-link">
+                                                <i class="@sub.ClassName"></i>
+                                                <p>@sub.PageName</p>
+                                            </a>
+                                        </li>
+                                    }
                                 }
                             </ul>
                         </li>
@@ -55,20 +67,10 @@
                     {
                         <li class="nav-item">
                             @{
-                                if (menu.PageName == "Monitor")
-                                {
-                                    <a class="nav-link" href="@menu.Href" target="_blank">
-                                        <i class="@menu.ClassName"></i>
-                                        <p>@menu.PageName</p>
-                                    </a>
-                                }
-                                else
-                                {
-                                    <a class="nav-link" href="@menu.Href">
-                                        <i class="@menu.ClassName"></i>
-                                        <p>@menu.PageName</p>
-                                    </a>
-                                }
+                                <a class="nav-link" href="@menu.Href">
+                                    <i class="@menu.ClassName"></i>
+                                    <p>@menu.PageName</p>
+                                </a>
                             }
                         </li>
                     }

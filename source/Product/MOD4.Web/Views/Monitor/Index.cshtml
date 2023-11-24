@@ -177,7 +177,7 @@
         box-sizing: border-box;
         border: 2px solid red;
         border-image: url('./img/border.png') 51 38 21 132;
-        border-width: 2.125rem 1.583rem 0.875rem 5.5rem;
+        border-width: 2.125rem 1.583rem 0.875rem 1.5rem;
         position: relative;
         margin-bottom: 0.833rem;
     }
@@ -194,7 +194,7 @@
         }
 
     .monitor {
-        height: 90%;
+        height: 100%;
     }
 
         .monitor .inner {
@@ -202,6 +202,80 @@
             display: flex;
             flex-direction: column;
         }
+
+    .tooltip-text {
+        visibility: hidden;
+        position: absolute;
+        z-index: 3;
+        width: 200px;
+        color: black;
+        font-size: 15px;
+        background-color: #ededed;
+        border-radius: 5px;
+        padding: 5px 10px 5px 10px;
+        top: 25px;
+        left: -30%;
+    }
+
+        .tooltip-text::before {
+            content: "";
+            position: absolute;
+            transform: rotate(45deg);
+            background-color: #ededed;
+            padding: 5px;
+            z-index: -1;
+        }
+
+    .eqArea:hover .tooltip-text {
+        visibility: visible;
+    }
+
+    .tooltip-text::before {
+        top: -15%;
+        left: 15%;
+    }
+
+    .autoscrollable-wrapper {
+        overflow: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
+        width: 103%;
+        height: 100%;
+    }
+
+        .autoscrollable-wrapper::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .autoscrollable-wrapper::-webkit-scrollbar-button {
+            background: transparent;
+            border-radius: 4px;
+        }
+
+        .autoscrollable-wrapper::-webkit-scrollbar-track-piece {
+            background: transparent;
+        }
+
+        .autoscrollable-wrapper::-webkit-scrollbar-thumb {
+            border-radius: 4px;
+            /*background-color: #b5b5b5;*/
+            border: 1px solid slategrey;
+            opacity: 0.2;
+        }
+
+        .autoscrollable-wrapper::-webkit-scrollbar-track {
+            box-shadow: transparent;
+        }
+
+    thead, tr > th {
+        position: sticky;
+        background: rgba(0,0,0,.8);
+    }
+
+    thead {
+        top: -1;
+        z-index: 2;
+    }
 </style>
 
 <head>
@@ -211,125 +285,215 @@
     <link rel="stylesheet" href="~/img/border.png">
     <link rel="stylesheet" href="~/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    @*<link rel="stylesheet" href="~/css/app-style.css">*@
 </head>
 
 <body class="bg-theme">
-    <div class="card-header" style="height: 8%;text-align:center">
-        @*<h2 style="color: white; font-weight: 600; font-style: italic;">監控看板</h2>*@
+    <div class="card-header" style="height: 7%;text-align:center">
         <img class="titleImg" style="width:80%" src="~/img/titleTransparent_1.png" />
     </div>
     <partial name="_PartialClock" />
-    <div class="card-body" style="height: 92%;">
+    <div id="app" class="card-body" style="height: 91%;">
         <div name="alaemMap">
-            <div style="height: 8%;">
+            <div style="height: 7%;">
                 <h3 style="color: white;font-family:'Trebuchet MS'">Factory map</h3>
             </div>
-            <div style="display: flex; height: 55%;">
-                <div name="mapDiv">
-                    @*<div name="mapDiv" style="display: flex; justify-content: center; align-items: center; overflow: hidden">*@
-                    @*<div style="clear: both; width: 500px; height: 50px; border: 1px solid black;" id="selections"></div>*@
-                    <img id="fabLayout2" src="~/img/FabLayout2F.png" usemap="#veg">
-                    <map id="veg_map" name="veg">
-                        <area alt="AOLB2010" shape="poly" name="AOLB2010" coords="209,129,  866,129, 866,174, 209,174" href="#">
-                        <area alt="AFOG2010" shape="poly" name="AFOG2010" coords="97,278, 486,278, 486,310, 97,310" href="#">
-                        <area alt="CLAM2010" shape="poly" name="CLAM2010" coords="510,289, 694,289, 694,316, 510,316" href="#">
-                        <area alt="OCAH2210" shape="poly" name="OCAH2210" coords="97,332, 175,332, 175,324, 495,324, 495,332, 575,332, 575,356, 97,356" href="#">
-                        <area alt="OCAH2010" shape="poly" name="OCAH2010" coords="545,214 ,1011,214, 1011,259, 545,259" href="#">
-
-                        <area alt="ff2HTH55" shape="poly" name="ff2HTH55" coords="148,390, 436,390, 436,383, 650,383, 650,427, 376,427, 376,444, 148,444" href="#">
-                        <area alt="ff2STH55" shape="poly" name="ff2STH55" coords="675,393, 700,393, 700,400, 769,400, 769,396, 845,396, 845,431, 832,431, 832,439, 763,439, 763,431, 675,431" href="#">
-
-                        <area alt="ASSY2010" shape="poly" name="ASSY2010" coords="886,137 ,993,137, 993,121, 1023,121, 1023,156 , 1210,156, 1210,146, 1275,146, 1275,165, 1320,165, 1321,176, 886,176" href="#">
-                        <area alt="AISC2020" shape="poly" name="AISC2020" coords="870,385, 1158,385, 1158,396, 870,396" href="#">
-                        <area alt="BASY2010" shape="poly" name="BASY2010" coords="870,422, 1092,422, 1092,412, 1126,412, 1126,432, 1148,432, 1148,422, 1167,422, 1167,432, 1207,432, 1207,445, 870,455" href="#">
-                    </map>
-                    @*</div>*@
-                </div>
-                <div class="box" style="width: 25%; margin-left: 5px">
-
-                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); left: 85%;">
-                        <a>Info</a>
-                    </div>
-                    <div class="monitor panel">
-                        <div class="inner" style="align-items: center; justify-content: start; margin-top:10%">
-                            <div id="areaInfo" style="width: 100%; height: 100%;">
-                                @*<div style="color: white; display: flex; height: 15%;">
-                                        <div class="col-4" style="font-size: 18px;">Area：</div>
-                                        <div class="col-6" style="font-size: 18px;">Assy</div>
-                                    </div>
-                                    <div style="color: white; display: flex; height: 15%;">
-                                        <div class="col-4" style="font-size: 18px;">EQ no：</div>
-                                        <div class="col-6" style="font-size: 18px;">ASSY2010</div>
-                                    </div>
-                                    <div style="color: white; display: flex; height: 15%;">
-                                        <div class="col-4" style="font-size: 18px;">機種：</div>
-                                        <div class="col-6" style="font-size: 18px;">GDD340IA0090S</div>
-                                    </div>
-                                    <div style="color: white; display: flex; height: 15%;">
-                                        <div class="col-4" style="font-size: 18px;">Pass 量：</div>
-                                        <div class="col-6" style="font-size: 18px;">300</div>
-                                    </div>*@
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div style="display: flex; height: 37%; margin-top: 10px;">
-                <div style="width: 35%; height: 103%; margin-right: 5px;">
-                    <div name="cHeader" style="background-color: rgba(184, 82, 18,.3); left: 15%; ">
+            <div style="display: flex; height: 58%;">
+                <div style="width: 25%;">
+                    <div name="cHeader" style="background-color: rgba(184, 82, 18,.3); left: 9%; ">
                         <a>前段異常</a>
                     </div>
                     <div class="monitor panel">
-                        <div class="inner" style="align-items: center; justify-content: end;">
-                            <div style="overflow-y: auto; overflow-x: hidden; width: 95%; height: 85%;">
-                                <table class="table">
-                                    <tbody>
-                                        @{
-                                            foreach (var alarm in Model.AlarmList.Where(w => w.IsFrontEnd))
-                                            {
-                                                <tr>
-                                                    <td>@alarm.ProdNo</td>
-                                                    <td>@alarm.EqNumber</td>
-                                                    <td>@alarm.Comment</td>
-                                                    <td>@alarm.StartTime</td>
-                                                </tr>
-                                            }
-                                        }
-                                    </tbody>
-                                </table>
+                        <div class="autoscrollable-wrapper" @@mouseover="stopInterval(this)" @@mouseout="startInterval()">
+                            <div v-for="alarm in frontAlarms">
+                                <div>
+                                    <div>
+                                        <a style="color: white;">{{alarm.eqNumber}}</a>
+                                        <a style="color: white; margin-left: 20px;">{{alarm.prodNo}}</a>
+                                    </div>
+                                    <div>
+                                        <a style="color: white;">{{alarm.startTime}}</a>
+                                    </div>
+                                    <div>
+                                        <a style="color: white;">{{alarm.comment}}</a>
+                                    </div>
+                                </div>
+                                <hr style="background-color:white" />
                             </div>
+                            <!-- #region -->
+                            @*@{
+                                    foreach (var alarm in Model.EqInfoList)
+                                    {
+                                        if (alarm.AlarmInfo.IsFrontEnd)
+                                        {
+                                            <div>
+                                                <div>
+                                                    <a style="color: white;">@alarm.AlarmInfo.EqNumber</a>
+                                                    <a style="color: white; margin-left: 20px;">@alarm.AlarmInfo.ProdNo</a>
+                                                </div>
+                                                <div>
+                                                    <a style="color: white;">@alarm.AlarmInfo.StartTime</a>
+                                                </div>
+                                                <div>
+                                                    <a style="color: white;">@alarm.AlarmInfo.Comment</a>
+                                                </div>
+                                            </div>
+                                            <hr style="background-color:white" />
+                                        }
+                                    }
+                                    <div>
+                                        <div>
+                                            <a style="color: white; margin-left: 5px;">AFOG2010</a>
+                                            <a style="color: white;margin-left: 20px;">GDD340IA0090S</a>
+                                        </div>
+                                        <div>
+                                            <a style="color: white;">2023/08/14 12:00:01</a>
+                                        </div>
+                                        <div>
+                                            <a style="color: white;">下料機搬送異常</a>
+                                        </div>
+                                    </div>
+                                    <hr style="background-color:white" />
+                                    <div>
+                                        <div>
+                                            <a style="color: white; margin-left: 5px;">AFOG2010</a>
+                                            <a style="color: white;margin-left: 20px;">GDD340IA0090S</a>
+                                        </div>
+                                        <div>
+                                            <a style="color: white;">2023/08/14 12:00:01</a>
+                                        </div>
+                                        <div>
+                                            <a style="color: white;">下料機搬送異常</a>
+                                        </div>
+                                    </div>
+                                    <hr style="background-color:white" />
+                                    <div>
+                                        <div>
+                                            <a style="color: white; margin-left: 5px;">AFOG2010</a>
+                                            <a style="color: white;margin-left: 20px;">GDD340IA0090S</a>
+                                        </div>
+                                        <div>
+                                            <a style="color: white;">2023/08/14 12:00:01</a>
+                                        </div>
+                                        <div>
+                                            <a style="color: white;">下料機搬送異常</a>
+                                        </div>
+                                    </div>
+                                    <hr style="background-color:white" />
+                                    <div>
+                                        <div>
+                                            <a style="color: white; margin-left: 5px;">AFOG2010</a>
+                                            <a style="color: white;margin-left: 20px;">GDD340IA0090S</a>
+                                        </div>
+                                        <div>
+                                            <a style="color: white;">2023/08/14 12:00:01</a>
+                                        </div>
+                                        <div>
+                                            <a style="color: white;">下料機搬送異常</a>
+                                        </div>
+                                    </div>
+                                    <hr style="background-color:white" />
+                                    <div>
+                                        <div>
+                                            <a style="color: white; margin-left: 5px;">AFOG2010</a>
+                                            <a style="color: white;margin-left: 20px;">GDD340IA0090S</a>
+                                        </div>
+                                        <div>
+                                            <a style="color: white;">2023/08/14 12:00:01</a>
+                                        </div>
+                                        <div>
+                                            <a style="color: white;">下料機搬送異常</a>
+                                        </div>
+                                    </div>
+                                    <hr style="background-color:white" />
+                                    <div>
+                                        <div>
+                                            <a style="color: white; margin-left: 5px;">AFOG2010</a>
+                                            <a style="color: white;margin-left: 20px;">GDD340IA0090S</a>
+                                        </div>
+                                        <div>
+                                            <a style="color: white;">2023/08/14 12:00:01</a>
+                                        </div>
+                                        <div>
+                                            <a style="color: white;">下料機搬送異常</a>
+                                        </div>
+                                    </div>
+                                    <hr style="background-color:white" />
+                                    <div>
+                                        <div>
+                                            <a style="color: white; margin-left: 5px;">AFOG2010</a>
+                                            <a style="color: white;margin-left: 20px;">GDD340IA0090S</a>
+                                        </div>
+                                        <div>
+                                            <a style="color: white;">2023/08/14 12:00:01</a>
+                                        </div>
+                                        <div>
+                                            <a style="color: white;">下料機搬送異常</a>
+                                        </div>
+                                    </div>
+                                    <hr style="background-color:white" />
+                                    <div>
+                                        <div>
+                                            <a style="color: white; margin-left: 5px;">AFOG2010</a>
+                                            <a style="color: white;margin-left: 20px;">GDD340IA0090S</a>
+                                        </div>
+                                        <div>
+                                            <a style="color: white;">2023/08/14 12:00:01</a>
+                                        </div>
+                                        <div>
+                                            <a style="color: white;">下料機搬送異常</a>
+                                        </div>
+                                    </div>
+                                    <hr style="background-color:white" />
+                                }*@
+                            <!-- #endregion -->
                         </div>
                     </div>
                 </div><!--End Row-->
-                <div style="width: 35%; height: 103%; margin-right: 5px;">
-                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); left: 49%;">
+
+                <div name="mapDiv" style="height: 100%;">
+                    <div class="eqArea" v-for="eq in eqDataInfo" :style="eq" @@mouseover="showEQInfo(eq)" @@mouseout="hideEQInfo(eq)">
+                        @*<a style="font-size: 17px; font-weight: 700;">99</a>*@
+                        <span v-if="eq.perfInfo.alarmMsg != '' && eq.perfInfo.alarmMsg != null" class="tooltip-text">{{eq.perfInfo.alarmMsg}}</span>
+                    </div>
+
+                    @*<div id="AOLB2010" class="eqArea" v-bind:style="AOLB2010" @@mouseover="showEQInfo(AOLB2010)" @@mouseout="hideEQInfo(AOLB2010)">
+                            <span class="tooltip-text">{{AOLB2010.perfInfo.alarmMsg}}</span>
+                        </div>*@
+
+                    <canvas id="myCanvas">
+                    </canvas>
+                </div>
+
+                <div style="width: 25%;">
+                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); right: 9%;">
                         <a>後段異常</a>
                     </div>
                     <div class="monitor panel">
-                        <div class="inner" style="align-items: center; justify-content: end;">
-                            <div style="overflow-y: auto; overflow-x: hidden; width: 95%; height: 85%; ">
-                                <table class="table">
-                                    <tbody>
-                                        @{
-                                            foreach (var alarm in Model.AlarmList.Where(w => !w.IsFrontEnd))
-                                            {
-                                                <tr>
-                                                    <td>@alarm.ProdNo</td>
-                                                    <td>@alarm.EqNumber</td>
-                                                    <td>@alarm.Comment</td>
-                                                    <td>@alarm.StartTime</td>
-                                                </tr>
-                                            }
-                                        }
-                                    </tbody>
-                                </table>
+                        <div class="autoscrollable-wrapper" @@mouseover="stopInterval(this)" @@mouseout="startInterval()">
+                            <div v-for="alarm in backendAlarms">
+                                <div>
+                                    <div>
+                                        <a style="color: white;">{{alarm.eqNumber}}</a>
+                                        <a style="color: white; margin-left: 20px;">{{alarm.prodNo}}</a>
+                                    </div>
+                                    <div>
+                                        <a style="color: white;">{{alarm.startTime}}</a>
+                                    </div>
+                                    <div>
+                                        <a style="color: white;">{{alarm.comment}}</a>
+                                    </div>
+                                </div>
+                                <hr style="background-color:white" />
                             </div>
                         </div>
                     </div>
                 </div><!--End Row-->
-                <div style="width: 30%; height: 103%;">
-                    <div name="cHeader" style="background-color: rgba(81, 214, 86,.3); left: 82%;">
+
+            </div>
+            <div style="display: flex; height: 34%; margin-top: 10px;">
+
+                <div style="width: 33%;">
+                    <div name="cHeader" style="background-color: rgba(81, 214, 86,.3); left: 15%;">
                         <a>本日 TOP</a>
                     </div>
                     <div class="monitor panel">
@@ -354,6 +518,101 @@
                         </div>
                     </div>
                 </div><!--End Row-->
+
+                <div class="box" style="width: 33%;">
+                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); left: 47%;">
+                        <a>生產資訊</a>
+                    </div>
+                    <div class="monitor panel">
+                        <div id="areaInfo" style="width: 70%; height: 100%;">
+                            <div style="color: white; display: flex; line-height: 1.9;">
+                                <div class="col-md-5" style="font-size: 18px;">Area:</div>
+                                <div class="col-md-7" style="font-size: 18px;">{{eqPerfInfo.area}}</div>
+                            </div>
+                            <div style="color: white; display: flex; line-height: 1.9;">
+                                <div class="col-md-5" style="font-size: 18px;">EQ no:</div>
+                                <div class="col-md-7" style="font-size: 18px;">{{eqPerfInfo.eqNo}}</div>
+                            </div>
+                            <div style="color: white; display: flex; line-height: 1.9;">
+                                <div class="col-md-5" style="font-size: 18px;">機種:</div>
+                                <div class="col-md-7" style="font-size: 18px;">{{eqPerfInfo.prod}}</div>
+                            </div>
+                            <div style="color: white; display: flex; line-height: 1.9;">
+                                <div class="col-md-5" style="font-size: 18px;">Pass量:</div>
+                                <div class="col-md-7" style="font-size: 18px;">{{eqPerfInfo.passQty}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="box" style="width: 33%;">
+
+                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); right: 15%;">
+                        <a>各站 T.T</a>
+                    </div>
+                    <div class="monitor panel autoscrollable-wrapper" @@mouseover="stopInterval(this)" @@mouseout="startInterval()">
+                        <table class="table">
+                            <thead>
+                                <tr style="color:white">
+                                    <th>EQ</th>
+                                    <th>目標</th>
+                                    <th>現值</th>
+                                    <th>燈號</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>AOLB2010</td>
+                                    <td>50</td>
+                                    <td>53</td>
+                                    <td>
+                                        <span style="margin-left: 5px; width: 20px; height: 20px; border-radius: 50%; background-color: red; display: block;"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>AFOG2010</td>
+                                    <td>50</td>
+                                    <td>53</td>
+                                    <td>
+                                        <span style="margin-left: 5px; width: 20px; height: 20px; border-radius: 50%; background-color: darkorange; display: block;"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>LAM2010</td>
+                                    <td>50</td>
+                                    <td>53</td>
+                                    <td>
+                                        <span style="margin-left: 5px; width: 20px; height: 20px; border-radius: 50%; background-color: green; display: block;"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>ASSY2010</td>
+                                    <td>50</td>
+                                    <td>53</td>
+                                    <td>
+                                        <span style="margin-left: 5px; width: 20px; height: 20px; border-radius: 50%; background-color: darkorange; display: block;"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>ACKE2010</td>
+                                    <td>50</td>
+                                    <td>53</td>
+                                    <td>
+                                        <span style="margin-left: 5px; width: 20px; height: 20px; border-radius: 50%; background-color: red; display: block;"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>CKEN2010</td>
+                                    <td>50</td>
+                                    <td>53</td>
+                                    <td>
+                                        <span style="margin-left: 5px; width: 20px; height: 20px; border-radius: 50%; background-color: green; display: block;"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -365,263 +624,212 @@
 <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
 <script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
 <script src="~/js/jquery.imagemapster.js"></script>
+<script src="~/plugins/vue/vue.min.js"></script>
 <script>
-    var image = $('#fabLayout2');
 
-    var areaDic = {
-        AOLB2010: {
-            area: 'BOND',
-            eq: 'AOLB2010',
-            desc: 'bondVCS',
-            bgColor: 'b85212'
+    const vue = new Vue({
+        el: '#app',
+        data: {
+            allInfo: @(Html.Raw(Json.Serialize(Model))),
+            isFullscreen: false,
+            reRate: 1,
+            moveX: 0,
+            moveY: 0,
+            scrollInterval: null,
+            frontAlarms: [],
+            backendAlarms: [],
+            eqDataInfo:[],
+            eqPerfInfo: {
+                area: '',
+                eqNo: '',
+                prod: '',
+                passQty: '',
+            }
         },
-        AFOG2010: {
-            area: 'FOG',
-            eq: 'AFOG2010',
-            desc: 'FOG',
-            bgColor: '4a4a4a'
-        },
-        CLAM2010: {
-            area: 'LAM',
-            eq: 'CLAM2010',
-            desc: 'ff2STH',
-            bgColor: '157ac2'
-        },
-        OCAH2210: {
-            area: 'LAM',
-            eq: 'OCAH2210',
-            desc: 'HTHSTH20',
-            bgColor: '157ac2'
-        },
-        OCAH2010: {
-            area: 'LAM',
-            eq: 'OCAH2010',
-            desc: 'ocaVCS',
-            bgColor: '157ac2'
-        },
-        ff2HTH55: {
-            area: 'LAM',
-            eq: '',
-            desc: 'ff2HTH55',
-            bgColor: '157ac2'
-        },
-        ff2STH55: {
-            area: 'LAM',
-            eq: '',
-            desc: 'ff2STH55',
-            bgColor: '157ac2'
-        },
-        ASSY2010: {
-            area: 'ASSY',
-            eq: 'ASSY2010',
-            desc: 'assyVCS',
-            bgColor: '861dcc'
-        },
-        AISC2020: {
-            area: 'ASSY',
-            eq: 'AISC2020',
-            desc: 'assyPaDi',
-            bgColor: '861dcc'
-        },
-        BASY2010: {
-            area: 'ASSY',
-            eq: 'BASY2010',
-            desc: 'assyPana',
-            bgColor: '861dcc'
-        },
-    };
+        methods: {
+            stopInterval(e) {
+                clearInterval(vue.scrollInterval);
+            },
+            startInterval(e) {
+                vue.setScrollInterval();
+            },
+            pageResize(isResize, isFullscreen) {
+                var canvas = document.getElementById("myCanvas");
+                var context = canvas.getContext("2d");
 
-    var _prodPerInfo = [];
+                var _divWidth = $("div[name='mapDiv']").width();
+                var _divHeight = $("div[name='mapDiv']").height();
 
-    var _options = {
-        fillOpacity: 0.1,
-        /*fillColor: "2fc44f",*/
-        //stroke: true,
-        //strokeColor: "2fc44f",
-        //strokeOpacity: 0.8,
-        /*strokeWidth: 3,*/
-        singleSelect: false,
-        mapKey: 'name',
-        listKey: 'name',
-        isSelectable: false,
-        onMouseover: function (data) {
-            var _currEq = _prodPerInfo.filter(prod => prod.eqNumber == data.key);
-            if (_currEq.length == 0) {
-                _currEq = [{
-                    prodNo: '',
-                    passQty: ''
-                }];
+                canvas.height = _divHeight;
+                canvas.width = _divWidth;
+
+                //alert(_divWidth + '_' + _divHeight);
+
+                var imgObject = new Image();
+                imgObject.src = "./img/fabLayoutNew.png";
+
+                imgObject.addEventListener('load', function () {
+                    var setW = imgObject.width;
+                    var setH = imgObject.height;
+                    if ((_divHeight / _divWidth) > (setH / setW)) {
+                        vue.reRate = _divWidth / setW;
+                        setH = setH * vue.reRate;
+                        setW = _divWidth;
+                        vue.moveX = 0;
+                        vue.moveY = (_divHeight - setH) / 2;
+                    }
+                    else {
+                        vue.reRate = _divHeight / setH;
+                        setH = _divHeight;
+                        setW = setW * vue.reRate;
+                        vue.moveX = (_divWidth - setW) / 2;
+                        vue.moveY = 0;
+                    }
+                    context.drawImage(imgObject, vue.moveX, vue.moveY, setW, setH);
+                    if (isFullscreen || vue.moveX != 0 || vue.moveY != 0) {
+                        vue.areaResize(vue.moveX, vue.moveY, setW, setH, vue.reRate);
+                    }
+                    else if (isResize & !isFullscreen) {
+                        vue.areaResize(vue.moveX, vue.moveY, setW, setH, vue.reRate);
+                    }
+                    //context.strokeRect(100, 100, 250, 100);
+                });
+            },
+            areaResize(mX, mY, imgW, imgH, reRate) {
+
+                for (var i = 0; i < vue.eqDataInfo.length; i++) {
+                    vue.eqDataInfo[i].top = (vue.eqDataInfo[i].defTopRate * imgH) + mY;
+                    vue.eqDataInfo[i].left = (vue.eqDataInfo[i].defLeftRate * imgW) + mX;
+                    vue.eqDataInfo[i].width = vue.eqDataInfo[i].defWidth * reRate;
+                    vue.eqDataInfo[i].height = vue.eqDataInfo[i].defHeight * reRate;
+                }
+            },
+            showEQInfo(e) {
+
+                vue.eqPerfInfo.area = e.perfInfo.area;
+                vue.eqPerfInfo.eqNo = e.perfInfo.eqNo;
+                vue.eqPerfInfo.prod = e.perfInfo.prod;
+                vue.eqPerfInfo.passQty = e.perfInfo.passQty.toString();
+
+                if (e.perfInfo.alarmMsg != '') {
+                    e.background = 'rgba(255, 0, 0,.8)';
+                }
+                else {
+                    e.background = e.background.split('.')[0] + '.8)';
+                }
+            },
+            hideEQInfo(e) {
+                e.background = e.origBackground.split('.')[0] + e.defOpacity + ')';
+
+                vue.eqPerfInfo.area = '';
+                vue.eqPerfInfo.eqNo = '';
+                vue.eqPerfInfo.prod = '';
+                vue.eqPerfInfo.passQty = '';
+            },
+            setScrollInterval() {
+                this.scrollInterval = setInterval(function () {
+                    vue.setInterval();
+                }
+                ,100);
+            },
+            setInterval() {
+                var elems = $('.autoscrollable-wrapper');
+                elems.each(function (idx, div) {
+                    div.scrollTop = div.scrollTop + 1;
+                    const _scrollLen = Math.ceil(div.scrollTop);
+                    if (div.scrollHeight - _scrollLen == div.clientHeight) {
+                        div.scrollTop = 0;
+                    }
+                });
+            }
+        },
+        mounted: function () {
+            var _model = @(Html.Raw(Json.Serialize(Model)));
+            _prodPerInfo = _model.prodPerInfo;
+            //$.each(_model.alarmList, function (idx, alarmData) {
+            //    alarmArea(alarmData);
+            //});
+
+            if (window.innerHeight === screen.height) {
+                this.isFullscreen = true;
             }
 
-            $('#areaInfo').html('<div style="color: white; display: flex; height: 15%;">' +
-                '<div class="col-4" style="font-size: 18px;">Area：</div>' +
-                '<div class="col-6" style="font-size: 18px;">' + areaDic[data.key].area + '</div>' +
-                '</div>' +
-                '<div style="color: white; display: flex; height: 15%;">' +
-                '<div class="col-4" style="font-size: 18px;">EQ no：</div>' +
-                '<div class="col-6" style="font-size: 18px;">' + areaDic[data.key].eq + '</div>' +
-                '</div>' +
-                '<div style="color: white; display: flex; height: 15%;">' +
-                '<div class="col-4" style="font-size: 18px;">機種：</div>' +
-                '<div class="col-6" style="font-size: 18px;">' + _currEq[0].prodNo + '</div>' +
-                '</div>' +
-                '<div style="color: white; display: flex; height: 15%;">' +
-                '<div class="col-4" style="font-size: 18px;">Pass 量：</div>' +
-                '<div class="col-6" style="font-size: 18px;">' + _currEq[0].passQty + '</div>' +
-                '</div>');
-        },
-        onMouseout: function (data) {
-            $('#areaInfo').empty();
-        },
-        onClick: function (e) {
-            var newToolTip = defaultDipTooltip;
+            for (var i = 0; i < _model.eqInfoList.length; i++) {
 
-            // update text depending on area selected
-            //$('#selections').html(xref[e.key]);
+                const _eqData = {
+                    eqNumber: _model.eqInfoList[i].eqNumber,
+                    position: 'absolute',
+                    border: '3px dashed ' + _model.eqInfoList[i].border,
+                    defTopRate: _model.eqInfoList[i].defTopRate,
+                    defLeftRate: _model.eqInfoList[i].defLeftRate,
+                    top: 0,
+                    left: 0,
+                    defWidth: _model.eqInfoList[i].defWith,
+                    defHeight: _model.eqInfoList[i].defHeight,
+                    width: 0,
+                    height: 0,
+                    background: _model.eqInfoList[i].background,
+                    origBackground: _model.eqInfoList[i].background,
+                    defOpacity: 0.6,
+                    'text-align': 'center',
+                    perfInfo: {}
+                };
 
-            // if Asparagus selected, change the tooltip
-            if (e.key === 'asparagus') {
-                newToolTip = "OK. I know I have come down on the dip before, but let's be real. "
-                    + "Raw asparagus without any of that delicious ranch and onion dressing "
-                    + "slathered all over it is not so good.";
+                if (_model.eqInfoList[i].prodPerInfo != null) {
+                    _eqData.perfInfo.area = '';
+                    _eqData.perfInfo.eqNo = _model.eqInfoList[i].prodPerInfo.eqNumber;
+                    _eqData.perfInfo.prod = _model.eqInfoList[i].prodPerInfo.prodNo;
+                    _eqData.perfInfo.passQty = _model.eqInfoList[i].prodPerInfo.passQty;
+                    _eqData.perfInfo.alarmMsg = '';
+                }
+
+                if (_model.eqInfoList[i].alarmInfo != null) {
+                    if (_model.eqInfoList[i].alarmInfo.isFrontEnd) {
+                        this.frontAlarms.push(
+                            {
+                                comment: _model.eqInfoList[i].alarmInfo.comment,
+                                eqNumber: _model.eqInfoList[i].alarmInfo.eqNumber,
+                                prodNo: _model.eqInfoList[i].alarmInfo.prodNo,
+                                startTime: _model.eqInfoList[i].alarmInfo.startTime,
+                            });
+                        _eqData.background = 'rgba(255, 0, 0,' + 0.6 + ')';
+                        _eqData.perfInfo.alarmMsg = _model.eqInfoList[i].alarmInfo.comment;
+                    }
+                    else {
+                        this.backendAlarms.push(
+                            {
+                                comment: _model.eqInfoList[i].alarmInfo.comment,
+                                eqNumber: _model.eqInfoList[i].alarmInfo.eqNumber,
+                                prodNo: _model.eqInfoList[i].alarmInfo.prodNo,
+                                startTime: _model.eqInfoList[i].alarmInfo.startTime,
+                            });
+                        _eqData.background = 'rgba(255, 0, 0,' + 0.6 + ')';
+                        _eqData.perfInfo.alarmMsg = _model.eqInfoList[i].alarmInfo.comment;
+                    }
+                }
+
+                this.eqDataInfo.push(_eqData);
             }
-            image.mapster('set_options', {
-                areas: [{
-                    key: "dip",
-                    toolTip: newToolTip
-                }]
-            });
+
+            this.pageResize(false, this.isFullscreen);
+
+            this.setScrollInterval();
         },
-        showToolTip: true,
-        toolTipClose: ["tooltip-click", "area-click"],
-        areas: [
-            {
-                key: "AOLB2010",
-                /*fillColor: "d42e16",*/
-                stroke: true,
-                strokeColor: "b85212",
-                /*strokeOpacity: 0.8,*/
-                strokeWidth: 3,
-                selected: true
-            },
-            {
-                key: "AFOG2010",
-                //fillColor: "d42e16",
-                stroke: true,
-                strokeColor: "4a4a4a",
-                //strokeOpacity: 0.8,
-                strokeWidth: 3,
-                selected: true
-            },
-            {
-                key: "CLAM2010",
-                //fillColor: "d42e16",
-                stroke: true,
-                strokeColor: "157ac2",
-                //strokeOpacity: 0.8,
-                strokeWidth: 3,
-                selected: true
-            },
-            {
-                key: "OCAH2210",
-                //fillColor: "d42e16",
-                stroke: true,
-                strokeColor: "157ac2",
-                //strokeOpacity: 0.8,
-                strokeWidth: 3,
-                selected: true
-            },
-            {
-                key: "OCAH2010",
-                //fillColor: "d42e16",
-                stroke: true,
-                strokeColor: "157ac2",
-                //strokeOpacity: 0.8,
-                strokeWidth: 3,
-                selected: true
-            },
-            {
-                key: "ff2HTH55",
-                //fillColor: "d42e16",
-                stroke: true,
-                strokeColor: "157ac2",
-                //strokeOpacity: 0.8,
-                strokeWidth: 3,
-                selected: true
-            },
-            {
-                key: "ff2STH55",
-                //fillColor: "d42e16",
-                stroke: true,
-                strokeColor: "157ac2",
-                //strokeOpacity: 0.8,
-                strokeWidth: 3,
-                selected: true
-            },
-            {
+        computed: {
 
-                key: "ASSY2010",
-                //fillColor: "d42e16",
-                stroke: true,
-                strokeColor: "861dcc",
-                strokeOpacity: 1,
-                strokeWidth: 3,
-                selected: true
-            },
-            {
-                key: "AISC2020",
-                //fillColor: "d42e16",
-                stroke: true,
-                strokeColor: "861dcc",
-                //strokeOpacity: 0.8,
-                strokeWidth: 3,
-                selected: true
-            },
-            {
-                key: "BASY2010",
-                //fillColor: "d42e16",
-                stroke: true,
-                strokeColor: "861dcc",
-                //strokeOpacity: 0.8,
-                strokeWidth: 3,
-                selected: true
-            },
-        ]
-    };
-
-    image.mapster(_options);
-
-    $("#btnTest").on('click', function (e) {
-        //$("area[name='assyVCS']").mapster('select');
-        //$("area[name='ocaVCS']").mapster('select');
-        image.mapster('highlight', false);
-        _options.areas.push({
-            key: "assyVCS",
-            fillColor: "d42e16",
-            strokeColor: "d42e16",
-            toolTip: '123321',
-            isDeselectable: false
-        });
-
-        image.mapster('set_options', _options);
-        image.mapster('set', true, 'assyVCS');
-        //image.mapster('set', true, 'ocaVCS');
-
-        //$("area[name='assyVCS']").mapster('set', true, {
-        //    isSelectable: false
-        //});
-        //$("area[name='ocaVCS']").mapster('set', true, {
-        //    selected: true
-        //});
-
-        //$("area[name='assyVCS']").animate({ opacity: 0.5 }, 2000, function () {
-        //    // 動畫結束後的處理程式碼（可選）
-        //    // 這裡的示範是將透明度恢復為 1
-        //    $(this).animate({ opacity: 1 }, 500);
-        //});
-        //image.mapster('highlight', "assyVCS");
-        //image.mapster('highlight', "ocaVCS");
+        }
     });
+
+    window.onresize = function (event) {
+        if (window.innerHeight === screen.height) {
+            this.isFullscreen = true;
+        }
+        else {
+            this.isFullscreen = false;
+        }
+
+        vue.pageResize(true, this.isFullscreen);
+    }
 
     var server = 'ws://127.0.0.1:80'; //如果开启了https则这里是wss
     var vWebSocket = null;
@@ -644,71 +852,5 @@
                 alert(_response.Area);
             }
         }
-    }
-
-    $(function (e) {
-        var _model = @(Html.Raw(Json.Serialize(Model)));
-        _prodPerInfo = _model.prodPerInfo;
-        $.each(_model.alarmList, function (idx, alarmData) {
-            alarmArea(alarmData);
-        });
-
-        // reload
-        window.setInterval('refresh()', 60000);
-    });
-
-    function refresh() {
-        window.location.reload();
-    }
-
-
-    function alarmArea(areaObj) {
-
-        var areaIdx = _options.areas.findIndex((obj => obj.key == areaObj.eqNumber));
-
-        image.mapster('set', false, areaObj.eqNumber);
-
-        if (areaObj.isAbnormal) {
-
-            _options.areas[areaIdx] = {
-                key: areaObj.eqNumber,
-                fillOpacity: 0.6,
-                fillColor: "e00000",
-                stroke: true,
-                strokeColor: "e00000",
-                strokeOpacity: 1,
-                strokeWidth: 3,
-                selected: true,
-                toolTip: areaObj.comment,
-                toolTipClose: ['image-mouseout']
-            };
-        }
-        else {
-            _options.areas[areaIdx] = {
-                key: areaObj.eqNumber,
-                stroke: true,
-                strokeColor: areaDic[areaObj.eqNumber],
-                strokeOpacity: 0.8,
-                strokeWidth: 3,
-                toolTip: null
-            };
-        }
-
-        image.mapster('set_options', _options);
-        image.mapster('set', true, areaObj.eqNumber);
-
-        //map.mapster('unbind')
-        //    .mapster(opts)
-        //    .bind('mouseover', function () {
-        //        if (!inArea) {
-        //            map.mapster('set_options', all_opts)
-        //                .mapster('set', true, 'all')
-        //                .mapster('set_options', single_opts);
-        //        }
-        //    }).bind('mouseout', function () {
-        //        alert('show');
-        //    });
-
-
     }
 </script>

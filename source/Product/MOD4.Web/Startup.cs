@@ -119,6 +119,7 @@ namespace MOD4.Web
             services.AddSingleton<IPCESCertificationRepository, PCESCertificationRepository>();
             services.AddSingleton<ICarUXBulletinRepository, CarUXBulletinRepository>();
             services.AddSingleton<IDefinitionDepartmentRepository, DefinitionDepartmentRepository>();
+            services.AddSingleton<IMonitorSettingRepository, MonitorSettingRepository>();
 
             services.AddScoped<MenuService>();
             services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));

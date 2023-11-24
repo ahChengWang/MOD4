@@ -69,13 +69,21 @@ order by DATEDIFF(MINUTE,lm_time,end_time) desc; ";
         public List<ProdXmlDao> SelectProdInfo(string mfgDay)
         {
             string sql = @" select tool_id,prod_id,MAX(CONVERT(int, move_cnt))'move_cnt' 
-  from carUX_CFM_2f.dbo.prod_xml prod
+  from prod_xml prod
   join equip_mapping map 
     on prod.tool_id = map.EQUIP_NBR 
  where prod.MFG_Day = @MFG_Day
    and map.isForMonitor = 1
    and prod.move_cnt != '' 
  group by tool_id,prod_id; ";
+ //           string sql = @" select tool_id,prod_id,MAX(CONVERT(int, move_cnt))'move_cnt' 
+ // from carUX_CFM_2f.dbo.prod_xml prod
+ // join equip_mapping map 
+ //   on prod.tool_id = map.EQUIP_NBR 
+ //where prod.MFG_Day = @MFG_Day
+ //  and map.isForMonitor = 1
+ //  and prod.move_cnt != '' 
+ //group by tool_id,prod_id; ";
 
             var dao = _dbHelper.ExecuteQuery<ProdXmlDao>(sql, new
             {

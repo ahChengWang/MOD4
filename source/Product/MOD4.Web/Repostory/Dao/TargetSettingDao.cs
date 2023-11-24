@@ -35,5 +35,8 @@ namespace MOD4.Web.Repostory.Dao
         public string UpdateUser { get; set; }
         public DateTime UpdateTime { get; set; }
         public int TimeTarget { get; set; }
+
+        // for monitor show prod desc
+        public string ProdDesc { get; set; }
     }
 }

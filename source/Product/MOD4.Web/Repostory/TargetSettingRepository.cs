@@ -183,5 +183,35 @@ select defNode.process ,defPod.prodNo, setting.lcmProdSn, setting.Node
 
             return dao;
         }
+        public List<TargetSettingDao> SelectForMonitor(int prodSn)
+        {
+            string sql = $@"select CONCAT(defProd.prodNo,' (',defProd.descr,')') prodName, ts.lcmProdSn, ts.Node, ts.DownEquipment,ts.TimeTarget 
+  from Target_Setting ts 
+  join definition_node_desc defNode 
+    on ts.Node = defNode.eqNo 
+  join definition_lcm_prod defProd
+    on ts.lcmProdSn = defProd.sn where ts.lcmProdSn=@LcmProdSn ";
+
+            var dao = _dbHelper.ExecuteQuery<TargetSettingDao>(sql, new
+            {
+                LcmProdSn = prodSn,
+            });
+
+            return dao;
+        }
+
+        public int UpdateTT(List<TargetSettingDao> updSettingList)
+        {
+            string sql = @"UPDATE [dbo].[Target_Setting]
+   SET [DownEquipment] = @DownEquipment
+      ,[UpdateUser] = @UpdateUser
+      ,[UpdateTime] = @UpdateTime
+      ,[TimeTarget] = @TimeTarget
+ WHERE [Node] = @Node and [lcmProdSn] = @lcmProdSn; ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, updSettingList);
+
+            return dao;
+        }
     }
 }
