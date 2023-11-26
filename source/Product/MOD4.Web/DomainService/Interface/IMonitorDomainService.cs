@@ -1,11 +1,16 @@
 ﻿using MOD4.Web.DomainService.Entity;
+using System;
 using System.Collections.Generic;
 
 namespace MOD4.Web.DomainService
 {
     public interface IMonitorDomainService
     {
-        MonitorEntity GetAlarmEq();
+        MonitorEntity GetMapPerAlarmData();
+
+        List<MonitorProdPerInfoEntity> GetProdPerformanceInfo();
+
+        List<MonitorAlarmTopEntity> GetAlarmTopDaily();
 
         MonitorSettingMainEntity GetMonitorMainList(int prodSn = 1206);
 

@@ -1,12 +1,15 @@
 ﻿using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Repostory;
 using MOD4.Web.Repostory.Dao;
+using NPOI.SS.Formula.Functions;
+using NPOI.SS.Formula;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Transactions;
 using Utility.Helper;
+using System.Security.Claims;
 
 namespace MOD4.Web.DomainService
 {
@@ -25,49 +28,15 @@ namespace MOD4.Web.DomainService
             _targetSettingRepository = targetSettingRepository;
         }
 
-        public MonitorEntity GetAlarmEq()
+        public MonitorEntity GetMapPerAlarmData()
         {
             try
             {
-                DateTime _mfgDate = DateTime.Now.AddMinutes(-450);
-                MonitorEntity monitorEntity = new MonitorEntity();
-
-                var _mapAreaSettingList = _monitorSettingRepository.SelectSettings();
-                var _alarmEqList = _alarmXmlRepository.SelectUnrepaired();
-                var _alarmDayTop = _alarmXmlRepository.SelectDayTopRepaired(_mfgDate.ToString("yyyy-MM-dd"));
-                var _prodPerInfo = _alarmXmlRepository.SelectProdInfo(_mfgDate.ToString("yyyy-MM-dd"));
-
-                monitorEntity.MapAreaList = _mapAreaSettingList.CopyAToB<MonitorSettingEntity>();
-
-                monitorEntity.MapAreaList.ForEach(f => f.Background = ConvertColorHEXtoRGB(f.Background));
-
-                monitorEntity.AlarmList = _alarmEqList.Select(alarm => new MonitorAlarmEntity
+                return new MonitorEntity
                 {
-                    EqNumber = alarm.tool_id,
-                    StatusCode = alarm.tool_status,
-                    Comment = string.IsNullOrEmpty(alarm.comment.Trim()) ? alarm.status_cdsc : alarm.comment,
-                    ProdNo = alarm.prod_id,
-                    StartTime = alarm.lm_time.ToString("yyyy/MM/dd HH:mm:ss"),
-                    IsFrontEnd = "BONDING,LAM-FOG".Contains(alarm.area)
-                }).ToList();
-
-                monitorEntity.AlarmDayTop = _alarmDayTop.Select(alarm => new MonitorAlarmTopEntity
-                {
-                    EqNumber = alarm.tool_id,
-                    StatusCode = alarm.tool_status,
-                    Comment = string.IsNullOrEmpty(alarm.comment.Trim()) ? alarm.status_cdsc : alarm.comment,
-                    ProdNo = alarm.prod_id,
-                    RepairedTime = $"{alarm.repairedTime}(m)"
-                }).ToList();
-
-                monitorEntity.ProdPerInfo = _prodPerInfo.Select(per => new MonitorProdPerInfoEntity
-                {
-                    EqNumber = per.tool_id,
-                    ProdNo = per.prod_id,
-                    PassQty = per.move_cnt
-                }).ToList();
-
-                return monitorEntity;
+                    AlarmDayTop = GetAlarmTopDaily(),
+                    ProdPerformanceList = GetProdPerformanceInfo()
+                };
             }
             catch (Exception ex)
             {
@@ -75,11 +44,61 @@ namespace MOD4.Web.DomainService
             }
         }
 
+        public List<MonitorProdPerInfoEntity> GetProdPerformanceInfo()
+        {
+            DateTime _mfgDate = DateTime.Now.AddMinutes(-450);
+
+            var _mapAreaSettingList = _monitorSettingRepository.SelectSettings();
+            var _alarmEqList = _alarmXmlRepository.SelectUnrepaired();
+            var _prodPerInfo = _alarmXmlRepository.SelectProdInfo(_mfgDate.ToString("yyyy-MM-dd"));
+
+            return (from area in _mapAreaSettingList
+                    join per in _prodPerInfo
+                    on area.EqNumber equals per.tool_id
+                    join alarm in _alarmEqList
+                    on per.tool_id equals alarm.tool_id into tmpAlarm
+                    from alarm in tmpAlarm.DefaultIfEmpty()
+                    select new MonitorProdPerInfoEntity
+                    {
+                        Node = area.Node,
+                        EqNumber = area.EqNumber,
+                        DefTopRate = area.DefTopRate,
+                        DefLeftRate = area.DefLeftRate,
+                        DefWidth = area.DefWidth,
+                        DefHeight = area.DefHeight,
+                        Border = area.Border,
+                        Background = ConvertColorHEXtoRGB(area.Background),
+                        Area = per.area,
+                        ProdNo = per.prod_id,
+                        PassQty = per.move_cnt,
+                        StatusCode = alarm?.tool_status ?? "",
+                        Comment = string.IsNullOrEmpty(alarm?.comment.Trim() ?? "") ? (alarm?.status_cdsc ?? "") : alarm.comment,
+                        IsFrontEnd = "BONDING,LAM-FOG".Contains(alarm?.area ?? ""),
+                        StartTime = alarm?.lm_time.ToString("yyyy/MM/dd HH:mm:ss") ?? ""
+                    }).ToList();
+        }
+
+        public List<MonitorAlarmTopEntity> GetAlarmTopDaily()
+        {
+            DateTime _mfgDate = DateTime.Now.AddMinutes(-450);
+
+            var _alarmDayTop = _alarmXmlRepository.SelectDayTopRepaired(_mfgDate.ToString("yyyy-MM-dd"));
+
+            return _alarmDayTop.Select(alarm => new MonitorAlarmTopEntity
+            {
+                EqNumber = alarm.tool_id,
+                StatusCode = alarm.tool_status,
+                Comment = string.IsNullOrEmpty(alarm.comment.Trim()) ? alarm.status_cdsc : alarm.comment,
+                ProdNo = alarm.prod_id,
+                RepairedTime = $"{alarm.repairedTime}(min.)"
+            }).ToList();
+        }
+
         public MonitorSettingMainEntity GetMonitorMainList(int prodSn = 1206)
         {
             try
             {
-                return new MonitorSettingMainEntity 
+                return new MonitorSettingMainEntity
                 {
                     SettingDetails = GetMonitorAreaSettingList(),
                     ProdTTDetails = GetMonitorProdTTList(prodSn)
@@ -126,9 +145,13 @@ namespace MOD4.Web.DomainService
                     DefLeftRate = ms.DefLeftRate * 100,
                     DefWidth = ms.DefWidth,
                     DefHeight = ms.DefHeight,
+                    LocX0 = ms.LocX0,
+                    LocY0 = ms.LocY0,
+                    LocX1 = ms.LocX1,
+                    LocY1 = ms.LocY1,
                     Background = ms.Background,
                     Border = ms.Border
-                }).ToList();
+                }).OrderBy(ob => Convert.ToInt32(ob.EqNumber.Substring(ob.EqNumber.Length - 4, 4))).ThenBy(tb => tb.EqNumber).ToList();
             }
             catch (Exception ex)
             {
@@ -176,21 +199,31 @@ namespace MOD4.Web.DomainService
                 string _updRes = "";
                 DateTime _nowTime = DateTime.Now;
 
-                List<MonitorSettingDao> _insMonitorSettings = mapAreaEntity.Select(map => new MonitorSettingDao
-                {
-                    Node = map.Node,
-                    EqNumber = map.EqNumber,
-                    DefHeight = map.DefHeight,
-                    DefLeftRate = map.DefLeftRate / 100,
-                    DefTopRate = map.DefTopRate / 100,
-                    DefWidth = map.DefWidth,
-                    Background = map.Background,
-                    Border = map.Border,
-                    Floor = 2,
-                    UpdateTime = _nowTime,
-                    UpdateUser = userEntity.Name
-                }).ToList();
+                List<MonitorSettingDao> _insMonitorSettings = new List<MonitorSettingDao>();
 
+                mapAreaEntity.ForEach(set =>
+                {
+                    MonitorSettingDao _tmp = new MonitorSettingDao();
+
+                    _tmp.Node = set.Node;
+                    _tmp.EqNumber = set.EqNumber;
+                    _tmp.LocX0 = set.LocX0;
+                    _tmp.LocY0 = set.LocY0;
+                    _tmp.LocX1 = set.LocX1;
+                    _tmp.LocY1 = set.LocY1;
+                    _tmp.Background = set.Background;
+                    _tmp.Border = set.Border;
+                    _tmp.Floor = 2;
+                    _tmp.UpdateTime = _nowTime;
+                    _tmp.UpdateUser = userEntity.Name;
+
+                    _tmp.DefTopRate = Convert.ToDecimal(Convert.ToDouble(set.LocY0) / Convert.ToDouble(589));
+                    _tmp.DefLeftRate = Convert.ToDecimal(Convert.ToDouble(set.LocX0) / Convert.ToDouble(1517));
+                    _tmp.DefWidth = set.LocX1 - set.LocX0;
+                    _tmp.DefHeight = set.LocY1 - set.LocY0;
+
+                    _insMonitorSettings.Add(_tmp);
+                });
 
                 using (TransactionScope scope = new TransactionScope())
                 {
@@ -209,6 +242,7 @@ namespace MOD4.Web.DomainService
                 throw ex;
             }
         }
+
 
         private string ConvertColorHEXtoRGB(string colorHEX)
         {

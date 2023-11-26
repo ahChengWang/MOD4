@@ -119,7 +119,7 @@
         align-items: center;
         overflow: hidden;
         background: repeating-conic-gradient(from var(--a),#e8e8e8 0%,#e8e8e8 5%,transparent 5%,transparent 40%,#e8e8e8 50%);
-        animation: animate 10s linear infinite;
+        animation: animate 20s linear infinite;
     }
 
     @@property --a {
@@ -497,25 +497,18 @@
                         <a>本日 TOP</a>
                     </div>
                     <div class="monitor panel">
-                        <div class="inner" style="align-items: center; justify-content: end;">
-                            <div style="overflow-y: auto; overflow-x: hidden; width: 95%; height: 85%; ">
+                            <div style="overflow-y: auto; overflow-x: hidden; height: 85%; ">
                                 <table class="table">
                                     <tbody>
-                                        @{
-                                            foreach (var alarmTop in Model.AlarmDayTop)
-                                            {
-                                                <tr>
-                                                    <td>@alarmTop.ProdNo</td>
-                                                    <td>@alarmTop.EqNumber</td>
-                                                    <td>@alarmTop.Comment</td>
-                                                    <td>@alarmTop.RepairedTime</td>
-                                                </tr>
-                                            }
-                                        }
+                                        <tr v-if="dailyTOPAlarms != null" v-for="top in dailyTOPAlarms">
+                                            <td>{{top.prodNo}}</td>
+                                            <td>{{top.eqNumber}}</td>
+                                            <td>{{top.comment}}</td>
+                                            <td>{{top.repairedTime}}</td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
                     </div>
                 </div><!--End Row-->
 
@@ -524,22 +517,22 @@
                         <a>生產資訊</a>
                     </div>
                     <div class="monitor panel">
-                        <div id="areaInfo" style="width: 70%; height: 100%;">
-                            <div style="color: white; display: flex; line-height: 1.9;">
-                                <div class="col-md-5" style="font-size: 18px;">Area:</div>
-                                <div class="col-md-7" style="font-size: 18px;">{{eqPerfInfo.area}}</div>
+                        <div id="areaInfo" style="width: 80%; height: 100%;">
+                            <div style="color: white; display: flex; line-height: 2.7;">
+                                <div class="col-lg-6" style="font-size: 17px;">Area:</div>
+                                <div class="col-lg-6" style="font-size: 17px;">{{eqPerfInfo.area}}</div>
                             </div>
-                            <div style="color: white; display: flex; line-height: 1.9;">
-                                <div class="col-md-5" style="font-size: 18px;">EQ no:</div>
-                                <div class="col-md-7" style="font-size: 18px;">{{eqPerfInfo.eqNo}}</div>
+                            <div style="color: white; display: flex; line-height: 2.7;">
+                                <div class="col-lg-6" style="font-size: 17px;">EQ no:</div>
+                                <div class="col-lg-6" style="font-size: 17px;">{{eqPerfInfo.eqNo}}</div>
                             </div>
-                            <div style="color: white; display: flex; line-height: 1.9;">
-                                <div class="col-md-5" style="font-size: 18px;">機種:</div>
-                                <div class="col-md-7" style="font-size: 18px;">{{eqPerfInfo.prod}}</div>
+                            <div style="color: white; display: flex; line-height: 2.7;">
+                                <div class="col-lg-6" style="font-size: 17px;">機種:</div>
+                                <div class="col-lg-6" style="font-size: 17px;">{{eqPerfInfo.prod}}</div>
                             </div>
-                            <div style="color: white; display: flex; line-height: 1.9;">
-                                <div class="col-md-5" style="font-size: 18px;">Pass量:</div>
-                                <div class="col-md-7" style="font-size: 18px;">{{eqPerfInfo.passQty}}</div>
+                            <div style="color: white; display: flex; line-height: 2.7;">
+                                <div class="col-lg-6" style="font-size: 17px;">Pass量:</div>
+                                <div class="col-lg-6" style="font-size: 17px;">{{eqPerfInfo.passQty}}</div>
                             </div>
                         </div>
                     </div>
@@ -630,12 +623,12 @@
     const vue = new Vue({
         el: '#app',
         data: {
-            allInfo: @(Html.Raw(Json.Serialize(Model))),
             isFullscreen: false,
             reRate: 1,
             moveX: 0,
             moveY: 0,
             scrollInterval: null,
+            dailyTOPAlarms: [],
             frontAlarms: [],
             backendAlarms: [],
             eqDataInfo:[],
@@ -695,6 +688,67 @@
                     //context.strokeRect(100, 100, 250, 100);
                 });
             },
+            wrapMapEqPerInfo(eqPerData) {
+
+                this.eqDataInfo = [];
+                this.frontAlarms = [];
+                this.backendAlarms = [];
+
+                for (var i = 0; i < eqPerData.length; i++) {
+
+                    const _eqData = {
+                        eqNumber: eqPerData[i].eqNumber,
+                        position: 'absolute',
+                        border: '3px dashed ' + eqPerData[i].border,
+                        defTopRate: eqPerData[i].defTopRate,
+                        defLeftRate: eqPerData[i].defLeftRate,
+                        top: 0,
+                        left: 0,
+                        defWidth: eqPerData[i].defWidth,
+                        defHeight: eqPerData[i].defHeight,
+                        width: 0,
+                        height: 0,
+                        background: eqPerData[i].background,
+                        origBackground: eqPerData[i].background,
+                        defOpacity: 0.6,
+                        'text-align': 'center',
+                        perfInfo: {}
+                    };
+
+                    _eqData.perfInfo.area = eqPerData[i].area;
+                    _eqData.perfInfo.eqNo = eqPerData[i].eqNumber;
+                    _eqData.perfInfo.prod = eqPerData[i].prodNo;
+                    _eqData.perfInfo.passQty = eqPerData[i].passQty;
+                    _eqData.perfInfo.alarmMsg = '';
+
+                    if (eqPerData[i].comment != '') {
+                        if (eqPerData[i].isFrontEnd) {
+                            this.frontAlarms.push(
+                                {
+                                    comment: eqPerData[i].comment,
+                                    eqNumber: eqPerData[i].eqNumber,
+                                    prodNo: eqPerData[i].prodNo,
+                                    startTime: eqPerData[i].startTime,
+                                });
+                            _eqData.background = 'rgba(255, 0, 0,' + 0.7 + ')';
+                            _eqData.perfInfo.alarmMsg = eqPerData[i].comment;
+                        }
+                        else {
+                            this.backendAlarms.push(
+                                {
+                                    comment: eqPerData[i].comment,
+                                    eqNumber: eqPerData[i].eqNumber,
+                                    prodNo: eqPerData[i].prodNo,
+                                    startTime: eqPerData[i].startTime,
+                                });
+                            _eqData.background = 'rgba(255, 0, 0,' + 0.7 + ')';
+                            _eqData.perfInfo.alarmMsg = eqPerData[i].comment;
+                        }
+                    }
+
+                    this.eqDataInfo.push(_eqData);
+                }
+            },
             areaResize(mX, mY, imgW, imgH, reRate) {
 
                 for (var i = 0; i < vue.eqDataInfo.length; i++) {
@@ -712,19 +766,25 @@
                 vue.eqPerfInfo.passQty = e.perfInfo.passQty.toString();
 
                 if (e.perfInfo.alarmMsg != '') {
-                    e.background = 'rgba(255, 0, 0,.8)';
+                    e.background = 'rgba(255, 0, 0,.9)';
                 }
                 else {
                     e.background = e.background.split('.')[0] + '.8)';
                 }
             },
             hideEQInfo(e) {
-                e.background = e.origBackground.split('.')[0] + e.defOpacity + ')';
 
                 vue.eqPerfInfo.area = '';
                 vue.eqPerfInfo.eqNo = '';
                 vue.eqPerfInfo.prod = '';
                 vue.eqPerfInfo.passQty = '';
+
+                if (e.perfInfo.alarmMsg != '') {
+                    e.background = 'rgba(255, 0, 0,0.7)';
+                }
+                else {
+                    e.background = e.origBackground.split('.')[0] + e.defOpacity + ')';
+                }
             },
             setScrollInterval() {
                 this.scrollInterval = setInterval(function () {
@@ -741,6 +801,43 @@
                         div.scrollTop = 0;
                     }
                 });
+            },
+            eqMapProdPerInterval() {
+                $.ajax({
+                    url: "./Monitor/MapProdPerInfo",
+                    type: "GET",
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result.isSuccess) {
+                            vue.wrapMapEqPerInfo(result.data.eqInfoList)
+                            vue.pageResize(false, vue.isFullscreen);
+                        }
+                        else {
+                            vue.toast.fire({
+                                icon: 'error',
+                                title: result.msg
+                            });
+                        }
+                    }
+                });
+            },
+            eqTOPAlarmInterval() {
+                $.ajax({
+                    url: "./Monitor/DailyTOPAlarms",
+                    type: "GET",
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result.isSuccess) {
+                            vue.dailyTOPAlarms = result.data.alarmDayTop;
+                        }
+                        else {
+                            vue.toast.fire({
+                                icon: 'error',
+                                title: result.msg
+                            });
+                        }
+                    }
+                });
             }
         },
         mounted: function () {
@@ -754,62 +851,20 @@
                 this.isFullscreen = true;
             }
 
-            for (var i = 0; i < _model.eqInfoList.length; i++) {
-
-                const _eqData = {
-                    eqNumber: _model.eqInfoList[i].eqNumber,
-                    position: 'absolute',
-                    border: '3px dashed ' + _model.eqInfoList[i].border,
-                    defTopRate: _model.eqInfoList[i].defTopRate,
-                    defLeftRate: _model.eqInfoList[i].defLeftRate,
-                    top: 0,
-                    left: 0,
-                    defWidth: _model.eqInfoList[i].defWith,
-                    defHeight: _model.eqInfoList[i].defHeight,
-                    width: 0,
-                    height: 0,
-                    background: _model.eqInfoList[i].background,
-                    origBackground: _model.eqInfoList[i].background,
-                    defOpacity: 0.6,
-                    'text-align': 'center',
-                    perfInfo: {}
-                };
-
-                if (_model.eqInfoList[i].prodPerInfo != null) {
-                    _eqData.perfInfo.area = '';
-                    _eqData.perfInfo.eqNo = _model.eqInfoList[i].prodPerInfo.eqNumber;
-                    _eqData.perfInfo.prod = _model.eqInfoList[i].prodPerInfo.prodNo;
-                    _eqData.perfInfo.passQty = _model.eqInfoList[i].prodPerInfo.passQty;
-                    _eqData.perfInfo.alarmMsg = '';
-                }
-
-                if (_model.eqInfoList[i].alarmInfo != null) {
-                    if (_model.eqInfoList[i].alarmInfo.isFrontEnd) {
-                        this.frontAlarms.push(
-                            {
-                                comment: _model.eqInfoList[i].alarmInfo.comment,
-                                eqNumber: _model.eqInfoList[i].alarmInfo.eqNumber,
-                                prodNo: _model.eqInfoList[i].alarmInfo.prodNo,
-                                startTime: _model.eqInfoList[i].alarmInfo.startTime,
-                            });
-                        _eqData.background = 'rgba(255, 0, 0,' + 0.6 + ')';
-                        _eqData.perfInfo.alarmMsg = _model.eqInfoList[i].alarmInfo.comment;
-                    }
-                    else {
-                        this.backendAlarms.push(
-                            {
-                                comment: _model.eqInfoList[i].alarmInfo.comment,
-                                eqNumber: _model.eqInfoList[i].alarmInfo.eqNumber,
-                                prodNo: _model.eqInfoList[i].alarmInfo.prodNo,
-                                startTime: _model.eqInfoList[i].alarmInfo.startTime,
-                            });
-                        _eqData.background = 'rgba(255, 0, 0,' + 0.6 + ')';
-                        _eqData.perfInfo.alarmMsg = _model.eqInfoList[i].alarmInfo.comment;
-                    }
-                }
-
-                this.eqDataInfo.push(_eqData);
+            if (_model.eqInfoList != null) {
+                this.wrapMapEqPerInfo(_model.eqInfoList);
             }
+
+            this.dailyTOPAlarms = _model.alarmDayTop;
+
+            setInterval(function () {
+                vue.eqMapProdPerInterval();
+            }, 60000);
+
+            setInterval(function () {
+                vue.eqTOPAlarmInterval();
+            }, 120000);
+
 
             this.pageResize(false, this.isFullscreen);
 
@@ -831,26 +886,26 @@
         vue.pageResize(true, this.isFullscreen);
     }
 
-    var server = 'ws://127.0.0.1:80'; //如果开启了https则这里是wss
-    var vWebSocket = null;
-    window.onload = function () {
-        //建立一個web socket 連線
-        vWebSocket = new WebSocket(server + '/CarUX/send');
+    //var server = 'ws://127.0.0.1:80'; //如果开启了https则这里是wss
+    //var vWebSocket = null;
+    //window.onload = function () {
+    //    //建立一個web socket 連線
+    //    vWebSocket = new WebSocket(server + '/CarUX/send');
 
-        //如果連線成功
-        vWebSocket.onopen = function (e) {
-            console.log('connection start ...');
-        }
+    //    //如果連線成功
+    //    vWebSocket.onopen = function (e) {
+    //        console.log('connection start ...');
+    //    }
 
-        //接收到訊息時
-        vWebSocket.onmessage = function (e) {
-            console.log('Recevied Message:' + e.data);
-            if (e.data) {
-                var msgArray = e.data.split('\t');
-                var _response = JSON.parse(msgArray[msgArray.length - 1]);
-                /*alarmArea(_response);*/
-                alert(_response.Area);
-            }
-        }
-    }
+    //    //接收到訊息時
+    //    vWebSocket.onmessage = function (e) {
+    //        console.log('Recevied Message:' + e.data);
+    //        if (e.data) {
+    //            var msgArray = e.data.split('\t');
+    //            var _response = JSON.parse(msgArray[msgArray.length - 1]);
+    //            /*alarmArea(_response);*/
+    //            alert(_response.Area);
+    //        }
+    //    }
+    //}
 </script>

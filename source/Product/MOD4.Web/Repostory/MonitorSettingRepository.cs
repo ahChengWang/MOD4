@@ -63,6 +63,10 @@ UPDATE [dbo].[monitor_setting]
            ,[defHeight]
            ,[border]
            ,[background]
+           ,[locX0]
+           ,[locY0]
+           ,[locX1]
+           ,[locY1]
            ,[floor]
            ,[updateTime]
            ,[updateUser])
@@ -75,6 +79,10 @@ UPDATE [dbo].[monitor_setting]
            ,@defHeight
            ,@border
            ,@background
+           ,@locX0
+           ,@locY0
+           ,@locX1
+           ,@locY1
            ,@floor
            ,@updateTime
            ,@updateUser) ";

@@ -8,7 +8,7 @@
 
         public decimal DefLeftRate { get; set; }
 
-        public decimal DefWith { get; set; }
+        public decimal DefWidth { get; set; }
 
         public decimal DefHeight { get; set; }
 
@@ -16,8 +16,20 @@
 
         public string Background { get; set; }
 
-        public MonitorAlarmViewModel AlarmInfo { get; set; }
+        public string StatusCode { get; set; }
 
-        public MonitorProdPerInfoViewModel ProdPerInfo { get; set; }
+        public string Comment { get; set; }
+
+        public bool IsFrontEnd { get; set; }
+
+        public string ProdNo { get; set; }
+
+        public string StartTime { get; set; }
+
+        public bool IsAbnormal { get; set; }
+
+        public string Area { get; set; }
+
+        public string PassQty { get; set; }
     }
 }

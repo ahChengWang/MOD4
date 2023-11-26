@@ -257,11 +257,11 @@
                                             </td>
                                             <td></td>
                                             @*<td name="tdLabel">站點</td>
-                                            <td name="tdImp">
-                                                <select class="myInputStyle1" :disabled="mapColDisabled" v-model="editMapSettingTmp[idx].node" :value="mapSetting.node">
-                                                    <option v-for="node in nodeOptions" :value="node.id">{{node.id}}</option>
-                                                </select>
-                                            </td>*@
+                                                <td name="tdImp">
+                                                    <select class="myInputStyle1" :disabled="mapColDisabled" v-model="editMapSettingTmp[idx].node" :value="mapSetting.node">
+                                                        <option v-for="node in nodeOptions" :value="node.id">{{node.id}}</option>
+                                                    </select>
+                                                </td>*@
                                             <td name="tdLabel">EQ</td>
                                             <td name="tdImp">
                                                 <input class="myInputStyle1" type="text" style="width: 150px; text-align: right;" placeholder="ex：XXXX2030" :disabled="mapColDisabled" v-model="editMapSettingTmp[idx].eqNumber" :value="mapSetting.eqNumber" />
@@ -272,24 +272,6 @@
                                                         <option value="ASSY2010">ASSY2010</option>
                                                     </select>*@
                                             </td>
-                                            <td name="tdLabel">區域寬度</td>
-                                            <td name="tdImp">
-                                                <input class="myInputStyle1" type="number" style="width: 100px; text-align: right;" placeholder="ex:14.56" v-model="editMapSettingTmp[idx].defWidth" :disabled="mapColDisabled" :value="mapSetting.defWidth" />
-                                            </td>
-                                            <td name="tdLabel">區域高度</td>
-                                            <td name="tdImp">
-                                                <input class="myInputStyle1" type="number" style="width: 100px; text-align: right; " placeholder="ex:9.88" v-model="editMapSettingTmp[idx].defHeight" :disabled="mapColDisabled" :value="mapSetting.defHeight" />
-                                            </td>
-                                        </tr>
-                                        <tr style="border-bottom:2px solid grey">
-                                            <td name="tdLabel">距上邊界%</td>
-                                            <td name="tdImp">
-                                                <input class="myInputStyle1" type="number" style="width: 100px; text-align: right;" placeholder="ex:7.23" v-model="editMapSettingTmp[idx].defTopRate" :disabled="mapColDisabled" :value="mapSetting.defTopRate" />
-                                            </td>
-                                            <td name="tdLabel">距左邊界%</td>
-                                            <td name="tdImp">
-                                                <input class="myInputStyle1" type="number" style="width: 100px; text-align: right;" placeholder="ex:16.39" v-model="editMapSettingTmp[idx].defLeftRate" :disabled="mapColDisabled" :value="mapSetting.defLeftRate" />
-                                            </td>
                                             <td name="tdLabel">背景色</td>
                                             <td name="tdImp">
                                                 <input class="myInputStyle1" type="color" style="width: 150px; text-align: right;" v-model="editMapSettingTmp[idx].background" :disabled="mapColDisabled" :value="mapSetting.background" />
@@ -297,6 +279,24 @@
                                             <td name="tdLabel">外框色</td>
                                             <td name="tdImp">
                                                 <input class="myInputStyle1" type="color" style="width: 100px; text-align: right;" v-model="editMapSettingTmp[idx].border" :disabled="mapColDisabled" :value="mapSetting.border" />
+                                            </td>
+                                        </tr>
+                                        <tr style="border-bottom:2px solid grey">
+                                            <td name="tdLabel">左上x座標</td>
+                                            <td name="tdImp">
+                                                <input class="myInputStyle1" type="number" style="width: 100px; text-align: right;" placeholder="ex:456" v-model="editMapSettingTmp[idx].locX0" :disabled="mapColDisabled" :value="mapSetting.locX0" />
+                                            </td>
+                                            <td name="tdLabel">左上y座標</td>
+                                            <td name="tdImp">
+                                                <input class="myInputStyle1" type="number" style="width: 100px; text-align: right;" placeholder="ex:210" v-model="editMapSettingTmp[idx].locY0" :disabled="mapColDisabled" :value="mapSetting.locY0" />
+                                            </td>
+                                            <td name="tdLabel">右下x座標</td>
+                                            <td name="tdImp">
+                                                <input class="myInputStyle1" type="number" style="width: 100px; text-align: right;" placeholder="ex:789" v-model="editMapSettingTmp[idx].locX1" :disabled="mapColDisabled" :value="mapSetting.locX1" />
+                                            </td>
+                                            <td name="tdLabel">右下y座標</td>
+                                            <td name="tdImp">
+                                                <input class="myInputStyle1" type="number" style="width: 100px; text-align: right; " placeholder="ex:281" v-model="editMapSettingTmp[idx].locY1" :disabled="mapColDisabled" :value="mapSetting.locY1" />
                                             </td>
                                         </tr>
                                     </tbody>
@@ -452,12 +452,12 @@
                     vue.editMapSettingTmp.push({
                         node: 1100,
                         eqNumber: '',
-                        defTopRate: 0,
-                        defLeftRate: 0,
-                        defWidth: 0,
-                        defHeight: 0,
                         border: '#',
                         background: '#',
+                        locX0: 0,
+                        locY0: 0,
+                        locX1: 0,
+                        locY1: 0
                     });
                 },
                 deleteClk(idx) {

@@ -56,7 +56,7 @@ where ala.end_time is null and ala.user_id != 'AUTO' and map.isForMonitor = 1 ";
         public List<AlarmXmlDao> SelectDayTopRepaired(string mfgDay)
         {
             string sql = @" select TOP 5 DATEDIFF(MINUTE,lm_time,end_time) 'repairedTime',* from alarm_xml 
-where MFG_Day = @MFG_Day and DATEDIFF(MINUTE,lm_time,end_time) > 60
+where MFG_Day = @MFG_Day and DATEDIFF(MINUTE,lm_time,end_time) > 60 and user_id != 'AUTO' 
 order by DATEDIFF(MINUTE,lm_time,end_time) desc; ";
 
             var dao = _dbHelper.ExecuteQuery<AlarmXmlDao>(sql,new {
@@ -66,16 +66,15 @@ order by DATEDIFF(MINUTE,lm_time,end_time) desc; ";
             return dao;
         }
 
-        public List<ProdXmlDao> SelectProdInfo(string mfgDay)
+        public List<ProdXmlTmpDao> SelectProdInfo(string mfgDay)
         {
-            string sql = @" select tool_id,prod_id,MAX(CONVERT(int, move_cnt))'move_cnt' 
-  from prod_xml prod
+            string sql = @" select tool_id,prod_id,map.AREA,MAX(CONVERT(int, move_cnt))'move_cnt' 
+  from carUX_CFM_2f.dbo.prod_xml prod
   join equip_mapping map 
     on prod.tool_id = map.EQUIP_NBR 
  where prod.MFG_Day = @MFG_Day
-   and map.isForMonitor = 1
    and prod.move_cnt != '' 
- group by tool_id,prod_id; ";
+ group by tool_id,prod_id,map.AREA; ";
  //           string sql = @" select tool_id,prod_id,MAX(CONVERT(int, move_cnt))'move_cnt' 
  // from carUX_CFM_2f.dbo.prod_xml prod
  // join equip_mapping map 
@@ -85,7 +84,7 @@ order by DATEDIFF(MINUTE,lm_time,end_time) desc; ";
  //  and prod.move_cnt != '' 
  //group by tool_id,prod_id; ";
 
-            var dao = _dbHelper.ExecuteQuery<ProdXmlDao>(sql, new
+            var dao = _dbHelper.ExecuteQuery<ProdXmlTmpDao>(sql, new
             {
                 MFG_Day = mfgDay
             });

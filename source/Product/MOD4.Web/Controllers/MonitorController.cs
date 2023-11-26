@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.WebSockets;
+using System.Security.Claims;
 using System.Text;
 using System.Threading;
 using Utility.Helper;
@@ -41,7 +42,7 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                var _result = _monitorDomainService.GetAlarmEq();
+                var _result = _monitorDomainService.GetMapPerAlarmData();
 
                 MonitorViewModel _responseVM = new MonitorViewModel
                 {
@@ -53,52 +54,96 @@ namespace MOD4.Web.Controllers
                         Comment = res.Comment,
                         RepairedTime = res.RepairedTime
                     }).ToList(),
-                    EqInfoList = new List<MonitorEqInfoViewModel>()
+                    EqInfoList = _result.ProdPerformanceList.Select(per => new MonitorEqInfoViewModel
+                    {
+                        EqNumber = per.EqNumber,
+                        DefTopRate = per.DefTopRate,
+                        DefLeftRate = per.DefLeftRate,
+                        DefWidth = per.DefWidth,
+                        DefHeight = per.DefHeight,
+                        Border = per.Border,
+                        Background = per.Background,
+                        Area = per.Area,
+                        ProdNo = per.ProdNo,
+                        PassQty = per.PassQty,
+                        StatusCode = per.StatusCode,
+                        Comment = per.Comment,
+                        IsFrontEnd = per.IsFrontEnd,
+                        StartTime = per.StartTime
+                    }).ToList()
                 };
 
-                _result.MapAreaList.ForEach(map =>
-                {
-                    MonitorEqInfoViewModel _tmpEqInfo = new MonitorEqInfoViewModel();
-
-                    _tmpEqInfo.EqNumber = map.EqNumber;
-                    _tmpEqInfo.DefTopRate = map.DefTopRate;
-                    _tmpEqInfo.DefLeftRate = map.DefLeftRate;
-                    _tmpEqInfo.DefWith = map.DefWidth;
-                    _tmpEqInfo.DefHeight = map.DefHeight;
-                    _tmpEqInfo.Border = map.Border;
-                    _tmpEqInfo.Background = map.Background;
-
-                    var _tmpProdPerInfo = _result.ProdPerInfo.FirstOrDefault(f => f.EqNumber == map.EqNumber);
-
-                    if (_tmpProdPerInfo != null)
-                    {
-                        _tmpEqInfo.ProdPerInfo = new MonitorProdPerInfoViewModel();
-                        _tmpEqInfo.ProdPerInfo.EqNumber = _tmpProdPerInfo.EqNumber;
-                        _tmpEqInfo.ProdPerInfo.ProdNo = _tmpProdPerInfo.ProdNo;
-                        _tmpEqInfo.ProdPerInfo.EqNumber = _tmpProdPerInfo.EqNumber;
-                        _tmpEqInfo.ProdPerInfo.PassQty = _tmpProdPerInfo.PassQty;
-
-                        if (_result.AlarmList.FirstOrDefault(f => f.EqNumber == map.EqNumber) != null)
-                        {
-                            var _tmpAlarm = _result.AlarmList.FirstOrDefault(f => f.EqNumber == map.EqNumber);
-
-                            _tmpEqInfo.AlarmInfo = new MonitorAlarmViewModel
-                            {
-                                EqNumber = _tmpAlarm.EqNumber,
-                                ProdNo = _tmpAlarm.ProdNo,
-                                StatusCode = _tmpAlarm.StatusCode,
-                                Comment = _tmpAlarm.Comment,
-                                StartTime = _tmpAlarm.StartTime,
-                                IsAbnormal = true,
-                                IsFrontEnd = _tmpAlarm.IsFrontEnd
-                            };
-                        }
-                    }
-
-                    _responseVM.EqInfoList.Add(_tmpEqInfo);
-                });
-
                 return View(_responseVM);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpGet("[controller]/MapProdPerInfo")]
+        public IActionResult GetMapProdPerInfo()
+        {
+            try
+            {
+                var _result = _monitorDomainService.GetProdPerformanceInfo();
+
+                MonitorViewModel _responseVM = new MonitorViewModel
+                {
+                    EqInfoList = _result.Select(per => new MonitorEqInfoViewModel
+                    {
+                        EqNumber = per.EqNumber,
+                        DefTopRate = per.DefTopRate,
+                        DefLeftRate = per.DefLeftRate,
+                        DefWidth = per.DefWidth,
+                        DefHeight = per.DefHeight,
+                        Border = per.Border,
+                        Background = per.Background,
+                        Area = per.Area,
+                        ProdNo = per.ProdNo,
+                        PassQty = per.PassQty,
+                        StatusCode = per.StatusCode,
+                        Comment = per.Comment,
+                        IsFrontEnd = per.IsFrontEnd,
+                        StartTime = per.StartTime
+                    }).ToList()
+                };
+
+                return Json(new ResponseViewModel<MonitorViewModel> 
+                {
+                    Data = _responseVM
+                });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+
+        [HttpGet("[controller]/DailyTOPAlarms")]
+        public IActionResult GetDailyTOPAlarms()
+        {
+            try
+            {
+                var _result = _monitorDomainService.GetAlarmTopDaily();
+
+                MonitorViewModel _responseVM = new MonitorViewModel
+                {
+                    AlarmDayTop = _result.Select(res => new MonitorAlarmDayTopViewModel
+                    {
+                        EqNumber = res.EqNumber,
+                        ProdNo = res.ProdNo,
+                        StatusCode = res.StatusCode,
+                        Comment = res.Comment,
+                        RepairedTime = res.RepairedTime
+                    }).ToList(),
+                };
+
+                return Json(new ResponseViewModel<MonitorViewModel>
+                {
+                    Data = _responseVM
+                });
             }
             catch (Exception ex)
             {
@@ -168,7 +213,11 @@ namespace MOD4.Web.Controllers
                         DefTopRate = setting.DefTopRate,
                         DefLeftRate = setting.DefLeftRate,
                         DefWidth = setting.DefWidth,
-                        DefHeight = setting.DefHeight
+                        DefHeight = setting.DefHeight,
+                        LocX0 = setting.LocX0,
+                        LocY0 = setting.LocY0,
+                        LocX1 = setting.LocX1,
+                        LocY1 = setting.LocY1
                     }).ToList()
                 });
             }
