@@ -18,5 +18,7 @@ namespace MOD4.Web.DomainService
         MTBFMTTRDashboardEntity GetMTBFMTTRList(string beginDate, string endDate, string equipment, int floor);
 
         string UpdateMTBFMTTRSetting(EqMappingEntity updateEntity, UserEntity userEntity);
+
+        List<MTDProcessDailyEntity> GetMonitorDailyMTD();
     }
 }

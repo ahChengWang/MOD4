@@ -7,5 +7,7 @@ namespace MOD4.Web.ViewModel
         public List<MonitorEqInfoViewModel> EqInfoList { get; set; }
 
         public List<MonitorAlarmDayTopViewModel> AlarmDayTop { get; set; }
+
+        public List<MonitorDailyMTDViewModel> DailyMTDList { get; set; }
     }
 }

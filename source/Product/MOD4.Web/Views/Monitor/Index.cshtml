@@ -214,7 +214,7 @@
         border-radius: 5px;
         padding: 5px 10px 5px 10px;
         top: 25px;
-        left: -30%;
+        left: -5%;
     }
 
         .tooltip-text::before {
@@ -239,7 +239,7 @@
         overflow: auto;
         overflow-x: hidden;
         overflow-y: auto;
-        width: 103%;
+        width: 100%;
         height: 100%;
     }
 
@@ -303,7 +303,7 @@
                         <a>前段異常</a>
                     </div>
                     <div class="monitor panel">
-                        <div class="autoscrollable-wrapper" @@mouseover="stopInterval(this)" @@mouseout="startInterval()">
+                        <div class="autoscrollable-wrapper" @@mouseover="stopInterval(this)" @@mouseout="setScrollInterval()">
                             <div v-for="alarm in frontAlarms">
                                 <div>
                                     <div>
@@ -379,71 +379,6 @@
                                         </div>
                                     </div>
                                     <hr style="background-color:white" />
-                                    <div>
-                                        <div>
-                                            <a style="color: white; margin-left: 5px;">AFOG2010</a>
-                                            <a style="color: white;margin-left: 20px;">GDD340IA0090S</a>
-                                        </div>
-                                        <div>
-                                            <a style="color: white;">2023/08/14 12:00:01</a>
-                                        </div>
-                                        <div>
-                                            <a style="color: white;">下料機搬送異常</a>
-                                        </div>
-                                    </div>
-                                    <hr style="background-color:white" />
-                                    <div>
-                                        <div>
-                                            <a style="color: white; margin-left: 5px;">AFOG2010</a>
-                                            <a style="color: white;margin-left: 20px;">GDD340IA0090S</a>
-                                        </div>
-                                        <div>
-                                            <a style="color: white;">2023/08/14 12:00:01</a>
-                                        </div>
-                                        <div>
-                                            <a style="color: white;">下料機搬送異常</a>
-                                        </div>
-                                    </div>
-                                    <hr style="background-color:white" />
-                                    <div>
-                                        <div>
-                                            <a style="color: white; margin-left: 5px;">AFOG2010</a>
-                                            <a style="color: white;margin-left: 20px;">GDD340IA0090S</a>
-                                        </div>
-                                        <div>
-                                            <a style="color: white;">2023/08/14 12:00:01</a>
-                                        </div>
-                                        <div>
-                                            <a style="color: white;">下料機搬送異常</a>
-                                        </div>
-                                    </div>
-                                    <hr style="background-color:white" />
-                                    <div>
-                                        <div>
-                                            <a style="color: white; margin-left: 5px;">AFOG2010</a>
-                                            <a style="color: white;margin-left: 20px;">GDD340IA0090S</a>
-                                        </div>
-                                        <div>
-                                            <a style="color: white;">2023/08/14 12:00:01</a>
-                                        </div>
-                                        <div>
-                                            <a style="color: white;">下料機搬送異常</a>
-                                        </div>
-                                    </div>
-                                    <hr style="background-color:white" />
-                                    <div>
-                                        <div>
-                                            <a style="color: white; margin-left: 5px;">AFOG2010</a>
-                                            <a style="color: white;margin-left: 20px;">GDD340IA0090S</a>
-                                        </div>
-                                        <div>
-                                            <a style="color: white;">2023/08/14 12:00:01</a>
-                                        </div>
-                                        <div>
-                                            <a style="color: white;">下料機搬送異常</a>
-                                        </div>
-                                    </div>
-                                    <hr style="background-color:white" />
                                 }*@
                             <!-- #endregion -->
                         </div>
@@ -451,7 +386,7 @@
                 </div><!--End Row-->
 
                 <div name="mapDiv" style="height: 100%;">
-                    <div class="eqArea" v-for="eq in eqDataInfo" :style="eq" @@mouseover="showEQInfo(eq)" @@mouseout="hideEQInfo(eq)">
+                    <div class="eqArea" :id="eq.eqNumber" v-for="eq in eqDataInfo" :style="eq" @@mouseover="areaMouseover(eq)" @@mouseout="hideEQInfo(eq)">
                         @*<a style="font-size: 17px; font-weight: 700;">99</a>*@
                         <span v-if="eq.perfInfo.alarmMsg != '' && eq.perfInfo.alarmMsg != null" class="tooltip-text">{{eq.perfInfo.alarmMsg}}</span>
                     </div>
@@ -469,7 +404,7 @@
                         <a>後段異常</a>
                     </div>
                     <div class="monitor panel">
-                        <div class="autoscrollable-wrapper" @@mouseover="stopInterval(this)" @@mouseout="startInterval()">
+                        <div class="autoscrollable-wrapper" @@mouseover="stopInterval(this)" @@mouseout="setScrollInterval()">
                             <div v-for="alarm in backendAlarms">
                                 <div>
                                     <div>
@@ -496,23 +431,21 @@
                     <div name="cHeader" style="background-color: rgba(81, 214, 86,.3); left: 15%;">
                         <a>本日 TOP</a>
                     </div>
-                    <div class="monitor panel">
-                            <div style="overflow-y: auto; overflow-x: hidden; height: 85%; ">
-                                <table class="table">
-                                    <tbody>
-                                        <tr v-if="dailyTOPAlarms != null" v-for="top in dailyTOPAlarms">
-                                            <td>{{top.prodNo}}</td>
-                                            <td>{{top.eqNumber}}</td>
-                                            <td>{{top.comment}}</td>
-                                            <td>{{top.repairedTime}}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                    <div class="monitor panel autoscrollable-wrapper" @@mouseover="stopInterval(this)" @@mouseout="setScrollInterval()">
+                        <table class="table">
+                            <tbody>
+                                <tr v-if="dailyTOPAlarms != null" v-for="top in dailyTOPAlarms">
+                                    <td>{{top.prodNo}}</td>
+                                    <td>{{top.eqNumber}}</td>
+                                    <td>{{top.comment}}</td>
+                                    <td>{{top.repairedTime}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div><!--End Row-->
 
-                <div class="box" style="width: 33%;">
+                <div class="box" style="width: 34%;">
                     <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); left: 47%;">
                         <a>生產資訊</a>
                     </div>
@@ -540,67 +473,28 @@
 
                 <div class="box" style="width: 33%;">
 
-                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); right: 15%;">
-                        <a>各站 T.T</a>
+                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); right: 14%;">
+                        <a>本日各製程MTD</a>
                     </div>
-                    <div class="monitor panel autoscrollable-wrapper" @@mouseover="stopInterval(this)" @@mouseout="startInterval()">
+                    <div class="monitor panel autoscrollable-wrapper" @@mouseover="stopInterval(this)" @@mouseout="setScrollInterval()">
                         <table class="table">
                             <thead>
                                 <tr style="color:white">
-                                    <th>EQ</th>
-                                    <th>目標</th>
-                                    <th>現值</th>
-                                    <th>燈號</th>
+                                    <th style="text-align:center">製程</th>
+                                    <th style="text-align:center">日計畫</th>
+                                    <th style="text-align:center">累積應產</th>
+                                    <th style="text-align:center">實際產出</th>
+                                    <th style="text-align:center">時段累積差異</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>AOLB2010</td>
-                                    <td>50</td>
-                                    <td>53</td>
-                                    <td>
-                                        <span style="margin-left: 5px; width: 20px; height: 20px; border-radius: 50%; background-color: red; display: block;"></span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>AFOG2010</td>
-                                    <td>50</td>
-                                    <td>53</td>
-                                    <td>
-                                        <span style="margin-left: 5px; width: 20px; height: 20px; border-radius: 50%; background-color: darkorange; display: block;"></span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>LAM2010</td>
-                                    <td>50</td>
-                                    <td>53</td>
-                                    <td>
-                                        <span style="margin-left: 5px; width: 20px; height: 20px; border-radius: 50%; background-color: green; display: block;"></span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>ASSY2010</td>
-                                    <td>50</td>
-                                    <td>53</td>
-                                    <td>
-                                        <span style="margin-left: 5px; width: 20px; height: 20px; border-radius: 50%; background-color: darkorange; display: block;"></span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>ACKE2010</td>
-                                    <td>50</td>
-                                    <td>53</td>
-                                    <td>
-                                        <span style="margin-left: 5px; width: 20px; height: 20px; border-radius: 50%; background-color: red; display: block;"></span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>CKEN2010</td>
-                                    <td>50</td>
-                                    <td>53</td>
-                                    <td>
-                                        <span style="margin-left: 5px; width: 20px; height: 20px; border-radius: 50%; background-color: green; display: block;"></span>
-                                    </td>
+                                <tr v-for="mtd in dailyProcessMTD">
+                                    <td style="text-align:center">{{mtd.process}}</td>
+                                    <td style="text-align:center">{{mtd.dayPlanQty}}</td>
+                                    <td style="text-align:center">{{mtd.dayPeriodPlanQty}}</td>
+                                    <td style="text-align:center">{{mtd.dayActQty}}</td>
+                                    <td v-if="mtd.dayDiff < 0" style="text-align: center; font-weight: 600; font-size: 15px; color: red;">{{mtd.dayDiff}}</td>
+                                    <td v-if="mtd.dayDiff >= 0" style="text-align: center; font-weight: 600; font-size: 15px; color: limegreen;">{{mtd.dayDiff}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -627,8 +521,11 @@
             reRate: 1,
             moveX: 0,
             moveY: 0,
+            trunCnt: 0,
+            carouselInterval: null,
             scrollInterval: null,
             dailyTOPAlarms: [],
+            dailyProcessMTD: [],
             frontAlarms: [],
             backendAlarms: [],
             eqDataInfo:[],
@@ -643,8 +540,20 @@
             stopInterval(e) {
                 clearInterval(vue.scrollInterval);
             },
-            startInterval(e) {
-                vue.setScrollInterval();
+            setScrollInterval() {
+                this.scrollInterval = setInterval(function () {
+                    vue.scrollingRow();
+                }, 100);
+            },
+            scrollingRow() {
+                var elems = $('.autoscrollable-wrapper');
+                elems.each(function (idx, div) {
+                    div.scrollTop = div.scrollTop + 1;
+                    const _scrollLen = Math.ceil(div.scrollTop);
+                    if (div.scrollHeight - _scrollLen == div.clientHeight) {
+                        div.scrollTop = 0;
+                    }
+                });
             },
             pageResize(isResize, isFullscreen) {
                 var canvas = document.getElementById("myCanvas");
@@ -710,7 +619,7 @@
                         height: 0,
                         background: eqPerData[i].background,
                         origBackground: eqPerData[i].background,
-                        defOpacity: 0.6,
+                        defOpacity: 0.5,
                         'text-align': 'center',
                         perfInfo: {}
                     };
@@ -758,21 +667,45 @@
                     vue.eqDataInfo[i].height = vue.eqDataInfo[i].defHeight * reRate;
                 }
             },
+            areaMouseover(e) {
+                clearInterval(vue.carouselInterval);
+                vue.showEQInfo(e);
+            },
+            setCarouselInterval() {
+                this.carouselInterval = setInterval(function () {
+                    vue.autoShowArea();
+                }, 10000);
+            },
             showEQInfo(e) {
 
-                vue.eqPerfInfo.area = e.perfInfo.area;
-                vue.eqPerfInfo.eqNo = e.perfInfo.eqNo;
-                vue.eqPerfInfo.prod = e.perfInfo.prod;
-                vue.eqPerfInfo.passQty = e.perfInfo.passQty.toString();
+                $.each(vue.eqDataInfo, function (idx, item) {
+                    if (item.perfInfo.alarmMsg != '') {
+                        item.background = 'rgba(255, 0, 0,0.7)';
+                    }
+                    else {
+                        item.background = item.origBackground.split('.')[0] + item.defOpacity + ')';
+                    }
+                });
 
-                if (e.perfInfo.alarmMsg != '') {
-                    e.background = 'rgba(255, 0, 0,.9)';
+                const _currEqInfo = $.grep(vue.eqDataInfo, function(item) {
+                    return item.eqNumber == e.eqNumber;
+                });
+
+                vue.eqPerfInfo.area = _currEqInfo[0].perfInfo.area;
+                vue.eqPerfInfo.eqNo = _currEqInfo[0].perfInfo.eqNo;
+                vue.eqPerfInfo.prod = _currEqInfo[0].perfInfo.prod;
+                vue.eqPerfInfo.passQty = _currEqInfo[0].perfInfo.passQty.toString();
+
+                if (_currEqInfo[0].perfInfo.alarmMsg != '') {
+                    _currEqInfo[0].background = 'rgba(255, 0, 0, .9)';
                 }
                 else {
-                    e.background = e.background.split('.')[0] + '.8)';
+                    _currEqInfo[0].background = _currEqInfo[0].background.split('.')[0] + '.9)';
                 }
             },
             hideEQInfo(e) {
+
+                vue.setCarouselInterval();
 
                 vue.eqPerfInfo.area = '';
                 vue.eqPerfInfo.eqNo = '';
@@ -785,22 +718,6 @@
                 else {
                     e.background = e.origBackground.split('.')[0] + e.defOpacity + ')';
                 }
-            },
-            setScrollInterval() {
-                this.scrollInterval = setInterval(function () {
-                    vue.setInterval();
-                }
-                ,100);
-            },
-            setInterval() {
-                var elems = $('.autoscrollable-wrapper');
-                elems.each(function (idx, div) {
-                    div.scrollTop = div.scrollTop + 1;
-                    const _scrollLen = Math.ceil(div.scrollTop);
-                    if (div.scrollHeight - _scrollLen == div.clientHeight) {
-                        div.scrollTop = 0;
-                    }
-                });
             },
             eqMapProdPerInterval() {
                 $.ajax({
@@ -838,6 +755,35 @@
                         }
                     }
                 });
+            },
+            dailyMTDInterval() {
+                $.ajax({
+                    url: "./Monitor/DailyMTD",
+                    type: "GET",
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result.isSuccess) {
+                            vue.dailyProcessMTD = result.data.dailyMTDList;
+                        }
+                        else {
+                            vue.toast.fire({
+                                icon: 'error',
+                                title: result.msg
+                            });
+                        }
+                    }
+                });
+            },
+            autoShowArea() {
+                //$('#' + vue.eqDataInfo[vue.trunCnt].eqNumber).trigger('mouseover');
+
+                vue.showEQInfo(vue.eqDataInfo[vue.trunCnt]);
+                
+                vue.trunCnt++;
+
+                if (vue.trunCnt > (vue.eqDataInfo.length - 1)) {
+                    vue.trunCnt = 0;
+                }
             }
         },
         mounted: function () {
@@ -857,18 +803,24 @@
 
             this.dailyTOPAlarms = _model.alarmDayTop;
 
-            setInterval(function () {
-                vue.eqMapProdPerInterval();
-            }, 60000);
+            this.dailyProcessMTD = _model.dailyMTDList;
+
+            //setInterval(function () {
+            //    vue.eqMapProdPerInterval();
+            //}, 90000);
+
+            //setInterval(function () {
+            //    vue.eqTOPAlarmInterval();
+            //}, 300000);
 
             setInterval(function () {
-                vue.eqTOPAlarmInterval();
-            }, 120000);
-
+                vue.dailyMTDInterval();
+            }, 300000);
 
             this.pageResize(false, this.isFullscreen);
 
             this.setScrollInterval();
+            this.setCarouselInterval();
         },
         computed: {
 

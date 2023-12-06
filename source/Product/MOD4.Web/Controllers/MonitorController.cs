@@ -70,7 +70,8 @@ namespace MOD4.Web.Controllers
                         Comment = per.Comment,
                         IsFrontEnd = per.IsFrontEnd,
                         StartTime = per.StartTime
-                    }).ToList()
+                    }).ToList(),
+                    DailyMTDList = _result.DailyMTD.OrderBy(ob => ob.Sn).CopyAToB<MonitorDailyMTDViewModel>()
                 };
 
                 return View(_responseVM);
@@ -138,6 +139,29 @@ namespace MOD4.Web.Controllers
                         Comment = res.Comment,
                         RepairedTime = res.RepairedTime
                     }).ToList(),
+                };
+
+                return Json(new ResponseViewModel<MonitorViewModel>
+                {
+                    Data = _responseVM
+                });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpGet("[controller]/DailyMTD")]
+        public IActionResult GetDailyMTD()
+        {
+            try
+            {
+                var _result = _monitorDomainService.GetMTDDailyInfo();
+
+                MonitorViewModel _responseVM = new MonitorViewModel
+                {
+                    DailyMTDList = _result.OrderBy(ob => ob.Sn).CopyAToB<MonitorDailyMTDViewModel>()
                 };
 
                 return Json(new ResponseViewModel<MonitorViewModel>

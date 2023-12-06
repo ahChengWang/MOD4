@@ -18,14 +18,16 @@ namespace MOD4.Web.DomainService
         private readonly IAlarmXmlRepository _alarmXmlRepository;
         private readonly IMonitorSettingRepository _monitorSettingRepository;
         private readonly ITargetSettingRepository _targetSettingRepository;
-
+        private readonly IMTDDashboardDomainService _mtdDashboardDomainService;
         public MonitorDomainService(IAlarmXmlRepository alarmXmlRepository,
             IMonitorSettingRepository monitorSettingRepository,
-            ITargetSettingRepository targetSettingRepository)
+            ITargetSettingRepository targetSettingRepository,
+            IMTDDashboardDomainService mtdDashboardDomainService)
         {
             _alarmXmlRepository = alarmXmlRepository;
             _monitorSettingRepository = monitorSettingRepository;
             _targetSettingRepository = targetSettingRepository;
+            _mtdDashboardDomainService = mtdDashboardDomainService;
         }
 
         public MonitorEntity GetMapPerAlarmData()
@@ -35,7 +37,8 @@ namespace MOD4.Web.DomainService
                 return new MonitorEntity
                 {
                     AlarmDayTop = GetAlarmTopDaily(),
-                    ProdPerformanceList = GetProdPerformanceInfo()
+                    ProdPerformanceList = GetProdPerformanceInfo(),
+                    DailyMTD = GetMTDDailyInfo()
                 };
             }
             catch (Exception ex)
@@ -72,7 +75,7 @@ namespace MOD4.Web.DomainService
                         ProdNo = per.prod_id,
                         PassQty = per.move_cnt,
                         StatusCode = alarm?.tool_status ?? "",
-                        Comment = string.IsNullOrEmpty(alarm?.comment.Trim() ?? "") ? (alarm?.status_cdsc ?? "") : alarm.comment,
+                        Comment = $"{alarm?.comment ?? ""}{alarm?.status_cdsc ?? ""}",
                         IsFrontEnd = "BONDING,LAM-FOG".Contains(alarm?.area ?? ""),
                         StartTime = alarm?.lm_time.ToString("yyyy/MM/dd HH:mm:ss") ?? ""
                     }).ToList();
@@ -92,6 +95,26 @@ namespace MOD4.Web.DomainService
                 ProdNo = alarm.prod_id,
                 RepairedTime = $"{alarm.repairedTime}(min.)"
             }).ToList();
+        }
+
+        public List<MTDProcessDailyEntity> GetMTDDailyInfo()
+        {
+            try
+            {
+                var _dailyMTD = _mtdDashboardDomainService.GetMonitorDailyMTD();
+
+                return _dailyMTD.GroupBy(g => new { g.Sn, g.Process }).Select(mtd => new MTDProcessDailyEntity
+                {
+                    Sn = mtd.Key.Sn,
+                    Process = mtd.Key.Process,
+                    DayPlanQty = mtd.Sum(s => s.DayPlanQty),
+                    DayActQty = mtd.Sum(s => s.DayActQty),
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public MonitorSettingMainEntity GetMonitorMainList(int prodSn = 1206)

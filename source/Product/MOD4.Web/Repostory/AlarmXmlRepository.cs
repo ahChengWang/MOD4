@@ -55,8 +55,8 @@ where ala.end_time is null and ala.user_id != 'AUTO' and map.isForMonitor = 1 ";
 
         public List<AlarmXmlDao> SelectDayTopRepaired(string mfgDay)
         {
-            string sql = @" select TOP 5 DATEDIFF(MINUTE,lm_time,end_time) 'repairedTime',* from alarm_xml 
-where MFG_Day = @MFG_Day and DATEDIFF(MINUTE,lm_time,end_time) > 60 and user_id != 'AUTO' 
+            string sql = @" select TOP 10 DATEDIFF(MINUTE,lm_time,end_time) 'repairedTime',* from alarm_xml 
+where MFG_Day = @MFG_Day and DATEDIFF(MINUTE,lm_time,end_time) > 30 and user_id != 'AUTO' 
 order by DATEDIFF(MINUTE,lm_time,end_time) desc; ";
 
             var dao = _dbHelper.ExecuteQuery<AlarmXmlDao>(sql,new {

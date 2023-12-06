@@ -3,6 +3,8 @@ using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Extension.Demand;
 using MOD4.Web.Repostory;
 using MOD4.Web.Repostory.Dao;
+using Newtonsoft.Json;
+using NPOI.SS.Formula.Functions;
 using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
@@ -330,6 +332,29 @@ namespace MOD4.Web.DomainService
             _tempZipsunEntity.AddRange(Process(array, node, prod));
 
             return _tempZipsunEntity;
+        }
+
+        private void Get106NewReport()
+        {
+            List<string> _test1 = new List<string> { "GDD340IA0090S", "GDD340IA0100S" };
+
+            var _ttt = string.Join("','", _test1);
+
+            string _qStr = $"apiJob=[{{'name':'Date','apiName':'TN_OperationPerformance','FactoryType':'CARUX','FacId':'A','Building':'A','DateFrom':'2023-11-29','DateTo':'2023-11-29','Shift':'ALL','Floor':'ALL','WorkOrder':'','LcmProductType':'ALL','Size':'ALL','BigProduct':'ALL','LcmOwner':'','LcdGrade':'','Product':'ALL','ProdId':'','Reworktype':'ALL','floor':'ALL','OptionProduct':'','prod_nbr':'','Input_Prod_nbr':\"{_ttt}\",'owner_code':'TYPE-PROD'}}]";
+
+            string _result = "";
+
+            var data = new StringContent(_qStr, Encoding.UTF8, "text/plain");
+            data.Headers.Add("Reporttoken", "VE5VSTIyMDA4MTYzMjAyMy0wNS0xMA==");
+
+            using (var client = new HttpClient())
+            {
+                var response = client.PostAsync("http://ptnreportapi.innolux.com/SQLAgent/ApiWorkMulti?" + _qStr, data);
+
+                _result = response.Result.Content.ReadAsStringAsync().Result;
+            }
+
+            BaseINXRptEntity<INXRpt106Entity> _rpt106 = JsonConvert.DeserializeObject<BaseINXRptEntity<INXRpt106Entity>>(_result);
         }
 
         private List<MTDPerformanceEntity> GetZipsum106Month(string startDate, string endDate, string prod, string node, int owner)
@@ -896,6 +921,48 @@ namespace MOD4.Web.DomainService
                 }
 
                 return _updRes;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region Monitor
+        public List<MTDProcessDailyEntity> GetMonitorDailyMTD()
+        {
+            try
+            {
+                DateTime _srchDate = DateTime.Now.AddMinutes(-450).Date;
+
+                // 取得當日MTD排程所有機種
+                List<MTDProductionScheduleDao> _mtdScheduleDataList = _mtdProductionScheduleRepository.SelectMTDTodayPlan(2, 1, _srchDate, _srchDate).ToList();
+                var _mtdProdProcessSettings = _targetSettingDomainService.GetSettingForMTD(_mtdScheduleDataList.Select(s => s.LcmProdId).ToList());
+
+                var _dailyMTD = from plan in _mtdScheduleDataList
+                                join setting in _mtdProdProcessSettings
+                                on new { plan.Sn, LcmProdSn = plan.LcmProdId } equals new { setting.Sn, setting.LcmProdSn }
+                                select new
+                                {
+                                    plan.Sn,
+                                    plan.Process,
+                                    setting.Node,
+                                    plan.LcmProdId,
+                                    setting.ProdNo,
+                                    plan.Value,
+                                    setting.DownEq
+                                };
+
+                List<MTDProcessDailyEntity> mtdDailyList = _dailyMTD.GroupBy(gb => new { gb.Sn, gb.Process, gb.Node }).Select(mtd => new MTDProcessDailyEntity
+                {
+                    Sn = mtd.Key.Sn,
+                    Process = mtd.Key.Process,
+                    DayPlanQty = mtd.Sum(sum => sum.Value),
+                    DayActQty = Convert.ToInt32(_inxReportService.Get106NewReport(_srchDate, _srchDate, "ALL", "2", mtd.Select(m => m.ProdNo).ToList()).Date.Data.Table.FirstOrDefault(t => Convert.ToInt32(t.WORK_CTR) == Convert.ToInt32(mtd.Key.Node))?.PASS_QTY ?? 0),
+                }).ToList();
+
+                return mtdDailyList;
             }
             catch (Exception ex)
             {

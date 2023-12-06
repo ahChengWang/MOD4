@@ -12,6 +12,8 @@ namespace MOD4.Web.DomainService
 
         List<MonitorAlarmTopEntity> GetAlarmTopDaily();
 
+        List<MTDProcessDailyEntity> GetMTDDailyInfo();
+
         MonitorSettingMainEntity GetMonitorMainList(int prodSn = 1206);
 
         List<MonitorProdTTEntity> GetMonitorProdTTList(int prodSn);

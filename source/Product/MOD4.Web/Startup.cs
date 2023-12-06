@@ -127,6 +127,7 @@ namespace MOD4.Web
             services.AddSingleton(new ServiceDescriptor(typeof(CatchHelper), new CatchHelper(Configuration)));
             services.AddSingleton(new ServiceDescriptor(typeof(MailService), new MailService(Configuration)));
             services.AddSingleton(new ServiceDescriptor(typeof(FTPService), new FTPService(Configuration)));
+            services.AddSingleton(new ServiceDescriptor(typeof(INXReportService), new INXReportService()));
             services.AddSingleton(new ServiceDescriptor(typeof(LogHelper), new LogHelper(Configuration)));
             services.AddSingleton<IDemadStatusFactory, DemadStatusFactory>();
             services.AddSingleton<IMTDProcessFactory, MTDProcessFactory>();
