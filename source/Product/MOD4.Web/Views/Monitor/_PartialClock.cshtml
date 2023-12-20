@@ -1,332 +1,62 @@
 ﻿
 <style>
-    * {
-        /*margin: 0;
-        padding: 0;*/
-    }
-
-    .wrap {
-        width: 50%;
-        /*height: 10%;*/
-        /*margin: 10px auto;*/
-        /*background-color: #eee;*/
-    }
-
-    .digitalitem {
+    .container-clock {
+        /* 置中 */
         position: absolute;
-        top: 55px;
-        right: 0;
+        top: 3vw;
+        right: 0.4vw;
+        /*transform: translate(-50%, -50%);*/
+        background-color: transparent;
+        /*border: 3px solid lightgreen;*/
+        color: rgb(89, 220, 240, 0.8);
+        width: 15vw; /*340px;*/
+        /*padding: 10px;*/
+        border-radius: 40px;
+        transition: 0.5s;
     }
 
-        .digitalitem.hour-1 {
-            right: 260px;
+        .container-clock:hover {
+            background-color: lightgreen;
+            color: black;
+            box-shadow: 0 0 30px #59dcf0;
         }
 
-        .digitalitem.hour-2 {
-            right: 225px;
-        }
-
-        .digitalitem.separate1 {
-            right: 190px;
-        }
-
-        .digitalitem.min-1 {
-            right: 172px;
-        }
-
-        .digitalitem.min-2 {
-            right: 135px;
-        }
-
-        .digitalitem.separate2 {
-            right: 102px;
-        }
-
-        .digitalitem.sec-1 {
-            right: 85px;
-        }
-
-        .digitalitem.sec-2 {
-            right: 50px;
-        }
-
-    .dot:before,
-    .dot:after {
-        content: "";
-        width: 8px;
-        height: 8px;
-        position: absolute;
-        top: 14px;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background-color: rgba(191, 191, 191, 1);
-        animation: dot-blink 1s infinite;
+    .time {
+        font-size: 2.8vw;
+        font-weight: 750;
+        text-align: center;
+        font-family: fantasy,monospace,Verdana;
     }
 
-    @@keyframes dot-blink {
-        from {
-            opacity: 1;
-        }
+    /*.date {
+        font-size: 20px;
+        text-align: center;
+        font-style: italic;
+    }*/
 
-        to {
-            opacity: 0.2;
-        }
-    }
-
-    .dot:before {
-        top: 14px;
-    }
-
-    .dot:after {
-        top: 34px;
-    }
-
-    .digitalbody {
-        background-color: rgba(191, 191, 191, 1);
-        box-shadow: -1px 1px 5px rgba(0, 0, 0, 0.6);
-        position: absolute;
-    }
-
-        .digitalbody:before,
-        .digitalbody:after {
-            content: "";
-            width: 5px;
-            height: 0;
-            border-width: 2px;
-            border-style: solid;
-            position: absolute;
-        }
-
-        .digitalbody.h1,
-        .digitalbody.h2,
-        .digitalbody.h3 {
-            width: 15px;
-            height: 4px;
-            left: 5px;
-            z-index: 20;
-        }
-
-            .digitalbody.h1:before,
-            .digitalbody.h2:before,
-            .digitalbody.h3:before {
-                left: -5.7px;
-                border-color: rgba(191, 191, 191, 0) rgba(191, 191, 191, 1) rgba(191, 191, 191, 0) rgba(191, 191, 191, 0);
-            }
-
-            .digitalbody.h1:after,
-            .digitalbody.h2:after,
-            .digitalbody.h3:after {
-                right: -5.7px;
-                border-color: rgba(191, 191, 191, 0) rgba(191, 191, 191, 0) rgba(191, 191, 191, 0) rgba(191, 191, 191, 1);
-            }
-
-        .digitalbody.h1 {
-            top: 0;
-        }
-
-        .digitalbody.h2 {
-            top: 22.5px;
-        }
-
-        .digitalbody.h3 {
-            top: 44.5px;
-        }
-
-        .digitalbody.v1,
-        .digitalbody.v2,
-        .digitalbody.v3,
-        .digitalbody.v4 {
-            width: 4px;
-            height: 15px;
-            z-index: 10;
-        }
-
-            .digitalbody.v1:before,
-            .digitalbody.v2:before,
-            .digitalbody.v3:before,
-            .digitalbody.v4:before {
-                width: 4px;
-                top: -4.7px;
-                left: 0px;
-                border-color: rgba(191, 191, 191, 0) rgba(191, 191, 191, 0) rgba(191, 191, 191, 1) rgba(191, 191, 191, 0);
-            }
-
-            .digitalbody.v1:after,
-            .digitalbody.v2:after,
-            .digitalbody.v3:after,
-            .digitalbody.v4:after {
-                width: 4px;
-                top: 16px;
-                border-color: rgba(191, 191, 191, 1) rgba(191, 191, 191, 0) rgba(191, 191, 191, 0) rgba(191, 191, 191, 0);
-            }
-
-        .digitalbody.v1 {
-            top: 6px;
-            left: 0;
-        }
-
-        .digitalbody.v2 {
-            top: 6px;
-            left: 21px;
-        }
-
-        .digitalbody.v3 {
-            top: 28px;
-            left: 0;
-        }
-
-        .digitalbody.v4 {
-            top: 28px;
-            left: 21px;
-        }
-
-    .num-1 > .h1,
-    .num-1 > .h2,
-    .num-1 > .h3,
-    .num-1 > .v1,
-    .num-1 > .v3 {
-        opacity: 0.2;
-    }
-
-    .num-2 > .v1,
-    .num-2 > .v4 {
-        opacity: 0.2;
-    }
-
-    .num-3 > .v1,
-    .num-3 > .v3 {
-        opacity: 0.2;
-    }
-
-    .num-4 > .h1,
-    .num-4 > .h3,
-    .num-4 > .v3 {
-        opacity: 0.2;
-    }
-
-    .num-5 > .v2,
-    .num-5 > .v3 {
-        opacity: 0.2;
-    }
-
-    .num-6 > .v2 {
-        opacity: 0.2;
-    }
-
-    .num-7 > .h2,
-    .num-7 > .h3,
-    .num-7 > .v1,
-    .num-7 > .v3 {
-        opacity: 0.2;
-    }
-
-    .num-9 > .v3 {
-        opacity: 0.2;
-    }
-
-    .num-0 > .h2 {
-        opacity: 0.2;
-    }
+    /*#period {
+        font-size: 20px;
+    }*/
 </style>
 
 <div class="wrap">
-    <div class="digitalitem hour-1 num-0" id="hour-1">
-        <div class="digitalbody h1"></div>
-        <div class="digitalbody h2"></div>
-        <div class="digitalbody h3"></div>
-        <div class="digitalbody v1"></div>
-        <div class="digitalbody v2"></div>
-        <div class="digitalbody v3"></div>
-        <div class="digitalbody v4"></div>
-    </div>
-    <div class="digitalitem hour-2 num-0" id="hour-2">
-        <div class="digitalbody h1"></div>
-        <div class="digitalbody h2"></div>
-        <div class="digitalbody h3"></div>
-        <div class="digitalbody v1"></div>
-        <div class="digitalbody v2"></div>
-        <div class="digitalbody v3"></div>
-        <div class="digitalbody v4"></div>
-    </div>
-    <div class="digitalitem separate1">
-        <div class="dot"></div>
-    </div>
-    <div class="digitalitem min-1 num-0" id="min-1">
-        <div class="digitalbody h1"></div>
-        <div class="digitalbody h2"></div>
-        <div class="digitalbody h3"></div>
-        <div class="digitalbody v1"></div>
-        <div class="digitalbody v2"></div>
-        <div class="digitalbody v3"></div>
-        <div class="digitalbody v4"></div>
-    </div>
-    <div class="digitalitem min-2 num-0" id="min-2">
-        <div class="digitalbody h1"></div>
-        <div class="digitalbody h2"></div>
-        <div class="digitalbody h3"></div>
-        <div class="digitalbody v1"></div>
-        <div class="digitalbody v2"></div>
-        <div class="digitalbody v3"></div>
-        <div class="digitalbody v4"></div>
-    </div>
-    <div class="digitalitem separate2">
-        <div class="dot"></div>
-    </div>
-    <div class="digitalitem sec-1 num-0" id="sec-1">
-        <div class="digitalbody h1"></div>
-        <div class="digitalbody h2"></div>
-        <div class="digitalbody h3"></div>
-        <div class="digitalbody v1"></div>
-        <div class="digitalbody v2"></div>
-        <div class="digitalbody v3"></div>
-        <div class="digitalbody v4"></div>
-    </div>
-    <div class="digitalitem sec-2 num-0" id="sec-2">
-        <div class="digitalbody h1"></div>
-        <div class="digitalbody h2"></div>
-        <div class="digitalbody h3"></div>
-        <div class="digitalbody v1"></div>
-        <div class="digitalbody v2"></div>
-        <div class="digitalbody v3"></div>
-        <div class="digitalbody v4"></div>
+    <div class="container-clock">
+        <div class="datetime">
+            <div class="time">
+                <span id="hour">00</span>
+                <span>:</span>
+                <span id="minutes">00</span>
+                <span>:</span>
+                <span id="seconds">00</span>
+                @*<span id="period">AM</span>*@
+            </div>
+            @*<div class="date">
+                    <span id="dayname">星期</span>,
+                    <span id="month">月</span>
+                    <span id="daynum">00</span>日,
+                    <span id="year">year</span>年
+                </div>*@
+        </div>
     </div>
 </div>
 
-
-<script type="text/javascript">
-    var remarkMin = true,
-        remarkHour = true;
-    function showClock() {
-        var currentDate = new Date();
-        var currentHour = (
-            (currentDate.getHours() < 10 ? "0" : "") + currentDate.getHours()
-        ).split("");
-        var currentMin = (
-            (currentDate.getMinutes() < 10 ? "0" : "") + currentDate.getMinutes()
-        ).split("");
-        var currentSec = (
-            (currentDate.getSeconds() < 10 ? "0" : "") + currentDate.getSeconds()
-        ).split("");
-
-        handleDigitalbodyElement(currentSec, "sec-1", 0);
-        handleDigitalbodyElement(currentSec, "sec-2", 1);
-        if (currentDate.getSeconds() === 0 || remarkMin) {
-            handleDigitalbodyElement(currentMin, "min-1", 0);
-            handleDigitalbodyElement(currentMin, "min-2", 1);
-            remarkMin = false;
-        }
-        if (currentDate.getMinutes() === 0 || remarkHour) {
-            handleDigitalbodyElement(currentHour, "hour-1", 0);
-            handleDigitalbodyElement(currentHour, "hour-2", 1);
-            remarkHour = false;
-        }
-    }
-    function handleDigitalbodyElement(targetArray, targetElement, targetIndex) {
-        var tmpElement = document.getElementById(targetElement).classList;
-        tmpElement.remove(tmpElement.item(2));
-        tmpElement.add("num-" + targetArray[targetIndex]);
-    }
-
-    setInterval(showClock, 1000);
-</script>

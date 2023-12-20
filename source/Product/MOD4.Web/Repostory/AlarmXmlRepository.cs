@@ -68,7 +68,7 @@ order by DATEDIFF(MINUTE,lm_time,end_time) desc; ";
 
         public List<ProdXmlTmpDao> SelectProdInfo(string mfgDay)
         {
-            string sql = @" select tool_id,prod_id,map.AREA,MAX(CONVERT(int, move_cnt))'move_cnt' 
+            string sql = @" select tool_id,prod_id,map.AREA,MAX(CONVERT(int, move_cnt))'move_cnt',MAX(XML_time)'XML_time'
   from carUX_CFM_2f.dbo.prod_xml prod
   join equip_mapping map 
     on prod.tool_id = map.EQUIP_NBR 

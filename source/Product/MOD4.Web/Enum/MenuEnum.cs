@@ -62,7 +62,9 @@ namespace MOD4.Web.Enum
         Bulletin = 39,
         [Description("Monitor")]
         Monitor = 40,
+        [Description("Monitor TT")]
+        MonitorTackTime = 41,
         [Description("參數設定")]
-        MonitorSetting = 41,
+        MonitorSetting = 42,
     }
 }

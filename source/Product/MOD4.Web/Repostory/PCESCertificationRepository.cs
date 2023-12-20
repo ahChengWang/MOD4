@@ -98,7 +98,11 @@ namespace MOD4.Web.Repostory
 ,[status]
 ,[pass_date]
 ,[valid_date]
-,[subj_grade])
+,[subj_grade]
+,[skill_grade]
+,[eng_no]
+,[eng_name]
+,[skill_status])
 VALUES
 (@apply_no
 ,@apply_name
@@ -113,7 +117,11 @@ VALUES
 ,@status
 ,@pass_date
 ,@valid_date
-,@subj_grade); ";
+,@subj_grade
+,@skill_grade
+,@eng_no
+,@eng_name
+,@skill_status); ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, daoList);
 
@@ -132,7 +140,6 @@ VALUES
 ,[eng_no] = @eng_no 
 ,[eng_name] = @eng_name 
 ,[skill_status] = @skill_status 
-,[remark] = @remark 
 Where apply_no=@apply_no and apply_name=@apply_name and main_oper=@main_oper and station=@station and class_name=@class_name and lic_type=@lic_type ; ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, daoList);

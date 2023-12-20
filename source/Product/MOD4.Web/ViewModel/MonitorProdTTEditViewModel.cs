@@ -2,7 +2,7 @@
 
 namespace MOD4.Web.ViewModel
 {
-    public class MonitorProdTTViewModel
+    public class MonitorProdTTEditViewModel
     {
         public int Node { get; set; }
         public int LcmProdSn { get; set; }

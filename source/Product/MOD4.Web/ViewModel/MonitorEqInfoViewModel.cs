@@ -18,6 +18,8 @@
 
         public string StatusCode { get; set; }
 
+        public string ProdNoConcate { get; set; }
+
         public string Comment { get; set; }
 
         public bool IsFrontEnd { get; set; }

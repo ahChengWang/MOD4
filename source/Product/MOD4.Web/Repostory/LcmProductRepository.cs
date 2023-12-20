@@ -7,7 +7,7 @@ namespace MOD4.Web.Repostory
     public class LcmProductRepository : BaseRepository, ILcmProductRepository
     {
 
-        public List<LcmProductDao> SelectByConditions(List<int> snList = null)
+        public List<LcmProductDao> SelectByConditions(List<int> snList = null, List<string> prodNoList = null)
         {
             string sql = "select * from vw_lcm_prod where 1=1 ";
 
@@ -16,9 +16,15 @@ namespace MOD4.Web.Repostory
                 sql += " and sn in @Sn ";
             }
 
+            if (prodNoList != null && prodNoList.Any())
+            {
+                sql += " and prodNo in @ProdNo ";
+            }
+
             var dao = _dbHelper.ExecuteQuery<LcmProductDao>(sql, new
             {
-                Sn = snList
+                Sn = snList,
+                ProdNo = prodNoList
             });
 
             return dao;

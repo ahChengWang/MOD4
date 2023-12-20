@@ -6,6 +6,6 @@ namespace MOD4.Web.ViewModel
     {
         public List<MonitorSettingViewModel> SettingDetail { get; set; }
 
-        public List<MonitorProdTTViewModel> MonitorProdTTList { get; set; }
+        public List<MonitorProdTTEditViewModel> MonitorProdTTList { get; set; }
     }
 }

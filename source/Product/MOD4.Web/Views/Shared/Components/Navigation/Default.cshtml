@@ -41,7 +41,7 @@
                             <ul class="nav nav-treeview">
                                 @foreach (var sub in menu.SubMenuList)
                                 {
-                                    if (sub.PageName == "Monitor")
+                                    if (sub.PageName.Contains("Monitor"))
                                     {
                                         <li class="nav-item">
                                             <a class="nav-link" href="@sub.Href" target="_blank">

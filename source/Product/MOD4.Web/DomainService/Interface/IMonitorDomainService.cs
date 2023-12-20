@@ -23,5 +23,7 @@ namespace MOD4.Web.DomainService
         string UpdateProdTT(List<MonitorProdTTEntity> prodTTEntity, UserEntity userEntity);
 
         string UpdateInsertMapArea(List<MonitorSettingEntity> mapAreaEntity, UserEntity userEntity);
+
+        List<MonitorTackTimeEntity> GetEqTackTimeList();
     }
 }

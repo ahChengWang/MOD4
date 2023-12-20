@@ -64,6 +64,7 @@ namespace MOD4.Web.Controllers
                         Border = per.Border,
                         Background = per.Background,
                         Area = per.Area,
+                        ProdNoConcate = per.ProdNoConcate,
                         ProdNo = per.ProdNo,
                         PassQty = per.PassQty,
                         StatusCode = per.StatusCode,
@@ -120,7 +121,6 @@ namespace MOD4.Web.Controllers
                 return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
             }
         }
-
 
         [HttpGet("[controller]/DailyTOPAlarms")]
         public IActionResult GetDailyTOPAlarms()
@@ -215,7 +215,7 @@ namespace MOD4.Web.Controllers
 
                 return View(new MonitorSettingMainViewModel
                 {
-                    MonitorProdTTList = _settingDatas.ProdTTDetails.Select(tt => new MonitorProdTTViewModel 
+                    MonitorProdTTList = _settingDatas.ProdTTDetails.Select(tt => new MonitorProdTTEditViewModel 
                     {
                         Node = tt.Node,
                         LcmProdSn = tt.LcmProdSn,
@@ -258,9 +258,9 @@ namespace MOD4.Web.Controllers
             {
                 var _settingDatas = _monitorDomainService.GetMonitorProdTTList(prodSn);
 
-                return Json(new ResponseViewModel<List<MonitorProdTTViewModel>> 
+                return Json(new ResponseViewModel<List<MonitorProdTTEditViewModel>> 
                 { 
-                    Data = _settingDatas.Select(tt => new MonitorProdTTViewModel
+                    Data = _settingDatas.Select(tt => new MonitorProdTTEditViewModel
                     {
                         Node = tt.Node,
                         LcmProdSn = tt.LcmProdSn,
@@ -272,7 +272,7 @@ namespace MOD4.Web.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new ResponseViewModel<List<MonitorProdTTViewModel>>
+                return Json(new ResponseViewModel<List<MonitorProdTTEditViewModel>>
                 {
                     IsSuccess = false,
                     Msg = ex.Message
@@ -281,7 +281,7 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpPost("[controller]/Setting/TT")]
-        public IActionResult SettingProdTT(List<MonitorProdTTViewModel> prodTTSetting)
+        public IActionResult SettingProdTT(List<MonitorProdTTEditViewModel> prodTTSetting)
         {
             try
             {
@@ -325,6 +325,71 @@ namespace MOD4.Web.Controllers
                 });
             }
         }
+
+        #region Tack Time
+
+        [HttpGet("[controller]/TackTime")]
+        public IActionResult TackTime()
+        {
+            try
+            {
+                var _result = _monitorDomainService.GetEqTackTimeList();
+
+                var _response = _result.Select(res => new MonitorProdEqTTViewModel
+                {
+                    ProdSn = res.ProdSn,
+                    ProdDesc = res.ProdDesc,
+                    DetailTTInfo = res.DetailTTInfo.Select(detail => new MonitorProdEqTTDetailViewModel 
+                    {
+                        Node = detail.Node,
+                        EquipmentNo = detail.EquipmentNo,
+                        TargetTackTime = detail.TargetTackTime,
+                        TackTime = detail.TackTime,
+                        TTWarningLevelId = detail.TTWarningLevelId
+                    }).ToList()
+                }).ToList();
+
+                return View(_response);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpGet("[controller]/TackTimeBlock")]
+        public IActionResult TackTimeBlock()
+        {
+            try
+            {
+                var _result = _monitorDomainService.GetEqTackTimeList();
+
+                var _response = _result.Select(res => new MonitorProdEqTTViewModel
+                {
+                    ProdSn = res.ProdSn,
+                    ProdDesc = res.ProdDesc,
+                    DetailTTInfo = res.DetailTTInfo.Select(detail => new MonitorProdEqTTDetailViewModel
+                    {
+                        Node = detail.Node,
+                        EquipmentNo = detail.EquipmentNo,
+                        TargetTackTime = detail.TargetTackTime,
+                        TackTime = detail.TackTime,
+                        TTWarningLevelId = detail.TTWarningLevelId
+                    }).ToList()
+                }).ToList();
+
+                return Json(new ResponseViewModel<List<MonitorProdEqTTViewModel>> 
+                {
+                    Data = _response
+                });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        #endregion
 
         private void Echo(WebSocket webSocket)
         {

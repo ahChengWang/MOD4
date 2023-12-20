@@ -8,5 +8,6 @@ namespace MOD4.Web.Repostory.Dao
         public string prod_id { get; set; }
         public string move_cnt { get; set; }
         public string area { get; set; }
+        public DateTime XML_time { get; set; }
     }
 }

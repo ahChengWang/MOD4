@@ -428,7 +428,7 @@
             <div style="display: flex; height: 34%; margin-top: 10px;">
 
                 <div style="width: 33%;">
-                    <div name="cHeader" style="background-color: rgba(81, 214, 86,.3); left: 15%;">
+                    <div name="cHeader" style="background-color: rgba(81, 214, 86,.3); left: 14vw;">
                         <a>本日 TOP</a>
                     </div>
                     <div class="monitor panel autoscrollable-wrapper" @@mouseover="stopInterval(this)" @@mouseout="setScrollInterval()">
@@ -446,26 +446,26 @@
                 </div><!--End Row-->
 
                 <div class="box" style="width: 34%;">
-                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); left: 47%;">
+                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); left: 47vw;">
                         <a>生產資訊</a>
                     </div>
                     <div class="monitor panel">
                         <div id="areaInfo" style="width: 80%; height: 100%;">
-                            <div style="color: white; display: flex; line-height: 2.7;">
-                                <div class="col-lg-6" style="font-size: 17px;">Area:</div>
-                                <div class="col-lg-6" style="font-size: 17px;">{{eqPerfInfo.area}}</div>
+                            <div style="color: white; display: flex; margin-top: 4.5%;">
+                                <div class="col-lg-6" style="font-size: 1vw;">Area:</div>
+                                <div class="col-lg-6" style="font-size: 1vw;">{{eqPerfInfo.area}}</div>
                             </div>
-                            <div style="color: white; display: flex; line-height: 2.7;">
-                                <div class="col-lg-6" style="font-size: 17px;">EQ no:</div>
-                                <div class="col-lg-6" style="font-size: 17px;">{{eqPerfInfo.eqNo}}</div>
+                            <div style="color: white; display: flex; margin-top: 4.5%; ">
+                                <div class="col-lg-6" style="font-size: 1vw;">EQ no:</div>
+                                <div class="col-lg-6" style="font-size: 1vw;">{{eqPerfInfo.eqNo}}</div>
                             </div>
-                            <div style="color: white; display: flex; line-height: 2.7;">
-                                <div class="col-lg-6" style="font-size: 17px;">機種:</div>
-                                <div class="col-lg-6" style="font-size: 17px;">{{eqPerfInfo.prod}}</div>
+                            <div style="color: white; display: flex; margin-top: 4.5%; ">
+                                <div class="col-lg-6" style="font-size: 1vw;">機種:</div>
+                                <div class="col-lg-6" style="font-size: 1vw;">{{eqPerfInfo.prod}}</div>
                             </div>
-                            <div style="color: white; display: flex; line-height: 2.7;">
-                                <div class="col-lg-6" style="font-size: 17px;">Pass量:</div>
-                                <div class="col-lg-6" style="font-size: 17px;">{{eqPerfInfo.passQty}}</div>
+                            <div style="color: white; display: flex; margin-top: 4.5%; ">
+                                <div class="col-lg-6" style="font-size: 1vw;">Pass量:</div>
+                                <div class="col-lg-6" style="font-size: 1vw;">{{eqPerfInfo.passQty}}</div>
                             </div>
                         </div>
                     </div>
@@ -473,28 +473,28 @@
 
                 <div class="box" style="width: 33%;">
 
-                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); right: 14%;">
+                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); right: 12vw;">
                         <a>本日各製程MTD</a>
                     </div>
                     <div class="monitor panel autoscrollable-wrapper" @@mouseover="stopInterval(this)" @@mouseout="setScrollInterval()">
                         <table class="table">
                             <thead>
                                 <tr style="color:white">
-                                    <th style="text-align:center">製程</th>
-                                    <th style="text-align:center">日計畫</th>
-                                    <th style="text-align:center">累積應產</th>
-                                    <th style="text-align:center">實際產出</th>
-                                    <th style="text-align:center">時段累積差異</th>
+                                    <th style="text-align: center; font-size: 0.8vw;">製程</th>
+                                    <th style="text-align:center; font-size: 0.8vw;">日計畫</th>
+                                    <th style="text-align:center; font-size: 0.8vw;">累積應產</th>
+                                    <th style="text-align:center; font-size: 0.8vw;">實際產出</th>
+                                    <th style="text-align:center; font-size: 0.8vw;">時段累積差異</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="mtd in dailyProcessMTD">
-                                    <td style="text-align:center">{{mtd.process}}</td>
-                                    <td style="text-align:center">{{mtd.dayPlanQty}}</td>
-                                    <td style="text-align:center">{{mtd.dayPeriodPlanQty}}</td>
-                                    <td style="text-align:center">{{mtd.dayActQty}}</td>
-                                    <td v-if="mtd.dayDiff < 0" style="text-align: center; font-weight: 600; font-size: 15px; color: red;">{{mtd.dayDiff}}</td>
-                                    <td v-if="mtd.dayDiff >= 0" style="text-align: center; font-weight: 600; font-size: 15px; color: limegreen;">{{mtd.dayDiff}}</td>
+                                    <td style="text-align:center; font-size: 1vw;">{{mtd.process}}</td>
+                                    <td style="text-align:center; font-size: 1vw;">{{mtd.dayPlanQty}}</td>
+                                    <td style="text-align:center; font-size: 1vw;">{{mtd.dayPeriodPlanQty}}</td>
+                                    <td style="text-align:center; font-size: 1vw;">{{mtd.dayActQty}}</td>
+                                    <td v-if="mtd.dayDiff < 0" style="text-align: center; font-weight: 600; font-size: 1vw; color: red;">{{mtd.dayDiff}}</td>
+                                    <td v-if="mtd.dayDiff >= 0" style="text-align: center; font-weight: 600; font-size: 1vw; color: limegreen;">{{mtd.dayDiff}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -543,7 +543,7 @@
             setScrollInterval() {
                 this.scrollInterval = setInterval(function () {
                     vue.scrollingRow();
-                }, 100);
+                }, 150);
             },
             scrollingRow() {
                 var elems = $('.autoscrollable-wrapper');
@@ -626,7 +626,7 @@
 
                     _eqData.perfInfo.area = eqPerData[i].area;
                     _eqData.perfInfo.eqNo = eqPerData[i].eqNumber;
-                    _eqData.perfInfo.prod = eqPerData[i].prodNo;
+                    _eqData.perfInfo.prod = eqPerData[i].prodNoConcate;
                     _eqData.perfInfo.passQty = eqPerData[i].passQty;
                     _eqData.perfInfo.alarmMsg = '';
 
@@ -784,6 +784,45 @@
                 if (vue.trunCnt > (vue.eqDataInfo.length - 1)) {
                     vue.trunCnt = 0;
                 }
+            },
+            setClockInterval() {
+                setInterval(function () {
+                    vue.updateClock();
+                }, 1000);
+            },
+            updateClock() {
+                var time = new Date();
+                var dname = time.getDay(),
+                    mo = time.getMonth(),
+                    yr = time.getFullYear(),
+                    dnum = time.getDate(),
+                    hr = time.getHours(),
+                    min = time.getMinutes(),
+                    sec = time.getSeconds(),
+                    pe = "AM";
+
+                //// 抓AM或PM
+                //if (hr >= 12) {
+                //    pe = "PM";
+                //} else {
+                //    pe = "AM"
+                //}
+
+                // 轉換成兩位數
+                Number.prototype.pad = function (digits) {
+                    for (var n = this.toString(); n.length < digits; n = 0 + n);
+                    return n;
+                }
+
+                var months = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+                var week = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+                //var ids = ["dayname", "month", "daynum", "year", "hour", "minutes", "seconds", "period"];
+                var ids = ["hour", "minutes", "seconds"];
+                /*var values = [week[dname], months[mo], dnum.pad(2), yr, hr.pad(2), min.pad(2), sec.pad(2), pe];*/
+                var values = [hr.pad(2), min.pad(2), sec.pad(2)];
+
+                for (var i = 0; i < ids.length; i++)
+                    document.getElementById(ids[i]).firstChild.nodeValue = values[i];
             }
         },
         mounted: function () {
@@ -805,13 +844,13 @@
 
             this.dailyProcessMTD = _model.dailyMTDList;
 
-            //setInterval(function () {
-            //    vue.eqMapProdPerInterval();
-            //}, 90000);
+            setInterval(function () {
+                vue.eqMapProdPerInterval();
+            }, 300000);
 
-            //setInterval(function () {
-            //    vue.eqTOPAlarmInterval();
-            //}, 300000);
+            setInterval(function () {
+                vue.eqTOPAlarmInterval();
+            }, 480000);
 
             setInterval(function () {
                 vue.dailyMTDInterval();
@@ -821,6 +860,7 @@
 
             this.setScrollInterval();
             this.setCarouselInterval();
+            this.setClockInterval();
         },
         computed: {
 

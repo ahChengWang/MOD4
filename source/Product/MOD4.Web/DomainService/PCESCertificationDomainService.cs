@@ -19,7 +19,7 @@ namespace MOD4.Web.DomainService
     public class PCESCertificationDomainService : BaseDomainService, IPCESCertificationDomainService
     {
         private readonly IPCESCertificationRepository _pcesCertificationRepository;
-        private readonly string[] _generalClassDic = new string[] { "IATF 16949", "IECQ QC 080000", "TISAX Prototype保護認知", "VDA6.3", "品質與安全意識", "管制計畫", "靜電防護" };
+        private readonly string[] _generalClassDic = new string[] { "IATF 16949", "IECQ QC 080000", "TISAX Prototype保護認知", "VDA6.3", "品質與安全意識", "管制計畫", "靜電防護", "交通安全", "勞工安全衛生", "危害通識", "友善職場", "自傷危機干預" };
 
         public PCESCertificationDomainService(IPCESCertificationRepository pcesCertificationRepository)
         {
@@ -225,7 +225,11 @@ namespace MOD4.Web.DomainService
                             status = System.Enum.GetValues(typeof(CertStatusEnum)).Cast<CertStatusEnum>().FirstOrDefault(f => f.GetDescription() == cert.status),
                             pass_date = cert.pass_date,
                             valid_date = cert.valid_date,
-                            subj_grade = cert.subj_grade
+                            subj_grade = cert.subj_grade,
+                            eng_name = cert.eng_name,
+                            eng_no = cert.eng_no,
+                            skill_grade = cert.skill_grade,
+                            skill_status = cert.skill_status
                         }).ToList();
 
                 // 認證狀態變更 (認證中 => 通過、通過 => 過期)
@@ -248,43 +252,52 @@ namespace MOD4.Web.DomainService
                                                   status = System.Enum.GetValues(typeof(CertStatusEnum)).Cast<CertStatusEnum>().FirstOrDefault(f => f.GetDescription() == raw.status),
                                                   pass_date = raw.pass_date,
                                                   valid_date = raw.valid_date,
-                                                  subj_grade = raw.subj_grade
+                                                  subj_grade = raw.subj_grade,
+                                                  eng_name = raw.eng_name,
+                                                  eng_no = raw.eng_no,
+                                                  skill_grade = raw.skill_grade
                                               }).ToList();
 
                 _updExpDatePCESCertRecords.ForEach(c =>
                 {
-                    switch (c.status)
-                    {
-                        case CertStatusEnum.Pass when _generalClassDic.Contains(c.class_name):
-                            c.certStatus = CertStatusEnum.Pass;
-                            break;
-                        case CertStatusEnum.Pass:
-                            c.certStatus = CertStatusEnum.InProgress;
-                            break;
-                        case CertStatusEnum.Failed:
-                            c.certStatus = CertStatusEnum.Failed;
-                            c.skill_grade = null;
-                            c.eng_no = null;
-                            c.skill_status = null;
-                            c.remark = null;
-                            break;
-                        case CertStatusEnum.InProgress:
-                            c.certStatus = CertStatusEnum.InProgress;
-                            c.skill_grade = null;
-                            c.eng_no = null;
-                            c.skill_status = null;
-                            c.remark = null;
-                            break;
-                        case CertStatusEnum.Expied:
-                            c.certStatus = CertStatusEnum.Expied;
-                            //c.skill_grade = null;
-                            //c.eng_no = null;
-                            //c.skill_status = null;
-                            //c.remark = null;
-                            break;
-                        default:
-                            break;
-                    }
+                    c.certStatus = c.status;
+
+                    if (!_generalClassDic.Contains(c.class_name))
+                        c.skill_status = c.status;
+
+                    //switch (c.status)
+                    //{
+                    //    case CertStatusEnum.Pass when _generalClassDic.Contains(c.class_name):
+                    //        c.certStatus = CertStatusEnum.Pass;
+                    //        break;
+                    //    case CertStatusEnum.Pass:
+                    //        //c.certStatus = CertStatusEnum.InProgress;
+                    //        c.certStatus = CertStatusEnum.Pass;
+                    //        break;
+                    //    case CertStatusEnum.Failed:
+                    //        c.certStatus = CertStatusEnum.Failed;
+                    //        //c.skill_grade = null;
+                    //        //c.eng_no = null;
+                    //        //c.skill_status = null;
+                    //        //c.remark = null;
+                    //        break;
+                    //    case CertStatusEnum.InProgress:
+                    //        c.certStatus = CertStatusEnum.InProgress;
+                    //        //c.skill_grade = null;
+                    //        //c.eng_no = null;
+                    //        //c.skill_status = null;
+                    //        //c.remark = null;
+                    //        break;
+                    //    case CertStatusEnum.Expied:
+                    //        c.certStatus = CertStatusEnum.Expied;
+                    //        //c.skill_grade = null;
+                    //        //c.eng_no = null;
+                    //        //c.skill_status = null;
+                    //        //c.remark = null;
+                    //        break;
+                    //    default:
+                    //        break;
+                    //}
                 });
 
 
@@ -310,43 +323,52 @@ namespace MOD4.Web.DomainService
                                                   status = System.Enum.GetValues(typeof(CertStatusEnum)).Cast<CertStatusEnum>().FirstOrDefault(f => f.GetDescription() == raw.status),
                                                   pass_date = raw.pass_date,
                                                   valid_date = raw.valid_date,
-                                                  subj_grade = raw.subj_grade
+                                                  subj_grade = raw.subj_grade,
+                                                  eng_name = raw.eng_name,
+                                                  eng_no = raw.eng_no,
+                                                  skill_grade = raw.skill_grade
                                               }).ToList();
 
                 _insExpDatePCESCertRecords.ForEach(c =>
                 {
-                    switch (c.status)
-                    {
-                        case CertStatusEnum.Pass when _generalClassDic.Contains(c.class_name):
-                            c.certStatus = CertStatusEnum.Pass;
-                            break;
-                        case CertStatusEnum.Pass:
-                            c.certStatus = CertStatusEnum.InProgress;
-                            break;
-                        case CertStatusEnum.Failed:
-                            c.certStatus = CertStatusEnum.Failed;
-                            c.skill_grade = null;
-                            c.eng_no = null;
-                            c.skill_status = null;
-                            c.remark = null;
-                            break;
-                        case CertStatusEnum.InProgress:
-                            c.certStatus = CertStatusEnum.InProgress;
-                            c.skill_grade = null;
-                            c.eng_no = null;
-                            c.skill_status = null;
-                            c.remark = null;
-                            break;
-                        case CertStatusEnum.Expied:
-                            c.certStatus = CertStatusEnum.Expied;
-                            //c.skill_grade = null;
-                            //c.eng_no = null;
-                            //c.skill_status = null;
-                            //c.remark = null;
-                            break;
-                        default:
-                            break;
-                    }
+                    c.certStatus = c.status;
+
+                    if (!_generalClassDic.Contains(c.class_name))
+                        c.skill_status = c.status;
+
+                    //switch (c.status)
+                    //{
+                    //    case CertStatusEnum.Pass when _generalClassDic.Contains(c.class_name):
+                    //        c.certStatus = CertStatusEnum.Pass;
+                    //        break;
+                    //    case CertStatusEnum.Pass:
+                    //        //c.certStatus = CertStatusEnum.InProgress;
+                    //        c.certStatus = CertStatusEnum.Pass;
+                    //        break;
+                    //    case CertStatusEnum.Failed:
+                    //        c.certStatus = CertStatusEnum.Failed;
+                    //        //c.skill_grade = null;
+                    //        //c.eng_no = null;
+                    //        //c.skill_status = null;
+                    //        //c.remark = null;
+                    //        break;
+                    //    case CertStatusEnum.InProgress:
+                    //        c.certStatus = CertStatusEnum.InProgress;
+                    //        //c.skill_grade = null;
+                    //        //c.eng_no = null;
+                    //        //c.skill_status = null;
+                    //        //c.remark = null;
+                    //        break;
+                    //    case CertStatusEnum.Expied:
+                    //        c.certStatus = CertStatusEnum.Expied;
+                    //        //c.skill_grade = null;
+                    //        //c.eng_no = null;
+                    //        //c.skill_status = null;
+                    //        //c.remark = null;
+                    //        break;
+                    //    default:
+                    //        break;
+                    //}
                 });
 
                 using (TransactionScope _scope = new TransactionScope())

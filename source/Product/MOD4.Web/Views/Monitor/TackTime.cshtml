@@ -1,0 +1,569 @@
+﻿@model List<MOD4.Web.ViewModel.MonitorProdEqTTViewModel>
+
+@{
+    Layout = null;
+}
+
+<style>
+
+    .bg-theme {
+        /*background-image: url('./img/monitorBG.png');*/
+        line-height: 1.15;
+        font-size: 0.5rem;
+        margin: 0;
+        padding: 0;
+        background-repeat: no-repeat;
+        background-position: 0 0 / cover;
+        background-color: #101129; /* 101129  ff5000 */
+    }
+
+    div[name='mapDiv'] {
+        -webkit-filter: drop-shadow(12px 12px 7px rgba(0, 0, 0, 0.7));
+        filter: drop-shadow(12px 12px 7px rgba(0, 0, 0, 0.7));
+        width: 75%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        /*background: repeating-conic-gradient(from var(--a),#e8e8e8 0%,#e8e8e8 5%,transparent 5%,transparent 40%,#e8e8e8 50%);*/
+        /*animation: animate 20s linear infinite;*/
+    }
+
+    @@property --a {
+        syntax: '<angle>';
+        inherits: false;
+        initial-value: 0deg;
+    }
+
+    @@keyframes animate {
+        0% {
+            --a: 0deg;
+        }
+
+        100% {
+            --a: 360deg;
+        }
+    }
+
+
+    img[usemap='#veg'] {
+        /*width: 100%;*/
+        height: 98%;
+        object-fit: cover;
+    }
+
+    td {
+        font-size: 8px;
+        padding-right: 0rem;
+        padding-left: 0rem;
+    }
+
+    div[name='card'] {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        background-color: rgba(0,0,0,.2);
+    }
+
+    div[name='cHeader'] {
+        color: white;
+        font-weight: 600;
+        /*text-align: center;*/
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: absolute;
+    }
+
+        div[name='cHeader'] a {
+            font-size: 20px;
+        }
+
+    td {
+        color: white;
+    }
+
+    .panel {
+        /* 边框 */
+        box-sizing: border-box;
+        border: 0rem solid red;
+        border-image: url('../img/border.png') 51 38 21 132;
+        border-width: 3rem 2.5rem 3rem 2.5rem;
+        position: relative;
+        margin-bottom: 0.833rem;
+    }
+
+        .panel .inner {
+            /* 装内容 */
+            /* height: 60px; */
+            position: absolute;
+            top: -2.125rem;
+            right: -1.583rem;
+            bottom: -0.875rem;
+            left: -5.5rem;
+            padding: 1rem 1.5rem;
+        }
+
+    .monitor {
+        height: 100%;
+    }
+
+        .monitor .inner {
+            padding: 1rem 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+    .tooltip-text {
+        visibility: hidden;
+        position: absolute;
+        z-index: 3;
+        width: 200px;
+        color: black;
+        font-size: 15px;
+        background-color: #ededed;
+        border-radius: 5px;
+        padding: 5px 10px 5px 10px;
+        top: 25px;
+        left: -5%;
+    }
+
+        .tooltip-text::before {
+            content: "";
+            position: absolute;
+            transform: rotate(45deg);
+            background-color: #ededed;
+            padding: 5px;
+            z-index: -1;
+        }
+
+    .eqArea:hover .tooltip-text {
+        visibility: visible;
+    }
+
+    .tooltip-text::before {
+        top: -15%;
+        left: 15%;
+    }
+
+    .autoscrollable-wrapper {
+        overflow: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
+        width: 100%;
+        height: 100%;
+    }
+
+        .autoscrollable-wrapper::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .autoscrollable-wrapper::-webkit-scrollbar-button {
+            background: transparent;
+            border-radius: 4px;
+        }
+
+        .autoscrollable-wrapper::-webkit-scrollbar-track-piece {
+            background: transparent;
+        }
+
+        .autoscrollable-wrapper::-webkit-scrollbar-thumb {
+            border-radius: 4px;
+            /*background-color: #b5b5b5;*/
+            border: 1px solid slategrey;
+            opacity: 0.2;
+        }
+
+        .autoscrollable-wrapper::-webkit-scrollbar-track {
+            box-shadow: transparent;
+        }
+
+    thead, tr > th {
+        position: sticky;
+        background: rgba(0,0,0,.8);
+    }
+
+    thead {
+        top: -1;
+        z-index: 2;
+    }
+</style>
+
+<head>
+    <link rel="icon" href="~/img/carux_logo_n.ico" type="image/x-icon" sizes="16x16" />
+    <title>CarUX TT監控看板⏱</title>
+    <link rel="stylesheet" href="~/img/monitorBG.png">
+    <link rel="stylesheet" href="~/img/border.png">
+    <link rel="stylesheet" href="~/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+
+<body class="bg-theme">
+    <div class="card-header" style="height: 7%;text-align:center">
+        <img class="titleImg" style="width:80%" src="~/img/titleTransparent_1.png" />
+    </div>
+    <partial name="_PartialClock" />
+    <div id="app" class="card-body" style="height: 91%;">
+        <div name="alaemMap">
+            <div style="height: 7%;">
+                <h3 style="color: white;font-family:'Trebuchet MS'">Factory map</h3>
+            </div>
+            <div style="display: flex; height: 90%;">
+
+                <div name="mapDiv" style="width: 75%; height: 100%;">
+                    <div class="eqArea" :id="eq.eqNumber" v-for="eq in eqDataInfo" :style="eq" @@mouseover="areaMouseover(eq)" @@mouseout="hideEQInfo(eq)">
+                        <span v-if="eq.perfInfo.alarmMsg != '' && eq.perfInfo.alarmMsg != null" class="tooltip-text">{{eq.perfInfo.alarmMsg}}</span>
+                    </div>
+                    <canvas id="myCanvas">
+                    </canvas>
+                </div>
+
+                <div class="box" style="width: 25%;">
+
+                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); right: 10%;">
+                        <a>本日產品設備TT</a>
+                    </div>
+                    <div class="monitor panel autoscrollable-wrapper" @@mouseover="stopInterval(this)" @@mouseout="setScrollInterval()">
+                        <div>
+                            <h3 style="color: white; font-weight: 700; ">{{showEqTTInfo.prodDesc}}</h3>
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr style="color:white">
+                                    <th style="text-align:center">站點</th>
+                                    <th style="text-align:center">EQ</th>
+                                    <th style="text-align:center">目標TT</th>
+                                    <th style="text-align:center">實際TT</th>
+                                    <th style="text-align:center">燈號</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="detail in showEqTTInfo.detailTTInfo">
+                                    <td style="text-align:center">{{detail.node}}</td>
+                                    <td style="text-align:center">{{detail.equipmentNo}}</td>
+                                    <td style="text-align:center">{{detail.targetTackTime}}</td>
+                                    <td style="text-align:center">{{detail.tackTime}}</td>
+                                    <td v-if="detail.ttWarningLevelId == 1">
+                                        <div style="margin-left: 45%; width: 1rem; height: 1rem; border-radius: 99em; background-color: forestgreen; display: inline-block; "></div>
+                                    </td>
+                                    <td v-if="detail.ttWarningLevelId == 2" >
+                                        <div style="margin-left: 45%; width: 1rem; height: 1rem; border-radius: 99em; background-color: yellow; display: inline-block; "></div>
+                                    </td>
+                                    <td v-if="detail.ttWarningLevelId == 3" >
+                                        <div style="margin-left: 45%; width: 1rem; height: 1rem; border-radius: 99em; background-color: darkred; display: inline-block; "></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/plugins/popper/popper_v3.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+<script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
+<script src="~/js/jquery.imagemapster.js"></script>
+<script src="~/plugins/vue/vue.min.js"></script>
+<script>
+
+    const vue = new Vue({
+        el: '#app',
+        data: {
+            isFullscreen: false,
+            reRate: 1,
+            moveX: 0,
+            moveY: 0,
+            trunCnt: 0,
+            showIdx: 0,
+            turnProdTTInterval: null,
+            refreshProdTTInterval: null,
+            scrollInterval: null,
+            dailyEqTTInfo: [],
+            showEqTTInfo: {},
+            EqTTInfo: [],
+            eqDataInfo:[],
+            eqPerfInfo: {
+                area: '',
+                eqNo: '',
+                prod: '',
+                passQty: '',
+            }
+        },
+        methods: {
+            stopInterval(e) {
+                clearInterval(vue.scrollInterval);
+            },
+            setScrollInterval() {
+                this.scrollInterval = setInterval(function () {
+                    vue.scrollingRow();
+                }, 100);
+            },
+            scrollingRow() {
+                var elems = $('.autoscrollable-wrapper');
+                elems.each(function (idx, div) {
+                    div.scrollTop = div.scrollTop + 1;          
+                    const _scrollLen = Math.ceil(div.scrollTop);
+                    if (div.scrollHeight - _scrollLen == div.clientHeight) {
+                        div.scrollTop = 0;
+                    }
+                });
+            },
+            pageResize(isResize, isFullscreen) {
+                var canvas = document.getElementById("myCanvas");
+                var context = canvas.getContext("2d");
+
+                var _divWidth = $("div[name='mapDiv']").width();
+                var _divHeight = $("div[name='mapDiv']").height();
+
+                canvas.height = _divHeight;
+                canvas.width = _divWidth;
+
+                //alert(_divWidth + '_' + _divHeight);
+
+                var imgObject = new Image();
+                imgObject.src = "../img/fabLayoutNew.png";
+
+                imgObject.addEventListener('load', function () {
+                    var setW = imgObject.width;
+                    var setH = imgObject.height;
+                    if ((_divHeight / _divWidth) > (setH / setW)) {
+                        vue.reRate = _divWidth / setW;
+                        setH = setH * vue.reRate;
+                        setW = _divWidth;
+                        vue.moveX = 0;
+                        vue.moveY = (_divHeight - setH) / 2;
+                    }
+                    else {
+                        vue.reRate = _divHeight / setH;
+                        setH = _divHeight;
+                        setW = setW * vue.reRate;
+                        vue.moveX = (_divWidth - setW) / 2;
+                        vue.moveY = 0;
+                    }
+                    context.drawImage(imgObject, vue.moveX, vue.moveY, setW, setH);
+                    if (isFullscreen || vue.moveX != 0 || vue.moveY != 0) {
+                        vue.areaResize(vue.moveX, vue.moveY, setW, setH, vue.reRate);
+                    }
+                    else if (isResize & !isFullscreen) {
+                        vue.areaResize(vue.moveX, vue.moveY, setW, setH, vue.reRate);
+                    }
+                    //context.strokeRect(100, 100, 250, 100);
+                });
+            },
+            wrapMapEqPerInfo(eqPerData) {
+
+                this.eqDataInfo = [];
+                this.frontAlarms = [];
+                this.backendAlarms = [];
+
+                for (var i = 0; i < eqPerData.length; i++) {
+
+                    const _eqData = {
+                        eqNumber: eqPerData[i].eqNumber,
+                        position: 'absolute',
+                        border: '3px dashed ' + eqPerData[i].border,
+                        defTopRate: eqPerData[i].defTopRate,
+                        defLeftRate: eqPerData[i].defLeftRate,
+                        top: 0,
+                        left: 0,
+                        defWidth: eqPerData[i].defWidth,
+                        defHeight: eqPerData[i].defHeight,
+                        width: 0,
+                        height: 0,
+                        background: eqPerData[i].background,
+                        origBackground: eqPerData[i].background,
+                        defOpacity: 0.5,
+                        'text-align': 'center',
+                        perfInfo: {}
+                    };
+
+                    _eqData.perfInfo.area = eqPerData[i].area;
+                    _eqData.perfInfo.eqNo = eqPerData[i].eqNumber;
+                    _eqData.perfInfo.prod = eqPerData[i].prodNo;
+                    _eqData.perfInfo.passQty = eqPerData[i].passQty;
+                    _eqData.perfInfo.alarmMsg = '';
+
+                    if (eqPerData[i].comment != '') {
+                        if (eqPerData[i].isFrontEnd) {
+                            this.frontAlarms.push(
+                                {
+                                    comment: eqPerData[i].comment,
+                                    eqNumber: eqPerData[i].eqNumber,
+                                    prodNo: eqPerData[i].prodNo,
+                                    startTime: eqPerData[i].startTime,
+                                });
+                            _eqData.background = 'rgba(255, 0, 0,' + 0.7 + ')';
+                            _eqData.perfInfo.alarmMsg = eqPerData[i].comment;
+                        }
+                        else {
+                            this.backendAlarms.push(
+                                {
+                                    comment: eqPerData[i].comment,
+                                    eqNumber: eqPerData[i].eqNumber,
+                                    prodNo: eqPerData[i].prodNo,
+                                    startTime: eqPerData[i].startTime,
+                                });
+                            _eqData.background = 'rgba(255, 0, 0,' + 0.7 + ')';
+                            _eqData.perfInfo.alarmMsg = eqPerData[i].comment;
+                        }
+                    }
+
+                    this.eqDataInfo.push(_eqData);
+                }
+            },
+            areaResize(mX, mY, imgW, imgH, reRate) {
+
+                //for (var i = 0; i < vue.eqDataInfo.length; i++) {
+                //    vue.eqDataInfo[i].top = (vue.eqDataInfo[i].defTopRate * imgH) + mY;
+                //    vue.eqDataInfo[i].left = (vue.eqDataInfo[i].defLeftRate * imgW) + mX;
+                //    vue.eqDataInfo[i].width = vue.eqDataInfo[i].defWidth * reRate;
+                //    vue.eqDataInfo[i].height = vue.eqDataInfo[i].defHeight * reRate;
+                //}
+            },
+            areaMouseover(e) {
+                clearInterval(vue.carouselInterval);
+                vue.showEQInfo(e);
+            },
+            setRefreshProdTTInterval() {
+                this.refreshProdTTInterval = setInterval(function () {
+                    vue.eqTTRefreshInterval();
+                }, 300000);
+            },
+            setTurnShowProdTTInterval() {
+                this.turnProdTTInterval = setInterval(function () {
+                    vue.turnShowProdTTIndex();
+                }, 10000);
+            },
+            showEQInfo(e) {
+
+                $.each(vue.eqDataInfo, function (idx, item) {
+                    if (item.perfInfo.alarmMsg != '') {
+                        item.background = 'rgba(255, 0, 0,0.7)';
+                    }
+                    else {
+                        item.background = item.origBackground.split('.')[0] + item.defOpacity + ')';
+                    }
+                });
+
+                const _currEqInfo = $.grep(vue.eqDataInfo, function(item) {
+                    return item.eqNumber == e.eqNumber;
+                });
+
+                vue.eqPerfInfo.area = _currEqInfo[0].perfInfo.area;
+                vue.eqPerfInfo.eqNo = _currEqInfo[0].perfInfo.eqNo;
+                vue.eqPerfInfo.prod = _currEqInfo[0].perfInfo.prod;
+                vue.eqPerfInfo.passQty = _currEqInfo[0].perfInfo.passQty.toString();
+
+                if (_currEqInfo[0].perfInfo.alarmMsg != '') {
+                    _currEqInfo[0].background = 'rgba(255, 0, 0, .9)';
+                }
+                else {
+                    _currEqInfo[0].background = _currEqInfo[0].background.split('.')[0] + '.9)';
+                }
+            },
+            hideEQInfo(e) {
+
+                vue.setCarouselInterval();
+
+                vue.eqPerfInfo.area = '';
+                vue.eqPerfInfo.eqNo = '';
+                vue.eqPerfInfo.prod = '';
+                vue.eqPerfInfo.passQty = '';
+
+                if (e.perfInfo.alarmMsg != '') {
+                    e.background = 'rgba(255, 0, 0,0.7)';
+                }
+                else {
+                    e.background = e.origBackground.split('.')[0] + e.defOpacity + ')';
+                }
+            },
+            eqMapProdPerInterval() {
+                $.ajax({
+                    url: "./Monitor/MapProdPerInfo",
+                    type: "GET",
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result.isSuccess) {
+                            vue.wrapMapEqPerInfo(result.data.eqInfoList)
+                            vue.pageResize(false, vue.isFullscreen);
+                        }
+                        else {
+                            vue.toast.fire({
+                                icon: 'error',
+                                title: result.msg
+                            });
+                        }
+                    }
+                });
+            },
+            eqTTRefreshInterval() {
+                $.ajax({
+                    url: "./TackTimeBlock",
+                    type: "GET",
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result.isSuccess) {
+                            vue.dailyEqTTInfo = result.data;
+                            vue.showEqTTInfo = vue.dailyEqTTInfo[vue.showIdx];
+                        }
+                        else {
+                            vue.toast.fire({
+                                icon: 'error',
+                                title: result.msg
+                            });
+                        }
+                    }
+                });
+            },
+            turnShowProdTTIndex() {
+
+                vue.showIdx++;
+
+                if (vue.showIdx > (vue.dailyEqTTInfo.length - 1)) {
+                    vue.showIdx = 0;
+                }
+
+                vue.showEqTTInfo = vue.dailyEqTTInfo[vue.showIdx];
+
+            }
+        },
+        mounted: function () {
+            this.dailyEqTTInfo = @(Html.Raw(Json.Serialize(Model)));
+            this.showEqTTInfo = this.dailyEqTTInfo[this.showIdx];
+
+            if (window.innerHeight === screen.height) {
+                this.isFullscreen = true;
+            }
+
+            //if (_model.eqInfoList != null) {
+            //    this.wrapMapEqPerInfo(_model.eqInfoList);
+            //}
+
+            //this.dailyTOPAlarms = _model.alarmDayTop;
+
+            this.pageResize(false, this.isFullscreen);
+
+            this.setTurnShowProdTTInterval();
+            this.setRefreshProdTTInterval();
+
+            //this.setScrollInterval();
+        },
+        computed: {
+
+        }
+    });
+
+    window.onresize = function (event) {
+        if (window.innerHeight === screen.height) {
+            this.isFullscreen = true;
+        }
+        else {
+            this.isFullscreen = false;
+        }
+
+        vue.pageResize(true, this.isFullscreen);
+    }
+
+</script>
