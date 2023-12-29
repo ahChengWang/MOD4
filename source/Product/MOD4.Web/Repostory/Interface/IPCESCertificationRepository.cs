@@ -19,5 +19,7 @@ namespace MOD4.Web.Repostory
         int InsertPCESRecord(List<PCESCertificationRecordDao> daoList);
 
         int UpdatePCESRecord(List<PCESCertificationRecordDao> daoList);
+
+        int InsertPCESRaw(List<PCESCertificationRawDataDao> rawList);
     }
 }

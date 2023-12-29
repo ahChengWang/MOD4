@@ -146,5 +146,52 @@ Where apply_no=@apply_no and apply_name=@apply_name and main_oper=@main_oper and
 
             return dao;
         }
+
+        public int InsertPCESRaw(List<PCESCertificationRawDataDao> rawList)
+        {
+            string sql = @"
+INSERT INTO [carUX_2f].[dbo].[pces_certification_raw_data]
+([apply_no]
+,[apply_name]
+,[shift]
+,[main_oper]
+,[station]
+,[type]
+,[mtype]
+,[class_name]
+,[lic_type]
+,[status]
+,[pass_date]
+,[valid_date]
+,[subj_grade]
+,[skill_grade]
+,[eng_no]
+,[eng_name]
+,[skill_status]
+,[remark])
+VALUES
+(@apply_no
+,@apply_name
+,@shift
+,@main_oper
+,@station
+,@type
+,@mtype
+,@class_name
+,@lic_type
+,@status
+,@pass_date
+,@valid_date
+,@subj_grade
+,@skill_grade
+,@eng_no
+,@eng_name
+,@skill_status
+,@remark); ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, rawList);
+
+            return dao;
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace MOD4.Web.ViewModel
+﻿using MOD4.Web.Enum;
+
+namespace MOD4.Web.ViewModel
 {
     public class MonitorEqInfoViewModel
     {
@@ -33,5 +35,11 @@
         public string Area { get; set; }
 
         public string PassQty { get; set; }
+
+        // for tack time monitor
+
+        public string TackTime { get; set; }
+
+        public TTWarningLevelEnum TTWarningLevelId { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿@model List<MOD4.Web.ViewModel.MonitorProdEqTTViewModel>
+﻿@model MOD4.Web.ViewModel.MonitorEqTTViewModel
 
 @{
     Layout = null;
@@ -84,7 +84,7 @@
         box-sizing: border-box;
         border: 0rem solid red;
         border-image: url('../img/border.png') 51 38 21 132;
-        border-width: 3rem 2.5rem 3rem 2.5rem;
+        border-width: 3rem 2rem 3rem 2rem;
         position: relative;
         margin-bottom: 0.833rem;
     }
@@ -103,6 +103,12 @@
     .monitor {
         height: 100%;
     }
+
+        .monitor > div:first-child > h3 {
+            color: white;
+            font-weight: 700;
+            font-size: 1.5vw;
+        }
 
         .monitor .inner {
             padding: 1rem 0;
@@ -174,15 +180,69 @@
             box-shadow: transparent;
         }
 
-    thead, tr > th {
-        position: sticky;
-        background: rgba(0,0,0,.8);
+    table > th {
+        text-align: center;
     }
 
-    thead {
-        top: -1;
-        z-index: 2;
+    table > thead > tr:first-child {
+        font-size: 1.2vw;
+        color: white;
+        text-align: center;
     }
+
+    table > tbody > tr {
+        text-align: center;
+        font-size: 0.8vw;
+    }
+
+    .eqArea {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: 500;
+        color: white;
+        font-size: 0.5vw;
+    }
+
+    .modal-title {
+        font-size: 3vh;
+        color: white;
+    }
+
+    .myModal-dialog {
+        max-width: 90vw;
+        max-height: 90vh;
+        margin-top: 1.75rem;
+        margin-right: auto;
+        margin-bottom: 1.75rem;
+        margin-left: auto;
+    }
+
+    .myModal-content {
+        background-color: black;
+        opacity: 0.9;
+    }
+
+    .modal-body > div:first-child > div {
+        background: rgb(255, 255, 255,0.3);
+        border-radius: 0.3rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        color: white;
+        font-size: 1.5vw;
+        font-weight: 600;
+        padding: 5px;
+    }
+
+        .modal-body > div:first-child > div:nth-child(2) {
+            margin-left: 0.5vw;
+        }
+
+        .modal-body > div:first-child > div:nth-child(3) {
+            margin-left: 0.5vw;
+        }
 </style>
 
 <head>
@@ -192,6 +252,7 @@
     <link rel="stylesheet" href="~/img/border.png">
     <link rel="stylesheet" href="~/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.css">
 </head>
 
 <body class="bg-theme">
@@ -207,46 +268,63 @@
             <div style="display: flex; height: 90%;">
 
                 <div name="mapDiv" style="width: 75%; height: 100%;">
-                    <div class="eqArea" :id="eq.eqNumber" v-for="eq in eqDataInfo" :style="eq" @@mouseover="areaMouseover(eq)" @@mouseout="hideEQInfo(eq)">
-                        <span v-if="eq.perfInfo.alarmMsg != '' && eq.perfInfo.alarmMsg != null" class="tooltip-text">{{eq.perfInfo.alarmMsg}}</span>
+                    <div class="eqArea" :id="eq.eqNumber" v-for="eq in eqTTInfo" v-if="eq.ttWarningLevelId == 1" :style="eq" data-toggle="modal" @@click="areaMouseClick(eq)" :data-target="ttModalId">
+                        {{eq.tackTime}}
+                        @*<span name="tt" v-if="eq.ttWarningLevelId == 1">{{eq.tackTime}}</span>
+                            <span name="tt" v-if="eq.ttWarningLevelId == 2">{{eq.tackTime}}</span>
+                            <span name="tt" v-if="eq.ttWarningLevelId == 3">{{eq.tackTime}}</span>*@
+                        @*@@mouseout="hideEQInfo(eq)">*@
+                        @*<span v-if="eq.perfInfo.alarmMsg != '' && eq.perfInfo.alarmMsg != null" class="tooltip-text">{{eq.perfInfo.alarmMsg}}</span>*@
+                    </div>
+                    <div class="eqArea" :id="eq.eqNumber" v-for="eq in eqTTInfo" v-if="eq.ttWarningLevelId == 2" :style="eq" data-toggle="modal" @@click="areaMouseClick(eq)" :data-target="ttModalId">
+                        {{eq.tackTime}}
+                    </div>
+                    <div class="eqArea" :id="eq.eqNumber" v-for="eq in eqTTInfo" v-if="eq.ttWarningLevelId == 3" :style="eq" data-toggle="modal" @@click="areaMouseClick(eq)" :data-target="ttModalId">
+                        {{eq.tackTime}}
+                    </div>
+                    <div class="eqArea" :id="eq.eqNumber" v-for="eq in eqTTInfo" v-if="eq.ttWarningLevelId == 0" :style="eq" data-toggle="modal" @@click="areaMouseClick(eq)" :data-target="ttModalId">
+                        {{eq.tackTime}}
                     </div>
                     <canvas id="myCanvas">
                     </canvas>
                 </div>
 
-                <div class="box" style="width: 25%;">
+                <div class="box" style="width: 28vw;">
 
-                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); right: 10%;">
+                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); right: 10vw;">
                         <a>本日產品設備TT</a>
                     </div>
                     <div class="monitor panel autoscrollable-wrapper" @@mouseover="stopInterval(this)" @@mouseout="setScrollInterval()">
                         <div>
-                            <h3 style="color: white; font-weight: 700; ">{{showEqTTInfo.prodDesc}}</h3>
+                            <h3>{{showEqTTInfo.prodDesc}}</h3>
                         </div>
                         <table class="table">
                             <thead>
-                                <tr style="color:white">
-                                    <th style="text-align:center">站點</th>
-                                    <th style="text-align:center">EQ</th>
-                                    <th style="text-align:center">目標TT</th>
-                                    <th style="text-align:center">實際TT</th>
-                                    <th style="text-align:center">燈號</th>
+                                <tr>
+                                    <th>站點</th>
+                                    <th>EQ</th>
+                                    <th>目標TT</th>
+                                    <th>實際TT</th>
+                                    <th>燈號</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="detail in showEqTTInfo.detailTTInfo">
-                                    <td style="text-align:center">{{detail.node}}</td>
-                                    <td style="text-align:center">{{detail.equipmentNo}}</td>
-                                    <td style="text-align:center">{{detail.targetTackTime}}</td>
-                                    <td style="text-align:center">{{detail.tackTime}}</td>
+                                    <td>{{detail.node}}</td>
+                                    <td>{{detail.equipmentNo}}</td>
+                                    <td>{{detail.targetTackTime}}</td>
+                                    <td>{{detail.tackTime}}</td>
+                                    <td v-if="detail.ttWarningLevelId == 0">
+                                        <div style="margin-left: 0.1vw; width: 1rem; height: 1rem; "></div>
+                                    </td>
                                     <td v-if="detail.ttWarningLevelId == 1">
-                                        <div style="margin-left: 45%; width: 1rem; height: 1rem; border-radius: 99em; background-color: forestgreen; display: inline-block; "></div>
+                                        <div style="margin-left: 0.1vw; width: 1rem; height: 1rem; border-radius: 99em; background-color: forestgreen; display: inline-block; "></div>
                                     </td>
-                                    <td v-if="detail.ttWarningLevelId == 2" >
-                                        <div style="margin-left: 45%; width: 1rem; height: 1rem; border-radius: 99em; background-color: yellow; display: inline-block; "></div>
+                                    <td v-if="detail.ttWarningLevelId == 2">
+                                        <div style="margin-left: 0.1vw; width: 1rem; height: 1rem; border-radius: 99em; background-color: yellow; display: inline-block; "></div>
                                     </td>
-                                    <td v-if="detail.ttWarningLevelId == 3" >
-                                        <div style="margin-left: 45%; width: 1rem; height: 1rem; border-radius: 99em; background-color: darkred; display: inline-block; "></div>
+                                    <td v-if="detail.ttWarningLevelId == 3">
+                                        <div style="margin-left: 0.1vw; width: 1rem; height: 1rem; border-radius: 99em; background-color: darkred; display: inline-block; "></div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -254,6 +332,54 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+
+        <!-- Modal Detail -->
+        <div class="modal" id="ttModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="myModal-dialog">
+                <div class="myModal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{eqTTDetail.title}}本日TT</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="d-flex" style="padding: 1rem;">
+                        <div class="col-lg-1" style="font-size: 1vw; color: rgb(255, 255, 255); display: flex; justify-content: center; align-items: center;">
+                            機種:
+                        </div>
+                        <div class="col-lg-2" style="font-size: 1vw;">
+                            <select style="background-color: rgb(255, 255, 255, 0.6);" v-model="prodSelected" @@change="chartOptoinChange">
+                                <option v-for="prod in prodOptions" :value="prod">{{prod}}</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2" style="font-size: 1vw; color: rgb(255, 255, 255); display: flex; justify-content: center; align-items: center;">
+                            操作人員:
+                        </div>
+                        <div class="col-lg-2" style="font-size: 1vw;">
+                            <select style="background-color: rgb(255, 255, 255, 0.6);" v-model="oprSelected" @@change="chartOptoinChange">
+                                <option v-for="opr in oprOptions" :value="opr">{{opr}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="d-flex">
+                            <div class="col-lg-3 d-flex">
+                                <div class="col-lg-7">MAX.</div>
+                                <div class="col-lg-5">{{modalObj.MAX}}(s)</div>
+                            </div>
+                            <div class="col-lg-3 d-flex">
+                                <div class="col-lg-7">min.</div>
+                                <div class="col-lg-5">{{modalObj.min}}(s)</div>
+                            </div>
+                            <div class="col-lg-3 d-flex">
+                                <div class="col-lg-7">中位數</div>
+                                <div class="col-lg-5">{{modalObj.medianTT}}(s)</div>
+                            </div>
+                        </div>
+                        <br />
+                        <div id="ttChart"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -264,8 +390,9 @@
 <script src="~/plugins/popper/popper_v3.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
 <script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
-<script src="~/js/jquery.imagemapster.js"></script>
 <script src="~/plugins/vue/vue.min.js"></script>
+<script src="~/lib/echarts/echarts.js"></script>
+<script src="~/plugins/sweetalert2/sweetalert2.min.js"></script>
 <script>
 
     const vue = new Vue({
@@ -277,19 +404,40 @@
             moveY: 0,
             trunCnt: 0,
             showIdx: 0,
+            ttModalId: '',
             turnProdTTInterval: null,
             refreshProdTTInterval: null,
             scrollInterval: null,
+            allPageData: [],
             dailyEqTTInfo: [],
+            areaEqTTInfo: [],
+            modalEqTTHisData: [],
             showEqTTInfo: {},
-            EqTTInfo: [],
-            eqDataInfo:[],
-            eqPerfInfo: {
-                area: '',
-                eqNo: '',
-                prod: '',
-                passQty: '',
-            }
+            prodOptions: [],
+            prodSelected: "",
+            oprOptions: [],
+            oprSelected: "",
+            modalObj: {
+                MAX: 0,
+                min: 0,
+                medianTT: 0,
+            },
+            eqTTInfo:[],
+            eqTTDetail: {
+                title: '',
+                ttMin: '',
+                ttMax: '',
+                ttMedian: '',
+                ttHistory: [],
+            },
+            ttChartObj: {},
+            chartOption: {},
+            toast: Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 5000
+            }),
         },
         methods: {
             stopInterval(e) {
@@ -303,7 +451,7 @@
             scrollingRow() {
                 var elems = $('.autoscrollable-wrapper');
                 elems.each(function (idx, div) {
-                    div.scrollTop = div.scrollTop + 1;          
+                    div.scrollTop = div.scrollTop + 1;
                     const _scrollLen = Math.ceil(div.scrollTop);
                     if (div.scrollHeight - _scrollLen == div.clientHeight) {
                         div.scrollTop = 0;
@@ -323,7 +471,7 @@
                 //alert(_divWidth + '_' + _divHeight);
 
                 var imgObject = new Image();
-                imgObject.src = "../img/fabLayoutNew.png";
+                imgObject.src = "../img/fab_layout/fabLayout2F_frame_resize.png";
 
                 imgObject.addEventListener('load', function () {
                     var setW = imgObject.width;
@@ -354,16 +502,14 @@
             },
             wrapMapEqPerInfo(eqPerData) {
 
-                this.eqDataInfo = [];
-                this.frontAlarms = [];
-                this.backendAlarms = [];
+                this.eqTTInfo = [];
 
                 for (var i = 0; i < eqPerData.length; i++) {
 
                     const _eqData = {
                         eqNumber: eqPerData[i].eqNumber,
                         position: 'absolute',
-                        border: '3px dashed ' + eqPerData[i].border,
+                        border: '1px dashed ' + eqPerData[i].border,
                         defTopRate: eqPerData[i].defTopRate,
                         defLeftRate: eqPerData[i].defLeftRate,
                         top: 0,
@@ -376,55 +522,152 @@
                         origBackground: eqPerData[i].background,
                         defOpacity: 0.5,
                         'text-align': 'center',
-                        perfInfo: {}
+                        tackTime: eqPerData[i].tackTime,
+                        ttWarningLevelId: eqPerData[i].ttWarningLevelId,
                     };
 
-                    _eqData.perfInfo.area = eqPerData[i].area;
-                    _eqData.perfInfo.eqNo = eqPerData[i].eqNumber;
-                    _eqData.perfInfo.prod = eqPerData[i].prodNo;
-                    _eqData.perfInfo.passQty = eqPerData[i].passQty;
-                    _eqData.perfInfo.alarmMsg = '';
-
-                    if (eqPerData[i].comment != '') {
-                        if (eqPerData[i].isFrontEnd) {
-                            this.frontAlarms.push(
-                                {
-                                    comment: eqPerData[i].comment,
-                                    eqNumber: eqPerData[i].eqNumber,
-                                    prodNo: eqPerData[i].prodNo,
-                                    startTime: eqPerData[i].startTime,
-                                });
-                            _eqData.background = 'rgba(255, 0, 0,' + 0.7 + ')';
-                            _eqData.perfInfo.alarmMsg = eqPerData[i].comment;
-                        }
-                        else {
-                            this.backendAlarms.push(
-                                {
-                                    comment: eqPerData[i].comment,
-                                    eqNumber: eqPerData[i].eqNumber,
-                                    prodNo: eqPerData[i].prodNo,
-                                    startTime: eqPerData[i].startTime,
-                                });
-                            _eqData.background = 'rgba(255, 0, 0,' + 0.7 + ')';
-                            _eqData.perfInfo.alarmMsg = eqPerData[i].comment;
-                        }
+                    if (eqPerData[i].ttWarningLevelId == 1) {
+                        _eqData.background = 'rgba(0, 255, 97, 0.6)';
+                    }
+                    else if (eqPerData[i].ttWarningLevelId == 2) {
+                        _eqData.background = 'rgba(255, 242, 0, 0.6)';
+                    }
+                    else if (eqPerData[i].ttWarningLevelId == 3) {
+                        _eqData.background = 'rgba(255, 0, 0, 0.6)';
+                    }
+                    else {
+                        _eqData.background = 'rgba(255, 255, 255, 0.6)';
                     }
 
-                    this.eqDataInfo.push(_eqData);
+                    this.eqTTInfo.push(_eqData);
                 }
             },
             areaResize(mX, mY, imgW, imgH, reRate) {
 
-                //for (var i = 0; i < vue.eqDataInfo.length; i++) {
-                //    vue.eqDataInfo[i].top = (vue.eqDataInfo[i].defTopRate * imgH) + mY;
-                //    vue.eqDataInfo[i].left = (vue.eqDataInfo[i].defLeftRate * imgW) + mX;
-                //    vue.eqDataInfo[i].width = vue.eqDataInfo[i].defWidth * reRate;
-                //    vue.eqDataInfo[i].height = vue.eqDataInfo[i].defHeight * reRate;
-                //}
+                for (var i = 0; i < vue.eqTTInfo.length; i++) {
+                    vue.eqTTInfo[i].top = (vue.eqTTInfo[i].defTopRate * imgH) + mY;
+                    vue.eqTTInfo[i].left = (vue.eqTTInfo[i].defLeftRate * imgW) + mX;
+                    vue.eqTTInfo[i].width = vue.eqTTInfo[i].defWidth * reRate;
+                    vue.eqTTInfo[i].height = vue.eqTTInfo[i].defHeight * reRate;
+                }
             },
-            areaMouseover(e) {
-                clearInterval(vue.carouselInterval);
-                vue.showEQInfo(e);
+            areaMouseClick(e) {
+                $.ajax({
+                    url: "./EqTTHistory/" + e.eqNumber,
+                    type: "GET",
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result.isSuccess) {
+                            vue.modalEqTTHisData = result.data;
+                            vue.prodOptions = [];
+                            vue.oprOptions = [];
+
+                            if (result.data.length == 0) {
+                                vue.ttChartObj.clear();
+                                vue.modalObj.MAX = 0;
+                                vue.modalObj.min = 0;
+                                vue.modalObj.medianTT = 0;
+                                vue.prodOptions = [];
+                                vue.prodSelected = '';
+                                vue.oprOptions = [];
+                                vue.oprSelected = '';
+                            }
+                            else {
+                                result.data.forEach(function (item, idx) {
+                                    if (idx == 0) {
+                                        vue.modalObj.MAX = item.maxTT;
+                                        vue.modalObj.min = item.minTT;
+                                        vue.modalObj.medianTT = item.medianTT;
+                                        vue.prodSelected = item.prodNo;
+                                        vue.oprSelected = item.operator;
+                                    }
+                                    vue.prodOptions.push(item.prodNo);
+                                    vue.oprOptions.push(item.operator);
+                                });
+                                $.unique(vue.prodOptions);
+                                $.unique(vue.oprOptions);
+
+                                vue.wrapLineChart(result.data[0]);
+                            }
+                        }
+                        else {
+                            vue.toast.fire({
+                                icon: 'warning',
+                                title: result.msg + '\r\n未設定target'
+                            });
+                        }
+                    }
+                });
+                vue.ttModalId = '#ttModal';
+                vue.eqTTDetail.title = e.eqNumber;
+            },
+            wrapLineChart(detail) {
+
+                var _chartHeight = $(document).height() * 0.5;
+                $("#ttChart").css("width", '88vw');
+                $("#ttChart").css("height", _chartHeight);
+                $("#ttChart").css("background", "rgb(255, 255, 255, 0.8)");
+                var _chartDom = document.getElementById('ttChart');
+                vue.ttChartObj = echarts.init(_chartDom, 'dark');
+
+                const _dataAry = [];
+                const _targetAry = [];
+                const _xAxisAry = [];
+
+                detail.eqTTDetailList.forEach(function (item, idx) {
+                    _xAxisAry.push(item.transDateStr);
+                    _dataAry.push(item.tackTime);
+                    _targetAry.push(item.timeTarget);
+                });
+
+                vue.chartOption = {
+                    xAxis: {
+                        name: '時間',
+                        type: 'category',
+                        data: _xAxisAry,
+                    },
+                    yAxis: {
+                        name: '秒數(s)'
+                    },
+                    dataZoom: [
+                        {
+                            type: 'inside',
+                            start: 80,
+                            end: 100
+                        },
+                        {
+                            start: 80,
+                            end: 100
+                        }
+                    ],
+                    tooltip: {
+                        trigger: 'axis',
+                    },
+                    series: [
+                        {
+                            data: _targetAry,
+                            type: 'line',
+                            itemStyle: {
+                                color: '#bf1111'
+                            }
+                        },
+                        {
+                            data: _dataAry,
+                            type: 'line',
+                            itemStyle: {
+                                color: '#a60a0a',
+                                normal: {
+                                    label: {
+                                        show: true
+                                    }
+                                }
+                            },
+                            symbolSize: 3
+                        }
+                    ]
+                };
+                vue.ttChartObj.setOption(vue.chartOption);
+                vue.ttChartObj.resize();
             },
             setRefreshProdTTInterval() {
                 this.refreshProdTTInterval = setInterval(function () {
@@ -435,49 +678,6 @@
                 this.turnProdTTInterval = setInterval(function () {
                     vue.turnShowProdTTIndex();
                 }, 10000);
-            },
-            showEQInfo(e) {
-
-                $.each(vue.eqDataInfo, function (idx, item) {
-                    if (item.perfInfo.alarmMsg != '') {
-                        item.background = 'rgba(255, 0, 0,0.7)';
-                    }
-                    else {
-                        item.background = item.origBackground.split('.')[0] + item.defOpacity + ')';
-                    }
-                });
-
-                const _currEqInfo = $.grep(vue.eqDataInfo, function(item) {
-                    return item.eqNumber == e.eqNumber;
-                });
-
-                vue.eqPerfInfo.area = _currEqInfo[0].perfInfo.area;
-                vue.eqPerfInfo.eqNo = _currEqInfo[0].perfInfo.eqNo;
-                vue.eqPerfInfo.prod = _currEqInfo[0].perfInfo.prod;
-                vue.eqPerfInfo.passQty = _currEqInfo[0].perfInfo.passQty.toString();
-
-                if (_currEqInfo[0].perfInfo.alarmMsg != '') {
-                    _currEqInfo[0].background = 'rgba(255, 0, 0, .9)';
-                }
-                else {
-                    _currEqInfo[0].background = _currEqInfo[0].background.split('.')[0] + '.9)';
-                }
-            },
-            hideEQInfo(e) {
-
-                vue.setCarouselInterval();
-
-                vue.eqPerfInfo.area = '';
-                vue.eqPerfInfo.eqNo = '';
-                vue.eqPerfInfo.prod = '';
-                vue.eqPerfInfo.passQty = '';
-
-                if (e.perfInfo.alarmMsg != '') {
-                    e.background = 'rgba(255, 0, 0,0.7)';
-                }
-                else {
-                    e.background = e.origBackground.split('.')[0] + e.defOpacity + ')';
-                }
             },
             eqMapProdPerInterval() {
                 $.ajax({
@@ -527,19 +727,105 @@
 
                 vue.showEqTTInfo = vue.dailyEqTTInfo[vue.showIdx];
 
+            },
+            setClockInterval() {
+                setInterval(function () {
+                    vue.updateClock();
+                }, 1000);
+            },
+            updateClock() {
+                var time = new Date();
+                var dname = time.getDay(),
+                    mo = time.getMonth(),
+                    yr = time.getFullYear(),
+                    dnum = time.getDate(),
+                    hr = time.getHours(),
+                    min = time.getMinutes(),
+                    sec = time.getSeconds(),
+                    pe = "AM";
+
+                //// 抓AM或PM
+                //if (hr >= 12) {
+                //    pe = "PM";
+                //} else {
+                //    pe = "AM"
+                //}
+
+                // 轉換成兩位數
+                Number.prototype.pad = function (digits) {
+                    for (var n = this.toString(); n.length < digits; n = 0 + n);
+                    return n;
+                }
+
+                var months = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+                var week = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+                //var ids = ["dayname", "month", "daynum", "year", "hour", "minutes", "seconds", "period"];
+                var ids = ["hour", "minutes", "seconds"];
+                /*var values = [week[dname], months[mo], dnum.pad(2), yr, hr.pad(2), min.pad(2), sec.pad(2), pe];*/
+                var values = [hr.pad(2), min.pad(2), sec.pad(2)];
+
+                for (var i = 0; i < ids.length; i++)
+                    document.getElementById(ids[i]).firstChild.nodeValue = values[i];
+            },
+            chartOptoinChange() {
+                vue.modalEqTTHisData.forEach(function (item, idx) {
+                    if (item.prodNo == vue.prodSelected && item.operator == vue.oprSelected) {
+                        vue.modalObj.MAX = item.maxTT;
+                        vue.modalObj.min = item.minTT;
+                        vue.modalObj.medianTT = item.medianTT;
+
+                        const _dataAry = [];
+                        const _targetAry = [];
+                        const _xAxisAry = [];
+
+                        item.eqTTDetailList.forEach(function (detail, idx) {
+                            _xAxisAry.push(detail.transDateStr);
+                            _dataAry.push(detail.tackTime);
+                            _targetAry.push(detail.timeTarget);
+                        });
+
+                        vue.chartOption.xAxis.data = _xAxisAry;
+                        vue.chartOption.series = [
+                            {
+                                data: _targetAry,
+                                type: 'line',
+                                itemStyle: {
+                                    color: '#bf1111'
+                                }
+                            },
+                            {
+                                data: _dataAry,
+                                type: 'line',
+                                itemStyle: {
+                                    color: '#a60a0a',
+                                    normal: {
+                                        label: {
+                                            show: true
+                                        }
+                                    }
+                                },
+                                symbolSize: 3
+                            }];
+
+                        vue.ttChartObj.setOption(vue.chartOption);
+                        vue.ttChartObj.resize();
+                    }
+                });
             }
         },
         mounted: function () {
-            this.dailyEqTTInfo = @(Html.Raw(Json.Serialize(Model)));
+            this.allPageData = @(Html.Raw(Json.Serialize(Model)));
+            this.dailyEqTTInfo = this.allPageData.prodTTList;
             this.showEqTTInfo = this.dailyEqTTInfo[this.showIdx];
+            this.areaEqTTInfo = this.allPageData.eqTTList;
 
             if (window.innerHeight === screen.height) {
                 this.isFullscreen = true;
             }
 
-            //if (_model.eqInfoList != null) {
-            //    this.wrapMapEqPerInfo(_model.eqInfoList);
-            //}
+            if (this.areaEqTTInfo != null) {
+                this.wrapMapEqPerInfo(this.areaEqTTInfo);
+            }
 
             //this.dailyTOPAlarms = _model.alarmDayTop;
 
@@ -547,8 +833,9 @@
 
             this.setTurnShowProdTTInterval();
             this.setRefreshProdTTInterval();
+            this.setClockInterval();
 
-            //this.setScrollInterval();
+            this.setScrollInterval();
         },
         computed: {
 

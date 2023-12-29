@@ -461,9 +461,6 @@ namespace MOD4.Web.DomainService
             Dictionary<string, string> _enCryDic = new Dictionary<string, string>();
 
             string _cryptoUrl = "http://inlcnws/PublicWebService/SSO/Crypto.asmx";
-            string _certificateUrl = "http://inlcnws/PublicWebService/SSO/Authentication.asmx/getCertificate";
-
-            string[] _certificateRes;
 
             string _tokenTicket = GetToken(loginEntity.Account, loginEntity.Password);
             if (string.IsNullOrEmpty(_tokenTicket))
@@ -487,25 +484,45 @@ namespace MOD4.Web.DomainService
                 }
             }
 
-            FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("userID", _enCryDic["account"]),
-                new KeyValuePair<string, string>("password", _enCryDic["pasword"]),
-                new KeyValuePair<string, string>("ipAddress", ""),
-                new KeyValuePair<string, string>("certificate", "")
-            });
-
-            using (var client = new HttpClient())
-            {
-                var response = client.PostAsync(_certificateUrl, formUrlEncodedContent).Result;
-
-                _certificateRes = response.Content.ReadAsStringAsync().Result.Split("<string>");
-            }
-
-            AccountInfoEntity _responseAccInfoEntity = InsertUpdateAccountInfo(loginEntity, _certificateRes);
+            AccountInfoEntity _responseAccInfoEntity = InsertUpdateAccountInfo(loginEntity, GetUserInfoFromPublicWebService(_enCryDic));
             _responseAccInfoEntity.TokenTicket = _tokenTicket;
 
             return _responseAccInfoEntity;
+        }
+
+        /// <summary>
+        /// 取得人員基本資料 from Innolux WebService
+        /// </summary>
+        /// <param name="enCryDic"></param>
+        /// <returns></returns>
+        private string[] GetUserInfoFromPublicWebService(Dictionary<string, string> enCryDic)
+        {
+            try
+            {
+                string _certificateUrl = "http://inlcnws/PublicWebService/SSO/Authentication.asmx/getCertificate";
+                string[] _certificateRes;
+
+                FormUrlEncodedContent formUrlEncodedContent = new FormUrlEncodedContent(new[]
+                {
+                    new KeyValuePair<string, string>("userID", enCryDic["account"]),
+                    new KeyValuePair<string, string>("password", enCryDic["pasword"]),
+                    new KeyValuePair<string, string>("ipAddress", ""),
+                    new KeyValuePair<string, string>("certificate", "")
+                });
+
+                using (var client = new HttpClient())
+                {
+                    var response = client.PostAsync(_certificateUrl, formUrlEncodedContent).Result;
+
+                    _certificateRes = response.Content.ReadAsStringAsync().Result.Split("<string>");
+                }
+
+                return _certificateRes;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         private AccountInfoEntity InsertUpdateAccountInfo(LoginEntity loginEntity, string[] certificateResult)
@@ -544,11 +561,14 @@ namespace MOD4.Web.DomainService
                     _accountInfoEntity.Level_id = JobLevelEnum.Employee;
                     _accountInfoEntity.DeptSn = _allDepartmentList.FirstOrDefault(f => f.DeptId == certificateResult[8].Split("</string")[0] && f.LevelId == 3)?.DeptSn ?? 0;
                     _accountInfoEntity.sn = InsertUserAndPermission(_accountInfoEntity);
+                    CatchHelper.Delete(new string[] { $"accInfo" });
                 }
                 // 既有用戶, 密碼變更
                 else if (_alreadyAcc != null && _updPwAcc == null)
                 {
                     UpdateUserPw(_accountInfoEntity.Account, _accountInfoEntity.Password);
+                    CatchHelper.Delete(new string[] { $"accInfo" });
+                    CatchHelper.Delete(new string[] { $"userInfo_{_accountInfoEntity.JobId}" });
 
                     _accountInfoEntity.sn = _alreadyAcc.sn;
                     _accountInfoEntity.JobId = _alreadyAcc.jobId;

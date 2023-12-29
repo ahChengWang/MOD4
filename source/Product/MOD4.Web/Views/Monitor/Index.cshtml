@@ -98,6 +98,11 @@
         animation-play-state: paused;
     }*/
 
+    p[name='mapName'] {
+        color: white;
+        font-family: 'Trebuchet MS';
+        font-size: 3vh;
+    }
 
     .bg-theme {
         /*background-image: url('./img/monitorBG.png');*/
@@ -118,11 +123,11 @@
         justify-content: center;
         align-items: center;
         overflow: hidden;
-        background: repeating-conic-gradient(from var(--a),#e8e8e8 0%,#e8e8e8 5%,transparent 5%,transparent 40%,#e8e8e8 50%);
-        animation: animate 20s linear infinite;
+        /*background: repeating-conic-gradient(from var(--a),#e8e8e8 0%,#e8e8e8 5%,transparent 5%,transparent 40%,#e8e8e8 50%);
+        animation: animate 20s linear infinite;*/
     }
 
-    @@property --a {
+    /*@@property --a {
         syntax: '<angle>';
         inherits: false;
         initial-value: 0deg;
@@ -136,19 +141,13 @@
         100% {
             --a: 360deg;
         }
-    }
+    }*/
 
 
     img[usemap='#veg'] {
         /*width: 100%;*/
         height: 98%;
         object-fit: cover;
-    }
-
-    td {
-        font-size: 8px;
-        padding-right: 0rem;
-        padding-left: 0rem;
     }
 
     div[name='card'] {
@@ -165,12 +164,8 @@
     }
 
         div[name='cHeader'] a {
-            font-size: 20px;
+            font-size: 2vh;
         }
-
-    td {
-        color: white;
-    }
 
     .panel {
         /* 边框 */
@@ -267,18 +262,86 @@
             box-shadow: transparent;
         }
 
-    thead, tr > th {
-        position: sticky;
-        background: rgba(0,0,0,.8);
+    .boardTable {
+        width: 100%;
+        border-collapse: collapse;
     }
+
+        .boardTable td, .boardTable th {
+            padding-top: 1vh;
+            padding-right: 0.3rem;
+            padding-bottom: 1vh;
+            padding-left: 0.3rem;
+            vertical-align: top;
+            border-top: 1px solid #dee2e6;
+        }
 
     thead {
         top: -1;
         z-index: 2;
     }
+
+    thead, tr > th {
+        position: sticky;
+        background: rgba(0,0,0,.8);
+    }
+
+    td {
+        color: white;
+        font-size: 8px;
+        padding-right: 0rem;
+        padding-left: 0rem;
+    }
+
+    /*生產資訊*/
+    #areaInfo > div {
+        color: white;
+        display: flex;
+    }
+
+    @@media(min-height: 850px) {
+
+        #areaInfo > div {
+            margin-top: 2.5vh;
+        }
+
+        #areaInfo > div:nth-child(1) > div {
+            font-size: 2vh;
+        }
+        #areaInfo > div:nth-child(2) > div {
+            font-size: 2vh;
+        }
+        #areaInfo > div:nth-child(3) > div {
+            font-size: 2vh;
+        }
+        #areaInfo > div:nth-child(4) > div {
+            font-size: 2vh;
+        }
+    }
+
+    @@media(max-height: 850px) {
+
+        #areaInfo > div {
+            margin-top: 1vh;
+        }
+
+        #areaInfo > div:nth-child(1) > div {
+            font-size: 1.5vh;
+        }
+        #areaInfo > div:nth-child(2) > div {
+            font-size: 1.5vh;
+        }
+        #areaInfo > div:nth-child(3) > div {
+            font-size: 1.5vh;
+        }
+        #areaInfo > div:nth-child(4) > div {
+            font-size: 1.5vh;
+        }
+    }
 </style>
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="~/img/carux_logo_n.ico" type="image/x-icon" sizes="16x16" />
     <title>CarUX監控看板👁</title>
     <link rel="stylesheet" href="~/img/monitorBG.png">
@@ -288,18 +351,18 @@
 </head>
 
 <body class="bg-theme">
-    <div class="card-header" style="height: 7%;text-align:center">
+    <div class="card-header" style="height: 6%;text-align:center">
         <img class="titleImg" style="width:80%" src="~/img/titleTransparent_1.png" />
     </div>
     <partial name="_PartialClock" />
     <div id="app" class="card-body" style="height: 91%;">
         <div name="alaemMap">
-            <div style="height: 7%;">
-                <h3 style="color: white;font-family:'Trebuchet MS'">Factory map</h3>
+            <div style="height: 6%;">
+                <p name="mapName" style="color: white;font-family:'Trebuchet MS'">Factory map</p>
             </div>
-            <div style="display: flex; height: 58%;">
+            <div style="display: flex; height: 60%;">
                 <div style="width: 25%;">
-                    <div name="cHeader" style="background-color: rgba(184, 82, 18,.3); left: 9%; ">
+                    <div name="cHeader" style="background-color: rgba(184, 82, 18,.3); left: 8.5%; ">
                         <a>前段異常</a>
                     </div>
                     <div class="monitor panel">
@@ -400,7 +463,7 @@
                 </div>
 
                 <div style="width: 25%;">
-                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); right: 9%;">
+                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); right: 8.5%;">
                         <a>後段異常</a>
                     </div>
                     <div class="monitor panel">
@@ -425,20 +488,20 @@
                 </div><!--End Row-->
 
             </div>
-            <div style="display: flex; height: 34%; margin-top: 10px;">
+            <div style="display: flex; height: 38%; margin-top: 5px;">
 
                 <div style="width: 33%;">
-                    <div name="cHeader" style="background-color: rgba(81, 214, 86,.3); left: 14vw;">
+                    <div name="cHeader" style="background-color: rgba(81, 214, 86,.3); left: 15vw;">
                         <a>本日 TOP</a>
                     </div>
                     <div class="monitor panel autoscrollable-wrapper" @@mouseover="stopInterval(this)" @@mouseout="setScrollInterval()">
-                        <table class="table">
+                        <table class="boardTable">
                             <tbody>
                                 <tr v-if="dailyTOPAlarms != null" v-for="top in dailyTOPAlarms">
-                                    <td>{{top.prodNo}}</td>
-                                    <td>{{top.eqNumber}}</td>
+                                    <td width="12%">{{top.prodNo}}</td>
+                                    <td width="12%">{{top.eqNumber}}</td>
                                     <td>{{top.comment}}</td>
-                                    <td>{{top.repairedTime}}</td>
+                                    <td width="8%">{{top.repairedTime}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -446,26 +509,26 @@
                 </div><!--End Row-->
 
                 <div class="box" style="width: 34%;">
-                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); left: 47vw;">
+                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); left: 48vw;">
                         <a>生產資訊</a>
                     </div>
                     <div class="monitor panel">
-                        <div id="areaInfo" style="width: 80%; height: 100%;">
-                            <div style="color: white; display: flex; margin-top: 4.5%;">
-                                <div class="col-lg-6" style="font-size: 1vw;">Area:</div>
-                                <div class="col-lg-6" style="font-size: 1vw;">{{eqPerfInfo.area}}</div>
+                        <div id="areaInfo" style="width: 90%; height: 100%;">
+                            <div>
+                                <div class="col-lg-4">Area:</div>
+                                <div class="col-lg-8">{{eqPerfInfo.area}}</div>
                             </div>
-                            <div style="color: white; display: flex; margin-top: 4.5%; ">
-                                <div class="col-lg-6" style="font-size: 1vw;">EQ no:</div>
-                                <div class="col-lg-6" style="font-size: 1vw;">{{eqPerfInfo.eqNo}}</div>
+                            <div>
+                                <div class="col-lg-4">EQ no:</div>
+                                <div class="col-lg-8">{{eqPerfInfo.eqNo}}</div>
                             </div>
-                            <div style="color: white; display: flex; margin-top: 4.5%; ">
-                                <div class="col-lg-6" style="font-size: 1vw;">機種:</div>
-                                <div class="col-lg-6" style="font-size: 1vw;">{{eqPerfInfo.prod}}</div>
+                            <div>
+                                <div class="col-lg-4">機種:</div>
+                                <div class="col-lg-8">{{eqPerfInfo.prod}}</div>
                             </div>
-                            <div style="color: white; display: flex; margin-top: 4.5%; ">
-                                <div class="col-lg-6" style="font-size: 1vw;">Pass量:</div>
-                                <div class="col-lg-6" style="font-size: 1vw;">{{eqPerfInfo.passQty}}</div>
+                            <div>
+                                <div class="col-lg-4">Pass量:</div>
+                                <div class="col-lg-8">{{eqPerfInfo.passQty}}</div>
                             </div>
                         </div>
                     </div>
@@ -473,18 +536,18 @@
 
                 <div class="box" style="width: 33%;">
 
-                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); right: 12vw;">
+                    <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); right: 13vw;">
                         <a>本日各製程MTD</a>
                     </div>
                     <div class="monitor panel autoscrollable-wrapper" @@mouseover="stopInterval(this)" @@mouseout="setScrollInterval()">
-                        <table class="table">
+                        <table class="boardTable">
                             <thead>
                                 <tr style="color:white">
                                     <th style="text-align: center; font-size: 0.8vw;">製程</th>
-                                    <th style="text-align:center; font-size: 0.8vw;">日計畫</th>
-                                    <th style="text-align:center; font-size: 0.8vw;">累積應產</th>
-                                    <th style="text-align:center; font-size: 0.8vw;">實際產出</th>
-                                    <th style="text-align:center; font-size: 0.8vw;">時段累積差異</th>
+                                    <th style="text-align: center; font-size: 0.8vw;">日計畫</th>
+                                    <th style="text-align: center; font-size: 0.8vw;">累積應產</th>
+                                    <th style="text-align: center; font-size: 0.8vw;">實際產出</th>
+                                    <th style="text-align: center; font-size: 0.8vw;">時段累積差異</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -568,7 +631,7 @@
                 //alert(_divWidth + '_' + _divHeight);
 
                 var imgObject = new Image();
-                imgObject.src = "./img/fabLayoutNew.png";
+                imgObject.src = "./img/fab_layout/fabLayout2F_frame_resize.png";
 
                 imgObject.addEventListener('load', function () {
                     var setW = imgObject.width;
@@ -778,7 +841,7 @@
                 //$('#' + vue.eqDataInfo[vue.trunCnt].eqNumber).trigger('mouseover');
 
                 vue.showEQInfo(vue.eqDataInfo[vue.trunCnt]);
-                
+
                 vue.trunCnt++;
 
                 if (vue.trunCnt > (vue.eqDataInfo.length - 1)) {

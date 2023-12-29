@@ -373,8 +373,7 @@ namespace MOD4.Web.DomainService
 
                 using (TransactionScope _scope = new TransactionScope())
                 {
-                    //_pcesCertificationRepository.TruncatePCESRaw();
-                    if (/*_pcesCertificationRepository.InsertPCESRaw(_pcesRawData) == _pcesRawData.Count &&*/
+                    if (_pcesCertificationRepository.InsertPCESRaw(_pcesRawData) == _pcesRawData.Count &&
                         _pcesCertificationRepository.InsertPCESRecord(_insExpDatePCESCertRecords) == _insExpDatePCESCertRecords.Count &&
                         _pcesCertificationRepository.UpdatePCESRecord(_updExpDatePCESCertRecords) == _updExpDatePCESCertRecords.Count)
                     {

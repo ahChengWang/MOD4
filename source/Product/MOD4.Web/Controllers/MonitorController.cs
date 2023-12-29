@@ -102,6 +102,7 @@ namespace MOD4.Web.Controllers
                         Border = per.Border,
                         Background = per.Background,
                         Area = per.Area,
+                        ProdNoConcate = per.ProdNoConcate,
                         ProdNo = per.ProdNo,
                         PassQty = per.PassQty,
                         StatusCode = per.StatusCode,
@@ -111,7 +112,7 @@ namespace MOD4.Web.Controllers
                     }).ToList()
                 };
 
-                return Json(new ResponseViewModel<MonitorViewModel> 
+                return Json(new ResponseViewModel<MonitorViewModel>
                 {
                     Data = _responseVM
                 });
@@ -215,7 +216,7 @@ namespace MOD4.Web.Controllers
 
                 return View(new MonitorSettingMainViewModel
                 {
-                    MonitorProdTTList = _settingDatas.ProdTTDetails.Select(tt => new MonitorProdTTEditViewModel 
+                    MonitorProdTTList = _settingDatas.ProdTTDetails.Select(tt => new MonitorProdTTEditViewModel
                     {
                         Node = tt.Node,
                         LcmProdSn = tt.LcmProdSn,
@@ -226,7 +227,7 @@ namespace MOD4.Web.Controllers
                         //    OPERATION = s.OPERATION
                         //}).ToList() ?? new List<EqMappingViewModel>(),
                         TimeTarget = tt.TimeTarget,
-                        ProdDesc  = tt.ProdDesc
+                        ProdDesc = tt.ProdDesc
                     }).ToList(),
                     SettingDetail = _settingDatas.SettingDetails.Select(setting => new MonitorSettingViewModel
                     {
@@ -258,8 +259,8 @@ namespace MOD4.Web.Controllers
             {
                 var _settingDatas = _monitorDomainService.GetMonitorProdTTList(prodSn);
 
-                return Json(new ResponseViewModel<List<MonitorProdTTEditViewModel>> 
-                { 
+                return Json(new ResponseViewModel<List<MonitorProdTTEditViewModel>>
+                {
                     Data = _settingDatas.Select(tt => new MonitorProdTTEditViewModel
                     {
                         Node = tt.Node,
@@ -335,19 +336,34 @@ namespace MOD4.Web.Controllers
             {
                 var _result = _monitorDomainService.GetEqTackTimeList();
 
-                var _response = _result.Select(res => new MonitorProdEqTTViewModel
+                MonitorEqTTViewModel _response = new MonitorEqTTViewModel
                 {
-                    ProdSn = res.ProdSn,
-                    ProdDesc = res.ProdDesc,
-                    DetailTTInfo = res.DetailTTInfo.Select(detail => new MonitorProdEqTTDetailViewModel 
+                    ProdTTList = _result.EqTackTimeList.Select(res => new MonitorProdEqTTViewModel
                     {
-                        Node = detail.Node,
-                        EquipmentNo = detail.EquipmentNo,
-                        TargetTackTime = detail.TargetTackTime,
-                        TackTime = detail.TackTime,
-                        TTWarningLevelId = detail.TTWarningLevelId
+                        ProdSn = res.ProdSn,
+                        ProdDesc = res.ProdDesc,
+                        DetailTTInfo = res.DetailTTInfo.Select(detail => new MonitorProdEqTTDetailViewModel
+                        {
+                            Node = detail.Node,
+                            EquipmentNo = detail.EquipmentNo,
+                            TargetTackTime = detail.TargetTackTime,
+                            TackTime = detail.TackTime,
+                            TTWarningLevelId = detail.TTWarningLevelId
+                        }).ToList()
+                    }).ToList(),
+                    EqTTList = _result.EqTackTimeAreaList.Select(eq => new MonitorEqInfoViewModel
+                    {
+                        EqNumber = eq.EqNumber,
+                        DefTopRate = eq.DefTopRate,
+                        DefLeftRate = eq.DefLeftRate,
+                        DefWidth = eq.DefWidth,
+                        DefHeight = eq.DefHeight,
+                        Border = eq.Border,
+                        Background = eq.Background,
+                        TackTime = eq.TackTime,
+                        TTWarningLevelId = eq.TTWarningLevelId,
                     }).ToList()
-                }).ToList();
+                };
 
                 return View(_response);
             }
@@ -364,7 +380,7 @@ namespace MOD4.Web.Controllers
             {
                 var _result = _monitorDomainService.GetEqTackTimeList();
 
-                var _response = _result.Select(res => new MonitorProdEqTTViewModel
+                var _response = _result.EqTackTimeList.Select(res => new MonitorProdEqTTViewModel
                 {
                     ProdSn = res.ProdSn,
                     ProdDesc = res.ProdDesc,
@@ -378,10 +394,49 @@ namespace MOD4.Web.Controllers
                     }).ToList()
                 }).ToList();
 
-                return Json(new ResponseViewModel<List<MonitorProdEqTTViewModel>> 
+                return Json(new ResponseViewModel<List<MonitorProdEqTTViewModel>>
                 {
                     Data = _response
                 });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+
+        [HttpGet("[controller]/EqTTHistory/{eqNumber}")]
+        public IActionResult EqTTHistory(string eqNumber)
+        {
+            try
+            {
+                var _result = _monitorDomainService.GetEqHistory(eqNumber);
+
+                if (string.IsNullOrEmpty(_result.Item1))
+                    return Json(new ResponseViewModel<List<MonitorEqTTHistoryViewModel>>
+                    {
+                        Data = _result.Item2.Select(res => new MonitorEqTTHistoryViewModel
+                        {
+                            ProdNo = res.ProdNo,
+                            Operator = res.Operator,
+                            MaxTT = res.MaxTT,
+                            minTT = res.minTT,
+                            MedianTT = res.MedianTT,
+                            EqTTDetailList = res.EqTTHistoryList.Select(eq => new MonitorEqTTDetailModel
+                            {
+                                TransDateStr = eq.TransDateStr,
+                                TackTime = Convert.ToDecimal(eq.TackTime),
+                                TimeTarget = eq.TimeTarget
+                            }).ToList()
+                        }).ToList()
+                    });
+                else
+                    return Json(new ResponseViewModel<string> 
+                    {
+                        IsSuccess = false,
+                        Msg = _result.Item1
+                    });
             }
             catch (Exception ex)
             {

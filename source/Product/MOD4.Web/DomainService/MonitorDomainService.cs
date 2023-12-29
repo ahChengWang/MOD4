@@ -9,7 +9,6 @@ using System.Drawing;
 using System.Linq;
 using System.Transactions;
 using Utility.Helper;
-using static Dapper.SqlMapper;
 
 namespace MOD4.Web.DomainService
 {
@@ -66,7 +65,7 @@ namespace MOD4.Web.DomainService
                     s.Key.tool_id,
                     s.Key.area,
                     prod_id = s.OrderByDescending(o => o.XML_time).FirstOrDefault().prod_id,
-                    prodStr = string.Join("/", s.Select(x => x.prod_id)),
+                    prodStr = string.Join("﹑\r\n", s.Select(x => x.prod_id)),
                     move_cnt = ProcessProdMoveCnt(s.Select(detail => detail).ToList())
                 });
 
@@ -256,8 +255,8 @@ namespace MOD4.Web.DomainService
                     _tmp.UpdateTime = _nowTime;
                     _tmp.UpdateUser = userEntity.Name;
 
-                    _tmp.DefTopRate = Convert.ToDecimal(Convert.ToDouble(set.LocY0) / Convert.ToDouble(589));
-                    _tmp.DefLeftRate = Convert.ToDecimal(Convert.ToDouble(set.LocX0) / Convert.ToDouble(1517));
+                    _tmp.DefTopRate = Convert.ToDecimal(Convert.ToDouble(set.LocY0) / Convert.ToDouble(530));
+                    _tmp.DefLeftRate = Convert.ToDecimal(Convert.ToDouble(set.LocX0) / Convert.ToDouble(1300));
                     _tmp.DefWidth = set.LocX1 - set.LocX0;
                     _tmp.DefHeight = set.LocY1 - set.LocY0;
 
@@ -298,58 +297,196 @@ namespace MOD4.Web.DomainService
 
         #region Tack Time
 
-        public List<MonitorTackTimeEntity> GetEqTackTimeList()
+        public MonitorEqTTMainEntity GetEqTackTimeList()
         {
             try
             {
                 DateTime _nowTime = DateTime.Now;
                 bool _isShiftB = _nowTime.TimeOfDay > new TimeSpan(19, 30, 0);
 
-                var _prodDetailList = _prodPerformanceDetailRepository.SelectByConditions(
-                        _isShiftB ? DateTime.Parse($"{_nowTime:yyyy-MM-dd} 19:30:00") : DateTime.Parse($"{_nowTime:yyyy-MM-dd} 07:30:00"),
-                        _isShiftB ? DateTime.Parse($"{_nowTime.AddDays(1):yyyy-MM-dd} 07:30:00") : DateTime.Parse($"{_nowTime:yyyy-MM-dd} 19:30:00"))
-                    .Where(w => w.TransDate > _nowTime.AddMinutes(-6));
+                var _allProdTTInfoToday = GetProdPerfDetail(_isShiftB, _nowTime);
 
-                var _defProdList = _lcmProductRepository.SelectByConditions(prodNoList: _prodDetailList.Select(detail => detail.ProdNo).Distinct().ToList());
+                var _prodTTMapList = GetEqTackTimeMap(_allProdTTInfoToday);
+
+                IEnumerable<MonitorTackTimeEntity> monitorTackTimeList = _allProdTTInfoToday.GroupBy(g => new { g.ProdId, g.ProdDesc })
+                    .Select(prod => new MonitorTackTimeEntity
+                    {
+                        ProdSn = prod.Key.ProdId,
+                        ProdDesc = prod.Key.ProdDesc,
+                        DetailTTInfo = prod.OrderBy(o => o.WorkCtr).Select(s => new MonitorTackTimeDetailEntity
+                        {
+                            Node = s.WorkCtr,
+                            EquipmentNo = s.EquipNo,
+                            TargetTackTime = s.TimeTarget,
+                            TackTime = s.TackTimeStr,
+                            TTWarningLevel = s.TimeTarget == 0 ? "N/A" : s.TTWarningLevelId.GetDescription(),
+                            TTWarningLevelId = s.TTWarningLevelId,
+                        }).ToList()
+                    });
+
+                return new MonitorEqTTMainEntity
+                {
+                    EqTackTimeList = monitorTackTimeList.OrderBy(o => o.ProdSn).ToList(),
+                    EqTackTimeAreaList = _prodTTMapList
+                };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public (string, List<MonitorEqTTHistoryEntity>) GetEqHistory(string eqNumber)
+        {
+            try
+            {
+                DateTime _nowTime = DateTime.Now;
+                bool _isShiftB = _nowTime.TimeOfDay > new TimeSpan(19, 30, 0);
+
+                var _prodDetailAllList = _prodPerformanceDetailRepository.SelectByEqNumber(
+                        eqNumber,
+                        _isShiftB ? DateTime.Parse($"{_nowTime:yyyy-MM-dd} 19:30:00") : DateTime.Parse($"{_nowTime:yyyy-MM-dd} 07:30:00"),
+                        _isShiftB ? DateTime.Parse($"{_nowTime.AddDays(1):yyyy-MM-dd} 07:30:00") : DateTime.Parse($"{_nowTime:yyyy-MM-dd} 19:30:00"));
+
+                var _defProdList = _lcmProductRepository.SelectByConditions(prodNoList: _prodDetailAllList.Select(detail => detail.ProdNo).Distinct().ToList());
+                var _targetSettingList = _targetSettingRepository.SelectByConditions(_defProdList.Select(def => def.sn).ToList(), null);
+
+                var _chk = from detail in _prodDetailAllList.GroupBy(b => new { b.ProdNo, b.WorkCtr, b.EquipNo }).Select(s => s.Key)
+                           join defProd in _defProdList
+                           on detail.ProdNo equals defProd.ProdNo
+                           join target in _targetSettingList
+                           on new { detail.EquipNo, defProd.sn } equals new { EquipNo = target.DownEquipment, sn = target.lcmProdSn }
+                           into temp
+                           from target in temp.DefaultIfEmpty()
+                           where target is null
+                           select new
+                           {
+                               detail.ProdNo,
+                               detail.EquipNo,
+                               detail.WorkCtr
+                           };
+
+                if (_chk.Any())
+                {
+                    return (string.Join("\r\n", _chk.Select(s => $"{s.WorkCtr}/{s.ProdNo}/{s.EquipNo}")), null);
+                }
+
+                var _resList = (from detail in _prodDetailAllList
+                                join defProd in _defProdList
+                                on detail.ProdNo equals defProd.ProdNo
+                                join target in _targetSettingList
+                                on new { detail.EquipNo, defProd.sn } equals new { EquipNo = target.DownEquipment, sn = target.lcmProdSn }
+                                select new ProdPerfDetailEntity
+                                {
+                                    EquipNo = detail.EquipNo,
+                                    TackTime = detail.TackTime,
+                                    TimeTarget = target.TimeTarget,
+                                    TransDate = detail.TransDate,
+                                    Operator = detail.Operator,
+                                    ProdDesc = detail.ProdNo,
+                                    ProdId = defProd.sn
+                                }).GroupBy(g => new { g.ProdId, g.ProdDesc, g.Operator })
+                                     .Select(s => new MonitorEqTTHistoryEntity
+                                     {
+                                         ProdNo = s.Key.ProdDesc,
+                                         Operator = s.Key.Operator,
+                                         MaxTT = Convert.ToDecimal(s.Max(max => max.TackTime) ?? 0),
+                                         minTT = Convert.ToDecimal(s.Min(min => min.TackTime) ?? 0),
+                                         MedianTT = CalculateMedian(s.Select(sub => Convert.ToDouble(sub.TackTime)).ToArray()),
+                                         EqTTHistoryList = s.OrderBy(o => o.TransDate).ToList()
+                                     }).ToList();
+
+                return ("", _resList);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<MonitorEqTTInfoEntity> GetEqTackTimeMap(IEnumerable<ProdPerfDetailEntity> prodPerfDetailList)
+        {
+            try
+            {
+                var _mapAreaSettingList = _monitorSettingRepository.SelectSettings();
+
+                return (from detail in prodPerfDetailList.GroupBy(g => new { g.WorkCtr, g.EquipNo })
+                        join setting in _mapAreaSettingList
+                        on detail.Key.EquipNo equals setting.EqNumber
+                        select new MonitorEqTTInfoEntity
+                        {
+                            Node = detail.Key.WorkCtr,
+                            EqNumber = setting.EqNumber,
+                            DefTopRate = setting.DefTopRate,
+                            DefLeftRate = setting.DefLeftRate,
+                            DefWidth = setting.DefWidth,
+                            DefHeight = setting.DefHeight,
+                            Border = setting.Border,
+                            Background = ConvertColorHEXtoRGB(setting.Background),
+                            TackTime = detail.FirstOrDefault(f => f.TTWarningLevelId != TTWarningLevelEnum.None)?.TackTimeStr ?? "--",
+                            TTWarningLevelId = detail.FirstOrDefault(f => f.TTWarningLevelId != TTWarningLevelEnum.None)?.TTWarningLevelId ?? TTWarningLevelEnum.None
+                        }).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private IEnumerable<ProdPerfDetailEntity> GetProdPerfDetail(bool isShiftB, DateTime nowTime)
+        {
+            try
+            {
+                var _prodDetailAllList = _prodPerformanceDetailRepository.SelectByConditions(
+                        isShiftB ? DateTime.Parse($"{nowTime:yyyy-MM-dd} 19:30:00") : DateTime.Parse($"{nowTime:yyyy-MM-dd} 07:30:00"),
+                        isShiftB ? DateTime.Parse($"{nowTime.AddDays(1):yyyy-MM-dd} 07:30:00") : DateTime.Parse($"{nowTime:yyyy-MM-dd} 19:30:00"));
+
+                var _prodDetailCurrent = _prodDetailAllList.Where(w => w.TransDate > nowTime.AddMinutes(-6));
+                var _prodDetailToday = _prodDetailAllList.Where(w => w.TransDate <= nowTime.AddMinutes(-6) && w.Sn == 1);
+
+                var _defProdList = _lcmProductRepository.SelectByConditions(prodNoList: _prodDetailAllList.Select(detail => detail.ProdNo).Distinct().ToList());
 
                 var _targetSettingList = _targetSettingRepository.SelectByConditions(_defProdList.Select(def => def.sn).ToList(), null);
 
-                var _prodTTInfo = from detail in _prodDetailList.Where(w => w.Sn == 1)
+                var _prodTTInfo = from detail in _prodDetailCurrent.Where(w => w.Sn == 1)
                                   join def in _defProdList
                                   on detail.ProdNo equals def.ProdNo into r1
                                   from t1 in r1.DefaultIfEmpty()
                                   join tSetting in _targetSettingList
                                   on new { lcmProdSn = t1?.sn ?? 0, Node = detail.WorkCtr } equals new { tSetting.lcmProdSn, tSetting.Node } into r2
                                   from t2 in r2.DefaultIfEmpty()
-                                  select new
+                                  select new ProdPerfDetailEntity
                                   {
-                                      detail.WorkCtr,
-                                      detail.EquipNo,
+                                      WorkCtr = detail.WorkCtr,
+                                      EquipNo = detail.EquipNo,
                                       ProdId = t1?.sn ?? 0,
                                       ProdDesc = $"{detail.ProdNo}-{t1?.Descr ?? "XX"}",
                                       TimeTarget = t2?.TimeTarget ?? 0,
-                                      detail.TackTime,
+                                      TackTime = detail.TackTime,
                                       //MedianTT = CalculateMedian(_prodDetailList.Where(w => w.ProdNo == detail.ProdNo && w.WorkCtr == detail.WorkCtr).Select(s => Convert.ToDouble(s.TackTime)).ToArray()),
                                       TTWarningLevelId = detail.TackTime > (t2?.TimeTarget ?? 0) && detail.TackTime <= Convert.ToDecimal((t2?.TimeTarget ?? 0) * 1.1) ? TTWarningLevelEnum.Warning
                                           : detail.TackTime > Convert.ToDecimal((t2?.TimeTarget ?? 0) * 1.1) ? TTWarningLevelEnum.Bad : TTWarningLevelEnum.Good
                                   };
 
-                IEnumerable<MonitorTackTimeEntity> monitorTackTimeList = _prodTTInfo.GroupBy(g => new { g.ProdId, g.ProdDesc }).Select(prod => new MonitorTackTimeEntity
-                {
-                    ProdSn = prod.Key.ProdId,
-                    ProdDesc = prod.Key.ProdDesc,
-                    DetailTTInfo = prod.OrderBy(o => o.WorkCtr).Select(s => new MonitorTackTimeDetailEntity
-                    {
-                        Node = s.WorkCtr,
-                        EquipmentNo = s.EquipNo,
-                        TargetTackTime = s.TimeTarget,
-                        TackTime = s.TackTime,
-                        TTWarningLevel = s.TimeTarget == 0 ? "N/A" : s.TTWarningLevelId.GetDescription(),
-                        TTWarningLevelId = s.TTWarningLevelId,
-                    }).ToList()
-                });
+                var _prodTTInfoToday = from detail in _prodDetailToday
+                                       join def in _defProdList
+                                       on detail.ProdNo equals def.ProdNo into r1
+                                       from t1 in r1.DefaultIfEmpty()
+                                       join tSetting in _targetSettingList
+                                       on new { lcmProdSn = t1?.sn ?? 0, Node = detail.WorkCtr } equals new { tSetting.lcmProdSn, tSetting.Node } into r2
+                                       from t2 in r2.DefaultIfEmpty()
+                                       select new ProdPerfDetailEntity
+                                       {
+                                           WorkCtr = detail.WorkCtr,
+                                           EquipNo = detail.EquipNo,
+                                           ProdId = t1?.sn ?? 0,
+                                           ProdDesc = $"{detail.ProdNo}-{t1?.Descr ?? "XX"}",
+                                           TimeTarget = t2?.TimeTarget ?? 0,
+                                           TackTime = null,
+                                           TTWarningLevelId = TTWarningLevelEnum.None
+                                       };
 
-                return monitorTackTimeList.OrderBy(o => o.ProdSn).ToList();
+                return _prodTTInfo.Union(_prodTTInfoToday);
             }
             catch (Exception ex)
             {

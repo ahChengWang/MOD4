@@ -15,7 +15,7 @@ namespace MOD4.Web.ViewModel
         public int Node { get; set; }
         public string EquipmentNo { get; set; }
         public decimal TargetTackTime { get; set; }
-        public decimal TackTime { get; set; }
+        public string TackTime { get; set; }
         public TTWarningLevelEnum TTWarningLevelId { get; set; }
     }
 }

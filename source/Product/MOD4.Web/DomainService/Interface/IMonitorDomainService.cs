@@ -24,6 +24,9 @@ namespace MOD4.Web.DomainService
 
         string UpdateInsertMapArea(List<MonitorSettingEntity> mapAreaEntity, UserEntity userEntity);
 
-        List<MonitorTackTimeEntity> GetEqTackTimeList();
+        MonitorEqTTMainEntity GetEqTackTimeList();
+
+        (string, List<MonitorEqTTHistoryEntity>) GetEqHistory(string eqNumber);
+
     }
 }
