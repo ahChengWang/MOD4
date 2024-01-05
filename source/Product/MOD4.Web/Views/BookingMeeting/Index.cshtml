@@ -624,6 +624,16 @@
                             }
                         }
                     });
+                },
+                setDbClickEvent() {
+                    let _tbl = $('tbody[role="presentation"]')[0].children;
+                    $.each(_tbl, function (index, tr) {
+                        $.each(tr.children, function (idx, td) {
+                            td.ondblclick = function () {
+                                /*alert('123');*/
+                            };
+                        });
+                    });
                 }
             },
             mounted: function (e) {
@@ -676,6 +686,8 @@
 
                 calendar.render();
 
+                this.setDbClickEvent();
+
                 $('.modal').on('hidden.bs.modal', function () {
                     $('.modal-body').find('input, select').each(function (idx, attr) {
                         attr.disabled = true;
@@ -698,6 +710,5 @@
                 //$("#repeatNote").html("*會議重複至" + [_repeatDTE.getFullYear(), _repeatDTE.getMonth(), _repeatDTE.getDate()].join('/'));
             }
         });
-
     </script>
 }

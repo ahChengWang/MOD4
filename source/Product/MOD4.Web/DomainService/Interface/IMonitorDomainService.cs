@@ -1,6 +1,7 @@
 ﻿using MOD4.Web.DomainService.Entity;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MOD4.Web.DomainService
 {
@@ -12,7 +13,7 @@ namespace MOD4.Web.DomainService
 
         List<MonitorAlarmTopEntity> GetAlarmTopDaily();
 
-        List<MTDProcessDailyEntity> GetMTDDailyInfo();
+        Task<List<MTDProcessDailyEntity>> GetMTDDailyInfoAsync();
 
         MonitorSettingMainEntity GetMonitorMainList(int prodSn = 1206);
 

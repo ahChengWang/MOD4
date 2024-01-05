@@ -157,7 +157,8 @@
                                 _userInfo.SSOToken = _res[0];
                                 _userInfo.SsoTicket4 = _res[1];
                                 Cookies.set('SSOToken', _res[0]);
-                                Cookies.set('SsoTicket4', _res[1]);
+                                /*Cookies.set('SsoTicket4', _res[1]);*/
+                                localStorage.setItem('SsoTicket4', _res[1]);
                             }
 
                             Cookies.set('Name', result.data.name);

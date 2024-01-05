@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.Extensions.Logging;
 using MOD4.Web.DomainService;
 using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Models;
 using MOD4.Web.ViewModel;
 using Newtonsoft.Json;
+using OpenQA.Selenium.Interactions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +16,7 @@ using System.Net.WebSockets;
 using System.Security.Claims;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Utility.Helper;
 
 namespace MOD4.Web.Controllers
@@ -158,7 +161,7 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                var _result = _monitorDomainService.GetMTDDailyInfo();
+                var _result = _monitorDomainService.GetMTDDailyInfoAsync().Result;
 
                 MonitorViewModel _responseVM = new MonitorViewModel
                 {
@@ -380,21 +383,36 @@ namespace MOD4.Web.Controllers
             {
                 var _result = _monitorDomainService.GetEqTackTimeList();
 
-                var _response = _result.EqTackTimeList.Select(res => new MonitorProdEqTTViewModel
+                MonitorEqTTViewModel _response = new MonitorEqTTViewModel
                 {
-                    ProdSn = res.ProdSn,
-                    ProdDesc = res.ProdDesc,
-                    DetailTTInfo = res.DetailTTInfo.Select(detail => new MonitorProdEqTTDetailViewModel
+                    ProdTTList = _result.EqTackTimeList.Select(res => new MonitorProdEqTTViewModel
                     {
-                        Node = detail.Node,
-                        EquipmentNo = detail.EquipmentNo,
-                        TargetTackTime = detail.TargetTackTime,
-                        TackTime = detail.TackTime,
-                        TTWarningLevelId = detail.TTWarningLevelId
+                        ProdSn = res.ProdSn,
+                        ProdDesc = res.ProdDesc,
+                        DetailTTInfo = res.DetailTTInfo.Select(detail => new MonitorProdEqTTDetailViewModel
+                        {
+                            Node = detail.Node,
+                            EquipmentNo = detail.EquipmentNo,
+                            TargetTackTime = detail.TargetTackTime,
+                            TackTime = detail.TackTime,
+                            TTWarningLevelId = detail.TTWarningLevelId
+                        }).ToList()
+                    }).ToList(),
+                    EqTTList = _result.EqTackTimeAreaList.Select(eq => new MonitorEqInfoViewModel
+                    {
+                        EqNumber = eq.EqNumber,
+                        DefTopRate = eq.DefTopRate,
+                        DefLeftRate = eq.DefLeftRate,
+                        DefWidth = eq.DefWidth,
+                        DefHeight = eq.DefHeight,
+                        Border = eq.Border,
+                        Background = eq.Background,
+                        TackTime = eq.TackTime,
+                        TTWarningLevelId = eq.TTWarningLevelId,
                     }).ToList()
-                }).ToList();
+                };
 
-                return Json(new ResponseViewModel<List<MonitorProdEqTTViewModel>>
+                return Json(new ResponseViewModel<MonitorEqTTViewModel>
                 {
                     Data = _response
                 });
@@ -420,9 +438,11 @@ namespace MOD4.Web.Controllers
                         {
                             ProdNo = res.ProdNo,
                             Operator = res.Operator,
+                            TargetTT = res.TargetTT,
                             MaxTT = res.MaxTT,
                             minTT = res.minTT,
                             MedianTT = res.MedianTT,
+                            AvgTT = res.AvgTT,
                             EqTTDetailList = res.EqTTHistoryList.Select(eq => new MonitorEqTTDetailModel
                             {
                                 TransDateStr = eq.TransDateStr,

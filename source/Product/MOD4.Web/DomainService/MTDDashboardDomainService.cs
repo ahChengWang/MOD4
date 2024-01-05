@@ -930,7 +930,7 @@ namespace MOD4.Web.DomainService
         #endregion
 
         #region Monitor
-        public List<MTDProcessDailyEntity> GetMonitorDailyMTD()
+        public async Task<List<MTDProcessDailyEntity>> GetMonitorDailyMTDAsync()
         {
             try
             {
@@ -939,6 +939,7 @@ namespace MOD4.Web.DomainService
                 // 取得當日MTD排程所有機種
                 List<MTDProductionScheduleDao> _mtdScheduleDataList = _mtdProductionScheduleRepository.SelectMTDTodayPlan(2, 1, _srchDate, _srchDate).ToList();
                 var _mtdProdProcessSettings = _targetSettingDomainService.GetSettingForMTD(_mtdScheduleDataList.Select(s => s.LcmProdId).ToList());
+                var _rpt106Task = _inxReportService.Get106NewReportAsync(_srchDate, _srchDate, "ALL", "2", _mtdProdProcessSettings.Select(d => d.ProdNo).Distinct().ToList());
 
                 var _dailyMTD = from plan in _mtdScheduleDataList
                                 join setting in _mtdProdProcessSettings
@@ -954,12 +955,14 @@ namespace MOD4.Web.DomainService
                                     setting.DownEq
                                 };
 
+                var _rpt106DataList = (await _rpt106Task).Date.Data.Table;
+
                 List<MTDProcessDailyEntity> mtdDailyList = _dailyMTD.GroupBy(gb => new { gb.Sn, gb.Process, gb.Node }).Select(mtd => new MTDProcessDailyEntity
                 {
                     Sn = mtd.Key.Sn,
                     Process = mtd.Key.Process,
                     DayPlanQty = mtd.Sum(sum => sum.Value),
-                    DayActQty = Convert.ToInt32(_inxReportService.Get106NewReport(_srchDate, _srchDate, "ALL", "2", mtd.Select(m => m.ProdNo).ToList()).Date.Data.Table.FirstOrDefault(t => Convert.ToInt32(t.WORK_CTR) == Convert.ToInt32(mtd.Key.Node))?.PASS_QTY ?? 0),
+                    DayActQty = Convert.ToInt32(_rpt106DataList.Where(w => Convert.ToInt32(w.WORK_CTR) == Convert.ToInt32(mtd.Key.Node))?.Select(s => s.PASS_QTY).Sum() ?? 0),
                 }).ToList();
 
                 return mtdDailyList;

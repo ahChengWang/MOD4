@@ -7,9 +7,11 @@ namespace MOD4.Web.DomainService.Entity
     {
         public string ProdNo { get; set; }
         public string Operator { get; set; }
+        public decimal TargetTT { get; set; }
         public decimal MaxTT { get; set; }
         public decimal minTT { get; set; }
         public decimal MedianTT { get; set; }
+        public decimal AvgTT { get; set; }
         public List<ProdPerfDetailEntity> EqTTHistoryList { get; set; }
 
     }

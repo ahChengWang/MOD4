@@ -208,11 +208,23 @@ namespace MOD4.Web.DomainService
             return _response;
         }
 
+        /// <summary>
+        /// 帳密 token 驗證 (參考 myam 登錄流程)
+        /// 參考 CarUX SSO v4 web 驗證流程 (http://pcuxsamv4athetn.cminl.oa/form/Logon.html LoginAPI function)
+        /// 2024/1/1 CarUX與INX 切分, CarUX SSO 原走 INX AD server 帳密驗證轉為獨立 CarUX 帳號驗證(http://cuxadpwd.cminl.oa/ 密碼修改網址)
+        /// </summary>
+        /// <param name="account"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public string GetToken(string account, string password)
         {
             try
             {
-                string url = "http://pcuxsamv4athetn.cminl.oa/api/SSO/Login";
+                //// CarUX SSO v4 web 驗證流程 (http://pcuxsamv4athetn.cminl.oa/form/Logon.html LoginAPI function)
+                //string url = "http://pcuxsamv4athetn.cminl.oa/api/SSO/Login";
+
+                // 網站暫時還是走 INX AD server 驗證
+                string url = "http://psamv4athetn.cminl.oa/api/SSO/Login";
                 string _responseStr = "";
                 string _token = "";
                 string _ssoTicket4 = "";
@@ -235,7 +247,7 @@ namespace MOD4.Web.DomainService
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
                         _token = response.Content.ReadAsStringAsync().Result;
-                        _ssoTicket4 = response.Headers.FirstOrDefault(f => f.Key == "Set-Cookie").Value?.FirstOrDefault(sf => sf.Contains("SsoTicket4")).Split(";")[0].Split("=")[1] ?? "";
+                        _ssoTicket4 = response.Headers.FirstOrDefault(f => f.Key == "CustomSsoTicket4").Value?.FirstOrDefault() ?? "";
                         _responseStr = $"{_token}|{_ssoTicket4}";
                     }
                 }
@@ -247,6 +259,7 @@ namespace MOD4.Web.DomainService
                 throw ex;
             }
         }
+
         public string VerifyToken(InxSSOEntity inxSSOEntity)
         {
             try

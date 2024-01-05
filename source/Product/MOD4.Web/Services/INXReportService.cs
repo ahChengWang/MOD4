@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MOD4.Web
 {
@@ -16,7 +17,7 @@ namespace MOD4.Web
                 
         }
 
-        public BaseINXRptEntity<INXRpt106Entity> Get106NewReport(DateTime startDate, DateTime endDate, string shift, string floor, List<string> prodList)
+        public async Task<BaseINXRptEntity<INXRpt106Entity>> Get106NewReportAsync(DateTime startDate, DateTime endDate, string shift, string floor, List<string> prodList)
         {
             string _prodStr = string.Join("','", prodList);
 
@@ -29,12 +30,34 @@ namespace MOD4.Web
 
             using (var client = new HttpClient())
             {
-                var response = client.PostAsync($"{_rpt106Url}?" + _qStr, data);
+                var response = await client.PostAsync($"{_rpt106Url}?" + _qStr, data);
 
-                _result = response.Result.Content.ReadAsStringAsync().Result;
+                _result = response.Content.ReadAsStringAsync().Result;
             }
 
             return JsonConvert.DeserializeObject<BaseINXRptEntity<INXRpt106Entity>>(_result);
+        }
+
+        public async Task<BaseINXRptEntity<INXRptTTMntEntity>> GetEntityTTMntReportAsync(DateTime startDate, List<string> prodList)
+        {
+            string _prodStr = string.Join("','", prodList);
+
+            //string _qStr = $"apiJob=[{{'name':'Date','apiName':'TN_EntityTactTimeMaintain','FactoryType':'CARUX','Action':'Query','sDateMonth':'{startDate:yyyyMM}','Size':'ALL','Product':'ALL','OptionProduct':'GDD340IA0090S','GDD340IA0100S','#optionmenu':','prod_nbr':\"GDD340IA0090S','GDD340IA0100S\"}}]";
+            string _qStr = $"apiJob=[{{'name':'Date','apiName':'TN_EntityTactTimeMaintain','FactoryType':'CARUX','Action':'Query','sDateMonth':'{startDate:yyyyMM}','Size':'ALL','Product':'ALL','OptionProduct':\"{_prodStr}\",'#optionmenu':'','prod_nbr':\"{_prodStr}\"}}]";
+
+            string _result = "";
+
+            var data = new StringContent(_qStr, Encoding.UTF8, "text/plain");
+            data.Headers.Add("Reporttoken", "VE5VSTIyMDA4MTYzMjAyMy0wNS0xMA==");
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.PostAsync($"{_rpt106Url}?" + _qStr, data);
+
+                _result = response.Content.ReadAsStringAsync().Result;
+            }
+
+            return JsonConvert.DeserializeObject<BaseINXRptEntity<INXRptTTMntEntity>>(_result);
         }
     }
 }

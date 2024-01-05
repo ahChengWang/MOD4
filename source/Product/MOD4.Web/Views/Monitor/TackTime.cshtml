@@ -226,23 +226,82 @@
     .modal-body > div:first-child > div {
         background: rgb(255, 255, 255,0.3);
         border-radius: 0.3rem;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        /*display: flex;
+        align-items: center;*/
         text-align: center;
         color: white;
         font-size: 1.5vw;
         font-weight: 600;
-        padding: 5px;
+        padding: 0.3vw;
     }
 
-        .modal-body > div:first-child > div:nth-child(2) {
+        .modal-body > div:first-child > div > a:nth-child(even) {
             margin-left: 0.5vw;
+        }
+
+        .modal-body > div:first-child > div:nth-child(2) {
+            margin-left: 0.2vw;
         }
 
         .modal-body > div:first-child > div:nth-child(3) {
-            margin-left: 0.5vw;
+            margin-left: 0.2vw;
         }
+
+        .modal-body > div:first-child > div:nth-child(4) {
+            margin-left: 0.2vw;
+        }
+
+        .modal-body > div:first-child > div:nth-child(5) {
+            margin-left: 0.2vw;
+        }
+
+
+    .cutChgBtn {
+        float: right;
+        top: 0;
+        left: 0;
+        border-radius: 6px;
+        position: relative;
+        transition: all .03s linear .03s;
+        padding: 8px 10px;
+        color: white;
+        background-color: #050505;
+        box-shadow: -2px 3px 0 #757575;
+        border-color: #737373;
+    }
+
+        .cutChgBtn:hover {
+            top: 3px;
+            left: -3px;
+            color: white;
+            box-shadow: -2px 2px 0 #757575;
+        }
+
+        .cutChgBtn::after {
+            top: 1px;
+            left: -2px;
+        }
+
+        .cutChgBtn::before {
+            bottom: -2px;
+            right: 1px;
+        }
+
+        .cutChgBtn:active {
+            top: 6px;
+            left: -6px;
+            box-shadow: none;
+        }
+
+            .cutChgBtn:active:before {
+                bottom: 1px;
+                right: 1px;
+            }
+
+            .cutChgBtn:active:after {
+                top: 1px;
+                left: 1px;
+            }
 </style>
 
 <head>
@@ -253,6 +312,8 @@
     <link rel="stylesheet" href="~/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css">
 </head>
 
 <body class="bg-theme">
@@ -292,7 +353,7 @@
                 <div class="box" style="width: 28vw;">
 
                     <div name="cHeader" style="background-color: rgba(134, 29, 204,.3); right: 10vw;">
-                        <a>本日產品設備TT</a>
+                        <a style="font-size: 1.3vw;">本日產品設備TT</a>
                     </div>
                     <div class="monitor panel autoscrollable-wrapper" @@mouseover="stopInterval(this)" @@mouseout="setScrollInterval()">
                         <div>
@@ -341,43 +402,68 @@
                 <div class="myModal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">{{eqTTDetail.title}}本日TT</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" @@click="dismissModalClk"><span aria-hidden="true" style="color: white;">×</span></button>
                     </div>
                     <div class="d-flex" style="padding: 1rem;">
-                        <div class="col-lg-1" style="font-size: 1vw; color: rgb(255, 255, 255); display: flex; justify-content: center; align-items: center;">
+                        <div class="col-lg-1" style="font-size: 1.2vw; color: rgb(255, 255, 255); display: flex; justify-content: center; align-items: center;">
                             機種:
                         </div>
-                        <div class="col-lg-2" style="font-size: 1vw;">
+                        <div class="col-lg-2" style="font-size: 1vw; display: flex; justify-content: center; align-items: center;">
                             <select style="background-color: rgb(255, 255, 255, 0.6);" v-model="prodSelected" @@change="chartOptoinChange">
                                 <option v-for="prod in prodOptions" :value="prod">{{prod}}</option>
                             </select>
                         </div>
-                        <div class="col-lg-2" style="font-size: 1vw; color: rgb(255, 255, 255); display: flex; justify-content: center; align-items: center;">
+                        <div class="col-lg-2" style="font-size: 1.2vw; color: rgb(255, 255, 255); display: flex; justify-content: center; align-items: center;">
                             操作人員:
                         </div>
-                        <div class="col-lg-2" style="font-size: 1vw;">
+                        <div class="col-lg-2" style="font-size: 1vw; display: flex; justify-content: center; align-items: center;">
                             <select style="background-color: rgb(255, 255, 255, 0.6);" v-model="oprSelected" @@change="chartOptoinChange">
                                 <option v-for="opr in oprOptions" :value="opr">{{opr}}</option>
                             </select>
                         </div>
+                        <div class="col-lg-5">
+                            <button class="cutChgBtn fas fa-exchange-alt" style="font-size: 1vw;" @@click="chartChange">{{chartDisplayObj.title}}</button>
+                        </div>
                     </div>
                     <div class="modal-body">
                         <div class="d-flex">
-                            <div class="col-lg-3 d-flex">
-                                <div class="col-lg-7">MAX.</div>
-                                <div class="col-lg-5">{{modalObj.MAX}}(s)</div>
+                            <div class="col-lg-2">
+                                @*<div class="col-lg-6">目標</div>
+                                    <div class="col-lg-6">{{modalObj.target}}(s)</div>*@
+                                <a>目標</a>
+                                <a>{{modalObj.target}}(s)</a>
                             </div>
-                            <div class="col-lg-3 d-flex">
-                                <div class="col-lg-7">min.</div>
-                                <div class="col-lg-5">{{modalObj.min}}(s)</div>
+                            <div class="col-lg-2">
+                                @*<div class="col-lg-5">MAX.</div>
+                                    <div class="col-lg-5">{{modalObj.MAX}}(s)</div>*@
+                                <a>MAX.</a>
+                                <a>{{modalObj.MAX}}(s)</a>
                             </div>
-                            <div class="col-lg-3 d-flex">
-                                <div class="col-lg-7">中位數</div>
-                                <div class="col-lg-5">{{modalObj.medianTT}}(s)</div>
+                            <div class="col-lg-2">
+                                @*<div class="col-lg-6">min.</div>
+                                    <div class="col-lg-6">{{modalObj.min}}(s)</div>*@
+                                <a>min.</a>
+                                <a>{{modalObj.min}}(s)</a>
+                            </div>
+                            <div class="col-lg-2">
+                                @*<div class="col-lg-6">中位數</div>
+                                    <div class="col-lg-6">{{modalObj.medianTT}}(s)</div>*@
+                                <a>中位數</a>
+                                <a>{{modalObj.medianTT}}(s)</a>
+                            </div>
+                            <div class="col-lg-2">
+                                @*<div class="col-lg-5">AVG</div>
+                                    <div class="col-lg-7">{{modalObj.avg}}(s)</div>*@
+                                <a>AVG</a>
+                                <a>{{modalObj.avg}}(s)</a>
                             </div>
                         </div>
                         <br />
-                        <div id="ttChart"></div>
+                        @*<div id="ttChart"></div>*@
+                        <div :style="chart1Style" id="ttChart"></div>
+                        <div :style="chart2Style">
+                            <img src="~/img/fab_layout/toBeContinue.jpg" style="width: 60%;" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -418,9 +504,11 @@
             oprOptions: [],
             oprSelected: "",
             modalObj: {
+                target: 0,
                 MAX: 0,
                 min: 0,
                 medianTT: 0,
+                avg: 0,
             },
             eqTTInfo:[],
             eqTTDetail: {
@@ -438,12 +526,27 @@
                 showConfirmButton: false,
                 timer: 5000
             }),
+            chartDisplayObj: {
+                isFront: true,
+                title: ' run time 效率',
+                frontTitle: ' run time 效率',
+                backTitle: ' down time 效率',
+            },
+            chartBtnTitle: ' run time 效率',
+            chartDefTitle: ' run time 效率',
+            chart1Style: 'backface-visibility: hidden;transition: all 0.5s;',
+            chart2Style: 'transform: rotateY(-180deg);backface-visibility: hidden;position: absolute;transition: all 0.5s;display:flex;justify-content:center;display:none;',
         },
         methods: {
             stopInterval(e) {
                 clearInterval(vue.scrollInterval);
             },
             setScrollInterval() {
+                this.scrollInterval = setInterval(function () {
+                    vue.scrollingRow();
+                }, 100);
+            },
+            setEqTTMapInterval() {
                 this.scrollInterval = setInterval(function () {
                     vue.scrollingRow();
                 }, 100);
@@ -564,9 +667,11 @@
 
                             if (result.data.length == 0) {
                                 vue.ttChartObj.clear();
+                                vue.modalObj.target = 0;
                                 vue.modalObj.MAX = 0;
                                 vue.modalObj.min = 0;
                                 vue.modalObj.medianTT = 0;
+                                vue.modalObj.avg = 0;
                                 vue.prodOptions = [];
                                 vue.prodSelected = '';
                                 vue.oprOptions = [];
@@ -575,9 +680,11 @@
                             else {
                                 result.data.forEach(function (item, idx) {
                                     if (idx == 0) {
+                                        vue.modalObj.target = item.targetTT;
                                         vue.modalObj.MAX = item.maxTT;
                                         vue.modalObj.min = item.minTT;
                                         vue.modalObj.medianTT = item.medianTT;
+                                        vue.modalObj.avg = item.avgTT;
                                         vue.prodSelected = item.prodNo;
                                         vue.oprSelected = item.operator;
                                     }
@@ -591,6 +698,16 @@
                             }
                         }
                         else {
+                            vue.ttChartObj.clear();
+                            vue.modalObj.target = 0;
+                            vue.modalObj.MAX = 0;
+                            vue.modalObj.min = 0;
+                            vue.modalObj.medianTT = 0;
+                            vue.modalObj.avg = 0;
+                            vue.prodOptions = [];
+                            vue.prodSelected = '';
+                            vue.oprOptions = [];
+                            vue.oprSelected = '';
                             vue.toast.fire({
                                 icon: 'warning',
                                 title: result.msg + '\r\n未設定target'
@@ -672,7 +789,7 @@
             setRefreshProdTTInterval() {
                 this.refreshProdTTInterval = setInterval(function () {
                     vue.eqTTRefreshInterval();
-                }, 300000);
+                }, 60000);
             },
             setTurnShowProdTTInterval() {
                 this.turnProdTTInterval = setInterval(function () {
@@ -705,8 +822,15 @@
                     dataType: 'json',
                     success: function (result) {
                         if (result.isSuccess) {
-                            vue.dailyEqTTInfo = result.data;
+                            vue.dailyEqTTInfo = result.data.prodTTList;
                             vue.showEqTTInfo = vue.dailyEqTTInfo[vue.showIdx];
+                            if (result.data.eqTTList != null) {
+                                vue.wrapMapEqPerInfo(result.data.eqTTList);
+                                if (window.innerHeight === screen.height) {
+                                    this.isFullscreen = true;
+                                }
+                                vue.pageResize(false, this.isFullscreen);
+                            }
                         }
                         else {
                             vue.toast.fire({
@@ -770,9 +894,11 @@
             chartOptoinChange() {
                 vue.modalEqTTHisData.forEach(function (item, idx) {
                     if (item.prodNo == vue.prodSelected && item.operator == vue.oprSelected) {
+                        vue.modalObj.target = item.targetTT;
                         vue.modalObj.MAX = item.maxTT;
                         vue.modalObj.min = item.minTT;
                         vue.modalObj.medianTT = item.medianTT;
+                        vue.modalObj.avg = item.avgTT;
 
                         const _dataAry = [];
                         const _targetAry = [];
@@ -811,6 +937,26 @@
                         vue.ttChartObj.resize();
                     }
                 });
+            },
+            chartChange() {
+                if (vue.chartDisplayObj.isFront) {
+                    vue.chart1Style = 'transform: rotateY(180deg);backface-visibility: hidden;position: absolute;transition: all 0.5s;display:none;';
+                    vue.chart2Style = 'transform: rotateY(0);backface-visibility: hidden;transition: all 0.5s ;display:flex ;justify-content:center ;';
+                    vue.chartDisplayObj.isFront = false;
+                    vue.chartDisplayObj.title = vue.chartDisplayObj.backTitle;
+                }
+                else {
+                    vue.chart1Style = 'transform: rotateY(0);backface-visibility: hidden;transition: all 0.5s;';
+                    vue.chart2Style = 'transform: rotateY(180deg);backface-visibility: hidden;position: absolute;transition: all 0.5s ;display:none;';
+                    vue.chartDisplayObj.isFront = true;
+                    vue.chartDisplayObj.title = vue.chartDisplayObj.frontTitle;
+                }
+            },
+            dismissModalClk() {
+                vue.chart1Style = 'transform: rotateY(0);backface-visibility: hidden;transition: all 0.5s;';
+                vue.chart2Style = 'transform: rotateY(180deg);backface-visibility: hidden;position: absolute;transition: all 0.5s ;display:none;';
+                vue.chartDisplayObj.isFront = true;
+                vue.chartDisplayObj.title = vue.chartDisplayObj.frontTitle;
             }
         },
         mounted: function () {

@@ -2,6 +2,7 @@
 using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MOD4.Web.DomainService
 {
@@ -19,6 +20,6 @@ namespace MOD4.Web.DomainService
 
         string UpdateMTBFMTTRSetting(EqMappingEntity updateEntity, UserEntity userEntity);
 
-        List<MTDProcessDailyEntity> GetMonitorDailyMTD();
+        Task<List<MTDProcessDailyEntity>> GetMonitorDailyMTDAsync();
     }
 }
