@@ -284,11 +284,9 @@
 
                                         if (vue.todayStr == detail.event.startStr) {
                                             vue.modalInsModel.isHistory = false;
-                                            vue.modalDataBackdrop = 'static';
                                         }
                                         else {
                                             vue.modalInsModel.isHistory = true;
-                                            vue.modalDataBackdrop = '';
                                         }
                                     }
                                     else {
@@ -300,7 +298,6 @@
                         }                        
                     }
                 },
-                modalDataBackdrop: 'static',
                 modalInsModel: {
                     calDate: '',
                     category: 1,
@@ -313,6 +310,13 @@
                 panelLogDate: [],
                 todayStr: '',
                 materialDic: {
+                    'FATL': [1, '背蓋'],
+                    'FKWW': [2, '機板'],
+                    'GEBR': [2, '機板'],
+                    'GEBS': [2, '機板'],
+                    'FKWX': [2, '機板'],
+                    'FKWZ': [2, '機板'],
+                    'FKWY': [2, '機板'],
                     'FSSV': [3, 'BL'],
                     'FSYU': [3, 'BL'],
                     'FT56': [3, 'BL'],
@@ -320,8 +324,7 @@
                     'FXY5': [3, 'BL'],
                     'G8LS': [3, 'BL'],
                     'G8NL': [3, 'BL'],
-                    'G1': [1, '背蓋'],
-                    'G2': [2, '機板'],
+                    'FZNP': [3, 'BL'],
                 }
             },
             methods: {
