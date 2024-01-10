@@ -31,6 +31,8 @@ namespace MOD4.Web.DomainService
 
         List<OptionEntity> GetMenuOptionList();
 
+        List<OptionEntity> GetLightingCategory();
+
         List<MenuPermissionViewModel> GetCreatePermissionList();
 
         List<(string, List<(int, string)>)> GetLcmProdOptions();

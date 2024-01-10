@@ -121,7 +121,8 @@ namespace MOD4.Web
             services.AddSingleton<IDefinitionDepartmentRepository, DefinitionDepartmentRepository>();
             services.AddSingleton<IMonitorSettingRepository, MonitorSettingRepository>();
             services.AddSingleton<IProdPerformanceDetailRepository, ProdPerformanceDetailRepository>();
-
+            services.AddSingleton<ILightingLogRepository, LightingLogRepository>();
+            
             services.AddScoped<MenuService>();
             services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));
             services.AddSingleton(new ServiceDescriptor(typeof(OracleDBHelper), new OracleDBHelper(Configuration)));

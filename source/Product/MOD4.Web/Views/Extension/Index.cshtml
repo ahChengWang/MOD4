@@ -1,39 +1,332 @@
 ﻿
 @{
-    ViewBag.Title = "記錄檔";
+    ViewBag.Title = "點燈記錄";
 }
 
+<head>
+    <link rel="stylesheet" href="~/plugins/fullcalendar/main.min.css">
+    <link rel="stylesheet" href="~/plugins/daterangepicker/daterangepicker.css">
+    @*<link rel="stylesheet" href="https://bootswatch.com/5/darkly/bootstrap.min.css">*@
+</head>
+
 <style>
+    .myModal-dialog {
+        max-height: 10vh;
+    }
+
+    .modal-content {
+        background-color: rgb(131, 165, 199);
+    }
+
+    .close-x {
+        position: relative;
+        width: 25px;
+        height: 25px;
+        border: 2px solid #eb5241;
+        background-color: #eb5241;
+        border-radius: 50%;
+    }
+
+        .close-x:before,
+        .close-x:after {
+            position: absolute;
+            left: 9.8px;
+            top: 5px;
+            text-align: center;
+            content: " ";
+            height: 12px;
+            width: 2px;
+            background-color: white;
+        }
+
+        .close-x:before {
+            transform: rotate(45deg);
+        }
+
+        .close-x:after {
+            transform: rotate(-45deg);
+        }
+
+        .close-x:active {
+            transform: scale(0.7);
+        }
+
+    .fc-event-title-container {
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .fc-daygrid-event {
+        border-radius: 1rem;
+        box-shadow: 2px 0px #4f4f4f;
+    }
+
+    span[name="note"] {
+        color: #b00707;
+        font-weight: 600;
+        font-size: 10px;
+    }
 </style>
 
 <div class="content-wrapper">
     <section class="content">
         <div id="app" class="container-fluid">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">記錄檔</h3>
+            <div class="d-flex align-content-center flex-wrap">
+                <div><a style="background-color: #cca36a; font-weight: 700; font-size: 2vh;">背蓋</a></div>
+                <div><a style="background-color: #6d6dad; font-weight: 700; font-size: 2vh; margin-left: 4px; ">機板</a></div>
+                <div><a style="background-color: #609e72; font-weight: 700; font-size: 2vh; margin-left: 4px; ">BL</a></div>
+                <div><span name="note" style="font-weight: 700; margin-left: 4px; ">※ 點擊兩下當天日期顯示新增視窗</span></div>
+            </div>
+            <div class="col-md-12">
+                <div class="card" style="background-color: rgb(118, 140, 163,0.5); ">
+                    <div id="calendar">
+                    </div>
                 </div>
-                <div class="card-body">
-                    <input type="text" @@change="impChange(this)" v-model="panelImp" :value="panelValue" />
-                    <input type="text" v-model="panelDate" readonly />
+            </div>
+            <fieldset id="searchArea">
+                <legend id="legend">查詢區塊</legend>
+                <div class="d-flex" style="margin-bottom: 2px;">
+                    @*<div class="col-lg-1">樓層</div>
+                        <div class="col-lg-1">
+                            <select class="myInputStyle1">
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                            </select>
+                        </div>*@
+                    <div class="col-lg-2">
+                        Panel ID
+                    </div>
+                    <div class="col-lg-2">
+                        <input class="myInputStyle1" type="text" v-model="panelValue" />
+                    </div>
+                    <div class="col-lg-1">
+                        <input id="btnSearch" type="button" class="btn" name="btn29" style="margin-left:7px" value="查詢" @@click="srchClick" />
+                    </div>
+                    <div class="col-lg-1">
+                        <button type="button" class="btn-light" style="background-color: transparent; font-weight: 600; color: black;" @@click="removeFilter">
+                            <span>&#x2716;</span>
+                            <span>清除條件</span>
+                        </button>
+                    </div>
                 </div>
+                <div v-for="(item, idx) in panelLogDate">
+                    <h5 v-if="idx == 0">點燈記錄</h5>
+                    <label class="col-form-label-sm">{{item.category}}</label>
+                    <label class="col-form-label-sm">{{item.panelDate}}</label>
+                </div>
+            </fieldset>
+            <div class="modal fade" id="modal-completed">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header" style="height: 50px; font-weight: 700; display: inline-block; align-content: center;">
+                            <h5 style="display:inline-block">紀錄</h5>
+                            <button type="button" class="close" style="color:white">
+                                <span aria-hidden="true" @@click="modalClose">&#x2718;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div>
+                                <label>日期：</label>
+                                <label>{{modalInsModel.calDate}}</label>
+                            </div>
+                            @*<div>
+                                    <label>類別：</label>
+                                    <select class="myInputStyle1" v-model="modalInsModel.category" :disabled="modalInsModel.selDisable">
+                                        <option v-for="catg in catgOptions" :value="catg.id">{{catg.value}}</option>
+                                    </select>
+                                </div>*@
+                            <div v-if="!modalInsModel.isHistory">
+                                <label>Panel ID：</label>
+                                <input type="text" @@change="textChange" v-model="panelImp" />
+                            </div>
+                            <div style="overflow: auto; overflow-x: hidden; overflow-y: auto; width: 100%; max-height: 60vh;">
+                                <table class="table" style="text-align: center; max-height: 100%;">
+                                    <thead>
+                                        <tr>
+                                            <th>類別</th>
+                                            <th>Panel ID</th>
+                                            <th>時間</th>
+                                            <th>人員</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(item, idx) in modalInsModel.modalHis">
+                                            <td style="vertical-align: middle; ">{{item.category}}</td>
+                                            <td style="vertical-align: middle; ">{{item.panelId}}</td>
+                                            <td style="vertical-align: middle; ">{{item.panelDate}}</td>
+                                            <td style="vertical-align: middle; ">{{item.updateUser}}</td>
+                                            <td>
+                                                <button v-if="item.showDel" class="close-x" @@click="removeRow(idx)"></button>
+                                                <input type="hidden" value="item.panelSn" />
+                                                <input type="hidden" value="item.categoryId" />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer justify-content-between" v-if="!modalInsModel.isHistory">
+                            <input v-if="modalInsModel.isCreate" type="button" class="btn btn-outline-dark" value="儲存" @@click="saveClick" />
+                            <input v-if="!modalInsModel.isCreate" type="button" class="btn btn-outline-warning" value="更新" @@click="updateClick" />
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal-dialog -->
             </div>
         </div>
     </section>
 </div>
 
+
 @section scripts{
+    <script src="~/plugins/moment/moment.min.js"></script>
+    <script src="~/plugins/fullcalendar/main.js"></script>
     <script type="text/javascript">
+
+        const catgColorDic = {
+            1: '#cca36a',
+            2: '#6d6dad',
+            3: '#609e72',
+        };
 
         const vue = new Vue({
             el: '#app',
             data: {
+                loginUserObj: null,
                 panelImp: '',
                 panelValue: '',
                 panelDate: '',
+                calendar: null,
+                catgOptions: @(Html.Raw(Json.Serialize(ViewBag.CatgOption))),
+                calendarEl: null,
+                calOption: {
+                    /*initialDate: new Date(2023, 7, 31),*/
+                    headerToolbar: {
+                        left: 'customprev,customnext,customtoday',
+                        center: 'title',
+                        right: 'dayGridMonth',
+                    },
+                    height: 800,
+                    initialView: 'dayGridMonth',
+                    /*themeSystem: 'bootstrap',*/
+                    editable: true,
+                    eventStartEditable: false,
+                    eventResizableFromStart: false,
+                    eventDurationEditable: false,
+                    displayEventTime: false,
+                    droppable: false, // this allows things to be dropped onto the calendar !!!
+                    customButtons: {
+                        customprev: {
+                            icon: 'chevrons-left',
+                            click: function () {
+                                vue.calendar.prev();
+                                vue.setDbClickEvent(vue.todayStr);
+                            }
+                        },
+                        customnext: {
+                            icon: 'chevrons-right',
+                            click: function () {
+                                vue.calendar.next();
+                                vue.setDbClickEvent(vue.todayStr);
+                            }
+                        },
+                        customtoday: {
+                            text: 'today',
+                            click: function () {
+                                vue.calendar.today();
+                                vue.setDbClickEvent(vue.todayStr);
+                            }
+                        }
+                    },
+                    eventClick: function (detail) {
+
+                        if (detail.event.id == 1) {
+                            vue.downloadClick(detail.event.startStr);
+                        }
+                        else {
+                            vue.clearModal();
+
+                            $.ajax({
+                                url: "./Extension/DayLightingLog?panelDate=" + detail.event.startStr + '&categoryId=' + detail.event.extendedProps.categoryId,
+                                type: "GET",
+                                dataType: "json",
+                                success: function (res) {
+                                    $.unblockUI();
+                                    if (res.isSuccess) {
+
+                                        $('body').addClass('modal-open');
+                                        var ele = $('body').find('.modal-backdrop');
+                                        if (ele.length == 0) {
+                                            $('body').append('<div class="modal-backdrop fade show"></div>');
+                                        }
+                                        $('#modal-completed').addClass('show');
+                                        $('#modal-completed').css('display', 'block');
+
+                                        vue.modalInsModel.calDate = res.data.logDate.substr(0, 10);
+                                        /*vue.modalInsModel.category = res.data.lightingCategoryId;*/
+
+                                        $.each(res.data.detail, function (index, detail) {
+                                            vue.modalInsModel.modalHis.push({
+                                                panelSn: detail.panelSn,
+                                                panelId: detail.panelId,
+                                                panelDate: detail.panelDate.replace('T', ' '),
+                                                categoryId: detail.categoryId,
+                                                category: detail.category,
+                                                updateUser: detail.updateUser
+                                            });
+                                        });
+
+                                        vue.modalInsModel.modalHis['showDel'] = false;
+                                        vue.modalInsModel.selDisable = true;
+                                        vue.modalInsModel.isCreate = false;
+
+                                        if (vue.todayStr == detail.event.startStr) {
+                                            vue.modalInsModel.isHistory = false;
+                                            vue.modalDataBackdrop = 'static';
+                                        }
+                                        else {
+                                            vue.modalInsModel.isHistory = true;
+                                            vue.modalDataBackdrop = '';
+                                        }
+                                    }
+                                    else {
+                                        alert(res.msg);
+                                        return false;
+                                    }
+                                }
+                            });
+                        }                        
+                    }
+                },
+                modalDataBackdrop: 'static',
+                modalInsModel: {
+                    calDate: '',
+                    category: 1,
+                    modalHis: [],
+                    selDisable: false,
+                    haveNew: false,
+                    isCreate: false,
+                    isHistory: false
+                },
+                panelLogDate: [],
+                todayStr: '',
+                materialDic: {
+                    'FSSV': [3, 'BL'],
+                    'FSYU': [3, 'BL'],
+                    'FT56': [3, 'BL'],
+                    'FT59': [3, 'BL'],
+                    'FXY5': [3, 'BL'],
+                    'G8LS': [3, 'BL'],
+                    'G8NL': [3, 'BL'],
+                    'G1': [1, '背蓋'],
+                    'G2': [2, '機板'],
+                }
             },
             methods: {
-                impChange(e) {
+                textChange(e) {
+
                     var time = new Date();
                     var dname = time.getDay(),
                         yr = time.getFullYear(),
@@ -43,27 +336,296 @@
                         min = time.getMinutes(),
                         sec = time.getSeconds();
                     var months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
-                    vue.panelDate = yr + '-' + months[mo] + '-' + vue.numPad(dnum, 2) + ' ' + vue.numPad(hr, 2) + ':' + vue.numPad(min, 2) + ':' + vue.numPad(sec, 2);
-                    if (vue.panelImp.length == 0) {
-                        vue.panelValue = vue.panelImp;
-                        vue.panelDate = '';
+
+                    const _categoryId = vue.chkMaterialId(vue.panelImp.substr(0, 4));
+
+                    if (_categoryId == '') {
+                        vue.panelImp = '';
+                        return;
                     }
-                    else if (vue.panelValue.length > 0) {
-                        vue.panelValue += ',' + vue.panelImp.substr(vue.panelValue.length, vue.panelImp.length - vue.panelValue.length);
-                        vue.panelImp = vue.panelValue;
-                    }
-                    else {
-                        vue.panelValue = vue.panelImp;
+
+                    vue.modalInsModel.modalHis.push({
+                        panelId: vue.panelImp,
+                        panelDate: yr + '-' + months[mo] + '-' + vue.numPad(dnum, 2) + ' ' + vue.numPad(hr, 2) + ':' + vue.numPad(min, 2) + ':' + vue.numPad(sec, 2),
+                        updateUser: vue.loginUserObj.name,
+                        categoryId: _categoryId[0],
+                        category: _categoryId[1],
+                        showDel: true
+                    });
+                    vue.panelImp = '';
+                    vue.modalInsModel.haveNew = true;
+                    if (vue.modalInsModel.modalHis.length != 0) {
+                        vue.modalInsModel.selDisable = true;
                     }
                 },
                 numPad(str, digits) {
                     // 轉換成兩位數
                     for (var n = str.toString(); n.length < digits; n = 0 + n);
                     return n;
+                },
+                chkMaterialId(panelId) {
+                    const _catg = vue.materialDic[panelId];
+
+                    if (_catg == null) {
+                        Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2000
+                        }).fire({
+                            icon: 'error',
+                            title: '查無此料號類別'
+                        });
+                        return '';
+                    }
+                    else {
+                        return _catg;
+                    }
+                },
+                removeRow(rIdx) {
+                    vue.modalInsModel.modalHis.splice(rIdx, 1);
+                    if (vue.modalInsModel.modalHis.length == 0) {
+                        vue.modalInsModel.selDisable = false;
+                    }
+                },
+                setDbClickEvent(today) {
+
+                    let _tbl = $('tbody[role="presentation"]')[0].children;
+                    $.each(_tbl, function (index, tr) {
+                        $.each(tr.children, function (idx, td) {
+
+                            if (td.dataset.date == today) {
+
+                                td.ondblclick = function (even) {
+
+                                    $('body').addClass('modal-open');
+                                    var ele = $('body').find('.modal-backdrop');
+                                    if (ele.length == 0) {
+                                        $('body').append('<div class="modal-backdrop fade show"></div>');
+                                    }
+                                    $('#modal-completed').addClass('show');
+                                    $('#modal-completed').css('display', 'block');
+                                    vue.clearModal();
+                                    vue.modalInsModel.calDate = even.currentTarget.dataset.date;
+                                    vue.modalInsModel.selDisable = false;
+                                    vue.modalInsModel.isCreate = true;
+
+                                    if (vue.todayStr == even.currentTarget.dataset.date) {
+                                        vue.modalInsModel.isHistory = false;
+                                    }
+                                    else {
+                                        vue.modalInsModel.isHistory = true;
+                                    }
+                                };
+
+                                return;
+                            }
+                        });
+                    });
+                },
+                modalClose() {
+                    if (vue.modalInsModel.haveNew) {
+                        Swal.fire({
+                            title: '確定關閉',
+                            icon: 'question'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                vue.dismissModal();
+                            }
+                        });
+                    }
+                    else {
+                        vue.dismissModal();
+                    }
+                },
+                dismissModal() {
+                    $('body').css({ 'padding-right': '' });
+                    $('body').removeClass('modal-open');
+                    $('#modal-completed').removeClass('show');
+                    $('#modal-completed').css('display', 'none');
+                    $('.modal-backdrop').remove();
+                    //$('.modal-dialog').remove();
+                },
+                clearModal() {
+                    vue.modalInsModel.calDate = '';
+                    vue.modalInsModel.category = 1;
+                    vue.modalInsModel.modalHis = [];
+                    vue.modalInsModel.haveNew = false;
+                },
+                saveClick() {
+
+                    const _insModel = {
+                        LogDate: vue.modalInsModel.calDate,
+                        Detail: vue.modalInsModel.modalHis
+                    };
+
+                    globalFuc.LoadingPic();
+
+                    $.ajax({
+                        url: "./Extension/DayLightingLog",
+                        type: "POST",
+                        dataType: "json",
+                        data: { insModel : _insModel },
+                        success: function (res) {
+                            $.unblockUI();
+                            if (res.isSuccess) {
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '成功',
+                                    showConfirmButton: false,
+                                    timer: 1000
+                                }).then((result) => {
+                                    vue.dismissModal();
+                                    vue.clearModal();
+                                    location.reload();
+                                });
+                            }
+                            else {
+                                alert(res.msg);
+                                return false;
+                            }
+                        }
+                    });
+                },
+                updateClick() {
+
+                    const _updModel = {
+                        LogDate: vue.modalInsModel.calDate,
+                        Detail: vue.modalInsModel.modalHis
+                    };
+
+                    globalFuc.LoadingPic();
+
+                    $.ajax({
+                        url: "./Extension/DayLightingLogUpdate",
+                        type: "PUT",
+                        dataType: "json",
+                        data: { updModel: _updModel },
+                        success: function (res) {
+                            $.unblockUI();
+                            if (res.isSuccess) {
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '成功',
+                                    showConfirmButton: false,
+                                    timer: 1000
+                                }).then((result) => {
+                                    vue.dismissModal();
+                                    vue.clearModal();
+                                    location.reload();
+                                });
+                            }
+                            else {
+                                alert(res.msg);
+                                return false;
+                            }
+                        }
+                    });
+                },
+                srchClick() {
+
+                    $.ajax({
+                        url: "./Extension/LightingPanelLog?panelId=" + vue.panelValue,
+                        type: "GET",
+                        dataType: "json",
+                        success: function (res) {
+
+                            vue.calOption.initialDate = null;
+                            vue.panelLogDate = [];
+
+                            if (res.isSuccess) {
+
+                                if (res.data.length != 0 && vue.panelValue != '') {
+                                    vue.calOption.initialDate = res.data[res.data.length - 1].panelDate;
+
+                                    $.each(res.data, function (idx, item) {
+                                        vue.panelLogDate.push({
+                                            panelDate: item.panelDate.replace('T', ' '),
+                                            category: item.category
+                                        });
+                                    });
+                                }
+                                else if (res.data.length == 0 && vue.panelValue != '') {
+                                    Swal.fire({
+                                        title: '查無資料',
+                                        icon: 'info',
+                                        showConfirmButton: false,
+                                        timer: 600
+                                    });
+                                }
+
+                                vue.calendarEl = document.getElementById('calendar');
+
+                                vue.calendar = new FullCalendar.Calendar(vue.calendarEl, vue.calOption);
+
+                                vue.calendar.render();
+                            }
+                            else {
+                                alert(res.msg);
+                                return false;
+                            }
+                        }
+                    });
+                },
+                downloadClick(date) {
+                    window.location = "./Extension/LightingLogDownload/" + date;
+                },
+                removeFilter() {
+                    vue.panelValue = '';
+                    vue.calOption.initialDate = null;
+                    vue.panelLogDate = [];
+                    vue.calendarEl = document.getElementById('calendar');
+                    vue.calendar = new FullCalendar.Calendar(vue.calendarEl, vue.calOption);
+                    vue.calendar.render();
                 }
             },
             mounted: function () {
 
+                var _model = @(Html.Raw(Json.Serialize(Model)));
+                this.loginUserObj = @(Html.Raw(Json.Serialize(ViewBag.UserInfo)));
+
+                var _calEvents = [];
+
+                $.each(_model, function (idx, data) {
+                    $.each(data.processList, function (idx, detail) {
+                        _calEvents.push({
+                            title: detail.category + ' ' + detail.processCnt + '片',
+                            start: data.logDate,
+                            /*end: new Date(2024, 0, 8),*/
+                            //backgroundColor: "#294da6", //red
+                            //borderColor: "#b80909",
+                            color: catgColorDic[detail.categoryId],
+                            borderColor: '#575757',
+                            textColor: '#000000',
+                            allDay: true,
+                            extendedProps: detail,
+                        });
+                    });
+
+                    _calEvents.push({
+                        id: 1,
+                        title: '下載報表',
+                        start: data.logDate,
+                        color: '#61cfc7',
+                        borderColor: '#575757',
+                        textColor: '#000000',
+                        allDay: true
+                    });
+                });
+
+                this.calendarEl = document.getElementById('calendar');
+
+                this.calOption.events = _calEvents;
+
+                this.calendar = new FullCalendar.Calendar(this.calendarEl, this.calOption);
+
+                this.calendar.render();
+
+                this.todayStr = this.calendar.getDate().toISOString().substr(0, 10);
+
+                this.setDbClickEvent(this.todayStr);
             }
         });
 

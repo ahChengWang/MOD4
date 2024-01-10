@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MOD4.Web.DomainService;
+using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
 using MOD4.Web.Models;
 using MOD4.Web.ViewModel;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Utility.Helper;
 
@@ -33,15 +35,183 @@ namespace MOD4.Web.Controllers
 
         public IActionResult Index()
         {
-            ViewBag.ApplyAreaOption = _optionDomainService.GetCertifiedAreaOptions().Select(s => new
+            try
             {
-                Area = s.AreaId.GetDescription(),
-                AreaId = s.AreaId,
-                SubjectId = s.SubjectId,
-                Subject = s.Subject
-            });
+                UserEntity _userInfo = GetUserInfo();
+                _userInfo.UserMenuPermissionList = _userInfo.UserMenuPermissionList.Where(w => w.MenuSn == MenuEnum.Extension).ToList();
+                ViewBag.UserInfo = _userInfo;
+                ViewBag.CatgOption = _optionDomainService.GetLightingCategory();
 
-            return View();
+                var _res = _extensionDomainService.GetLightingHisList();
+
+                List<LightingLogViewModel> _response = _res.Select(main => new LightingLogViewModel
+                {
+                    LogDate = main.LogDate,
+                    ProcessList = main.ProcessList.Select(detail => new LightingLogSubViewModel
+                    {
+                        Category = detail.Category,
+                        CategoryId = detail.CategoryId,
+                        ProcessCnt = detail.ProcessCnt
+                    }).ToList()
+                }).ToList();
+
+                return View(_response);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult LightingPanelLog(string panelId)
+        {
+            try
+            {
+                var _res = _extensionDomainService.GetLightingLogById(panelId);
+
+                List<LightingDayLogDetailViewModel> _response = _res.Select(main => new LightingDayLogDetailViewModel
+                {
+                    PanelDate = main.PanelDate,
+                    Category = main.CategoryId.GetDescription(),
+                }).ToList();
+
+                return Json(new ResponseViewModel<List<LightingDayLogDetailViewModel>>
+                {
+                    Data = _response
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult DayLightingLog(string panelDate, LightingCategoryEnum categoryId)
+        {
+            try
+            {
+                var _res = _extensionDomainService.GetLightingDayLogList(panelDate, categoryId);
+
+                LightingDayLogViewModel _response = _res.GroupBy(g => new { g.PanelDate.Date, g.CategoryId })
+                    .Select(main => new LightingDayLogViewModel
+                    {
+                        LogDate = main.Key.Date,
+                        LightingCategoryId = main.Key.CategoryId,
+                        Detail = main.Select(detail => new LightingDayLogDetailViewModel
+                        {
+                            PanelSn = detail.PanelSn,
+                            CategoryId = detail.CategoryId,
+                            Category = detail.CategoryId.GetDescription(),
+                            PanelDate = detail.PanelDate,
+                            PanelId = detail.PanelId,
+                            CreateUser = detail.CreateUser,
+                            UpdateUser = detail.UpdateUser
+                        }).ToList()
+                    }).First();
+
+                return Json(new ResponseViewModel<LightingDayLogViewModel>
+                {
+                    Data = _response
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult DayLightingLog(LightingDayLogViewModel insModel)
+        {
+            try
+            {
+                var _res = _extensionDomainService.CreateLightingLog(insModel.Detail.Select(s =>
+                new LightingLogEntity
+                {
+                    PanelId = s.PanelId,
+                    PanelDate = s.PanelDate,
+                    CategoryId = s.CategoryId,
+                }).ToList(),
+                GetUserInfo());
+
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = string.IsNullOrEmpty(_res),
+                    Msg = _res.ToString()
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
+            }
+        }
+
+        [HttpPut]
+        public IActionResult DayLightingLogUpdate(LightingDayLogViewModel updModel)
+        {
+            try
+            {
+                var _res = _extensionDomainService.UpdateLightingLog(updModel.Detail.Select(s =>
+                new LightingLogEntity
+                {
+                    PanelSn = s.PanelSn,
+                    PanelId = s.PanelId,
+                    PanelDate = s.PanelDate,
+                    CategoryId = s.CategoryId,
+                }).ToList(),
+                GetUserInfo());
+
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = string.IsNullOrEmpty(_res),
+                    Msg = _res.ToString()
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// 下載選取日期檔案
+        /// </summary>
+        /// <param name="codeTypeId"></param>
+        /// <returns></returns>
+        [HttpGet("[controller]/LightingLogDownload/{logDate}")]
+        public IActionResult LightingLogDownload(DateTime logDate)
+        {
+            try
+            {
+                var _res = _extensionDomainService.DownloadLog(logDate);
+
+                if (_res.Item1)
+                    return File(System.IO.File.OpenRead(_res.Item2), "application/octet-stream", _res.Item3);
+                else
+                    return RedirectToAction("Error", "Home", new ErrorViewModel { Message = _res.Item3 });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
         }
 
         [HttpPost]

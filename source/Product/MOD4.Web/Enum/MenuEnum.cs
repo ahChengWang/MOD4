@@ -26,7 +26,7 @@ namespace MOD4.Web.Enum
         AccessFabAudit = 14,
         [Description("帳號管理")]
         AccountManagement = 15,
-        [Description("認證紀錄上傳")]
+        [Description("點燈記錄")]
         Extension = 17,
         [Description("SPC Online Chart")]
         SPCReport = 19,

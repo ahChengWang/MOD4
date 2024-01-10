@@ -9,19 +9,284 @@ using System.Net;
 using MOD4.Web.Repostory.Dao;
 using MOD4.Web.Repostory;
 using System.Transactions;
+using System.Globalization;
+using System.Collections.Generic;
+using System.Linq;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using System.Data.SqlClient;
 
 namespace MOD4.Web.DomainService
 {
     public class ExtensionDomainService : BaseDomainService, IExtensionDomainService
     {
         private readonly IUploadDomainService _uploadDomainService;
+        private readonly IAccountDomainService _accountDomainService;
         private readonly IMPSUploadHistoryRepository _mpsUploadHistoryRepository;
+        private readonly ILightingLogRepository _lightingLogRepository;
 
         public ExtensionDomainService(IUploadDomainService uploadDomainService,
-            IMPSUploadHistoryRepository mpsUploadHistoryRepository)
+            IAccountDomainService accountDomainService,
+            IMPSUploadHistoryRepository mpsUploadHistoryRepository,
+            ILightingLogRepository lightingLogRepository)
         {
             _uploadDomainService = uploadDomainService;
+            _accountDomainService = accountDomainService;
             _mpsUploadHistoryRepository = mpsUploadHistoryRepository;
+            _lightingLogRepository = lightingLogRepository;
+        }
+
+        public List<LightingLogMainEntity> GetLightingHisList(string panelId = "")
+        {
+            try
+            {
+                DateTime _nowTime = DateTime.Now;
+                DateTime _startDate = DateTime.Parse($"{_nowTime.AddMonths(-6).ToString("yyyy-MM-dd")} 00:00:00");
+                DateTime _endDate = DateTime.Parse($"{_nowTime.ToString("yyyy-MM-dd")} 23:59:59");
+                List<LightingLogDao> _lightingLogList = new List<LightingLogDao>();
+
+                if (string.IsNullOrEmpty(panelId))
+                    _lightingLogList = _lightingLogRepository.SelectByConditions(startDate: _startDate, endDate: _endDate);
+                else
+                    _lightingLogList = _lightingLogRepository.SelectByConditions(panelId: panelId);
+
+                List<LightingLogMainEntity> _res = _lightingLogList.GroupBy(g => g.PanelDate.Date)
+                    .Select(panel => new LightingLogMainEntity
+                    {
+                        LogDate = panel.Key,
+                        ProcessList = panel.GroupBy(gb => gb.CategoryId)
+                        .Select(detail => new LightingLogSubEntity
+                        {
+                            CategoryId = detail.Key,
+                            Category = detail.Key.GetDescription(),
+                            ProcessCnt = detail.Count()
+                        }).ToList()
+                    }).ToList();
+
+                return _res.OrderBy(o => o.LogDate).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<LightingLogEntity> GetLightingDayLogList(string panelDate, LightingCategoryEnum categoryId)
+        {
+            try
+            {
+                DateTime _nowTime = DateTime.Now;
+                DateTime _srcDate;
+                List<LightingLogDao> _lightingLogList = new List<LightingLogDao>();
+
+                if (DateTime.TryParseExact(panelDate, "yyyy-MM-dd", null, DateTimeStyles.None, out _))
+                    DateTime.TryParseExact(panelDate, "yyyy-MM-dd", null, DateTimeStyles.None, out _srcDate);
+                else
+                    throw new Exception("查詢日期異常");
+
+                _lightingLogList = _lightingLogRepository.SelectByConditions(startDate: _srcDate, endDate: _srcDate.AddDays(1).AddSeconds(-1), categoryId: categoryId);
+
+                List<LightingLogEntity> _res = _lightingLogList.CopyAToB<LightingLogEntity>();
+
+                return _res;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<LightingLogEntity> GetLightingLogById(string panelId)
+        {
+            try
+            {
+                return _lightingLogRepository.SelectByConditions(panelId: panelId).CopyAToB<LightingLogEntity>();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string CreateLightingLog(List<LightingLogEntity> lightingLogList, UserEntity userEntity)
+        {
+            try
+            {
+                string _createRes = "";
+                DateTime _nowTime = DateTime.Now;
+                List<LightingLogDao> _insLightingLogList = new List<LightingLogDao>();
+
+                _insLightingLogList = lightingLogList.Select(log => new LightingLogDao
+                {
+                    CategoryId = log.CategoryId,
+                    Floor = 2,
+                    PanelId = log.PanelId,
+                    PanelDate = log.PanelDate,
+                    CreateUser = $"{userEntity.JobId}-{userEntity.Name}",
+                    CreateDate = _nowTime,
+                    UpdateUser = $"{userEntity.JobId}-{userEntity.Name}",
+                    UpdateDate = _nowTime
+                }).ToList();
+
+                using (TransactionScope _scope = new TransactionScope())
+                {
+                    bool _insRes;
+
+                    _insRes = _lightingLogRepository.InsertLightingLog(_insLightingLogList) == _insLightingLogList.Count();
+
+                    if (_insRes)
+                        _scope.Complete();
+                    else
+                        _createRes = "新增記錄異常";
+                }
+
+                return _createRes;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string UpdateLightingLog(List<LightingLogEntity> lightingLogList, UserEntity userEntity)
+        {
+            try
+            {
+                string _updateRes = "";
+                DateTime _nowTime = DateTime.Now;
+
+                List<LightingLogDao> _oldLightingLogList = new List<LightingLogDao>();
+                List<LightingLogDao> _updLightingLogList = new List<LightingLogDao>();
+                List<LightingLogDao> _insLightingLogList = new List<LightingLogDao>();
+
+                //_oldLightingLogList = _lightingLogRepository.SelectByConditions(snList: lightingLogList.Where(w => w.PanelSn != 0).Select(s => s.PanelSn).ToList());
+
+                //_updLightingLogList = (from old in _oldLightingLogList
+                //                      join upd in lightingLogList
+                //                      on old.PanelSn equals upd.PanelSn
+                //                      select new LightingLogDao
+                //                      {
+                //                          PanelSn = old.PanelSn,
+                //                          CategoryId = old.CategoryId,
+                //                          PanelId = upd.PanelId,
+                //                          PanelDate = upd.PanelDate,
+                //                          UpdateDate = _nowTime,
+                //                          UpdateUser = userEntity.Name
+                //                      }).ToList();
+
+                _insLightingLogList = lightingLogList.Where(w => w.PanelSn == 0).Select(log => new LightingLogDao
+                {
+                    CategoryId = log.CategoryId,
+                    Floor = 2,
+                    PanelId = log.PanelId,
+                    PanelDate = log.PanelDate,
+                    CreateUser = $"{userEntity.JobId}-{userEntity.Name}",
+                    CreateDate = _nowTime,
+                    UpdateUser = $"{userEntity.JobId}-{userEntity.Name}",
+                    UpdateDate = _nowTime
+                }).ToList();
+
+                using (TransactionScope _scope = new TransactionScope())
+                {
+                    bool _updRes;
+
+                    _updRes = _lightingLogRepository.InsertLightingLog(_insLightingLogList) == _insLightingLogList.Count();
+
+                    if (_updRes)
+                        _scope.Complete();
+                    else
+                        _updateRes = "更新記錄異常";
+                }
+
+                return _updateRes;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public (bool, string, string) DownloadLog(DateTime logDate)
+        {
+            try
+            {
+                DateTime _startDate = DateTime.Parse($"{logDate.ToString("yyyy-MM-dd")} 00:00:00");
+                DateTime _endDate = DateTime.Parse($"{logDate.ToString("yyyy-MM-dd")} 23:59:59");
+
+                var _lightingLogList = _lightingLogRepository.SelectByConditions(startDate: _startDate, endDate: _endDate);
+
+                if (_lightingLogList.Any())
+                {
+                    XSSFWorkbook workbook;
+
+                    // 刪除暫存計算檔
+                    string[] _dirAllFiles = Directory.GetFiles("..\\template\\");
+                    if (_dirAllFiles.Length != 0)
+                        foreach (string filePath in _dirAllFiles)
+                        {
+                            if (filePath.Contains("lightingLog_export"))
+                                File.Delete(filePath);
+                        }
+
+                    File.Copy($"..\\template\\lightingLog.xlsx", $"..\\template\\lightingLog_export.xlsx");
+
+                    // 新增暫存計算檔
+                    using (FileStream fs = new FileStream($"..\\template\\lightingLog_export.xlsx", FileMode.Open, FileAccess.Read))
+                    {
+                        workbook = new XSSFWorkbook(fs); // 將剛剛的Excel (Stream）讀取到工作表裡面
+                    }
+
+                    ISheet _sheet = workbook.GetSheet("Sheet");
+                    IRow _row;
+                    ICell _cell;
+
+                    ICellStyle _cellStyle = workbook.CreateCellStyle();
+                    IFont _font = workbook.CreateFont();
+                    _font.Color = IndexedColors.Black.Index;
+                    _font.FontName = "新細明體";
+                    _cellStyle.SetFont(_font);
+                    _cellStyle.VerticalAlignment = VerticalAlignment.Center;
+                    _cellStyle.Alignment = HorizontalAlignment.Center;
+                    _cellStyle.BorderTop = BorderStyle.Thin;
+                    _cellStyle.BorderRight = BorderStyle.Thin;
+                    _cellStyle.BorderBottom = BorderStyle.Thin;
+                    _cellStyle.BorderLeft = BorderStyle.Thin;
+
+                    for (int r = 0; r < _lightingLogList.Count; r++)
+                    {
+                        _sheet.CreateRow(r + 1);
+                        _row = _sheet.GetRow(r + 1);
+                        _row.CreateCell(0);
+                        _cell = _row.GetCell(0);
+                        _cell.SetCellValue(_lightingLogList[r].CategoryId.GetDescription());
+                        _cell.CellStyle = _cellStyle;
+                        _row.CreateCell(1);
+                        _cell = _row.GetCell(1);
+                        _cell.SetCellValue(_lightingLogList[r].PanelId);
+                        _cell.CellStyle = _cellStyle;
+                        _row.CreateCell(2);
+                        _cell = _row.GetCell(2);
+                        _cell.SetCellValue(_lightingLogList[r].PanelDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                        _cell.CellStyle = _cellStyle;
+                        _row.CreateCell(3);
+                        _cell = _row.GetCell(3);
+                        _cell.SetCellValue(_lightingLogList[r].UpdateUser);
+                        _cell.CellStyle = _cellStyle;
+                    }
+
+                    // 回寫本地計算檔
+                    using (FileStream fs = new FileStream($"..\\template\\lightingLog_export.xlsx", FileMode.Create))
+                    {
+                        workbook.Write(fs);
+                    }
+                }
+
+                return (true, $"..\\template\\lightingLog_export.xlsx", $"lightingLog_export.xlsx");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public string Upload(string jobId, ApplyAreaEnum applyAreaId, int itemId, IFormFile uploadFile, UserEntity userEntity)

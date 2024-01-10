@@ -9,6 +9,8 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
+using System.Data.SqlTypes;
 
 namespace MOD4.Web.DomainService
 {
@@ -492,6 +494,15 @@ namespace MOD4.Web.DomainService
         public List<OptionEntity> GetMESType()
         {
             return EnumHelper.GetEnumValue<MESOrderTypeEnum>().Select(type => new OptionEntity
+            {
+                Id = (int)type,
+                Value = type.GetDescription()
+            }).ToList();
+        }
+
+        public List<OptionEntity> GetLightingCategory()
+        {
+            return EnumHelper.GetEnumValue<LightingCategoryEnum>().Select(type => new OptionEntity
             {
                 Id = (int)type,
                 Value = type.GetDescription()
