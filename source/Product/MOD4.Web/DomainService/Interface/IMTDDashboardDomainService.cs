@@ -16,10 +16,14 @@ namespace MOD4.Web.DomainService
 
         string Upload(IFormFile formFile, int floor, int owner, UserEntity userEntity);
 
+        List<MTDScheduleSettingEntity> GetMTDSetting(int prodSn = 1206);
+
         MTBFMTTRDashboardEntity GetMTBFMTTRList(string beginDate, string endDate, string equipment, int floor);
 
         string UpdateMTBFMTTRSetting(EqMappingEntity updateEntity, UserEntity userEntity);
 
         Task<List<MTDProcessDailyEntity>> GetMonitorDailyMTDAsync();
+
+        string UpdateMTDSetting(List<MTDScheduleSettingEntity> updEntity, UserEntity userEntity);
     }
 }

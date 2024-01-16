@@ -224,14 +224,14 @@ namespace MOD4.Web.DomainService
                     if (_dirAllFiles.Length != 0)
                         foreach (string filePath in _dirAllFiles)
                         {
-                            if (filePath.Contains("lightingLog_export"))
+                            if (filePath.Contains("rw_log_export"))
                                 File.Delete(filePath);
                         }
 
-                    File.Copy($"..\\template\\lightingLog.xlsx", $"..\\template\\lightingLog_export.xlsx");
+                    File.Copy($"..\\template\\rw_log.xlsx", $"..\\template\\rw_log_export.xlsx");
 
                     // 新增暫存計算檔
-                    using (FileStream fs = new FileStream($"..\\template\\lightingLog_export.xlsx", FileMode.Open, FileAccess.Read))
+                    using (FileStream fs = new FileStream($"..\\template\\rw_log_export.xlsx", FileMode.Open, FileAccess.Read))
                     {
                         workbook = new XSSFWorkbook(fs); // 將剛剛的Excel (Stream）讀取到工作表裡面
                     }
@@ -275,13 +275,13 @@ namespace MOD4.Web.DomainService
                     }
 
                     // 回寫本地計算檔
-                    using (FileStream fs = new FileStream($"..\\template\\lightingLog_export.xlsx", FileMode.Create))
+                    using (FileStream fs = new FileStream($"..\\template\\rw_log_export.xlsx", FileMode.Create))
                     {
                         workbook.Write(fs);
                     }
                 }
 
-                return (true, $"..\\template\\lightingLog_export.xlsx", $"lightingLog_export.xlsx");
+                return (true, $"..\\template\\rw_log_export.xlsx", $"rw_log_export.xlsx");
             }
             catch (Exception ex)
             {

@@ -17,6 +17,9 @@ namespace MOD4.Web.ViewModel
         [DisplayName("名稱")]
         public string ProductName { get; set; }
 
+        [DisplayName("站點")]
+        public int Node { get; set; }
+
         public List<ManufactureDetailViewModel> PlanDetail { get; set; }
     }
 }

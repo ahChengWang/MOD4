@@ -14,11 +14,17 @@ namespace MOD4.Web.ViewModel
         [DisplayName("大機種")]
         public string BigProduct { get; set; }
 
+        [DisplayName("站點")]
+        public string Node { get; set; }
+
         [DisplayName("當月排程機種")]
         public string PlanProduct { get; set; }
 
         [DisplayName("產出")]
         public string Output { get; set; }
+
+        [DisplayName("WIP")]
+        public string Wip { get; set; }
 
         [DisplayName("計畫(當天)")]
         public string DayPlan { get; set; }
@@ -35,7 +41,8 @@ namespace MOD4.Web.ViewModel
         [DisplayName("MTD計畫")]
         public string MTDPlan { get; set; }
 
-        [DisplayName("MTD實際")]
+        //[DisplayName("MTD實際")]
+        [DisplayName("當月產出")]
         public string MTDActual { get; set; }
 
         [DisplayName("MTD差異")]

@@ -24,5 +24,11 @@ namespace MOD4.Web.Repostory
         int DeleteSchedule(int ownerId);
 
         int InsertScheduleHistory(MTDScheduleUpdateHistoryDao insHisDao);
+
+        List<MTDScheduleSettingDao> SelectSettingByConditions(int prodSn = 0);
+
+        int DeleteSetting(int prodSn);
+
+        int InsertSetting(List<MTDScheduleSettingDao> insSettingDao);
     }
 }

@@ -1,0 +1,377 @@
+﻿
+<style>
+    .roundMinus {
+        background-color: #d61529;
+        color: white;
+        border: 2px solid white;
+        font-size: 26px;
+        padding: 0px;
+        font-weight: 900;
+        height: 30px;
+        width: 30px;
+        box-shadow: 0 2px 4px darkslategray;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 70%;
+    }
+
+        .roundMinus:hover {
+            background-color: #d6606d;
+        }
+
+        .roundMinus:active {
+            box-shadow: 0 0 2px darkslategray;
+            transform: translateY(2px);
+        }
+
+    .roundDisabledMinus {
+        background-color: #d6606d;
+        color: white;
+        border: 2px solid white;
+        font-size: 26px;
+        padding: 0px;
+        font-weight: 900;
+        height: 30px;
+        width: 30px;
+        box-shadow: 0 2px 4px darkslategray;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 70%;
+    }
+
+    .addPlus {
+        background-color: #40cf30;
+        color: white;
+        border: 2px solid white;
+        font-size: 15px;
+        padding: 0px;
+        font-weight: 900;
+        height: 30px;
+        width: 30px;
+        box-shadow: 0 2px 4px darkslategray;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 70%;
+    }
+
+        .addPlus:hover {
+            background-color: #7fc777;
+        }
+
+        .addPlus:active {
+            box-shadow: 0 0 2px darkslategray;
+            transform: translateY(2px);
+        }
+
+    .addDisabledPlus {
+        background-color: #7fc777;
+        color: white;
+        border: 2px solid white;
+        font-size: 15px;
+        padding: 0px;
+        font-weight: 900;
+        height: 30px;
+        width: 30px;
+        box-shadow: 0 2px 4px darkslategray;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 70%;
+    }
+
+    .cusButton {
+        background-color: #4e83d9;
+        color: white;
+        border: 2px solid white;
+        font-size: 16px;
+        padding: 0px;
+        font-weight: 900;
+        height: 30px;
+        width: 50px;
+        box-shadow: 0 2px 4px darkslategray;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 13%;
+    }
+
+        .cusButton:hover {
+            background-color: #819dcc;
+        }
+
+        .cusButton:active {
+            box-shadow: 0 0 2px darkslategray;
+            transform: translateY(2px);
+        }
+
+    .cusDisabledButton {
+        background-color: #819dcc;
+        color: white;
+        border: 2px solid white;
+        font-size: 16px;
+        padding: 0px;
+        font-weight: 900;
+        height: 30px;
+        width: 50px;
+        box-shadow: 0 2px 4px darkslategray;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 13%;
+    }
+
+    td[name='tdLabel'] {
+        background: #91bac4;
+        font-weight: 600;
+        text-align: center;
+        vertical-align: middle;
+        width: 10%;
+    }
+
+    td[name="tdImp"] {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .setting {
+        color: white;
+        background: #9a9ca1;
+    }
+
+    li[name="myTmpli"] {
+    }
+
+    li:has(.setting.active) {
+    }
+
+    .setting.active {
+        color: black;
+        background: #c3cadb;
+        border-top: 1px solid #9a9ca1;
+        /*border-right: 2px solid #9a9ca1;
+        border-left: 2px solid #9a9ca1;*/
+    }
+</style>
+
+<head>
+    <link rel="stylesheet" href="~/plugins/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="~/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" />
+</head>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card" id="app">
+                <div class="card-header">
+                    <h3 class="card-title">參數設定</h3>
+                </div>
+                <div class="tab-content">
+                    <div id="tt" class="tab-pane card-body active">
+                        <div class="col-lg-5">
+                            <h3>{{prodTitle}}</h3>
+                        </div>
+                        <br />
+                        <div class="d-flex">
+                            <div class="col-lg-6">
+                                <button :class="pageTTBtnClass.editBtn" @@click="editTTClk" :disabled="!colDisabled">編輯</button>
+                                <button :class="pageTTBtnClass.cancelBtn" @@click="cancelProdTTClk" :disabled="colDisabled">取消</button>
+                                <button :class="pageTTBtnClass.saveBtn" @@click="saveProdTTClk" :disabled="colDisabled">儲存</button>
+                            </div>
+                            <div class="col-lg-2">
+                                <label class="col-form-label">機種選擇：</label>
+                            </div>
+                            <div class="col-lg-4">
+                                <select class="form-control select2bs4" style="width: 350px;" v-model="ttProdSelect" @@change="prodChange">
+                                    <optgroup v-for="prod in prodOptions" :label="prod.Item1">
+                                        <option v-for="detail in prod.Item2" :value="detail.Item1">{{detail.Item2}}</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+                        <br />
+                        <div>
+                            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; -ms-overflow-style: -ms-autohiding-scrollbar; display: block;">
+                                <table class="table">
+                                    <tbody v-for="(prod, idx) in editProdSettingTmp">
+                                        <tr>
+                                            <td style="display: flex; flex-direction: column; align-items: center; ">
+                                                <button :class="pageTTBtnClass.deleteBtn" @@click="deleteClk(idx)" :disabled="colDisabled">⁻</button>
+                                                <input type="hidden" :value="idx" />
+                                                <input type="hidden" v-model="editProdSettingTmp[idx].lcmProdSn" :value="editProdSettingTmp[idx].lcmProdSn" />
+                                            </td>
+                                            <td></td>
+                                            <td name="tdLabel">製程</td>
+                                            <td name="tdImp">
+                                                <select class="myInputStyle1" :disabled="colDisabled" v-model="editProdSettingTmp[idx].sn" :value="prod.sn">
+                                                    <option v-for="process in processOptions" :value="process.id">{{process.value}}</option>
+                                                </select>
+                                            </td>
+                                            <td name="tdLabel">Pass Node</td>
+                                            <td name="tdImp">
+                                                <select class="myInputStyle1" :disabled="colDisabled" v-model="editProdSettingTmp[idx].passNode" :value="prod.passNode">
+                                                    <option v-for="pn in passNodeOptions" :value="pn.subId">{{pn.subId}}</option>
+                                                </select>
+                                            </td>
+                                            <td name="tdLabel">WIP Node</td>
+                                            <td name="tdImp">
+                                                <select class="myInputStyle1" :disabled="colDisabled" v-model="editProdSettingTmp[idx].wipNode" :value="prod.wipNode">
+                                                    <option v-for="wn in wipNodeOptions" :value="wn.subId">{{wn.subId}}</option>
+                                                </select>
+                                            </td>
+                                            <td name="tdLabel">EQ</td>
+                                            <td name="tdImp">
+                                                @*<select class="myInputStyle1" :disabled="colDisabled" v-model="editProdSettingTmp[idx].downEquipment" :value="prod.downEquipment">
+                                                        <option v-for="eq in prod.downEqOptions" :value="eq.equiP_NBR">{{eq.equiP_NBR}}</option>
+                                                    </select>*@
+                                                <input class="myInputStyle1" type="text" style="width: 150px; text-align: right;" placeholder="ex：XXXX2030" :disabled="colDisabled" v-model="editProdSettingTmp[idx].eqNo" :value="prod.eqNo" />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button :class="pageTTBtnClass.addBtn" @@click="addProdMTDClk" :disabled="colDisabled">＋</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section scripts{
+    <script src="~/plugins/select2/js/select2.full.min.js"></script>
+    <script type="text/javascript">
+
+        const vue = new Vue({
+            el: "#app",
+            data: {
+                pageTTBtnClass: {
+                    editBtn: 'cusButton',
+                    cancelBtn: 'cusDisabledButton',
+                    saveBtn: 'cusDisabledButton',
+                    deleteBtn: 'roundDisabledMinus',
+                    addBtn: 'addDisabledPlus',
+                },
+                pageMapAreaBtnClass: {
+                    editBtn: 'cusButton',
+                    cancelBtn: 'cusDisabledButton',
+                    saveBtn: 'cusDisabledButton',
+                    deleteBtn: 'roundDisabledMinus',
+                    addBtn: 'addDisabledPlus',
+                },
+                colDisabled: true,
+                mapColDisabled: true,
+                processOptions: @(Html.Raw(Json.Serialize(ViewBag.ProcessOption))),
+                passNodeOptions: @(Html.Raw(Json.Serialize(ViewBag.NodeOptions))),
+                wipNodeOptions: @(Html.Raw(Json.Serialize(ViewBag.NodeOptions))),
+                prodOptions: null,
+                eqOptions: null,
+                origProdTTSettingDatas: [],
+                editProdSettingTmp: [],
+                ttProdSelect: 1206,
+                prodTitle: 'GDD340IA0090S-34VCS',
+                toast: Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                }),
+            },
+            methods: {
+                editTTClk() {
+                    vue.pageTTBtnClass.editBtn = 'cusDisabledButton';
+                    vue.pageTTBtnClass.cancelBtn = 'cusButton';
+                    vue.pageTTBtnClass.saveBtn = 'cusButton';
+                    vue.pageTTBtnClass.deleteBtn = 'roundMinus';
+                    vue.pageTTBtnClass.addBtn = 'addPlus';
+                    vue.colDisabled = false;
+                },
+                cancelProdTTClk() {
+                    vue.pageTTBtnClass.editBtn = 'cusButton';
+                    vue.pageTTBtnClass.cancelBtn = 'cusDisabledButton';
+                    vue.pageTTBtnClass.saveBtn = 'cusDisabledButton';
+                    vue.pageTTBtnClass.deleteBtn = 'roundDisabledMinus';
+                    vue.pageTTBtnClass.addBtn = 'addDisabledPlus';
+                    vue.colDisabled = true;
+                    vue.editProdSettingTmp = JSON.parse(JSON.stringify(vue.origProdTTSettingDatas));
+                },
+                saveProdTTClk() {
+                    $.ajax({
+                        url: './Setting',
+                        type: 'POST',
+                        datatype: 'json',
+                        data: { updViewModel: vue.editProdSettingTmp },
+                        success: function (result) {
+                            if (result.isSuccess) {
+                                vue.pageTTBtnClass.editBtn = 'cusButton';
+                                vue.pageTTBtnClass.cancelBtn = 'cusDisabledButton';
+                                vue.pageTTBtnClass.saveBtn = 'cusDisabledButton';
+                                vue.pageTTBtnClass.deleteBtn = 'roundDisabledMinus';
+                                vue.pageTTBtnClass.addBtn = 'addDisabledPlus';
+                                vue.colDisabled = true;
+                                vue.toast.fire({
+                                    icon: 'success',
+                                    title: '更新成功'
+                                });
+                            }
+                            else {
+                                vue.toast.fire({
+                                    icon: 'error',
+                                    title: result.msg
+                                });
+                            }
+                        }
+                    });
+                },
+                addProdMTDClk() {
+                    vue.editProdSettingTmp.push({
+                        lcmProdSn: vue.ttProdSelect,
+                        sn: 1,
+                        passNode: 1300,
+                        wipNode: 1300,
+                        eqNo: '',
+                    });
+                },
+                deleteClk(idx) {
+                    vue.editProdSettingTmp.splice(idx, 1);;
+                },
+                prodChange(e) {
+                    $.each(vue.prodOptions, function (i, item) {
+                        for (var i = 0; i < item.Item2.length; i++) {
+                            if (item.Item2[i].Item1 == vue.ttProdSelect)
+                                vue.prodTitle = item.Item2[i].Item2;
+                        }
+                    })
+
+                    $.ajax({
+                        url: "./Setting/" + vue.ttProdSelect,
+                        type: "GET",
+                        dataType: 'json',
+                        success: function (result) {
+                            if (result.isSuccess) {
+                                vue.origProdTTSettingDatas = JSON.parse(JSON.stringify(result.data));
+                                vue.editProdSettingTmp = JSON.parse(JSON.stringify(result.data));
+                            }
+                            else {
+                                vue.toast.fire({
+                                    icon: 'error',
+                                    title: result.msg
+                                });
+                            }
+                        }
+                    });
+                }
+            },
+            mounted: function () {
+
+                this.prodOptions = JSON.parse(@(Html.Raw(Json.Serialize(ViewBag.ProdOptions))));
+                this.origProdTTSettingDatas = Array.from(@(Html.Raw(Json.Serialize(Model))));
+                this.editProdSettingTmp = Array.from(@(Html.Raw(Json.Serialize(Model))));
+
+            },
+            computed: {
+                wrapper(node) {
+
+                }
+            }
+        });
+
+    </script>
+}

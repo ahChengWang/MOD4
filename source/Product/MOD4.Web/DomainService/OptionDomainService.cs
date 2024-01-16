@@ -376,7 +376,7 @@ namespace MOD4.Web.DomainService
 
                 CatchHelper.Set("menuList", JsonConvert.SerializeObject(_allMenuList), 432000);
 
-                _response = _allMenuList.Select(menu => new MenuPermissionViewModel
+                _response = _allMenuList.OrderBy(o => o.parent_menu_sn).Select(menu => new MenuPermissionViewModel
                 {
                     IsMenuActive = false,
                     MenuId = (MenuEnum)menu.sn,
@@ -393,7 +393,7 @@ namespace MOD4.Web.DomainService
             else
             {
                 List<MenuInfoDao> _menuInfoList = JsonConvert.DeserializeObject<List<MenuInfoDao>>(_catchDeptInfo).Where(w => w.href != "#").ToList();
-                _response = _menuInfoList.Select(menu => new MenuPermissionViewModel
+                _response = _menuInfoList.OrderBy(o => o.parent_menu_sn).Select(menu => new MenuPermissionViewModel
                 {
                     IsMenuActive = false,
                     MenuId = (MenuEnum)menu.sn,
@@ -423,7 +423,7 @@ namespace MOD4.Web.DomainService
         public List<OptionEntity> GetNodeList(int isActive = 1)
         {
             return _definitionNodeDescRepository.SelectByConditions(isActive: isActive)
-                .Select(node => new OptionEntity 
+                .Select(node => new OptionEntity
                 {
                     Id = node.EqNo,
                     Value = node.EqNo.ToString()
@@ -512,10 +512,21 @@ namespace MOD4.Web.DomainService
         public List<OptionEntity> GetAllSections()
         {
             return _definitionDepartmentRepository.SelectByConditions().Select(s => new OptionEntity
-            { 
+            {
                 Id = s.DeptSn,
                 Value = s.DepartmentName
             }).ToList();
+        }
+
+        public List<OptionEntity> GetAllNodeList()
+        {
+            return _definitionNodeDescRepository.SelectByConditions(0, 0)
+                .Select(node => new OptionEntity
+                {
+                    Id = node.Sn,
+                    SubId = node.EqNo,
+                    Value = node.Process
+                }).ToList();
         }
 
         private List<OptionEntity> GetEqProdOptionList(int id)

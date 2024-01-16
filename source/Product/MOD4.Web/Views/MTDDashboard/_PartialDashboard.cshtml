@@ -7,9 +7,9 @@
             <thead>
                 <tr>
                     <th colspan="3" style="color: white; background-color: #002eab">@process.Process</th>
-                    <th colspan="3" style="background-color: #17e670">PLAN & ACTUAL</th>
+                    <th colspan="4" style="background-color: #17e670">PLAN & ACTUAL</th>
                     <th id="h_plan" colspan="2" style="background-color: #17e670">@Html.DisplayNameFor(model => model.First().Plan) = @process.Plan</th>
-                    <th colspan="2" style="background-color: #17e670">@Html.DisplayNameFor(model => model.First().Actual) = @process.Actual</th>
+                    <th colspan="3" style="background-color: #17e670">@Html.DisplayNameFor(model => model.First().Actual) = @process.Actual</th>
                     @{
                         if (Convert.ToInt32(@process.Diff.Replace(",", "")) < 0)
                         {
@@ -20,15 +20,17 @@
                             <th id="h_diff" colspan="2" style="background-color: #17e670">@Html.DisplayNameFor(model => model.First().Diff) = @process.Diff</th>
                         }
                     }
-                    <th colspan="9">主機台機況</th>
+                    <th colspan="10">主機台機況</th>
                 </tr>
 
                 <tr>
                     <th rowspan="2">@Html.DisplayNameFor(data => process.ProcessList.First().MTDDetail.First().Date)</th>
                     <th rowspan="2">@Html.DisplayNameFor(data => process.ProcessList.First().MTDDetail.First().Equipment)</th>
                     <th rowspan="2">@Html.DisplayNameFor(data => process.ProcessList.First().MTDDetail.First().BigProduct)</th>
+                    <th rowspan="2">@Html.DisplayNameFor(data => process.ProcessList.First().MTDDetail.First().Node)</th>
                     <th rowspan="2">@Html.DisplayNameFor(data => process.ProcessList.First().MTDDetail.First().PlanProduct)</th>
                     <th rowspan="2">@Html.DisplayNameFor(data => process.ProcessList.First().MTDDetail.First().Output)</th>
+                    <th rowspan="2">@Html.DisplayNameFor(data => process.ProcessList.First().MTDDetail.First().Wip)</th>
                     <th rowspan="2">@Html.DisplayNameFor(data => process.ProcessList.First().MTDDetail.First().DayPlan)</th>
                     <th rowspan="2">@Html.DisplayNameFor(data => process.ProcessList.First().MTDDetail.First().RangPlan)</th>
                     <th rowspan="2">@Html.DisplayNameFor(data => process.ProcessList.First().MTDDetail.First().RangDiff)</th>
@@ -70,8 +72,10 @@
                                     <td rowspan="@spanCnt">@info.Equipment</td>
                                 }
                                 <td>@info.BigProduct</td>
+                                <td>@info.Node</td>
                                 <td>@info.PlanProduct</td>
                                 <td name="tdNum">@info.Output</td>
+                                <td name="tdNum">@info.Wip</td>
                                 <td name="tdNum">@info.DayPlan</td>
                                 <td id="rangPlan" name="tdNum">@info.RangPlan</td>
                                 <td id="rangDiff" name="tdNum">@info.RangDiff</td>

@@ -13,5 +13,7 @@ namespace MOD4.Web.Enum
         [Description("BL")]
         Bracketlight = 3,
 
+        [Description("Panel")]
+        Panel = 4,
     }
 }

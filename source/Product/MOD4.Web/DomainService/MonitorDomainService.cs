@@ -351,7 +351,7 @@ namespace MOD4.Web.DomainService
 
                 var _defProdList = _lcmProductRepository.SelectByConditions(prodNoList: _prodDetailAllList.Select(detail => detail.ProdNo).Distinct().ToList());
                 var _targetSettingList = _targetSettingRepository.SelectByConditions(_defProdList.Select(def => def.sn).ToList(), null);
-                var _ttTargetList = _inxReportService.GetEntityTTMntReportAsync(_nowTime, _prodDetailAllList.Select(detail => detail.ProdNo).Distinct().ToList()).Result.Date.Data.Table;
+                var _ttTargetList = _inxReportService.GetEntityTTMntReportAsync<INXRptTTMntEntity>(_nowTime, _prodDetailAllList.Select(detail => detail.ProdNo).Distinct().ToList()).Result.Date.Data.Table;
 
 
                 //var _chk = from detail in _prodDetailAllList.GroupBy(b => new { b.ProdNo, b.WorkCtr, b.EquipNo }).Select(s => s.Key)
@@ -477,7 +477,7 @@ namespace MOD4.Web.DomainService
                 var _defProdList = _lcmProductRepository.SelectByConditions(prodNoList: _prodDetailAllList.Select(detail => detail.ProdNo).Distinct().ToList());
 
                 var _targetSettingList = _targetSettingRepository.SelectByConditions(_defProdList.Select(def => def.sn).ToList(), null);
-                var _ttTargetList = _inxReportService.GetEntityTTMntReportAsync(nowTime, _prodDetailAllList.Select(detail => detail.ProdNo).Distinct().ToList()).Result.Date.Data.Table;
+                var _ttTargetList = _inxReportService.GetEntityTTMntReportAsync<INXRptTTMntEntity>(nowTime, _prodDetailAllList.Select(detail => detail.ProdNo).Distinct().ToList()).Result.Date.Data.Table;
 
                 //var _prodTTInfo = from detail in _prodDetailCurrent.Where(w => w.Sn == 1)
                 //                  join def in _defProdList

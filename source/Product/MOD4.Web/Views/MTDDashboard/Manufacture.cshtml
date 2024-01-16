@@ -38,7 +38,7 @@
         top: 0;
     }
 
-    .sticky-th1, .sticky-th2, .sticky-th3, .sticky-th4 {
+    .sticky-th1, .sticky-th2, .sticky-th3, .sticky-th4, .sticky-th5 {
         position: sticky;
         z-index: 2;
         background: #3e7bb8;
@@ -50,20 +50,24 @@
     }
 
     .sticky-th2 {
-        left: 67px;
+        left: 63.5px;
     }
 
     .sticky-th3 {
-        left: 118px;
+        left: 139px;
     }
 
     .sticky-th4 {
-        left: 164px;
+        left: 184.5px;
     }
 
-    .sticky-column1, .sticky-column2, .sticky-column3, .sticky-column4 {
-        position: sticky;
+    .sticky-th5 {
+        left: 311.5px;
+    }
+
+    .sticky-column1, .sticky-column2, .sticky-column3, .sticky-column4, .sticky-column5 {
         position: -webkit-sticky;
+        position: sticky;
         z-index: 1;
         background: rgba(240,240,240,0.9);
     }
@@ -73,15 +77,19 @@
     }
 
     .sticky-column2 {
-        left: 67px;
+        left: 63.5px;
     }
 
     .sticky-column3 {
-        left: 118px;
+        left: 139px;
     }
 
     .sticky-column4 {
-        left: 164px;
+        left: 184.5px;
+    }
+
+    .sticky-column5 {
+        left: 311.5px;
     }
 
     .my-control {
@@ -275,6 +283,10 @@
                     tr.children[0].style.background = '#63cf8c';
                     tr.children[3].style.background = '#63cf8c';
                 }
+                else if (tr.children[0].innerHTML == 'SHIP') {
+                    tr.children[0].style.background = '#eef26b';
+                    tr.children[3].style.background = '#eef26b';
+                }
             });
 
             let _data = @(Html.Raw(Json.Serialize(Model)));
@@ -395,14 +407,14 @@
                     data: formData,
                     success: function (result) {
                         $.unblockUI();
-                        if (result == '') {
-                            alert('更新成功');
-                            location.href = "@Url.Action("Manufacture", "MTDDashboard")";
-                        }
-                        else {
-                            alert(result);
-                            return false;
-                        }
+                        Swal.fire({
+                            title: result.msg,
+                            icon: 'info'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.href = "@Url.Action("Manufacture", "MTDDashboard")";
+                            }
+                        });
                     }
                 });
             }

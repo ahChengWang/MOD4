@@ -8,6 +8,8 @@
 
         public string Product { get; set; }
 
+        public int Wip { get; set; }
+
         public int Qty { get; set; }
     }
 }

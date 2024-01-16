@@ -54,5 +54,7 @@ namespace MOD4.Web.DomainService
         List<OptionEntity> GetMESType();
 
         List<OptionEntity> GetAllSections();
+
+        List<OptionEntity> GetAllNodeList();
     }
 }

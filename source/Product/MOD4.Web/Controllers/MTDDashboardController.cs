@@ -7,6 +7,7 @@ using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
 using MOD4.Web.Models;
 using MOD4.Web.ViewModel;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,8 +70,10 @@ namespace MOD4.Web.Controllers
                             Date = detail.Date,
                             Equipment = detail.Equipment,
                             BigProduct = detail.BigProduct,
+                            Node = detail.Node,
                             PlanProduct = detail.PlanProduct,
                             Output = detail.Output.ToString("#,0"),
+                            Wip = detail.Wip.ToString("#,0"),
                             DayPlan = detail.DayPlan.ToString("#,0"),
                             RangPlan = detail.RangPlan.ToString("#,0"),
                             RangDiff = detail.RangDiff.ToString("#,0"),
@@ -133,8 +136,10 @@ namespace MOD4.Web.Controllers
                             Date = detail.Date,
                             Equipment = detail.Equipment,
                             BigProduct = detail.BigProduct,
+                            Node = detail.Node,
                             PlanProduct = detail.PlanProduct,
                             Output = detail.Output.ToString("#,0"),
+                            Wip = detail.Wip.ToString("#,0"),
                             DayPlan = detail.DayPlan.ToString("#,0"),
                             RangPlan = detail.RangPlan.ToString("#,0"),
                             RangDiff = detail.RangDiff.ToString("#,0"),
@@ -319,6 +324,7 @@ namespace MOD4.Web.Controllers
                         Category = mtd.Category,
                         MonthPlan = mtd.MonthPlan,
                         ProductName = mtd.ProductName,
+                        Node = mtd.Node,
                         PlanDetail = mtd.PlanDetail.Select(s => new ManufactureDetailViewModel
                         {
                             Date = s.Date,
@@ -407,14 +413,103 @@ namespace MOD4.Web.Controllers
             {
                 var _result = _mtdDashboardDomainService.Upload(updFile, floor, owner, GetUserInfo());
 
-                return Json(_result);
+                return Json(new ResponseViewModel<string> { 
+                    Msg = _result
+                });
             }
             catch (Exception ex)
             {
-                return Json($"錯誤：{ex.Message}");
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = $"錯誤：{ex.Message}"
+                });
             }
         }
 
+        #endregion
+
+        #region ===== Manufacture schedule =====
+
+        [HttpGet("[controller]/Setting")]
+        public IActionResult Setting()
+        {
+            try
+            {
+                ViewBag.ProdOptions = JsonConvert.SerializeObject(_optionDomainService.GetLcmProdOptions());
+                var _allNodeList = _optionDomainService.GetAllNodeList();
+                ViewBag.ProcessOption = _allNodeList.GroupBy(g => g.Id).Select(s => new { Id = s.Key, Value = s.FirstOrDefault().Value });
+                ViewBag.NodeOptions = _allNodeList;
+
+                var _response = _mtdDashboardDomainService.GetMTDSetting().Select(s => new MTDScheduleSettingViewModel
+                {
+                    Sn = s.Sn,
+                    EqNo = s.EqNo,
+                    PassNode = s.PassNode,
+                    LcmProdSn = s.LcmProdSn,
+                    WipNode = s.WipNode
+                }).ToList();
+
+                return View(_response);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel
+                {
+                    Message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("[controller]/Setting/{prodSn}")]
+        public IActionResult Setting(int prodSn)
+        {
+            try
+            {
+                var _response = _mtdDashboardDomainService.GetMTDSetting(prodSn).Select(s => new MTDScheduleSettingViewModel
+                {
+                    Sn = s.Sn,
+                    EqNo = s.EqNo,
+                    PassNode = s.PassNode,
+                    LcmProdSn = s.LcmProdSn,
+                    WipNode = s.WipNode
+                }).ToList();
+
+                return Json(new ResponseViewModel<List<MTDScheduleSettingViewModel>>
+                {
+                    IsSuccess = true,
+                    Data = _response
+                });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel
+                {
+                    Message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("[controller]/Setting")]
+        public IActionResult Setting(List<MTDScheduleSettingViewModel> updViewModel)
+        {
+            try
+            {
+                var _result = _mtdDashboardDomainService.UpdateMTDSetting(updViewModel.CopyAToB<MTDScheduleSettingEntity>(),GetUserInfo());
+
+                return Json(new ResponseViewModel<List<MTDScheduleSettingViewModel>>
+                {
+                    IsSuccess = true,
+                });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel
+                {
+                    Message = ex.Message
+                });
+            }
+        }
         #endregion
 
         #region === MTBF 、 MTTR ===

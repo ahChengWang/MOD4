@@ -26,7 +26,7 @@ namespace MOD4.Web.Enum
         AccessFabAudit = 14,
         [Description("帳號管理")]
         AccountManagement = 15,
-        [Description("點燈記錄")]
+        [Description("RW 記錄")]
         Extension = 17,
         [Description("SPC Online Chart")]
         SPCReport = 19,
@@ -66,5 +66,7 @@ namespace MOD4.Web.Enum
         MonitorTackTime = 41,
         [Description("參數設定")]
         MonitorSetting = 42,
+        [Description("MTD設定")]
+        MTDSetting = 43,
     }
 }

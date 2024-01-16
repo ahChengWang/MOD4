@@ -1,16 +1,22 @@
 ﻿using MOD4.Web.Enum;
+using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 
 namespace MOD4.Web.DomainService.Entity
 {
     public class BaseINXRptEntity<T>
     {
         public INXRptDateEntity<T> Date { get; set; }
+        public INXRptDateEntity<T> api01 { get; set; }
     }
 
     public class INXRptDateEntity<T>
     {
         public INXRptTable<T> Data { get; set; }
+        public INXRptTable<T> Data1 { get; set; }
+        public INXRptTable<T> Data2 { get; set; }
+        public INXRptTable<T> Data3 { get; set; }
         public string SQL01 { get; set; }
         public string sql_m { get; set; }
         public string sql_m1 { get; set; }

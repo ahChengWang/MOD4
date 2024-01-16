@@ -20,7 +20,7 @@ namespace MOD4.Web.Repostory
 
         public List<MenuInfoDao> SelectAllMenu()
         {
-            string sql = "select * from menu_info where sn not in (7,8,15) and href != '#';";
+            string sql = "select * from menu_info where isActive = 1 and href != '#';";
 
             var dao = _dbHelper.ExecuteQuery<MenuInfoDao>(sql);
 

@@ -14,7 +14,7 @@ namespace MOD4.Web.Repostory
             DateTime? dateStart,
             DateTime? dateEnd)
         {
-            string sql = "select * from mtd_production_schedule where floor = @floor and ownerId = @ownerId and date between @dateStart and @dateEnd order by sn asc, model desc, lcmProdId asc, date asc ; ";
+            string sql = "select * from mtd_production_schedule where floor = @floor and ownerId = @ownerId and date between @dateStart and @dateEnd order by sn asc, model desc, prodId asc, date asc ; ";
 
             var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(sql, new
             {
@@ -120,7 +120,10 @@ INSERT INTO [dbo].[mtd_production_schedule]
 ([sn]
 ,[process]
 ,[model]
-,[lcmProdId]
+,[node]
+,[eqNo]
+,[lcmProdSn]
+,[prodId]
 ,[date]
 ,[value]
 ,[floor]
@@ -131,7 +134,10 @@ VALUES
 (@sn
 ,@process
 ,@model
-,@lcmProdId
+,@node
+,@eqNo
+,@lcmProdSn
+,@prodId
 ,@date
 ,@value
 ,@floor
@@ -178,5 +184,59 @@ VALUES
             return dao;
         }
 
+        public List<MTDScheduleSettingDao> SelectSettingByConditions(int prodSn = 0)
+        {
+            string sql = "select * from mtd_production_setting where 1=1 ";
+
+            if (prodSn != 0)
+            {
+                sql += " and lcmProdSn = @ProdSn ; ";
+            }
+
+            var dao = _dbHelper.ExecuteQuery<MTDScheduleSettingDao>(sql, new
+            {
+                ProdSn = prodSn
+            });
+
+            return dao;
+        }
+
+        public int DeleteSetting(int prodSn)
+        {
+            string sql = @" Delete [dbo].[mtd_production_setting] where lcmProdSn=@lcmProdSn;";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, new 
+            {
+                lcmProdSn = prodSn
+            });
+
+            return dao;
+        }
+
+        public int InsertSetting(List<MTDScheduleSettingDao> insSettingDao)
+        {
+            string sql = @" INSERT INTO [dbo].[mtd_production_setting]
+           ([sn]
+           ,[process]
+           ,[lcmProdSn]
+           ,[passNode]
+           ,[wipNode]
+           ,[eqNo]
+           ,[updateUser]
+           ,[updateTime])
+     VALUES
+           (@sn
+           ,@process
+           ,@lcmProdSn
+           ,@passNode
+           ,@wipNode
+           ,@eqNo
+           ,@updateUser
+           ,@updateTime);";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, insSettingDao);
+
+            return dao;
+        }
     }
 }

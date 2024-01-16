@@ -173,7 +173,7 @@ namespace MOD4.Web.DomainService
                 MenuPermissionList = new List<MenuPermissionEntity>()
             };
 
-            _allMenu.ForEach(menu =>
+            _allMenu.OrderBy(o => o.parent_menu_sn).ToList().ForEach(menu =>
             {
                 var _currentMenuPermission = _accountMenuPermission.FirstOrDefault(accMenu => (int)accMenu.MenuSn == menu.sn);
 

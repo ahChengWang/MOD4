@@ -8,6 +8,7 @@ namespace MOD4.Web.DomainService.Entity
         public string Category { get; set; }
         public string MonthPlan { get; set; }
         public string ProductName { get; set; }
+        public int Node { get; set; }
         public List<ManufactureDetailEntity> PlanDetail { get; set; }
     }
 }

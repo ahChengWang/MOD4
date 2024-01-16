@@ -9,6 +9,7 @@
                 <th class="sticky-th2">@Html.DisplayNameFor(model => model.First().Category)</th>
                 <th class="sticky-th3">@Html.DisplayNameFor(model => model.First().MonthPlan)</th>
                 <th class="sticky-th4">@Html.DisplayNameFor(model => model.First().ProductName)</th>
+                <th class="sticky-th5">@Html.DisplayNameFor(model => model.First().Node)</th>
 
                 if (Model.Any())
                 {
@@ -33,26 +34,27 @@
             {
                 foreach (var plan in Model)
                 {
-                    <tr>
-                        @{
-                            <td class="sticky-column1">@plan.Process</td>
-                            <td class="sticky-column2">@plan.Category</td>
-                            <td class="sticky-column3" style="text-align:center">@plan.MonthPlan</td>
-                            <td class="sticky-column4">@plan.ProductName</td>
+                <tr>
+                    @{
+                        <td class="sticky-column1">@plan.Process</td>
+                        <td class="sticky-column2">@plan.Category</td>
+                        <td class="sticky-column3" style="text-align:center">@plan.MonthPlan</td>
+                        <td class="sticky-column4">@plan.ProductName</td>
+                        <td class="sticky-column5">@plan.Node</td>
 
-                            foreach (var detail in plan.PlanDetail)
+                        foreach (var detail in plan.PlanDetail)
+                        {
+                            if (@detail.Quantity > 0)
                             {
-                                if (@detail.Quantity > 0)
-                                {
-                                    <td style="background-color: #3ecf3e;text-align:center">@detail.Quantity</td>
-                                }
-                                else
-                                {
-                                    <td style="text-align:center">@detail.Quantity</td>
-                                }
+                                <td style="background-color: #3ecf3e;text-align:center">@detail.Quantity</td>
+                            }
+                            else
+                            {
+                                <td style="text-align:center">@detail.Quantity</td>
                             }
                         }
-                    </tr>
+                    }
+                </tr>
                 }
             }
         }

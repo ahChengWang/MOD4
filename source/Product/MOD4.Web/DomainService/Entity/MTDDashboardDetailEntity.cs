@@ -10,9 +10,13 @@ namespace MOD4.Web.DomainService.Entity
 
         public string BigProduct { get; set; }
 
+        public string Node { get; set; }
+
         public string PlanProduct { get; set; }
 
         public int Output { get; set; }
+
+        public int Wip { get; set; }
 
         public int DayPlan { get; set; }
 

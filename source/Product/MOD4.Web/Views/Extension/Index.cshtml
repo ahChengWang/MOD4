@@ -18,6 +18,16 @@
         background-color: rgb(131, 165, 199);
     }
 
+    .myInput {
+        border-bottom: 1px solid black;
+        border-top: 0px;
+        border-left: 0px;
+        border-right: 0px;
+        background-color: transparent;
+        outline: none;
+        width: 40%;
+    }
+
     .close-x {
         position: relative;
         width: 25px;
@@ -61,10 +71,35 @@
         box-shadow: 2px 0px #4f4f4f;
     }
 
-    span[name="note"] {
+    /*span[name="note"] {
         color: #b00707;
         font-weight: 600;
         font-size: 10px;
+    }*/
+
+    span[name='note'] {
+        color: #ff1919;
+        font-size: 15px;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        font-weight: 600;
+        animation: remark 2s ease-in-out infinite alternate;
+    }
+
+    @@keyframes remark {
+        0% {
+            text-shadow: 0 0 20px #ffabab, 0 0 100px #ffabab, 0 0 20px #ffabab;
+            color: #ffabab;
+        }
+
+        50% {
+            text-shadow: 0 0 50px #ff6363, 0 0 150px #ff6363, 0 0 50px #ff6363;
+            color: #ff6363;
+        }
+
+        100% {
+            text-shadow: 0 0 20px #ff1919, 0 0 100px #ff1919, 0 0 20px #ff1919;
+            color: #ff1919;
+        }
     }
 </style>
 
@@ -75,7 +110,8 @@
                 <div><a style="background-color: #cca36a; font-weight: 700; font-size: 2vh;">背蓋</a></div>
                 <div><a style="background-color: #6d6dad; font-weight: 700; font-size: 2vh; margin-left: 4px; ">機板</a></div>
                 <div><a style="background-color: #609e72; font-weight: 700; font-size: 2vh; margin-left: 4px; ">BL</a></div>
-                <div><span name="note" style="font-weight: 700; margin-left: 4px; ">※ 點擊兩下當天日期顯示新增視窗</span></div>
+                <div><a style="background-color: #b21cc9; font-weight: 700; font-size: 2vh; margin-left: 4px; ">Panel</a></div>
+                <div><span name="note" style="font-weight: 700; margin-left: 4px; ">※ 點擊兩下當天日期或日期上事件, 顯示新增視窗(Try double-click on current date or event on date to show windows)</span></div>
             </div>
             <div class="col-md-12">
                 <div class="card" style="background-color: rgb(118, 140, 163,0.5); ">
@@ -137,7 +173,7 @@
                                 </div>*@
                             <div v-if="!modalInsModel.isHistory">
                                 <label>Panel ID：</label>
-                                <input type="text" @@change="textChange" v-model="panelImp" />
+                                <input class="myInput" type="text" @@change="textChange" v-model="panelImp" />
                             </div>
                             <div style="overflow: auto; overflow-x: hidden; overflow-y: auto; width: 100%; max-height: 60vh;">
                                 <table class="table" style="text-align: center; max-height: 100%;">
@@ -167,8 +203,8 @@
                             </div>
                         </div>
                         <div class="modal-footer justify-content-between" v-if="!modalInsModel.isHistory">
-                            <input v-if="modalInsModel.isCreate" type="button" class="btn btn-outline-dark" value="儲存" @@click="saveClick" />
-                            <input v-if="!modalInsModel.isCreate" type="button" class="btn btn-outline-warning" value="更新" @@click="updateClick" />
+                            <input v-if="modalInsModel.isCreate" type="button" class="btn btn-outline-dark" value="儲存(save)" @@click="saveClick" />
+                            <input v-if="!modalInsModel.isCreate" type="button" class="btn btn-outline-warning" value="更新(update)" @@click="updateClick" />
                         </div>
                     </div>
                     <!-- /.modal-content -->
@@ -189,6 +225,7 @@
             1: '#cca36a',
             2: '#6d6dad',
             3: '#609e72',
+            4: '#b21cc9',
         };
 
         const vue = new Vue({
@@ -199,7 +236,7 @@
                 panelValue: '',
                 panelDate: '',
                 calendar: null,
-                catgOptions: @(Html.Raw(Json.Serialize(ViewBag.CatgOption))),
+                catgOptions: [],
                 calendarEl: null,
                 calOption: {
                     /*initialDate: new Date(2023, 7, 31),*/
@@ -295,7 +332,7 @@
                                     }
                                 }
                             });
-                        }                        
+                        }
                     }
                 },
                 modalInsModel: {
@@ -317,6 +354,10 @@
                     'FKWX': [2, '機板'],
                     'FKWZ': [2, '機板'],
                     'FKWY': [2, '機板'],
+                    'E4M7': [2, '機板'],
+                    'F3U5': [2, '機板'],
+                    'FR4R': [2, '機板'],
+                    'G2ZY': [2, '機板'],
                     'FSSV': [3, 'BL'],
                     'FSYU': [3, 'BL'],
                     'FT56': [3, 'BL'],
@@ -325,6 +366,13 @@
                     'G8LS': [3, 'BL'],
                     'G8NL': [3, 'BL'],
                     'FZNP': [3, 'BL'],
+                    'E422': [3, 'BL'],
+                    'FX68': [3, 'BL'],
+                    'T337': [4, 'Panel'],
+                    'T338': [4, 'Panel'],
+                    'T339': [4, 'Panel'],
+                    'T33A': [4, 'Panel'],
+                    'T33B': [4, 'Panel'],
                 }
             },
             methods: {
