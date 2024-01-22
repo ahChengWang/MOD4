@@ -16,7 +16,7 @@ namespace MOD4.Web.Repostory
             return dao;
         }
 
-        public List<AlarmXmlDao> SelectByConditions(string date, List<string> toolIdList, int sn, bool isRepaired, List<string> statusList)
+        public List<AlarmXmlDao> SelectByConditions(string date, List<string> toolIdList, int sn, bool isRepaired, List<string> statusList, bool showAuto)
         {
             string sql = "select * from alarm_xml where 1=1";
 
@@ -32,6 +32,9 @@ namespace MOD4.Web.Repostory
                 sql += " and end_time is null ";
             if (statusList != null && statusList.Any())
                 sql += " and statusId in @statusId ";
+
+            if (!showAuto)
+                sql += " and user_id != 'AUTO' ";
 
             var dao = _dbHelper.ExecuteQuery<AlarmXmlDao>(sql, new
             {

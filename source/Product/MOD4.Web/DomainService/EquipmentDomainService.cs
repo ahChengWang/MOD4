@@ -79,7 +79,7 @@ namespace MOD4.Web.DomainService
             {
                 string beginDTE = DateTime.Now.ToString("yyyy-MM-dd");
 
-                var _alarmList = _alarmXmlRepository.SelectByConditions(date ?? beginDTE, toolId?.Split(",").ToList() ?? null, 0, false, null);
+                var _alarmList = _alarmXmlRepository.SelectByConditions(date ?? beginDTE, toolId?.Split(",").ToList() ?? null, 0, false, null, false);
 
                 return (_alarmList.OrderByDescending(o => o.lm_time).Select(s =>
                 {
@@ -112,11 +112,12 @@ namespace MOD4.Web.DomainService
 
                 List<EqpInfoDao> _resEquipmentList = new List<EqpInfoDao>();
 
-                var _alarmRepairedList = _alarmXmlRepository.SelectByConditions(date ?? _mfgDay.ToString("yyyy-MM-dd"),
+                var _alarmRepairedList = _alarmXmlRepository.SelectByConditions(string.IsNullOrEmpty(date) ? _mfgDay.ToString("yyyy-MM-dd") : date,
                     string.IsNullOrEmpty(toolId) ? null : toolId.Split(",").ToList() ?? null,
                     0,
                     true,
-                    string.IsNullOrEmpty(statusIdList) ? null : statusIdList.Split(",").ToList() ?? null);
+                    string.IsNullOrEmpty(statusIdList) ? null : statusIdList.Split(",").ToList() ?? null,
+                    showAuto);
 
                 var _eqpMapList = _equipMappingRepository.SelectEqByEqIdList(_alarmRepairedList.Select(s => s.tool_id).ToList());
 
@@ -199,7 +200,7 @@ namespace MOD4.Web.DomainService
             try
             {
                 //var _r = _eqpInfoRepository.SelectEqpinfoByConditions(sn).FirstOrDefault();
-                var _alarmDetail = _alarmXmlRepository.SelectByConditions(null, null, sn, true, null).FirstOrDefault();
+                var _alarmDetail = _alarmXmlRepository.SelectByConditions(null, null, sn, true, null, false).FirstOrDefault();
 
                 if (_alarmDetail == null)
                 {
@@ -273,7 +274,7 @@ namespace MOD4.Web.DomainService
         {
             try
             {
-                var _alarmEqData = _alarmXmlRepository.SelectByConditions(null, null, sn, true, null).FirstOrDefault();
+                var _alarmEqData = _alarmXmlRepository.SelectByConditions(null, null, sn, true, null, false).FirstOrDefault();
 
                 if (_alarmEqData == null)
                 {
@@ -348,7 +349,7 @@ namespace MOD4.Web.DomainService
                 if (statusId == 0)
                     return "參數異常";
 
-                var _alarmDetail = _alarmXmlRepository.SelectByConditions(null, null, sn, true, null).FirstOrDefault();
+                var _alarmDetail = _alarmXmlRepository.SelectByConditions(null, null, sn, true, null, false).FirstOrDefault();
 
                 if (statusId == EqIssueStatusEnum.PendingPM && !string.IsNullOrEmpty(_alarmDetail.mnt_user))
                     return "機況已更新, 請重整頁面";
@@ -624,7 +625,7 @@ namespace MOD4.Web.DomainService
             try
             {
                 var _updateResponse = "";
-                var _oldAlarmEqinfo = _alarmXmlRepository.SelectByConditions(null, null, editEntity.sn, true, null).FirstOrDefault();
+                var _oldAlarmEqinfo = _alarmXmlRepository.SelectByConditions(null, null, editEntity.sn, true, null, false).FirstOrDefault();
 
                 if (_oldAlarmEqinfo == null)
                     return "查無機況";

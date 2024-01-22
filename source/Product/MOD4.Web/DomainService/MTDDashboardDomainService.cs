@@ -208,9 +208,9 @@ namespace MOD4.Web.DomainService
                             RangPlan = Convert.ToInt32(_currSchedule.Value * (time / 24)),
                             RangDiff = Convert.ToInt32((_currRpt106PassQty?.Qty ?? 0) - (_currSchedule.Value * (time / 24))),
                             MonthPlan = _currMonth.Sum(sum => sum.Value), /*+ _currSchedule.Value,*/
-                            MTDPlan = _currMonth.Where(mon => mon.Date <= _srchDate).Sum(sum => sum.Value) + _currSchedule.Value,
+                            MTDPlan = _currMonth.Where(mon => mon.Date <= _srchDate).Sum(sum => sum.Value), /*+ _currSchedule.Value,*/
                             MTDActual = _currMonthRpt106.Sum(sum => sum.Qty),
-                            MTDDiff = _currMonthRpt106.Sum(sum => sum.Qty) - (_currMonth.Where(mon => mon.Date <= _srchDate).Sum(sum => sum.Value) + _currSchedule.Value),
+                            MTDDiff = _currMonthRpt106.Sum(sum => sum.Qty) - (_currMonth.Where(mon => mon.Date <= _srchDate).Sum(sum => sum.Value)), /*+ _currSchedule.Value),*/
                             EqAbnormal = _currAlarmData == null ? "" : _currAlarmData.comment,
                             RepaireTime = _currAlarmData == null ? "" : _currAlarmData.spend_time.ToString(),
                             Status = _currAlarmData == null ? "" : _currAlarmData.end_time == null ? "處理中" : "已排除"
@@ -263,9 +263,9 @@ namespace MOD4.Web.DomainService
         {
             List<MTDPerformanceEntity> _tempZipsunEntity = new List<MTDPerformanceEntity>();
 
-            var _rpt106List = (await _inxReportService.Get106NewReportAsync<INXRpt106Entity>(startDate, endDate, "ALL", "ALL", new List<string> { prod })).Date.Data.Table;
+            var _rpt106List = await _inxReportService.Get106NewReportAsync<INXRpt106Entity>(startDate, endDate, "ALL", "ALL", new List<string> { prod });
 
-            Parallel.ForEach(_rpt106List,
+            Parallel.ForEach(_rpt106List.Date.Data.Table,
                 new ParallelOptions { MaxDegreeOfParallelism = 8 },
                 (rpt) =>
                 {
@@ -319,9 +319,9 @@ namespace MOD4.Web.DomainService
         {
             List<MTDPerformanceEntity> _tempZipsunEntity = new List<MTDPerformanceEntity>();
 
-            var _rpt106List = (await _inxReportService.Get106NewReportAsync<INXRpt106Entity>(startDate, endDate, "ALL", "ALL", new List<string> { prod })).Date.Data.Table;
+            var _rpt106List = await _inxReportService.Get106NewReportAsync<INXRpt106Entity>(startDate, endDate, "ALL", "ALL", new List<string> { prod });
 
-            Parallel.ForEach(_rpt106List,
+            Parallel.ForEach(_rpt106List.Date.Data.Table,
                 new ParallelOptions { MaxDegreeOfParallelism = 8 },
                 (rpt) =>
                 {

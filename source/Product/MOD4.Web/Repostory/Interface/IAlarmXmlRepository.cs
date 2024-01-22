@@ -7,7 +7,7 @@ namespace MOD4.Web.Repostory
     public interface IAlarmXmlRepository
     {
         List<string> SelectToolList();
-        List<AlarmXmlDao> SelectByConditions(string date, List<string> toolIdList, int sn, bool isRepaired, List<string> statusList);
+        List<AlarmXmlDao> SelectByConditions(string date, List<string> toolIdList, int sn, bool isRepaired, List<string> statusList, bool showAuto);
         List<AlarmXmlDao> SelectUnrepaired();
         List<AlarmXmlDao> SelectRepaired(string mfgDay);
         List<AlarmXmlDao> SelectDayTopRepaired(string mfgDay);
