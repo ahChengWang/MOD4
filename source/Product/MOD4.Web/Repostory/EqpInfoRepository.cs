@@ -93,7 +93,7 @@ namespace MOD4.Web.Repostory
         public List<EquipMappingDao> SelectUnRepaireEqList(string beginDate, string endDate)
         {
             string sql = @"WITH CTE AS
-(select tool_id from alarm_xml_unrepaired where MFG_Day between @BeginDate and @EndDate
+(select tool_id from alarm_xml where MFG_Day between @BeginDate and @EndDate and end_time is not null 
  group by tool_id)
 select b.EQUIP_NBR, b.AREA 
   from CTE cte

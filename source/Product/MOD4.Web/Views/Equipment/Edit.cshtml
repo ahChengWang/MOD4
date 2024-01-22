@@ -49,8 +49,8 @@
     }
 
     label[name="textRight"] {
-        text-align: right;
-        display: block;
+        /*text-align: center;*/
+        /*display: block;*/
     }
 </style>
 
@@ -59,7 +59,7 @@
         <div class="container-fluid">
             <div class="row">
                 <!-- left column -->
-                <div class="col-md-10">
+                <div class="col-md-12">
                     <!-- jquery validation -->
                     <div class="card">
                         <div class="card-header">
@@ -71,9 +71,11 @@
                             <div class="card-body">
                                 <div class="row">
                                     <label class="col-form-label col-2" asp-for="StartTime"></label>
-                                    <label class="col-form-label col-4" name="underline">@Model.StartTime</label>
-                                    <label class="col-form-label col-2" asp-for="ToolId"></label>
-                                    <label class="col-form-label col-4" name="underline">@Model.ToolId</label>
+                                    <label class="col-form-label col-3" name="underline">@Model.StartTime</label>
+                                    <label class="col-form-label col-1" asp-for="ToolId"></label>
+                                    <label class="col-form-label col-2" name="underline">@Model.ToolId</label>
+                                    <label class="col-form-label col-2" asp-for="RepairedTime"></label>
+                                    <label class="col-form-label col-2" name="underline">@Model.RepairedTime (min.)</label>
                                 </div>
                                 <div class="row">
                                 </div>
@@ -81,208 +83,285 @@
                                     <div class="col-2">
                                         <label class="col-form-label" asp-for="Product"></label>
                                     </div>
-                                    <div class="col-2">
+                                    <div class="col-3">
                                         <label class="col-form-label" name="underline">@Model.Product</label>
                                     </div>
-                                    <div class="col-2">
+                                    <div class="col-1">
                                         <label class="col-form-label" asp-for="ProductShortName"></label>
                                     </div>
                                     <div class="col-2">
                                         <label class="col-form-label" name="underline">@Model.ProductShortName</label>
                                     </div>
                                     @*<div class="col-2">
-                                        <label class="col-form-label" asp-for="ModelName"></label>
-                                    </div>
-                                    <div class="col-2">
-                                        <label class="col-form-label" name="underline">@Model.ModelName</label>
-                                    </div>*@
+                                            <label class="col-form-label" asp-for="ModelName"></label>
+                                        </div>
+                                        <div class="col-2">
+                                            <label class="col-form-label" name="underline">@Model.ModelName</label>
+                                        </div>*@
                                 </div>
                                 <div class="row" style="display: flex;">
                                     <div class="col-2">
+                                        <label class="col-form-label" asp-for="Codedesc"></label>
+                                    </div>
+                                    <div class="col-3">
+                                        <label class="col-form-label" name="underline">@Model.Codedesc</label>
+                                    </div>
+                                    <div class="col-1">
                                         <label class="col-form-label" asp-for="Code"></label>
                                     </div>
                                     <div class="col-2">
                                         <label class="col-form-label" name="underline">@Model.Code</label>
                                     </div>
-                                    <div class="col-2">
-                                        <label class="col-form-label" asp-for="Codedesc"></label>
-                                    </div>
-                                    <div class="col-2">
-                                        <label class="col-form-label" name="underline">@Model.Codedesc</label>
-                                    </div>
                                 </div>
                                 <div class="row" style="display: flex; margin-top: 5px; ">
-                                    <div class="col-2">
-                                        <label class="col-form-label" asp-for="Comment"></label>
+                                    <div class="col-md-2">
+                                        <span style="font-size: 10px; font-weight: 700;" class="text-danger">*</span>
                                         <span asp-validation-for="Comment" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                        <label class="col-form-label" asp-for="Comment"></label>
                                     </div>
-                                    <div class="col-10">
+                                    <div class="col-md-10">
                                         <textarea class="form-control pmEdit" asp-for="Comment" id="Comment" rows="2"></textarea>
                                     </div>
                                 </div>
                                 <div class="row" style="display: flex; margin-top: 5px;">
-                                    <div class="col-2">
-                                        <label class="col-form-label" asp-for="ProcessId"></label>
+                                    <div class="col-md-2">
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                         <span asp-validation-for="ProcessId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                        <label class="col-form-label" asp-for="ProcessId"></label>
                                     </div>
-                                    <div class="col-2">
+                                    <div class="col-md-2">
                                         <select class="form-control pmEdit" asp-for="ProcessId" asp-items="Model.ProcessOptionList">
                                             <option></option>
                                         </select>
                                     </div>
-                                    <div class="col-1">
+                                    <div class="col-md-2" style="text-align: right;">
+                                        <span style="font-size: 10px; font-weight: 700;" class="text-danger">*</span>
+                                        <span asp-validation-for="EqUnitId" style="font-size: 10px; font-weight: 700;" class="text-danger"></span>
                                         <label class="col-form-label" name="textRight" asp-for="EqUnitId"></label>
-                                        <span asp-validation-for="EqUnitId" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
-                                    <div class="col-2">
+                                    <div class="col-md-2">
                                         <select class="form-control pmEdit" asp-for="EqUnitId" asp-items="Model.EqUnitOptionList">
                                             <option></option>
                                         </select>
                                     </div>
-                                    <div class="col-1">
-                                        <label class="col-form-label" name="textRight" asp-for="EqUnitPartId" style="font-size:15px"></label>
+                                    <div class="col-md-1" style="text-align: right;">
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                         <span asp-validation-for="EqUnitPartId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                        <label class="col-form-label" name="textRight" asp-for="EqUnitPartId" style="font-size:15px"></label>
                                     </div>
-                                    <div class="col-2">
+                                    <div class="col-md-3">
                                         <select class="form-control pmEdit" asp-for="EqUnitPartId" asp-items="Model.EqUnitPartOptionList">
                                             <option></option>
                                         </select>
                                     </div>
                                 </div>
-                                <div class="row" style="display: flex;margin-top:10px;">
-                                    <div class="col-2">
+                                <div class="row" style="display: flex; margin-top: 5px;">
+                                    <div class="col-md-2">
+                                        @*<span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                            <span asp-validation-for="DefectQty" style="font-size:10px;font-weight:700" class="text-danger"></span>*@
                                         <label class="col-form-label" asp-for="DefectQty"></label>
-                                        <span asp-validation-for="DefectQty" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
-                                    <div class="col-2">
+                                    <div class="col-md-2">
                                         <input class="form-control pmEdit" style="text-align:right" type="number" min="0" asp-for="DefectQty" />
                                     </div>
-                                    <div class="col-1">
+                                    <div class="col-md-1" style="text-align: right;">
+                                        @*<span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                            <span asp-validation-for="DefectRate" style="font-size:10px;font-weight:700" class="text-danger"></span>*@
                                         <label class="col-form-label" name="textRight" asp-for="DefectRate"></label>
-                                        <span asp-validation-for="DefectRate" style="font-size:10px;font-weight:700" class="text-danger"></span>
                                     </div>
-                                    <div class="col-2">
+                                    <div class="col-md-3">
                                         <div>
-                                            <input class="form-control pmEdit" type="text" min="0" max="100" maxlength="8" placeholder="ex:95.1234" asp-for="DefectRate" />
+                                            <input class="form-control pmEdit" type="text" min="0" maxlength="8" placeholder="ex:95.1234" asp-for="DefectRate" />
                                             <span class="unit">%</span>
                                         </div>
                                     </div>
-                                    <div class="col-1">
-                                        <label class="col-form-label" name="textRight" asp-for="Shift"></label>
+                                    <div class="col-md-1" style="text-align: right;">
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                         <span asp-validation-for="Shift" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                        <label class="col-form-label" name="textRight" asp-for="Shift"></label>
                                     </div>
-                                    <div class="col-2">
+                                    <div class="col-md-3">
                                         <select class="form-control pmEdit" asp-for="Shift" asp-items="Model.ShiftOptionList">
                                             <option></option>
                                         </select>
                                     </div>
                                 </div>
 
-                                @{
-                                    if (Model.StatusId == MOD4.Web.Enum.EqIssueStatusEnum.PendingENG)
-                                    {
-                                        <div id="blockPM" class="row" style="margin-top:10px;">
-                                            <div class="col-2">
-                                                <label class="col-form-label" asp-for="MntUser"></label>
-                                            </div>
-                                            <div class="col-2">
-                                                <input class="form-control" disabled style="text-align:right" type="text" value="@Model.MntUser" asp-for="MntUser" />
-                                            </div>
-                                            <br />
-                                        </div>
-                                    }
-                                }
-
                                 <div class="row" style="display: flex; margin-top: 5px;">
-                                    <div class="col-2">
-                                        <label class="col-form-label" asp-for="TypeId"></label>
+                                    <div class="col-md-2">
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                         <span asp-validation-for="TypeId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                        <label class="col-form-label" asp-for="TypeId" for="TypeId"></label>
                                     </div>
-                                    <div class="col-2">
-                                        <select class="form-control" asp-for="TypeId" asp-items="Model.EvenCodeOptionList">
+                                    <div class="col-md-2">
+                                        <select class="custom-select pmEdit" asp-for="TypeId" asp-items="Model.EvenCodeOptionList">
                                             <option></option>
                                         </select>
                                     </div>
-                                    <div class="col-1">
-                                        <label class="col-form-label" name="textRight" asp-for="YId"></label>
+                                    <div class="col-md-1" style="text-align: right;">
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                         <span asp-validation-for="YId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                        <label class="col-form-label" name="textRight" asp-for="YId"></label>
                                     </div>
-                                    <div class="col-2">
-                                        <select class="form-control" asp-for="YId" asp-items="Model.EvenCodeYOptionList">
+                                    <div class="col-md-3">
+                                        <select class="form-control pmEdit" asp-for="YId" asp-items="Model.EvenCodeYOptionList">
                                             <option></option>
                                         </select>
                                     </div>
-                                    <div class="col-1">
-                                        <label class="col-form-label" name="textRight" asp-for="SubYId" style="font-size:15px"></label>
+                                    <div class="col-md-1" style="text-align: right;">
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                         <span asp-validation-for="SubYId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                        <label class="col-form-label" name="textRight" asp-for="SubYId" style="font-size:15px"></label>
                                     </div>
-                                    <div class="col-2">
-                                        <select class="form-control" asp-for="SubYId" asp-items="Model.EvenCodeSubYOptionList">
+                                    <div class="col-md-3">
+                                        <select class="form-control pmEdit" asp-for="SubYId" asp-items="Model.EvenCodeSubYOptionList">
                                             <option></option>
                                         </select>
                                     </div>
                                 </div>
 
                                 <div class="row" style="display: flex; margin-top: 5px;">
-                                    <div class="col-2">
-                                        <label class="col-form-label" asp-for="XId"></label>
+                                    <div class="col-md-2">
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                         <span asp-validation-for="XId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                        <label class="col-form-label" asp-for="XId"></label>
                                     </div>
-                                    <div class="col-2">
-                                        <select class="form-control" asp-for="XId" asp-items="Model.EvenCodeXOptionList">
+                                    <div class="col-md-2">
+                                        <select class="form-control pmEdit" asp-for="XId" asp-items="Model.EvenCodeXOptionList">
                                             <option></option>
                                         </select>
                                     </div>
-                                    <div class="col-1">
-                                        <label class="col-form-label" name="textRight" asp-for="SubXId"></label>
+                                    <div class="col-md-1" style="text-align: right;">
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                         <span asp-validation-for="SubXId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                        <label class="col-form-label" name="textRight" asp-for="SubXId"></label>
                                     </div>
-                                    <div class="col-2">
-                                        <select class="form-control" asp-for="SubXId" asp-items="Model.EvenCodeSubXOptionList">
+                                    <div class="col-md-3">
+                                        <select class="form-control pmEdit" asp-for="SubXId" asp-items="Model.EvenCodeSubXOptionList">
                                             <option></option>
                                         </select>
                                     </div>
-                                    <div class="col-1">
-                                        <label class="col-form-label" name="textRight" asp-for="RId" style="font-size:15px"></label>
+                                    <div class="col-md-1" style="text-align: right;">
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                         <span asp-validation-for="RId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                        <label class="col-form-label" name="textRight" asp-for="RId" style="font-size:15px"></label>
                                     </div>
-                                    <div class="col-2">
-                                        <select class="form-control" asp-for="RId" asp-items="Model.EvenCodeROptionList">
+                                    <div class="col-md-3">
+                                        <select class="form-control pmEdit" asp-for="RId" asp-items="Model.EvenCodeROptionList">
                                             <option></option>
                                         </select>
                                     </div>
                                 </div>
 
-                                <div id="mntMinutesBlock" class="row" style="margin-top:5px;">
-                                    <div class="col-2">
-                                        <label class="col-form-label" asp-for="MntMinutes"></label>
+                                <div id="mntMinutesBlock" class="row" style="margin-top: 5px;">
+                                    <div class="col-md-2">
+                                        <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
                                         <span asp-validation-for="MntMinutes" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                        <label class="col-form-label" asp-for="MntMinutes"></label>
                                     </div>
-                                    <div class="col-10">
+                                    <div class="col-md-10">
                                         <textarea class="form-control pmEdit" asp-for="MntMinutes" rows="5" cols="75"></textarea>
                                     </div>
                                 </div>
 
+                                <div id="blockPM" class="row" style="margin-top: 5px;">
+                                    <div class="col-2">
+                                        <label class="col-form-label" asp-for="MntUser"></label>
+                                    </div>
+                                    <div class="col-2">
+                                        <input class="form-control" disabled type="text" value="@Model.MntUser" asp-for="MntUser" />
+                                    </div>
+                                    <br />
+                                </div>
                                 @{
                                     if (Model.StatusId == MOD4.Web.Enum.EqIssueStatusEnum.PendingENG)
                                     {
+                                        <hr style="border-width:3px;border-color:gray" />
+                                        <h4 style="font-weight: 600; ">工程師編輯</h4>
 
-                                        <div class="row" style="display: flex;margin-top:5px;">
-                                            <div class="col-2">
-                                                <label class="col-form-label" asp-for="PriorityId"></label>
-                                                <span asp-validation-for="PriorityId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                        <div class="row" style="display: flex; margin-top: 5px;">
+                                            <div class="col-md-2">
+                                                <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                                <span asp-validation-for="ENGTypeId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                                <label class="col-form-label" asp-for="ENGTypeId" for="TypeId"></label>
                                             </div>
-                                            <div class="col-2">
+                                            <div class="col-md-2">
+                                                <select class="custom-select" asp-for="ENGTypeId" asp-items="Model.EvenCodeOptionList">
+                                                    <option></option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-1" style="text-align: right;">
+                                                <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                                <span asp-validation-for="ENGYId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                                <label class="col-form-label" name="textRight" asp-for="ENGYId"></label>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <select class="form-control" asp-for="ENGYId">
+                                                    <option></option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-1" style="text-align: right;">
+                                                <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                                <span asp-validation-for="ENGSubYId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                                <label class="col-form-label" name="textRight" asp-for="ENGSubYId" style="font-size:15px"></label>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <select class="form-control" asp-for="ENGSubYId">
+                                                    <option></option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="row" style="display: flex; margin-top: 5px;">
+                                            <div class="col-md-2">
+                                                <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                                <span asp-validation-for="ENGXId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                                <label class="col-form-label" asp-for="ENGXId"></label>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <select class="form-control" asp-for="ENGXId">
+                                                    <option></option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-1" style="text-align: right;">
+                                                <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                                <span asp-validation-for="ENGSubXId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                                <label class="col-form-label" name="textRight" asp-for="ENGSubXId"></label>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <select class="form-control" asp-for="ENGSubXId">
+                                                    <option></option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-1" style="text-align: right;">
+                                                <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                                <span asp-validation-for="ENGRId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                                <label class="col-form-label" name="textRight" asp-for="ENGRId" style="font-size:15px"></label>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <select class="form-control" asp-for="ENGRId">
+                                                    <option></option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="row" style="display: flex; margin-top: 5px;">
+                                            <div class="col-md-2">
+                                                <span style="font-size:10px;font-weight:700" class="text-danger">*</span>
+                                                <span asp-validation-for="PriorityId" style="font-size:10px;font-weight:700" class="text-danger"></span>
+                                                <label class="col-form-label" asp-for="PriorityId"></label>
+                                            </div>
+                                            <div class="col-md-2">
                                                 <select class="form-control" asp-for="PriorityId" asp-items="Model.PriorityOptionList">
                                                     <option></option>
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="row" style="margin-top:5px;">
-                                            <div class="col-2">
+                                        <div class="row" style="margin-top: 5px;">
+                                            <div class="col-md-2">
                                                 <label class="col-form-label" asp-for="Memo"></label>
                                             </div>
-                                            <div class="col-7">
+                                            <div class="col-md-7">
                                                 <textarea class="form-control" asp-for="Memo" rows="3" cols="75"></textarea>
                                             </div>
                                         </div>
@@ -309,266 +388,296 @@
 
 @section scripts {
     <script type="text/javascript">
-    $(function () {
-        const _model = @Json.Serialize(Model);
-        if (_model["statusId"] == 2) {
-            var moveBlock = $("#mntMinutesBlock")[0].outerHTML;
-            $("#mntMinutesBlock").empty();
-            $("#blockPM").after('<h4>工程師編輯</h4>');
-            $("#blockPM").after('<hr style="border-width:3px;border-color:gray" />');
-            $("#blockPM").after(moveBlock);
+        $(function () {
+            const _model = @Json.Serialize(Model);
+            if (_model["statusId"] == 2) {
+                //var moveBlock = $("#mntMinutesBlock")[0].outerHTML;
+                //$("#mntMinutesBlock").empty();
+                    //$("#blockPM").after('<h4>工程師編輯</h4>');
+                //$("#blockPM").after('<hr style="border-width:3px;border-color:gray" />');
+                //$("#blockPM").after(moveBlock);
 
-            $(".pmEdit").prop("disabled", true);
-            //$("#TypeId").empty();
-            //$("<option></option>").attr("value", _model["typeId"]).text(_model["typeDesc"]).attr("selected", "selected").appendTo($("#TypeId").attr("disabled", true));
-            //$("<option></option>").attr("value", _model["yId"]).text(_model["yDesc"]).attr("selected", "selected").appendTo($("#YId").attr("disabled", true));
-            //$("<option></option>").attr("value", _model["subYId"]).text(_model["subYDesc"]).attr("selected", "selected").appendTo($("#SubYId").attr("disabled", true));
+                $(".pmEdit").prop("disabled", true);
+                //$("#TypeId").empty();
+                //$("<option></option>").attr("value", _model["typeId"]).text(_model["typeDesc"]).attr("selected", "selected").appendTo($("#TypeId").attr("disabled", true));
+                //$("<option></option>").attr("value", _model["yId"]).text(_model["yDesc"]).attr("selected", "selected").appendTo($("#YId").attr("disabled", true));
+                //$("<option></option>").attr("value", _model["subYId"]).text(_model["subYDesc"]).attr("selected", "selected").appendTo($("#SubYId").attr("disabled", true));
 
-            if ($("#YId").children().length == 2)
-                $("#YId").attr("disabled", true);
-            if ($("#SubYId").children().length == 2)
-                $("#SubYId").attr("disabled", true);
-            if ($("#XId").children().length == 2)
-                $("#XId").attr("disabled", true);
-            if ($("#SubXId").children().length == 2)
-                $("#SubXId").attr("disabled", true);
-            if ($("#RId").children().length == 2)
-                $("#RId").attr("disabled", true);
-            //$("<option></option>").text(_model["xDesc"]).attr("selected", "selected").appendTo($("#XId").attr("disabled", true));
-            //$("<option></option>").text(_model["subXDesc"]).attr("selected", "selected").appendTo($("#SubXId").attr("disabled", true));
-            //$("<option></option>").text(_model["rDesc"]).attr("selected", "selected").appendTo($("#RId").attr("disabled", true));
-        }
-    });
+                //if ($("#YId").children().length == 2)
+                //    $("#YId").attr("disabled", true);
+                //if ($("#SubYId").children().length == 2)
+                //    $("#SubYId").attr("disabled", true);
+                //if ($("#XId").children().length == 2)
+                //    $("#XId").attr("disabled", true);
+                //if ($("#SubXId").children().length == 2)
+                //    $("#SubXId").attr("disabled", true);
+                //if ($("#RId").children().length == 2)
+                //    $("#RId").attr("disabled", true);
+                //$("<option></option>").text(_model["xDesc"]).attr("selected", "selected").appendTo($("#XId").attr("disabled", true));
+                //$("<option></option>").text(_model["subXDesc"]).attr("selected", "selected").appendTo($("#SubXId").attr("disabled", true));
+                //$("<option></option>").text(_model["rDesc"]).attr("selected", "selected").appendTo($("#RId").attr("disabled", true));
 
-    $('#btnSave').click(function (e) {
-        e.preventDefault();
-        if ($("#quickForm").valid()) {
-            $.blockUI({
-                message: '請稍等...',
-                css: {
-                    border: 'none',
-                    padding: '5px',
-                    backgroundColor: '#000',
-                    '-webkit-border-radius': '10px',
-                    '-moz-border-radius': '10px',
-                    opacity: '.5',
-                    color: '#fff',
-                    fontSize: '25px',
-                    fontFamily: '微軟正黑體',
-                    fontWeight: 300,
-                }
+            }
+        });
+
+        $('#btnSave').click(function (e) {
+            e.preventDefault();
+            if ($("#quickForm").valid()) {
+                $.blockUI({
+                    message: '請稍等...',
+                    css: {
+                        border: 'none',
+                        padding: '5px',
+                        backgroundColor: '#000',
+                        '-webkit-border-radius': '10px',
+                        '-moz-border-radius': '10px',
+                        opacity: '.5',
+                        color: '#fff',
+                        fontSize: '25px',
+                        fontFamily: '微軟正黑體',
+                        fontWeight: 300,
+                    }
+                });
+                $.ajax({
+                    type: "POST",
+                    url: "./Edit",
+                    dataType: 'json',
+                    data: $("#quickForm").serialize(),
+                    success: function (result) {
+                        if (result != '') {
+                            alert(result);
+                            $.unblockUI();
+                        }
+                        else {
+                            alert('更新成功');
+                            location.href = "@Url.ActionLink("Index", "Equipment", new { searchVal = @Model.SearchVal })";
+                        }
+                    }
+                });
+            }
+            $.unblockUI();
+        });
+
+        $("#ProcessId").change(function (e) {
+                let eqUnitIdSelector = $("#EqUnitId");
+                let eqUnitPartSelector = $("#EqUnitPartId");
+                $.ajax({
+                    type: "GET",
+                    url: "./GetSubOption?optionTypeId=2&mainId=" + e.currentTarget.value + "&subId=0",
+                    dataType: 'json',
+                    success: function (options) {
+                        eqUnitIdSelector.empty();
+                        eqUnitPartSelector.empty();
+                        $("<option></option>").appendTo(eqUnitIdSelector);
+                        $("<option></option>").appendTo(eqUnitPartSelector);
+                        const currVal = $("#ProcessId").val();
+                        for (let i = 0; i < options.length; i++) {
+                            let option = options[i];
+                            let opEl = $("<option></option>").attr("value", option.id).text(option.value);
+                            if (currVal == option)
+                                opEl.attr("selected", "selected");
+
+                            opEl.appendTo(eqUnitIdSelector);
+                        }
+                    }
+                });
             });
+
+            $("#EqUnitId").change(function (e) {
+                let eqUnitPartSelector = $("#EqUnitPartId");
+                let processId = $("#ProcessId").val();
+                $.ajax({
+                    type: "GET",
+                    url: "./GetSubOption?optionTypeId=3&mainId=" + processId + "&subId=" + e.currentTarget.value,
+                    dataType: 'json',
+                    success: function (options) {
+                        eqUnitPartSelector.empty();
+                        $("<option></option>").appendTo(eqUnitPartSelector);
+                        const currVal = $("#EqUnitId").val();
+                        for (var i = 0; i < options.length; i++) {
+                            let option = options[i];
+                            let opEl = $("<option></option>").attr("value", option.id).text(option.value);
+                            if (currVal == option)
+                                opEl.attr("selected", "selected");
+
+                            opEl.appendTo(eqUnitPartSelector);
+                        }
+                    }
+                });
+            });
+
+            $("#EquipmentId").change(function (e) {
+                let modelCatgSelector = $("#ModelId");
+                $.ajax({
+                    type: "GET",
+                    url: "./ModelNameOption?id=" + e.currentTarget.value,
+                    dataType: 'json',
+                    success: function (options) {
+                        modelCatgSelector.empty();
+                        const currVal = $("#EquipmentId").val();
+                        for (let i = 0; i < options.length; i++) {
+                            let option = options[i];
+                            let opEl = $("<option></option>").attr("value", option.id).text(option.value);
+                            if (currVal == option) opEl.attr("selected", "selected");
+                            opEl.appendTo(modelCatgSelector);
+                        }
+                    }
+                });
+            });
+
+        $("#TypeId, #ENGTypeId").change(function (e) {
+            let _id = '';
+
+            if (e.currentTarget.id.indexOf("ENG") >= 0) {
+                _id = 'ENG';
+            }
+
+            let ySelector = $("#" + _id + "YId");
+            const _options = getEvenCodeOption(e.currentTarget.value);
+
+            $("#" + _id + "YId, #" + _id + "SubYId, #" + _id + "XId, #" + _id + "SubXId, #" + _id + "RId").empty();
+            $("<option></option>").appendTo(ySelector);
+
+            if (e.currentTarget.value == 99) {
+                $("#" + _id + "YId-error, #" + _id + "SubYId-error, #" + _id + "XId-error, #" + _id + "SubXId-error, #" + _id + "RId-error").remove();
+                $("#" + _id + "YId, #" + _id + "SubYId, #" + _id + "XId, #" + _id + "SubXId, #" + _id + "RId").attr("disabled", true);
+            }
+            else if (e.currentTarget.value != 0) {
+                $("#" + _id + "YId, #" + _id + "SubYId, #" + _id + "XId, #" + _id + "SubXId, #" + _id + "RId").removeAttr("disabled");
+                setOptions("#" + _id + "YId", _options);
+                //$("<option></option>").attr("value", 99).text("Other").appendTo(ySelector);
+            }
+        });
+
+        $("#YId, #ENGYId").change(function (e) {
+            let _id = '';
+
+            if (e.currentTarget.id.indexOf("ENG") >= 0) {
+                _id = 'ENG';
+            }
+
+            let typeSelector = $("#" + _id + "TypeId").find(":selected").val();
+            let subYIdSelector = $("#" + _id + "SubYId");
+            const _options = getEvenCodeOption(typeSelector, e.currentTarget.value);
+
+            $("#" + _id + "SubYId, #" + _id + "XId, #" + _id + "SubXId, #" + _id + "RId").empty();
+            $("<option></option>").appendTo(subYIdSelector);
+
+            if (e.currentTarget.value == 99) {
+                $("#" + _id + "SubYId-error, #" + _id + "XId-error, #" + _id + "SubXId-error, #" + _id + "RId-error").remove();
+                $("#" + _id + "SubYId, #" + _id + "XId, #" + _id + "SubXId, #" + _id + "RId").attr("disabled", true);
+            }
+            else if (e.currentTarget.value != 0) {
+                $("#" + _id + "SubYId, #" + _id + "XId, #" + _id + "SubXId, #" + _id + "RId").removeAttr("disabled");
+                setOptions("#" + _id + "SubYId", _options);
+                //$("<option></option>").attr("value", 99).text("Other").appendTo(subYIdSelector);
+            }
+        });
+
+        $("#SubYId ,#ENGSubYId").change(function (e) {
+            let _id = '';
+
+            if (e.currentTarget.id.indexOf("ENG") >= 0) {
+                _id = 'ENG';
+            }
+            const typeSelector = $("#" + _id + "TypeId").find(":selected").val();
+            const ySelector = $("#" + _id + "YId").find(":selected").val();
+            let xIdSelector = $("#" + _id + "XId");
+            const _options = getEvenCodeOption(typeSelector, ySelector, e.currentTarget.value);
+
+            $("#" + _id + "XId, #" + _id + "SubXId, #" + _id + "RId").empty();
+            $("<option></option>").appendTo(xIdSelector);
+
+            if (e.currentTarget.value == 99) {
+                $("#" + _id + "XId-error, #" + _id + "SubXId-error, #" + _id + "RId-error").remove();
+                $("#" + _id + "XId, #" + _id + "SubXId, #" + _id + "RId").attr("disabled", true);
+            }
+            else if (e.currentTarget.value != 0) {
+                $("#" + _id + "XId, #" + _id + "SubXId, #" + _id + "RId").removeAttr("disabled");
+                setOptions("#" + _id + "XId", _options);
+                //$("<option></option>").attr("value", 99).text("Other").appendTo(xIdSelector);
+            }
+        });
+
+        $("#quickForm").on("change", "#XId, #ENGXId", function (e) {
+            let _id = '';
+
+            if (e.currentTarget.id.indexOf("ENG") >= 0) {
+                _id = 'ENG';
+            }
+
+            const typeSelector = $("#" + _id + "TypeId").find(":selected").val();
+            const ySelector = $("#" + _id + "YId").find(":selected").val();
+            const subYIdSelector = $("#" + _id + "SubYId").find(":selected").val();
+            let subXIdSelector = $("#" + _id + "SubXId");
+            const _options = getEvenCodeOption(typeSelector, ySelector, subYIdSelector, e.currentTarget.value);
+
+            $("#" + _id + "SubXId, #" + _id + "RId").empty();
+            $("<option></option>").appendTo(subXIdSelector);
+
+            if (e.currentTarget.value == 99) {
+                $("#" + _id + "SubXId-error, #" + _id + "RId-error").remove();
+                $("#" + _id + "SubXId, #" + _id + "RId").attr("disabled", true);
+            }
+            else if (e.currentTarget.value != 0) {
+                $("#" + _id + "SubXId, #" + _id + "RId").removeAttr("disabled");
+                setOptions("#" + _id + "SubXId", _options);
+                //$("<option></option>").attr("value", 99).text("Other").appendTo(subXIdSelector);
+            }
+        });
+
+        $("#quickForm").on("change", "#SubXId, #ENGSubXId", function (e) {
+            let _id = '';
+
+            if (e.currentTarget.id.indexOf("ENG") >= 0) {
+                _id = 'ENG';
+            }
+
+            const typeSelector = $("#" + _id + "TypeId").find(":selected").val();
+            const ySelector = $("#" + _id + "YId").find(":selected").val();
+            const subYIdSelector = $("#" + _id + "SubYId").find(":selected").val();
+            const xIdSelector = $("#" + _id + "XId").find(":selected").val();
+            let rIdSelector = $("#" + _id + "RId");
+            const _options = getEvenCodeOption(typeSelector, ySelector, subYIdSelector, xIdSelector, e.currentTarget.value);
+
+            rIdSelector.empty();
+            $("<option></option>").appendTo(rIdSelector);
+
+            if (e.currentTarget.value == 99) {
+                $("#" + _id + "RId-error").remove();
+                $("#" + _id + "RId").attr("disabled", true);
+            }
+            else if (e.currentTarget.value != 0) {
+                $("#" + _id + "RId").removeAttr("disabled");
+                setOptions("#" + _id + "RId", _options);
+                //$("<option></option>").attr("value", 99).text("Other").appendTo(rIdSelector);
+            }
+
+        });
+
+
+        function getEvenCodeOption(type, y, subY, x, subX, r) {
+            let response = [];
             $.ajax({
-                type: "POST",
-                url: "./Edit",
+                type: "GET",
+                async: false,
+                url: "./GetEvenCodeOption?typeId=" + type + "&yId=" + y + "&subYId=" + subY + "&xId=" + x + "&subXId=" + subX + "&rId=" + r,
                 dataType: 'json',
-                data: $("#quickForm").serialize(),
-                success: function (result) {
-                    if (result != '') {
-                        alert(result);
-                        $.unblockUI();
-                    }
-                    else {
-                        alert('更新成功');
-                        location.href = "@Url.ActionLink("Index", "Equipment", new { searchVal = @Model.SearchVal })";
-                    }
+                success: function (options) {
+                    response = options;
                 }
             });
+            return response;
         }
-        $.unblockUI();
-    });
 
-    $("#ProcessId").change(function (e) {
-        let eqUnitIdSelector = $("#EqUnitId");
-        let eqUnitPartSelector = $("#EqUnitPartId");
-        $.ajax({
-            type: "GET",
-            url: "./GetSubOption?optionTypeId=2&mainId=" + e.currentTarget.value + "&subId=0",
-            dataType: 'json',
-            success: function (options) {
-                eqUnitIdSelector.empty();
-                eqUnitPartSelector.empty();
-                $("<option></option>").appendTo(eqUnitIdSelector);
-                $("<option></option>").appendTo(eqUnitPartSelector);
-                const currVal = $("#ProcessId").val();
-                for (let i = 0; i < options.length; i++) {
-                    let option = options[i];
-                    let opEl = $("<option></option>").attr("value", option.id).text(option.value);
-                    if (currVal == option)
-                        opEl.attr("selected", "selected");
-
-                    opEl.appendTo(eqUnitIdSelector);
-                }
+        function setOptions(destSelectId, options) {
+            let _destSelect = $(destSelectId);
+            for (var i = 0; i < options.length; i++) {
+                var option = options[i];
+                var opEl = $("<option></option>").attr("value", option.id).text(option.value);
+                opEl.appendTo(_destSelect);
             }
-        });
-    });
-
-    $("#EqUnitId").change(function (e) {
-        let eqUnitPartSelector = $("#EqUnitPartId");
-        let processId = $("#ProcessId").val();
-        $.ajax({
-            type: "GET",
-            url: "./GetSubOption?optionTypeId=3&mainId=" + processId + "&subId=" + e.currentTarget.value,
-            dataType: 'json',
-            success: function (options) {
-                eqUnitPartSelector.empty();
-                $("<option></option>").appendTo(eqUnitPartSelector);
-                const currVal = $("#EqUnitId").val();
-                for (var i = 0; i < options.length; i++) {
-                    let option = options[i];
-                    let opEl = $("<option></option>").attr("value", option.id).text(option.value);
-                    if (currVal == option)
-                        opEl.attr("selected", "selected");
-
-                    opEl.appendTo(eqUnitPartSelector);
-                }
-            }
-        });
-    });
-
-    $("#EquipmentId").change(function (e) {
-        let modelCatgSelector = $("#ModelId");
-        $.ajax({
-            type: "GET",
-            url: "./ModelNameOption?id=" + e.currentTarget.value,
-            dataType: 'json',
-            success: function (options) {
-                modelCatgSelector.empty();
-                const currVal = $("#EquipmentId").val();
-                for (let i = 0; i < options.length; i++) {
-                    let option = options[i];
-                    let opEl = $("<option></option>").attr("value", option.id).text(option.value);
-                    if (currVal == option) opEl.attr("selected", "selected");
-                    opEl.appendTo(modelCatgSelector);
-                }
-            }
-        });
-    });
-
-    $("#TypeId").change(function (e) {
-        let ySelector = $("#YId");
-        const _options = getEvenCodeOption(e.currentTarget.value);
-
-        $("#YId, #SubYId, #XId, #SubXId, #RId").empty();
-        $("<option></option>").appendTo(ySelector);
-
-        if (e.currentTarget.value == 99) {
-            $("#YId-error, #SubYId-error, #XId-error, #SubXId-error, #RId-error").remove();
-            $("#YId, #SubYId, #XId, #SubXId, #RId").attr("disabled", true);
         }
-        else if (e.currentTarget.value != 0) {
-            $("#YId, #SubYId, #XId, #SubXId, #RId").removeAttr("disabled");
-            setOptions("#YId", _options);
-            //$("<option></option>").attr("value", 99).text("Other").appendTo(ySelector);
-        }
-    });
-
-    $("#YId").change(function (e) {
-        let typeSelector = $("#TypeId").find(":selected").val();
-        let subYIdSelector = $("#SubYId");
-        const _options = getEvenCodeOption(typeSelector, e.currentTarget.value);
-
-        $("#SubYId, #XId, #SubXId, #RId").empty();
-        $("<option></option>").appendTo(subYIdSelector);
-
-        if (e.currentTarget.value == 99) {
-            $("#SubYId-error, #XId-error, #SubXId-error, #RId-error").remove();
-            $("#SubYId, #XId, #SubXId, #RId").attr("disabled", true);
-        }
-        else if (e.currentTarget.value != 0) {
-            $("#SubYId, #XId, #SubXId, #RId").removeAttr("disabled");
-            setOptions("#SubYId", _options);
-            //$("<option></option>").attr("value", 99).text("Other").appendTo(subYIdSelector);
-        }
-    });
-
-    $("#SubYId").change(function (e) {
-        const typeSelector = $("#TypeId").find(":selected").val();
-        const ySelector = $("#YId").find(":selected").val();
-        let xIdSelector = $("#XId");
-        const _options = getEvenCodeOption(typeSelector, ySelector, e.currentTarget.value);
-
-        $("#XId, #SubXId, #RId").empty();
-        $("<option></option>").appendTo(xIdSelector);
-
-        if (e.currentTarget.value == 99) {
-            $("#XId-error, #SubXId-error, #RId-error").remove();
-            $("#XId, #SubXId, #RId").attr("disabled", true);
-        }
-        else if (e.currentTarget.value != 0) {
-            $("#XId, #SubXId, #RId").removeAttr("disabled");
-            setOptions("#XId", _options);
-            //$("<option></option>").attr("value", 99).text("Other").appendTo(xIdSelector);
-        }
-    });
-
-    $("#quickForm").on("change", "#XId", function (e) {
-        const typeSelector = $("#TypeId").find(":selected").val();
-        const ySelector = $("#YId").find(":selected").val();
-        const subYIdSelector = $("#SubYId").find(":selected").val();
-        let subXIdSelector = $("#SubXId");
-        const _options = getEvenCodeOption(typeSelector, ySelector, subYIdSelector, e.currentTarget.value);
-
-        $("#SubXId, #RId").empty();
-        $("<option></option>").appendTo(subXIdSelector);
-
-        if (e.currentTarget.value == 99) {
-            $("#SubXId-error, #RId-error").remove();
-            $("#SubXId, #RId").attr("disabled", true);
-        }
-        else if (e.currentTarget.value != 0) {
-            $("#SubXId, #RId").removeAttr("disabled");
-            setOptions("#SubXId", _options);
-            //$("<option></option>").attr("value", 99).text("Other").appendTo(subXIdSelector);
-        }
-    });
-
-    $("#quickForm").on("change", "#SubXId", function (e) {
-        const typeSelector = $("#TypeId").find(":selected").val();
-        const ySelector = $("#YId").find(":selected").val();
-        const subYIdSelector = $("#SubYId").find(":selected").val();
-        const xIdSelector = $("#XId").find(":selected").val();
-        let rIdSelector = $("#RId");
-        const _options = getEvenCodeOption(typeSelector, ySelector, subYIdSelector, xIdSelector, e.currentTarget.value);
-
-        rIdSelector.empty();
-        $("<option></option>").appendTo(rIdSelector);
-
-        if (e.currentTarget.value == 99) {
-            $("#RId-error").remove();
-            $("#RId").attr("disabled", true);
-        }
-        else if (e.currentTarget.value != 0) {
-            $("#RId").removeAttr("disabled");
-            setOptions("#RId", _options);
-            //$("<option></option>").attr("value", 99).text("Other").appendTo(rIdSelector);
-        }
-
-    });
-
-
-    function getEvenCodeOption(type, y, subY, x, subX, r) {
-        let response = [];
-        $.ajax({
-            type: "GET",
-            async: false,
-            url: "./GetEvenCodeOption?typeId=" + type + "&yId=" + y + "&subYId=" + subY + "&xId=" + x + "&subXId=" + subX + "&rId=" + r,
-            dataType: 'json',
-            success: function (options) {
-                response = options;
-            }
-        });
-        return response;
-    }
-
-    function setOptions(destSelectId, options) {
-        let _destSelect = $(destSelectId);
-        for (var i = 0; i < options.length; i++) {
-            var option = options[i];
-            var opEl = $("<option></option>").attr("value", option.id).text(option.value);
-            opEl.appendTo(_destSelect);
-        }
-    }
 
     </script>
 }

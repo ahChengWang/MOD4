@@ -10,11 +10,11 @@ namespace MOD4.Web.ViewModel
     {
         [Display(Name = "當機時間")]
         [Required(ErrorMessage = "必填")]
-        public DateTime StartTime { get; set; }
+        public string StartTime { get; set; }
 
         [Display(Name = "修復時間")]
         [Required(ErrorMessage = "必填")]
-        public DateTime EndTime { get; set; }
+        public string EndTime { get; set; }
 
         [Display(Name = "機種")]
         [Required(ErrorMessage = "必填")]
@@ -82,8 +82,8 @@ namespace MOD4.Web.ViewModel
         public int DefectQty { get; set; }
 
         [Display(Name = "不良率")]
-        [Required(ErrorMessage ="必填")]
-        [RegularExpression(@"^[0-9]{1,3}.([0-9]{0,5})?$", ErrorMessage = "請輸入正確的不良率")]
+        //[Required(ErrorMessage ="必填")]
+        [RegularExpression(@"^(\+)?\d+(\.\d+)?$", ErrorMessage = "請輸入正確數值")]
         public string DefectRate { get; set; }
 
         [Display(Name = "ME\\PE")]

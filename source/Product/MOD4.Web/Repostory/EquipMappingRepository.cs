@@ -1,5 +1,6 @@
 ﻿using MOD4.Web.Repostory.Dao;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MOD4.Web.Repostory
 {
@@ -36,6 +37,21 @@ where 1=1 ";
                 FLOOR = floor,
                 EQUIP_NBR = equipNo,
                 OPERATION = operation
+            });
+
+            return dao;
+        }
+
+        public List<EquipMappingDao> SelectEqByEqIdList(List<string> equipList = null)
+        {
+            string sql = "select * from equip_mapping where 1=1 ";
+
+            if (equipList != null && equipList.Any())
+                sql += " and EQUIP_NBR in @EQUIP_NBR ";
+
+            var dao = _dbHelper.ExecuteQuery<EquipMappingDao>(sql, new 
+            {
+                EQUIP_NBR = equipList
             });
 
             return dao;

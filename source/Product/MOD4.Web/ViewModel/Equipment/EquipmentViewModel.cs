@@ -34,7 +34,7 @@ namespace MOD4.Web.ViewModel
         [Display(Name = "當機時間")]
         public string LmTime { get; set; }
 
-        [Display(Name = "修復時間(m)")]
+        [Display(Name = "修復時間(min.)")]
         public string RepairedTime { get; set; }
 
         [Display(Name = "日期")]

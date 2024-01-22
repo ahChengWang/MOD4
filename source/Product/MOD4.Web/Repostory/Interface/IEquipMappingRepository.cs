@@ -9,6 +9,8 @@ namespace MOD4.Web.Repostory
 
         List<EquipMappingDao> SelectEqByConditions(int floor = 0, string equipNo = "", string operation = "");
 
+        List<EquipMappingDao> SelectEqByEqIdList(List<string> equipList = null);
+
         int UpdateTarget(EquipMappingDao updDao);
     }
 }

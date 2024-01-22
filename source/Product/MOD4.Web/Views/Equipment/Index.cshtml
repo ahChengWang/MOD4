@@ -38,7 +38,7 @@
 
     .my-control {
         display: initial;
-        width: 70%;
+        width: 65%;
         height: calc(2.25rem + 2px);
         padding: 0.375rem 0.75rem;
         font-size: 1rem;
@@ -86,6 +86,12 @@
         height: 12px;
         margin-top: -2px;
         /*margin-left: -3px;*/
+    }
+
+    span[name="note"] {
+        color: indianred;
+        font-weight: 600;
+        font-size: 10px;
     }
 </style>
 
@@ -135,33 +141,6 @@
                                 </fieldset>
                             </div>
                             <partial name="_PartialUnrepaired" model="Model" />
-                            @*<table id="example1" class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th class="myth1">@Html.DisplayNameFor(model => model.UnrepairedEqList.First().MFGDay)</th>
-                                            <th class="myth1">@Html.DisplayNameFor(model => model.UnrepairedEqList.First().ToolId)</th>
-                                            <th class="myth1">@Html.DisplayNameFor(model => model.UnrepairedEqList.First().ToolStatus)</th>
-                                            <th class="myth1">@Html.DisplayNameFor(model => model.UnrepairedEqList.First().StatusCdsc)</th>
-                                            <th class="myth1">@Html.DisplayNameFor(model => model.UnrepairedEqList.First().Comment)</th>
-                                            <th class="myth1">@Html.DisplayNameFor(model => model.UnrepairedEqList.First().LmTime)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @{
-                                            foreach (var eqinfo in Model.UnrepairedEqList)
-                                            {
-                                                <tr>
-                                                    <td style="width:10%">@eqinfo.MFGDay</td>
-                                                    <td>@eqinfo.ToolId</td>
-                                                    <td style="width:5%">@eqinfo.ToolStatus</td>
-                                                    <td style="width:25%">@eqinfo.StatusCdsc</td>
-                                                    <td style="width:30%">@eqinfo.Comment</td>
-                                                    <td>@eqinfo.LmTime</td>
-                                                </tr>
-                                            }
-                                        }
-                                    </tbody>
-                                </table>*@
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -169,20 +148,23 @@
 
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">歷史機況</h3>
+                            <h3 class="card-title">已修復</h3>
                         </div>
                         <!-- /.card-header -->
                         <div id="hisBody" class="card-body">
                             <fieldset id="searchArea">
                                 <legend id="legend">查詢區塊</legend>
-                                <div class="row" style="margin-bottom:5px">
-                                    <div style="margin-right:5px;">
+                                <div class="row">
+                                    <span name="note">⨂ 日期未選, 預設帶當日</span>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3">
                                         <label>日期：</label>
                                         <input id="srcHisDate" class="my-control" type="date" name="name" value="" />
                                     </div>
-                                    <div id="hisLine" style="margin-right: 5px;">
-                                        <label>線體：</label>
-                                        <select class="my-select" id="selTool" multiple="multiple">
+                                    <div class="col-lg-3">
+                                        <label>EQ：</label>
+                                        <select class="custom-select" id="selTool" multiple="multiple">
                                             @{
                                                 foreach (var node in ViewBag.RepairedToolId)
                                                 {
@@ -196,33 +178,30 @@
                                             }
                                         </select>
                                     </div>
-                                    <div style="margin-right: 5px;">
+                                    <div class="col-lg-2">
                                         <label>狀態：</label>
-                                        <select class="my-select" id="selStatus" multiple="multiple">
+                                        <select class="custom-select" id="selStatus" multiple="multiple">
                                             <option value="1">待 PM 確認</option>
                                             <option value="2">待工程師確認</option>
                                             <option value="3">已完成</option>
                                         </select>
                                     </div>
-                                    <div class="icheck-primary d-inline" style="margin-right: 5px;">
+                                    <div class="col-lg-2">
                                         <label for="autoChk">顯示Auto機況：</label>
                                         <input id="autoChk" type="checkbox" class="custom-checkbox" />
                                     </div>
-                                    <div>
+                                    <div class="col-lg-1">
                                         <input id="_btnSearchHis" type="button" class="btn btn-info" style="margin-left:7px" name="btn29" value="查詢" onclick="btnClickSearchHis()" />
                                     </div>
                                 </div>
-                                <div class="row" style="display:flex;">
-                                    <div>
-                                        <label class="col-form-label">本日：</label>
-                                    </div>
-                                    <div class="info-box" style="min-height: 50%; background-color: #6c757d; color: white; width:fit-content; margin-right: 5px;">
+                                <div class="row" style="margin-top: 5px;">
+                                    <div class="col-lg-2 info-box" style="min-height: 50%; background-color: #6c757d; color: white; width: fit-content; margin-right: 5px;">
                                         <i class="fas fa-pen-alt"></i>
-                                        <i id="pmttl">待 PM 確認 (0)</i>
+                                        <i id="pmttl">本日待 PM 確認 (0)</i>
                                     </div>
-                                    <div class="info-box" style="min-height: 50%; margin-left: 5px; background-color: #007bff; color: white; width: fit-content ">
+                                    <div class="col-lg-2 info-box" style="min-height: 50%; background-color: #007bff; color: white; width: fit-content; margin-left: 5px; ">
                                         <i class="fas fa-pen-alt"></i>
-                                        <i id="engttl">待工程師確認 (0)</i>
+                                        <i id="engttl">本日待工程師確認 (0)</i>
                                     </div>
                                 </div>
                             </fieldset>
@@ -353,7 +332,6 @@
                 "buttons": ["excel", "colvis"]
             }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
 
-
             const m = new Date();
             const year = m.getFullYear();
             let month = '' + (m.getMonth() + 1);
@@ -366,8 +344,8 @@
             const _model = @Json.Serialize(Model);
             const _repairedEqInfoList = @Json.Serialize(Model.RepairedEqInfoList.FirstOrDefault());
 
-            $('#pmttl').html("待 PM 確認 (" + _model["pmPending"] + ")");
-            $('#engttl').html("待工程師確認 (" + _model["engPending"] + ")");
+            $('#pmttl').html("本日待 PM 確認 (" + _model["pmPending"] + ")");
+            $('#engttl').html("本日待工程師確認 (" + _model["engPending"] + ")");
 
             if (_repairedEqInfoList != null && _repairedEqInfoList["mfgDay"] != dateString) {
                 $("#srcHisDate").val(_repairedEqInfoList["mfgDay"]);

@@ -17,9 +17,10 @@ namespace MOD4.Web.DomainService.Entity
         public string Comments { get; set; }
         public string MFGDay { get; set; }
         public string MFGHr { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public string StartTime { get; set; }
+        public string EndTime { get; set; }
         public DateTime UpdateTime { get; set; }
+        public decimal RepairedTime { get; set; }
         public int Shift { get; set; }
         public string ShiftDesc { get; set; }
         public int ProcessId { get; set; }
@@ -48,6 +49,18 @@ namespace MOD4.Web.DomainService.Entity
         public string SubXDesc { get; set; }
         public int RId { get; set; }
         public string RDesc { get; set; }
+        public int ENGTypeId { get; set; }
+        public string ENGTypeDesc { get; set; }
+        public int ENGYId { get; set; }
+        public string ENGYDesc { get; set; }
+        public int ENGSubYId { get; set; }
+        public string ENGSubYDesc { get; set; }
+        public int ENGXId { get; set; }
+        public string ENGXDesc { get; set; }
+        public int ENGSubXId { get; set; }
+        public string ENGSubXDesc { get; set; }
+        public int ENGRId { get; set; }
+        public string ENGRDesc { get; set; }
         public EqIssueStatusEnum StatusId { get; set; }
         public string ToolName { get; set; }
     }

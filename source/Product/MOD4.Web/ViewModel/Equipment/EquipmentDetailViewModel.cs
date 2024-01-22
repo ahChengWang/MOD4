@@ -70,6 +70,24 @@ namespace MOD4.Web.ViewModel
         [Display(Name = "不良率")]
         public string DefectRate { get; set; }
 
+        [Display(Name = "ME\\PE")]
+        public string ENGType { get; set; }
+
+        [Display(Name = "Y")]
+        public string ENGY { get; set; }
+
+        [Display(Name = "y")]
+        public string ENGSubY { get; set; }
+
+        [Display(Name = "X")]
+        public string ENGX { get; set; }
+
+        [Display(Name = "x")]
+        public string ENGSubX { get; set; }
+
+        [Display(Name = "R")]
+        public string ENGR { get; set; }
+
         [Display(Name = "工程師")]
         public string Engineer { get; set; }
 
