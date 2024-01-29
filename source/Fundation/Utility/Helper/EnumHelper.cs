@@ -41,6 +41,26 @@ namespace Utility.Helper
             return tValues;
         }
 
+        public static T GetValueFromDescription<T>(string description) where T : Enum
+        {
+            foreach (var field in typeof(T).GetFields())
+            {
+                if (Attribute.GetCustomAttribute(field,
+                typeof(DescriptionAttribute)) is DescriptionAttribute attribute)
+                {
+                    if (attribute.Description == description)
+                        return (T)field.GetValue(null);
+                }
+                else
+                {
+                    if (field.Name == description)
+                        return (T)field.GetValue(null);
+                }
+            }
+
+            return default;
+        }
+
         //public static bool CheckPermission<T>(this List<T> value, MenuEnum menuId, PermissionEnum permissionId) where T : AccountMenuInfoEntity
         //{
         //    return Convert.ToBoolean(value.FirstOrDefault(menu => menu.MenuSn == menuId).AccountPermission & (int)permissionId);

@@ -14,8 +14,8 @@ namespace MOD4.Web.Enum
         SpecDev = 4,
         [Description("會議")]
         Meeting = 5,
-
-
+        [Description("國定假日")]
+        Holiday = 6,
 
         [Description("流程公告")]
         Announcement = 99,

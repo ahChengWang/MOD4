@@ -120,9 +120,10 @@ namespace MOD4.Web
             services.AddSingleton<ICarUXBulletinRepository, CarUXBulletinRepository>();
             services.AddSingleton<IDefinitionDepartmentRepository, DefinitionDepartmentRepository>();
             services.AddSingleton<IMonitorSettingRepository, MonitorSettingRepository>();
-            services.AddSingleton<IProdPerformanceDetailRepository, ProdPerformanceDetailRepository>();
+            services.AddSingleton<IProdPerformanceDetailRepository, ProdPerformanceDetailRepository>(); 
             services.AddSingleton<ILightingLogRepository, LightingLogRepository>();
-            
+            services.AddSingleton<ITaiwanCalendarRepository, TaiwanCalendarRepository>();
+
             services.AddScoped<MenuService>();
             services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));
             services.AddSingleton(new ServiceDescriptor(typeof(OracleDBHelper), new OracleDBHelper(Configuration)));

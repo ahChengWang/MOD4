@@ -99,6 +99,19 @@ or (@EndTime between startTime and endTime)) ";
             return dao;
         }
 
+        public List<CIMTestBookingDao> VerifyOverlapByTimeList(List<DateTime> startTimeList, List<DateTime> endTimeList)
+        {
+            string sql = @"select * from cim_test_booking where cimTestTypeId != 6 and (startTime in @StartTime or endTime in @EndTime); ";
+
+            var dao = _dbHelper.ExecuteQuery<CIMTestBookingDao>(sql, new
+            {
+                StartTime = startTimeList,
+                EndTime = endTimeList
+            });
+
+            return dao;
+        }
+
 
         public int Update(CIMTestBookingDao updDao)
         {

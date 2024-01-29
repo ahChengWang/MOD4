@@ -44,5 +44,9 @@ namespace MOD4.Web.Repostory
         int DeleteAccountInfo(List<int> accountSnList);
 
         int DeleteAccountPermissionByList(List<int> accountSnList);
+
+        int DeleteHcm();
+
+        int InsertHcm(List<HcmVwEmp01Dao> hcmList);
     }
 }

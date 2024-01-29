@@ -1,4 +1,7 @@
-﻿namespace MOD4.Web.Repostory.Dao
+﻿using MOD4.Web.Enum;
+using Utility.Helper;
+
+namespace MOD4.Web.Repostory.Dao
 {
     public class HcmVwEmp01Dao
     {
@@ -10,6 +13,10 @@
         public string PTEXT { get; set; }
         // 職能
         public string PKTXT { get; set; }
+        // 職稱ID
+        public JobTitleEnum CSHORTID { get; set; }
+        // 職稱代號
+        public string CSHORT { get; set; }
         // 職稱
         public string CSTEXT { get; set; }
         // 部門代碼
@@ -24,5 +31,7 @@
         public string NATIO { get; set; }
         // 公司郵件
         public string COMID2 { get; set; }
+        // 班別
+        public string SCHKZ { get; set; }
     }
 }

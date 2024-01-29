@@ -408,23 +408,28 @@
             },
             eventClick: function (e) {
 
-                $('#btnEdit').attr('disabled', false);
-                $('#btnUpd').attr('disabled', true);
-                $('#btnCancel').attr('disabled', false);
+                if (e.event.extendedProps.cimTestTypeId == 6) {
+                    /*alert(e.event.extendedProps.name);*/
+                }
+                else {
+                    $('#btnEdit').attr('disabled', false);
+                    $('#btnUpd').attr('disabled', true);
+                    $('#btnCancel').attr('disabled', false);
 
-                $('#mDate').val(e.event.startStr.substring(0, 10));
-                /*var _testTypeOption = $("#mTestType option").filter(":contains('" + titleArray[2] + "')").val();*/
-                $('#mTestType').val(e.event.extendedProps.cimTestTypeId);
-                //$("#mTestType option[value=" + titleArray[2] + "]");
-                //$('#mTestType').html(titleArray[2]);
-                $('#mSubject').val(e.event.extendedProps.subject);
-                $('#mFloor').val(e.event.extendedProps.floorId);
-                $('#mName').val(e.event.extendedProps.name);
-                $('#mJobId').val(e.event.extendedProps.jobId);
-                $('#mTestDayType').val(e.event.extendedProps.cimTestDayTypeId);
-                $('#mRemark').val(e.event.extendedProps.remark);
-                $('#mMeetingSn').val(e.event.id);
-                $('#modal-sm-completed').modal('show');
+                    $('#mDate').val(e.event.startStr.substring(0, 10));
+                    /*var _testTypeOption = $("#mTestType option").filter(":contains('" + titleArray[2] + "')").val();*/
+                    $('#mTestType').val(e.event.extendedProps.cimTestTypeId);
+                    //$("#mTestType option[value=" + titleArray[2] + "]");
+                    //$('#mTestType').html(titleArray[2]);
+                    $('#mSubject').val(e.event.extendedProps.subject);
+                    $('#mFloor').val(e.event.extendedProps.floorId);
+                    $('#mName').val(e.event.extendedProps.name);
+                    $('#mJobId').val(e.event.extendedProps.jobId);
+                    $('#mTestDayType').val(e.event.extendedProps.cimTestDayTypeId);
+                    $('#mRemark').val(e.event.extendedProps.remark);
+                    $('#mMeetingSn').val(e.event.id);
+                    $('#modal-sm-completed').modal('show');
+                }
             }
         };
 
@@ -658,18 +663,32 @@
                 var _permissionData = @(Html.Raw(Json.Serialize((UserPermissionViewModel)ViewBag.UserPermission)));
 
                 _modelData.forEach(function (meeting) {
-                    _calEvents.push({
-                        id: meeting.sn,
-                        extendedProps: meeting,
-                        title: meeting.floorId + 'F[' + meeting.cimTestDayType + ']' + meeting.name + '-' + meeting.subject,
-                        start: new Date(meeting.startYear, meeting.startMonth - 1, meeting.startDay, meeting.startHour, meeting.startMinute, meeting.startSecond ),
-                        end: new Date(meeting.endYear, meeting.endMonth - 1, meeting.endDay, meeting.endHour, meeting.endMinute , meeting.endSecond ),
-                        //backgroundColor: "#294da6", //red
-                        //borderColor: "#b80909",
-                        color: meeting.backgroundColor,
-                        textColor: '#000000',
-                        allDay: false,
-                    });
+                    if (meeting.cimTestTypeId == 6) {
+                        _calEvents.push({
+                            title: meeting.name,
+                            extendedProps: meeting,
+                            start: new Date(meeting.startYear, meeting.startMonth - 1, meeting.startDay),
+                            color: meeting.backgroundColor,
+                            textColor: '#ffffff',
+                            allDay: true,
+                            editable: false,
+                            startEditable: false
+                        });
+                    }
+                    else {
+                        _calEvents.push({
+                            id: meeting.sn,
+                            extendedProps: meeting,
+                            title: meeting.floorId + 'F[' + meeting.cimTestDayType + ']' + meeting.name + '-' + meeting.subject,
+                            start: new Date(meeting.startYear, meeting.startMonth - 1, meeting.startDay, meeting.startHour, meeting.startMinute, meeting.startSecond),
+                            end: new Date(meeting.endYear, meeting.endMonth - 1, meeting.endDay, meeting.endHour, meeting.endMinute, meeting.endSecond),
+                            //backgroundColor: "#294da6", //red
+                            //borderColor: "#b80909",
+                            color: meeting.backgroundColor,
+                            textColor: '#000000',
+                            allDay: false,
+                        });
+                    }
                 });
 
                 Calendar = FullCalendar.Calendar;

@@ -130,7 +130,7 @@ where ai3.sn = @accSn ";
                 sql = string.Format(sql, ", dd2.departmentName 'deptTitleName',ai2.sn 'deptAccSn', ai2.mail 'deptMail', ai2.name 'deptName' ", "");
             }
             // 課級 & 員工
-            else if (levelId == 3 && accJobLevelId == JobLevelEnum.Employee)
+            else if (levelId == 3 && (accJobLevelId == JobLevelEnum.Employee || accJobLevelId == JobLevelEnum.DL))
             {
                 sql += @" 
  join definition_department dd2 on dd1.deptSn = dd2.parentDeptId 
@@ -142,7 +142,7 @@ where ai3.sn = @accSn ";
  left join account_info ai3 
    on dd3.deptSn = ai3.deptSn and ai3.level_id = 3 
  left join account_info ai4
-   on dd3.deptSn = ai4.deptSn and ai4.level_id = 4 
+   on dd3.deptSn = ai4.deptSn and (ai4.level_id = 4 or ai4.level_id = 5)
 where ai4.sn = @accSn ";
                 sql = string.Format(sql, ", dd2.departmentName 'deptTitleName',ai2.sn 'deptAccSn', ai2.mail 'deptMail', ai2.name 'deptName' ",
                     ", dd3.departmentName 'sectionTitleName',ai3.sn 'sectionAccSn', ai3.mail 'sectionMail', ai3.name 'sectionName' ");
@@ -373,5 +373,64 @@ where sn = @sn ; ";
             return dao;
         }
 
+        public int DeleteHcm()
+        {
+            try
+            {
+                string sql = @"
+DELETE [dbo].[hcm_vw_emp01];";
+
+                var dao = _dbHelper.ExecuteNonQuery(sql);
+
+                return dao;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public int InsertHcm(List<HcmVwEmp01Dao> hcmList)
+        {
+            try
+            {
+                string sql = @"
+INSERT INTO [dbo].[hcm_vw_emp01]
+           ([PERNR]
+           ,[STAT2TXT]
+           ,[PKTXT]
+           ,[CSHORT]
+           ,[CSHORTID]
+           ,[CSTEXT]
+           ,[OSHORT]
+           ,[OSTEXT]
+           ,[NACHN]
+           ,[VORNA]
+           ,[NATIO]
+           ,[COMID2]
+           ,[SCHKZ])
+     VALUES(@PERNR
+           ,@STAT2TXT
+           ,@PKTXT
+           ,@CSHORT
+           ,@CSHORTID
+           ,@CSTEXT
+           ,@OSHORT
+           ,@OSTEXT
+           ,@NACHN
+           ,@VORNA
+           ,@NATIO
+           ,@COMID2
+           ,@SCHKZ);";
+
+                var dao = _dbHelper.ExecuteNonQuery(sql, hcmList);
+
+                return dao;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

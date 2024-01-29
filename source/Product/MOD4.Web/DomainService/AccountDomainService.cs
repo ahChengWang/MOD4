@@ -781,13 +781,26 @@ namespace MOD4.Web.DomainService
                                        mail = hr.COMID2.Trim()
                                    }).ToList();
 
-
                 var _deletEmpList = (from old in _oldDLAccountInfoList.Where(w => w.Level_id == JobLevelEnum.DL)
                                      join hr in _empDLList
                                      on old.JobId equals hr.PERNR into r
                                      from delEmp in r.DefaultIfEmpty()
                                      where delEmp is null
                                      select old).ToList();
+
+                if (_empDLList.Any())
+                    using (var scope = new TransactionScope())
+                    {
+                        _empDLList.ForEach(f =>
+                        {
+                            f.CSHORTID = EnumHelper.GetValueFromDescription<JobTitleEnum>(f.CSTEXT);
+                            f.NACHN = f.NACHN.Trim();
+                            f.VORNA = f.VORNA.Trim();
+                        });
+                        _accountInfoRepository.DeleteHcm();
+                        if (_accountInfoRepository.InsertHcm(_empDLList) == _empDLList.Count())
+                            scope.Complete();
+                    }
 
                 if (_newEmpList.Any())
                 {
@@ -846,7 +859,6 @@ namespace MOD4.Web.DomainService
                 }
 
                 if (_deletEmpList.Any())
-                {
                     using (var scope = new TransactionScope())
                     {
                         bool _delAccInfoRes = false;
@@ -860,7 +872,6 @@ namespace MOD4.Web.DomainService
                         else
                             _res += "DL資料刪除異常";
                     }
-                }
 
                 if (string.IsNullOrEmpty(_res))
                 {

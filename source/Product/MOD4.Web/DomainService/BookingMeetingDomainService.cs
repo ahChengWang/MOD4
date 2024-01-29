@@ -15,6 +15,7 @@ namespace MOD4.Web.DomainService
     {
         private readonly IBookingMeetingRepository _bookingMeetingRepository;
         private readonly ICIMTestBookingRepository _cimTestBookingRepository;
+        private readonly ITaiwanCalendarRepository _taiwanCalendarRepository;
         private readonly IAccountDomainService _accountDomainService;
         private readonly IMAppDomainService _mappDomainService;
         private readonly Dictionary<MeetingRoomEnum, string> _roomBGCss;
@@ -22,11 +23,13 @@ namespace MOD4.Web.DomainService
 
         public BookingMeetingDomainService(IBookingMeetingRepository bookingMeetingRepository,
             ICIMTestBookingRepository cimTestBookingRepository,
+            ITaiwanCalendarRepository taiwanCalendarRepository,
             IAccountDomainService accountDomainService,
             IMAppDomainService mappDomainService)
         {
             _bookingMeetingRepository = bookingMeetingRepository;
             _cimTestBookingRepository = cimTestBookingRepository;
+            _taiwanCalendarRepository = taiwanCalendarRepository;
             _accountDomainService = accountDomainService;
             _mappDomainService = mappDomainService;
             _roomBGCss = new Dictionary<MeetingRoomEnum, string> {
@@ -49,7 +52,7 @@ namespace MOD4.Web.DomainService
         public List<CIMTestBookingEntity> GetList()
         {
             DateTime _nowTime = DateTime.Now;
-            DateTime _startTime = DateTime.Parse($"{_nowTime.AddMonths(-1).ToString("yyyy/MM")}/01");
+            DateTime _startTime = DateTime.Parse($"{_nowTime.AddMonths(-6).ToString("yyyy/MM")}/01");
 
             var _bookingList = _cimTestBookingRepository.SelectByConditions(startTime: _startTime);
 
@@ -75,7 +78,7 @@ namespace MOD4.Web.DomainService
         {
             var _bookingList = _cimTestBookingRepository.SelectByConditions(testTypeId: CIMTestTypeEnum.Announcement);
 
-            return _bookingList.FirstOrDefault().Remark;
+            return _bookingList.FirstOrDefault()?.Remark ?? "";
         }
 
         public string UpdateAnnouncement(string announcement)
@@ -170,17 +173,11 @@ namespace MOD4.Web.DomainService
                     break;
             }
 
-            // 檢核會議重複
-            var _meetingOverlap = _cimTestBookingRepository.VerifyOverlap(_startTime, _endTime.AddDays(bookingEntity.Days - 1));
-            if (_meetingOverlap.Any())
+            List<TaiwanCalendarDao> _yearHolidayList = _taiwanCalendarRepository.SelectByConditions(_startTime.Year);
+            // if 預約到跨年度, 查詢明年度休假日
+            if (_startTime.AddDays(bookingEntity.Days - 1).Month == 12)
             {
-                string _overlapMsg = "預約會議時間與以下重疊 \n";
-
-                foreach (var booking in _meetingOverlap)
-                {
-                    _overlapMsg += $"CIM 測試: {booking.Subject}; 預約人: {booking.Name}; 時間: {booking.StartTime.ToString("HH:mm:ss")} - {booking.EndTime.ToString("HH:mm:ss")} \n";
-                }
-                return (null, _overlapMsg);
+                _yearHolidayList.AddRange(_taiwanCalendarRepository.SelectByConditions(_startTime.Year + 1));
             }
 
             List<CIMTestBookingDao> _insCIMBookingList = new List<CIMTestBookingDao>();
@@ -189,9 +186,18 @@ namespace MOD4.Web.DomainService
             // 處理多日預約
             for (int day = 0; day < bookingEntity.Days; day++)
             {
-                if (_startTime.AddDays(day).DayOfWeek == DayOfWeek.Saturday)
-                    _dayDelay += 2;
-
+                if (_yearHolidayList.Any())
+                {
+                    while (_yearHolidayList.Any(d => d.Date == _startTime.AddDays(day + _dayDelay).Date))
+                    {
+                        _dayDelay++;
+                    }
+                }
+                else
+                {
+                    if (_startTime.AddDays(day).DayOfWeek == DayOfWeek.Saturday)
+                        _dayDelay += 2;
+                }
                 _insCIMBookingList.Add(new CIMTestBookingDao
                 {
                     CIMTestTypeId = bookingEntity.CIMTestTypeId,
@@ -205,6 +211,19 @@ namespace MOD4.Web.DomainService
                     BackgroundColor = _cimTestTypeBGCss[bookingEntity.CIMTestTypeId],
                     Remark = bookingEntity.Remark
                 });
+            }
+
+            // 檢核會議重複
+            var _meetingOverlap = _cimTestBookingRepository.VerifyOverlapByTimeList(_insCIMBookingList.Select(s => s.StartTime).ToList(), _insCIMBookingList.Select(s => s.EndTime).ToList());
+            if (_meetingOverlap.Any())
+            {
+                string _overlapMsg = "預約會議時間與以下重疊 \n";
+
+                foreach (var booking in _meetingOverlap)
+                {
+                    _overlapMsg += $"CIM 測試: {booking.Subject}; 預約人: {booking.Name}; {booking.StartTime:yyyy-MM-dd} {booking.StartTime.ToString("HH:mm")}-{booking.EndTime.ToString("HH:mm")} \n";
+                }
+                return (null, _overlapMsg);
             }
 
             using (TransactionScope _scope = new TransactionScope())
@@ -245,7 +264,7 @@ namespace MOD4.Web.DomainService
                 {
                     To = _accountInfoList.FirstOrDefault().Mail,
                     Subject = $"【CIM 測機排程】預約申請成功通知 - 申請人:{bookingEntity.Name}",
-                    CCUserList = new List<string> { "ALLAN.RO@INNOLUX.COM", "MORRISE.CHEN@INNOLUX.COM", "CHRIS31.WANG@INNOLUX.COM", "AKUEI.YANG@INNOLUX.COM", "FLOWER.LIN@INNOLUX.COM" },
+                    CCUserList = new List<string> { "ALLAN.RO@CARUX.COM", "MORRISE.CHEN@CARUX.COM", "CHRIS31.WANG@INNOLUX.COM", "AKUEI.YANG@INNOLUX.COM", "FLOWER.LIN@CARUX.COM" },
                     Content = "<br /> Dear Sir ,<br /><br />" +
                     $"您 <a style='text-decoration:underline;font-weight:800'>【{bookingEntity.Subject}({bookingEntity.CIMTestTypeId.GetDescription()})】</a><a> CIM 測機排程已成功預約</a>， <br /><br />" +
                     $"日期 {_startTime} ~ {_endTime}， <br /><br />" +
@@ -286,9 +305,9 @@ namespace MOD4.Web.DomainService
             if (updBookingEntity.Sn == 0)
                 return ("排程異常", null);
 
-            var _booking = _cimTestBookingRepository.SelectByConditions(sn: updBookingEntity.Sn).FirstOrDefault();
+            var _origBooking = _cimTestBookingRepository.SelectByConditions(sn: updBookingEntity.Sn).FirstOrDefault();
 
-            if (_booking == null)
+            if (_origBooking == null)
                 return ("排程異常", null);
 
             var _accountInfoList = _accountDomainService.GetAccountInfoByConditions(0, updBookingEntity.Name.Trim(), updBookingEntity.JobId.Trim(), null);
@@ -318,7 +337,7 @@ namespace MOD4.Web.DomainService
             }
 
             // 檢核會議重複
-            var _meetingOverlap = _cimTestBookingRepository.VerifyOverlap(_startTime, _endTime, sn: _booking.Sn);
+            var _meetingOverlap = _cimTestBookingRepository.VerifyOverlap(_startTime, _endTime, sn: _origBooking.Sn);
             if (_meetingOverlap.Any())
             {
                 string _overlapMsg = "預約時間與以下重疊 \n";
@@ -330,20 +349,35 @@ namespace MOD4.Web.DomainService
                 return (_overlapMsg, null);
             }
 
-            _booking.CIMTestTypeId = updBookingEntity.CIMTestTypeId;
-            _booking.Floor = updBookingEntity.Floor;
-            _booking.Name = updBookingEntity.Name;
-            _booking.JobId = updBookingEntity.JobId;
-            _booking.Subject = updBookingEntity.Subject;
-            _booking.CIMTestDayTypeId = updBookingEntity.CIMTestDayTypeId;
-            _booking.StartTime = _startTime;
-            _booking.EndTime = _endTime;
-            _booking.BackgroundColor = _cimTestTypeBGCss[updBookingEntity.CIMTestTypeId];
-            _booking.Remark = updBookingEntity.Remark;
+            CIMTestBookingDao _updCIMBooking = new CIMTestBookingDao()
+            {
+                Sn = updBookingEntity.Sn,
+                CIMTestTypeId = updBookingEntity.CIMTestTypeId,
+                Floor = updBookingEntity.Floor,
+                Name = updBookingEntity.Name,
+                JobId = updBookingEntity.JobId,
+                Subject = updBookingEntity.Subject,
+                CIMTestDayTypeId = updBookingEntity.CIMTestDayTypeId,
+                StartTime = _startTime,
+                EndTime = _endTime,
+                BackgroundColor = _cimTestTypeBGCss[updBookingEntity.CIMTestTypeId],
+                Remark = updBookingEntity.Remark + (updBookingEntity.CIMTestTypeId == CIMTestTypeEnum.Done ? $"[Last Status {_origBooking.CIMTestTypeId.GetDescription()}]" : ""),
+            };
+
+            //_origBooking.CIMTestTypeId = updBookingEntity.CIMTestTypeId;
+            //_origBooking.Floor = updBookingEntity.Floor;
+            //_origBooking.Name = updBookingEntity.Name;
+            //_origBooking.JobId = updBookingEntity.JobId;
+            //_origBooking.Subject = updBookingEntity.Subject;
+            //_origBooking.CIMTestDayTypeId = updBookingEntity.CIMTestDayTypeId;
+            //_origBooking.StartTime = _startTime;
+            //_origBooking.EndTime = _endTime;
+            //_origBooking.BackgroundColor = _cimTestTypeBGCss[updBookingEntity.CIMTestTypeId];
+            //_origBooking.Remark = $"{_origBooking.Remark}{updBookingEntity.Remark}[Last Status{updBookingEntity.CIMTestTypeId.GetDescription()}]";
 
             using (TransactionScope _scope = new TransactionScope())
             {
-                var _updResult = _cimTestBookingRepository.Update(_booking) == 1;
+                var _updResult = _cimTestBookingRepository.Update(_updCIMBooking) == 1;
 
                 if (_updResult)
                     _scope.Complete();
@@ -351,10 +385,10 @@ namespace MOD4.Web.DomainService
                     _createRes = "更新CIM test異常";
             }
 
-            if (string.IsNullOrEmpty(_createRes) && _booking.CIMTestTypeId != CIMTestTypeEnum.Done)
+            if (string.IsNullOrEmpty(_createRes) && _updCIMBooking.CIMTestTypeId != CIMTestTypeEnum.Done)
             {
                 //_mappDomainService.SendMsgToOneAsync(
-                //    $"【CIM 測機排程】預約更新通知, 申請人:{_booking.Name}, 內容:{_booking.Subject} {_booking.CIMTestTypeId.GetDescription()}, 日期:{_startTime.ToShortDateString()} (網址:http://CUX003184s/CarUX/BookingMeeting)",
+                //    $"【CIM 測機排程】預約更新通知, 申請人:{_updCIMBooking.Name}, 內容:{_updCIMBooking.Subject} {_updCIMBooking.CIMTestTypeId.GetDescription()}, 日期:{_startTime.ToShortDateString()} (網址:http://CUX003184s/CarUX/BookingMeeting)",
                 //    "260837");
 
                 _mappDomainService.SendMsgWithTagAsync(new MAppTagUserEntity
@@ -365,10 +399,10 @@ namespace MOD4.Web.DomainService
                     password = _accountDomainService.Decrypt(userEntity.Password),
                     sendInfo = new List<MAppTagDetailEntity> {
                             new MAppTagDetailEntity {
-                                message = $"【CIM 測機排程】預約更新通知, 申請人:{(userEntity.JobId == _booking.JobId ? _booking.Name : "@")} , 內容:{_booking.Subject} {_booking.CIMTestTypeId.GetDescription()}" +
+                                message = $"【CIM 測機排程】預約更新通知, 申請人:{(userEntity.JobId == _updCIMBooking.JobId ? _updCIMBooking.Name : "@")} , 內容:{_updCIMBooking.Subject} {_updCIMBooking.CIMTestTypeId.GetDescription()}" +
                                           $", 日期:{_startTime.ToShortDateString()} (網址:http://CUX003184s/CarUX/BookingMeeting)",
                                 users = new Dictionary<int, string>{
-                                    { 1 ,_booking.Name }
+                                    { 1 ,_updCIMBooking.Name }
                                 }
                             }
                         }
@@ -377,10 +411,10 @@ namespace MOD4.Web.DomainService
                 _mailServer.Send(new MailEntity
                 {
                     To = _accountInfoList.FirstOrDefault().Mail,
-                    Subject = $"【CIM 測機排程】預約申請更新通知 - 申請人:{_booking.Name}",
-                    CCUserList = new List<string> { "ALLAN.RO@INNOLUX.COM", "MORRISE.CHEN@INNOLUX.COM", "CHRIS31.WANG@INNOLUX.COM", "AKUEI.YANG@INNOLUX.COM", "FLOWER.LIN@INNOLUX.COM" },
+                    Subject = $"【CIM 測機排程】預約申請更新通知 - 申請人:{_updCIMBooking.Name}",
+                    CCUserList = new List<string> { "ALLAN.RO@CARUX.COM", "MORRISE.CHEN@CARUX.COM", "CHRIS31.WANG@INNOLUX.COM", "AKUEI.YANG@INNOLUX.COM", "FLOWER.LIN@CARUX.COM" },
                     Content = "<br /> Dear Sir ,<br /><br />" +
-                    $"您 <a style='text-decoration:underline;font-weight:900'>【{_booking.Subject}({_booking.CIMTestTypeId.GetDescription()})】</a><a> CIM 測機排程已成功預約</a>， <br /><br />" +
+                    $"您 <a style='text-decoration:underline;font-weight:900'>【{_updCIMBooking.Subject}({_updCIMBooking.CIMTestTypeId.GetDescription()})】</a><a> CIM 測機排程已成功預約</a>， <br /><br />" +
                     $"日期 {_startTime} ~ {_endTime}， <br /><br />" +
                     $"詳細內容請至 <a href='http://CUX003184s/CarUX/BookingMeeting' target='_blank'>CIM 測機排程</a> 連結查看， <br /><br />" +
                     "謝謝"
@@ -389,17 +423,17 @@ namespace MOD4.Web.DomainService
 
             return (_createRes, new CIMTestBookingEntity
             {
-                Sn = _booking.Sn,
-                CIMTestTypeId = _booking.CIMTestTypeId,
-                Floor = _booking.Floor,
-                Name = _booking.Name,
-                JobId = _booking.JobId,
-                Subject = _booking.Subject,
-                CIMTestDayTypeId = _booking.CIMTestDayTypeId,
-                StartTime = _booking.StartTime,
-                EndTime = _booking.EndTime,
-                BackgroundColor = _booking.BackgroundColor,
-                Remark = _booking.Remark
+                Sn = _updCIMBooking.Sn,
+                CIMTestTypeId = _updCIMBooking.CIMTestTypeId,
+                Floor = _updCIMBooking.Floor,
+                Name = _updCIMBooking.Name,
+                JobId = _updCIMBooking.JobId,
+                Subject = _updCIMBooking.Subject,
+                CIMTestDayTypeId = _updCIMBooking.CIMTestDayTypeId,
+                StartTime = _updCIMBooking.StartTime,
+                EndTime = _updCIMBooking.EndTime,
+                BackgroundColor = _updCIMBooking.BackgroundColor,
+                Remark = _updCIMBooking.Remark
             });
         }
 

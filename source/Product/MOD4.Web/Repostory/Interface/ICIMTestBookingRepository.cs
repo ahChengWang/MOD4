@@ -12,7 +12,7 @@ namespace MOD4.Web.Repostory
         List<CIMTestBookingDao> SelectByConditions(int sn = 0, CIMTestTypeEnum testTypeId = 0, string jobId = "", int floor = 0, CIMTestDayTypeEnum testDayTypeId = 0, DateTime? startTime = null, DateTime? endTime = null);
         int Update(CIMTestBookingDao updDao);
         List<CIMTestBookingDao> VerifyOverlap(DateTime startTime, DateTime endTime, int sn = 0);
-
+        List<CIMTestBookingDao> VerifyOverlapByTimeList(List<DateTime> startTimeList, List<DateTime> endTimeList);
         int UpdateAnn(string updAnn);
     }
 }
