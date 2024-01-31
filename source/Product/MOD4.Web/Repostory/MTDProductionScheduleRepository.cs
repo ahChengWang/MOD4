@@ -11,15 +11,30 @@ namespace MOD4.Web.Repostory
         public List<MTDProductionScheduleDao> SelectByConditions(
             int floor,
             int ownerId,
+            int prodSn,
             DateTime? dateStart,
             DateTime? dateEnd)
         {
-            string sql = "select * from mtd_production_schedule where floor = @floor and ownerId = @ownerId and date between @dateStart and @dateEnd order by sn asc, model desc, prodId asc, date asc ; ";
+            string sql = "select * from mtd_production_schedule where 1=1 ";
+
+            if (floor != 0)
+                sql += " and floor = @floor ";
+            if (ownerId != 0)
+                sql += " and ownerId = @ownerId ";
+
+            if (prodSn != 0)
+                sql += " and lcmProdSn = @LcmProdSn ";
+
+            if (dateStart != null && dateEnd != null)
+                sql += " and date between @dateStart and @dateEnd ";
+
+            sql += " order by sn asc, model desc, prodId asc, date asc ;";
 
             var dao = _dbHelper.ExecuteQuery<MTDProductionScheduleDao>(sql, new
             {
                 floor = floor,
                 ownerId = ownerId,
+                LcmProdSn = prodSn,
                 dateStart = dateStart,
                 dateEnd = dateEnd
             });
@@ -31,7 +46,7 @@ namespace MOD4.Web.Repostory
         public List<MTDProductionScheduleDao> SelectMTDTodayPlan(
             int floor,
             int owner,
-            DateTime dateStart, 
+            DateTime dateStart,
             DateTime dateEnd)
         {
             string _sql = @" select * from mtd_production_schedule 
@@ -112,7 +127,6 @@ where DATEPART(YEAR, date) = @Year and DATEPART(MONTH, date) = @Month and date !
             return dao;
         }
 
-
         public int InsertSchedule(List<MTDProductionScheduleDao> insMTDSchedule)
         {
             string sql = @"
@@ -151,14 +165,31 @@ VALUES
             return dao;
         }
 
-        public int DeleteSchedule(int ownerId)
+        public int UpdateMTDSchedule(List<MTDProductionScheduleDao> updMTDSchedule)
         {
             string sql = @"
- Delete [dbo].[mtd_production_schedule] where ownerId = @OwnerId; ";
+UPDATE [dbo].[mtd_production_schedule]
+   SET [node] = @node
+      ,[eqNo] = @eqNo
+      ,[lcmProdSn] = @lcmProdSn
+      ,[updateUser] = @updateUser
+      ,[updateTime] = @updateTime
+ WHERE sn=@sn and lcmProdSn=@lcmProdSn ; ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, updMTDSchedule);
+
+            return dao;
+        }
+
+        public int DeleteSchedule(int ownerId, DateTime endTime)
+        {
+            string sql = @"
+ Delete [dbo].[mtd_production_schedule] where ownerId = @OwnerId and date >= @Date ; ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, new
             {
-                OwnerId = ownerId
+                OwnerId = ownerId,
+                Date = endTime
             });
 
             return dao;
@@ -205,7 +236,7 @@ VALUES
         {
             string sql = @" Delete [dbo].[mtd_production_setting] where lcmProdSn=@lcmProdSn;";
 
-            var dao = _dbHelper.ExecuteNonQuery(sql, new 
+            var dao = _dbHelper.ExecuteNonQuery(sql, new
             {
                 lcmProdSn = prodSn
             });
@@ -221,6 +252,7 @@ VALUES
            ,[lcmProdSn]
            ,[passNode]
            ,[wipNode]
+           ,[wipNode2]
            ,[eqNo]
            ,[updateUser]
            ,[updateTime])
@@ -230,6 +262,7 @@ VALUES
            ,@lcmProdSn
            ,@passNode
            ,@wipNode
+           ,@wipNode2
            ,@eqNo
            ,@updateUser
            ,@updateTime);";

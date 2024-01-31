@@ -10,6 +10,7 @@ namespace MOD4.Web.DomainService.Entity
         public string Model { get; set; }
         public int PassNode { get; set; }
         public int WipNode { get; set; }
+        public int WipNode2 { get; set; }
         public string EqNo { get; set; }
         public int LcmProdSn { get; set; }
         public string ProdId { get; set; }

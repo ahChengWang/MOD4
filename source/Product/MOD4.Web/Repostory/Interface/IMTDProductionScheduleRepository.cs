@@ -7,7 +7,7 @@ namespace MOD4.Web.Repostory
 {
     public interface IMTDProductionScheduleRepository
     {
-        List<MTDProductionScheduleDao> SelectByConditions(int floor, int ownerId, DateTime? dateStart, DateTime? dateEnd);
+        List<MTDProductionScheduleDao> SelectByConditions(int floor, int ownerId, int prodSn, DateTime? dateStart, DateTime? dateEnd);
 
         List<MTDProductionScheduleDao> SelectMTDTodayPlan(int floor, int owner, DateTime dateStart, DateTime dateEnd);
 
@@ -21,7 +21,9 @@ namespace MOD4.Web.Repostory
 
         int InsertSchedule(List<MTDProductionScheduleDao> insMTDSchedule);
 
-        int DeleteSchedule(int ownerId);
+        int UpdateMTDSchedule(List<MTDProductionScheduleDao> updMTDSchedule);
+
+        int DeleteSchedule(int ownerId, DateTime endTime);
 
         int InsertScheduleHistory(MTDScheduleUpdateHistoryDao insHisDao);
 

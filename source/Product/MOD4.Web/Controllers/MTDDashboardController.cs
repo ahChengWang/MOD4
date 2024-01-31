@@ -429,7 +429,7 @@ namespace MOD4.Web.Controllers
 
         #endregion
 
-        #region ===== Manufacture schedule =====
+        #region ===== Manufacture setting =====
 
         [HttpGet("[controller]/Setting")]
         public IActionResult Setting()
@@ -444,10 +444,15 @@ namespace MOD4.Web.Controllers
                 var _response = _mtdDashboardDomainService.GetMTDSetting().Select(s => new MTDScheduleSettingViewModel
                 {
                     Sn = s.Sn,
+                    OldEqNo = s.EqNo,
                     EqNo = s.EqNo,
+                    OldPassNode = s.PassNode,
                     PassNode = s.PassNode,
-                    LcmProdSn = s.LcmProdSn,
-                    WipNode = s.WipNode
+                    OldWipNode = s.WipNode,
+                    WipNode = s.WipNode,
+                    OldWipNode2 = s.WipNode2,
+                    WipNode2 = s.WipNode2,
+                    LcmProdSn = s.LcmProdSn
                 }).ToList();
 
                 return View(_response);
@@ -469,10 +474,13 @@ namespace MOD4.Web.Controllers
                 var _response = _mtdDashboardDomainService.GetMTDSetting(prodSn).Select(s => new MTDScheduleSettingViewModel
                 {
                     Sn = s.Sn,
+                    OldEqNo = s.EqNo,
                     EqNo = s.EqNo,
+                    OldPassNode = s.PassNode,
                     PassNode = s.PassNode,
-                    LcmProdSn = s.LcmProdSn,
-                    WipNode = s.WipNode
+                    OldWipNode = s.WipNode,
+                    WipNode = s.WipNode,
+                    LcmProdSn = s.LcmProdSn
                 }).ToList();
 
                 return Json(new ResponseViewModel<List<MTDScheduleSettingViewModel>>

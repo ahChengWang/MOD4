@@ -122,6 +122,7 @@ namespace MOD4.Web.DomainService
                                         ProdId = allMTD.ProdId,
                                         PassNode = allMTD.Node,
                                         WipNode = setting.WipNode,
+                                        WipNode2 = setting.WipNode2,
                                         EqNo = setting.EqNo,
                                         Value = allMTD.Value,
                                         Model = allMTD.Model,
@@ -138,7 +139,7 @@ namespace MOD4.Web.DomainService
                 Parallel.ForEach(_mtdProdScheduleList.GroupBy(gb => gb.ProdId).Select(s => new
                 {
                     ProdNo = s.Key,
-                    Node = string.Join(",", s.Select(node => node.PassNode).Union(s.Select(node => node.WipNode)).Distinct())
+                    Node = string.Join(",", s.Select(node => node.PassNode).Union(s.Select(node => node.WipNode)).Union(s.Select(node => node.WipNode2)).Distinct())
                 }),
                 new ParallelOptions { MaxDegreeOfParallelism = 6 },
                 (prod) =>
@@ -193,7 +194,7 @@ namespace MOD4.Web.DomainService
                         var _currMonthRpt106 = _mtdPerformanceMonth.Where(w => w.Node == dt.PassNode.ToString() && w.Product == dt.ProdId);
                         var _currAlarmData = _alarmOverList.FirstOrDefault(f => f.tool_id == dt.EqNo && f.prod_id == dt.ProdId);
                         var _currRpt106PassQty = _mtdPerformanceDay.FirstOrDefault(f => f.Node == dt.PassNode.ToString() && f.Product == dt.ProdId);
-                        var _currRpt106WipQty = _mtdPerformanceDay.FirstOrDefault(f => f.Node == dt.WipNode.ToString() && f.Product == dt.ProdId);
+                        var _currRpt106WipQty = _mtdPerformanceDay.Where(w => (w.Node == dt.WipNode.ToString() || (dt.WipNode2.ToString() != "0" && w.Node == dt.WipNode2.ToString())) && w.Product == dt.ProdId).ToList();
 
                         MTDDashboardDetailEntity _test = new MTDDashboardDetailEntity
                         {
@@ -203,7 +204,7 @@ namespace MOD4.Web.DomainService
                             Node = dt.PassNode.ToString(),
                             PlanProduct = dt.ProdId,
                             Output = _currRpt106PassQty?.Qty ?? 0,
-                            Wip = _currRpt106WipQty?.Wip ?? 0,
+                            Wip = _currRpt106WipQty?.Sum(sum => sum.Wip) ?? 0,
                             DayPlan = _currSchedule.Value,
                             RangPlan = Convert.ToInt32(_currSchedule.Value * (time / 24)),
                             RangDiff = Convert.ToInt32((_currRpt106PassQty?.Qty ?? 0) - (_currSchedule.Value * (time / 24))),
@@ -538,6 +539,7 @@ namespace MOD4.Web.DomainService
             try
             {
                 DateTime _nowTime = DateTime.Now;
+                List<DateTime> _timeList = new List<DateTime>();
                 DateTime _startDate = DateTime.Parse($"{_nowTime.ToString("yyyy/MM")}/01").AddDays(-10);
                 DateTime _endDate = DateTime.Parse($"{_nowTime.AddMonths(1).ToString("yyyy/MM")}/15");
 
@@ -555,9 +557,63 @@ namespace MOD4.Web.DomainService
                 }
 
                 List<ManufactureScheduleEntity> _manufactureSchedules = new List<ManufactureScheduleEntity>();
-                List<MTDProductionScheduleDao> _mtdScheduleDataList = _mtdProductionScheduleRepository.SelectByConditions(floor, owner, _startDate, _endDate);
+                List<MTDProductionScheduleDao> _mtdScheduleTest = new List<MTDProductionScheduleDao>();
+                List<MTDProductionScheduleDao> _mtdScheduleDataList = _mtdProductionScheduleRepository.SelectByConditions(floor, owner, 0, _startDate, _endDate);
                 //List<LcmProductDao> _defLcmProd = new List<LcmProductDao>(); //_lcmProductRepository.SelectByConditions(_mtdScheduleDataList.Select(mtd => mtd.ProdId).Distinct().ToList());
                 List<MTDProductionScheduleDao> _mtdMonthPlanList = _mtdProductionScheduleRepository.SelectMonthPlanQty(_nowTime.Year.ToString(), _nowTime.Month.ToString(), floor, owner);
+
+                _startDate = _mtdScheduleDataList.Select(s => s.Date).Min();
+                _endDate = _mtdScheduleDataList.Select(s => s.Date).Max();
+
+                for (DateTime d = _startDate; d <= _endDate; d = d.AddDays(1))
+                    _timeList.Add(d);
+
+                List<MTDProductionScheduleDao> _mtdScheduleHaveLoss = _mtdScheduleDataList.GroupBy(g => new { g.Sn, g.Process, g.LcmProdSn, g.Model, g.Node, g.ProdId })
+                    .Where(w => w.Count() < _timeList.Count()).Select(s => new MTDProductionScheduleDao
+                    {
+                        Sn = s.Key.Sn,
+                        Process = s.Key.Process,
+                        LcmProdSn = s.Key.LcmProdSn,
+                        Model = s.Key.Model,
+                        Node = s.Key.Node,
+                        ProdId = s.Key.ProdId
+                    }).ToList();
+
+                _mtdScheduleDataList.Where(w => _mtdScheduleHaveLoss.Select(s => s.Sn).Contains(w.Sn) && _mtdScheduleHaveLoss.Select(s => s.LcmProdSn).Contains(w.LcmProdSn) &&
+                                                _mtdScheduleHaveLoss.Select(s => s.Node).Contains(w.Node))
+                    .GroupBy(g => new { g.Sn, g.Process, g.LcmProdSn, g.Model, g.Node, g.ProdId })
+                    .Select(s => new
+                    {
+                        s.Key.Sn,
+                        s.Key.Process,
+                        s.Key.LcmProdSn,
+                        s.Key.Model,
+                        s.Key.Node,
+                        s.Key.ProdId,
+                        Detail = s
+                    }).ToList().ForEach(f =>
+                    {
+                        _mtdScheduleTest.AddRange(from d in _timeList
+                                                  join schedule in f.Detail
+                                                  on d equals schedule.Date into tmp
+                                                  from schedule in tmp.DefaultIfEmpty()
+                                                  where schedule is null
+                                                  select new MTDProductionScheduleDao
+                                                  {
+                                                      Date = schedule?.Date ?? d.Date,
+                                                      Sn = schedule?.Sn ?? f.Sn,
+                                                      Process = schedule?.Process ?? f.Process,
+                                                      Model = schedule?.Model ?? f.Model,
+                                                      Node = schedule?.Node ?? f.Node,
+                                                      ProdId = schedule?.ProdId ?? f.ProdId,
+                                                      EqNo = schedule?.EqNo ?? "",
+                                                      Value = schedule?.Value ?? 0,
+                                                      Floor = schedule?.Floor ?? 2,
+                                                      OwnerId = schedule?.OwnerId ?? 1,
+                                                  });
+                    });
+
+                _mtdScheduleDataList.AddRange(_mtdScheduleTest);
 
                 _manufactureSchedules = _mtdScheduleDataList.GroupBy(gb => new { gb.Process, gb.Model, gb.Node, gb.ProdId })
                     .Select(mtd => new ManufactureScheduleEntity
@@ -572,7 +628,7 @@ namespace MOD4.Web.DomainService
                             Date = s.Date.ToString("MM/dd"),
                             Quantity = s.Value,
                             IsToday = s.Date == _nowTime.Date
-                        }).ToList()
+                        }).OrderBy(o => o.Date).ToList()
                     }).ToList();
 
                 return _manufactureSchedules;
@@ -794,7 +850,7 @@ namespace MOD4.Web.DomainService
                         bool _updRes = false;
                         bool _insHisRes = false;
 
-                        _mtdProductionScheduleRepository.DeleteSchedule(owner);
+                        _mtdProductionScheduleRepository.DeleteSchedule(owner, _insMTDScheduleDao.Min(min => min.Date));
                         _updRes = _mtdProductionScheduleRepository.InsertSchedule(_insMTDScheduleDao) == _insMTDScheduleDao.Count;
                         _insHisRes = _mtdProductionScheduleRepository.InsertScheduleHistory(_mtdScheduleUpdateHistoryDao) == 1;
 
@@ -959,7 +1015,7 @@ namespace MOD4.Web.DomainService
             try
             {
                 string _updResult = "";
-                var _noewTime = DateTime.Now;
+                var _nowTime = DateTime.Now;
                 var _defNodeList = _optionDomainService.GetAllNodeList()
                     .Select(s => new
                     {
@@ -967,21 +1023,51 @@ namespace MOD4.Web.DomainService
                         Process = s.Value
                     }).Distinct();
 
+                var _prodMTDScheduleList = _mtdProductionScheduleRepository.SelectByConditions(0, 0, prodSn: updEntity.FirstOrDefault().LcmProdSn, null, null)
+                    .GroupBy(g => new { g.Sn, g.Process, g.Node, g.EqNo, g.LcmProdSn, g.Floor })
+                    .Select(s => new
+                    {
+                        s.Key.Sn,
+                        s.Key.Process,
+                        s.Key.Node,
+                        s.Key.EqNo,
+                        s.Key.LcmProdSn,
+                        s.Key.Floor
+                    });
+
+                var _updMTDProdSchedule = (from schedule in _prodMTDScheduleList
+                                           join upd in updEntity
+                                           on new { schedule.Sn, schedule.LcmProdSn, schedule.Node } equals new { upd.Sn, upd.LcmProdSn, Node = upd.OldPassNode }
+                                           where schedule.Node != upd.PassNode
+                                           select new MTDProductionScheduleDao
+                                           {
+                                               Sn = schedule.Sn,
+                                               LcmProdSn = schedule.LcmProdSn,
+                                               Node = upd.PassNode,
+                                               EqNo = upd.EqNo,
+                                               UpdateTime = _nowTime,
+                                               UpdateUser = userEntity.Name
+                                           }).ToList();
+
                 List<MTDScheduleSettingDao> _updMTDSetting = updEntity.Select(s => new MTDScheduleSettingDao
                 {
                     Sn = s.Sn,
                     LcmProdSn = s.LcmProdSn,
                     PassNode = s.PassNode,
                     WipNode = s.WipNode,
+                    WipNode2 = s.WipNode2,
                     EqNo = s.EqNo ?? "",
                     Process = _defNodeList.FirstOrDefault(f => f.Sn == s.Sn).Process,
-                    UpdateTime = _noewTime,
+                    UpdateTime = _nowTime,
                     UpdateUser = userEntity.Name
                 }).ToList();
 
                 using (var scope = new TransactionScope())
                 {
                     bool _updRes = false;
+
+                    if (_updMTDProdSchedule.Any())
+                        _mtdProductionScheduleRepository.UpdateMTDSchedule(_updMTDProdSchedule);
 
                     _mtdProductionScheduleRepository.DeleteSetting(_updMTDSetting.FirstOrDefault().LcmProdSn);
 
@@ -1102,36 +1188,34 @@ namespace MOD4.Web.DomainService
 
                 // 取得當日MTD排程所有機種
                 List<MTDProductionScheduleDao> _mtdScheduleDataList = _mtdProductionScheduleRepository.SelectMTDTodayPlan(2, 1, _srchDate, _srchDate).ToList();
-                //var _mtdProdProcessSettings = _targetSettingDomainService.GetSettingForMTD(_mtdScheduleDataList.Select(s => s.ProdId).ToList());
-                //var _rpt106Task = _inxReportService.Get106NewReportAsync(_srchDate, _srchDate, "ALL", "2", _mtdProdProcessSettings.Select(d => d.ProdNo).Distinct().ToList());
+                var _mtdProdProcessSettings = _targetSettingDomainService.GetSettingForMTD(_mtdScheduleDataList.Select(s => s.LcmProdSn).ToList());
+                var _rpt106Task = _inxReportService.Get106NewReportAsync<INXRpt106Entity>(_srchDate, _srchDate, "ALL", "2", _mtdProdProcessSettings.Select(d => d.ProdNo).Distinct().ToList());
 
-                //var _dailyMTD = from plan in _mtdScheduleDataList
-                //                join setting in _mtdProdProcessSettings
-                //                on new { plan.Sn, LcmProdSn = plan.ProdId } equals new { setting.Sn, setting.LcmProdSn }
-                //                select new
-                //                {
-                //                    plan.Sn,
-                //                    plan.Process,
-                //                    setting.Node,
-                //                    plan.ProdId,
-                //                    setting.ProdNo,
-                //                    plan.Value,
-                //                    setting.DownEq
-                //                };
+                var _dailyMTD = from plan in _mtdScheduleDataList
+                                join setting in _mtdProdProcessSettings
+                                on new { plan.Sn, plan.LcmProdSn } equals new { setting.Sn, setting.LcmProdSn }
+                                select new
+                                {
+                                    plan.Sn,
+                                    plan.Process,
+                                    setting.Node,
+                                    plan.ProdId,
+                                    setting.ProdNo,
+                                    plan.Value,
+                                    setting.DownEq
+                                };
 
-                //var _rpt106DataList = (await _rpt106Task).Date.Data.Table;
+                var _rpt106DataList = (await _rpt106Task).Date.Data.Table;
 
-                //List<MTDProcessDailyEntity> mtdDailyList = _dailyMTD.GroupBy(gb => new { gb.Sn, gb.Process, gb.Node }).Select(mtd => new MTDProcessDailyEntity
-                //{
-                //    Sn = mtd.Key.Sn,
-                //    Process = mtd.Key.Process,
-                //    DayPlanQty = mtd.Sum(sum => sum.Value),
-                //    DayActQty = Convert.ToInt32(_rpt106DataList.Where(w => Convert.ToInt32(w.WORK_CTR) == Convert.ToInt32(mtd.Key.Node))?.Select(s => s.PASS_QTY).Sum() ?? 0),
-                //}).ToList();
+                List<MTDProcessDailyEntity> mtdDailyList = _dailyMTD.GroupBy(gb => new { gb.Sn, gb.Process, gb.Node }).Select(mtd => new MTDProcessDailyEntity
+                {
+                    Sn = mtd.Key.Sn,
+                    Process = mtd.Key.Process,
+                    DayPlanQty = mtd.Sum(sum => sum.Value),
+                    DayActQty = Convert.ToInt32(_rpt106DataList.Where(w => Convert.ToInt32(w.WORK_CTR) == Convert.ToInt32(mtd.Key.Node))?.Select(s => s.PASS_QTY).Sum() ?? 0),
+                }).ToList();
 
-                //return mtdDailyList;
-
-                return new List<MTDProcessDailyEntity>();
+                return mtdDailyList;
             }
             catch (Exception ex)
             {

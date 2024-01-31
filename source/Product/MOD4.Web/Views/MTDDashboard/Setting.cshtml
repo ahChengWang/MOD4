@@ -125,6 +125,14 @@
         width: 10%;
     }
 
+    td[name='tdLabelShort'] {
+        background: #91bac4;
+        font-weight: 600;
+        text-align: center;
+        vertical-align: middle;
+        width: 7%;
+    }
+
     td[name="tdImp"] {
         text-align: center;
         vertical-align: middle;
@@ -195,9 +203,13 @@
                                                 <button :class="pageTTBtnClass.deleteBtn" @@click="deleteClk(idx)" :disabled="colDisabled">⁻</button>
                                                 <input type="hidden" :value="idx" />
                                                 <input type="hidden" v-model="editProdSettingTmp[idx].lcmProdSn" :value="editProdSettingTmp[idx].lcmProdSn" />
+                                                <input type="hidden" v-model="editProdSettingTmp[idx].oldPassNode" />
+                                                <input type="hidden" v-model="editProdSettingTmp[idx].oldWipNode" />
+                                                <input type="hidden" v-model="editProdSettingTmp[idx].oldWipNode2" />
+                                                <input type="hidden" v-model="editProdSettingTmp[idx].oldEqNo" />
                                             </td>
                                             <td></td>
-                                            <td name="tdLabel">製程</td>
+                                            <td name="tdLabelShort">製程</td>
                                             <td name="tdImp">
                                                 <select class="myInputStyle1" :disabled="colDisabled" v-model="editProdSettingTmp[idx].sn" :value="prod.sn">
                                                     <option v-for="process in processOptions" :value="process.id">{{process.value}}</option>
@@ -212,10 +224,18 @@
                                             <td name="tdLabel">WIP Node</td>
                                             <td name="tdImp">
                                                 <select class="myInputStyle1" :disabled="colDisabled" v-model="editProdSettingTmp[idx].wipNode" :value="prod.wipNode">
+                                                    <option></option>
                                                     <option v-for="wn in wipNodeOptions" :value="wn.subId">{{wn.subId}}</option>
                                                 </select>
                                             </td>
-                                            <td name="tdLabel">EQ</td>
+                                            <td name="tdLabel">WIP Node 2</td>
+                                            <td name="tdImp">
+                                                <select class="myInputStyle1" :disabled="colDisabled" v-model="editProdSettingTmp[idx].wipNode2" :value="prod.wipNode2">
+                                                    <option></option>
+                                                    <option v-for="wn in wipNodeOptions" :value="wn.subId">{{wn.subId}}</option>
+                                                </select>
+                                            </td>
+                                            <td name="tdLabelShort">EQ</td>
                                             <td name="tdImp">
                                                 @*<select class="myInputStyle1" :disabled="colDisabled" v-model="editProdSettingTmp[idx].downEquipment" :value="prod.downEquipment">
                                                         <option v-for="eq in prod.downEqOptions" :value="eq.equiP_NBR">{{eq.equiP_NBR}}</option>

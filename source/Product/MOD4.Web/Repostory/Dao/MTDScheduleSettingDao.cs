@@ -9,6 +9,7 @@ namespace MOD4.Web.Repostory.Dao
         public int LcmProdSn { get; set; }
         public int PassNode { get; set; }
         public int WipNode { get; set; }
+        public int WipNode2 { get; set; }
         public string EqNo { get; set; }
         public string UpdateUser { get; set; }
         public DateTime UpdateTime { get; set; }
