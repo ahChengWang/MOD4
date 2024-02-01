@@ -26,6 +26,7 @@ namespace MOD4.Web.DomainService
         private readonly ISPCChartSettingRepository _spcChartSettingRepository;
         private readonly IDefinitionNodeDescRepository _definitionNodeDescRepository;
         private readonly IDefinitionDepartmentRepository _definitionDepartmentRepository;
+        private readonly IDefinitionRWDefectCodeRepository _definitionRWDefectCodeRepository;
 
         public OptionDomainService(IEqSituationMappingRepository eqSituationMappingRepository,
             IEqEvanCodeMappingRepository eqEvanCodeMappingRepository,
@@ -36,7 +37,8 @@ namespace MOD4.Web.DomainService
             ICertifiedAreaMappingRepository certifiedAreaMappingRepository,
             ISPCChartSettingRepository spcChartSettingRepository,
             IDefinitionNodeDescRepository definitionNodeDescRepository,
-            IDefinitionDepartmentRepository definitionDepartmentRepository)
+            IDefinitionDepartmentRepository definitionDepartmentRepository,
+            IDefinitionRWDefectCodeRepository definitionRWDefectCodeRepository)
         {
             _eqSituationMappingRepository = eqSituationMappingRepository;
             _eqEvanCodeMappingRepository = eqEvanCodeMappingRepository;
@@ -48,6 +50,7 @@ namespace MOD4.Web.DomainService
             _spcChartSettingRepository = spcChartSettingRepository;
             _definitionNodeDescRepository = definitionNodeDescRepository;
             _definitionDepartmentRepository = definitionDepartmentRepository;
+            _definitionRWDefectCodeRepository = definitionRWDefectCodeRepository;
         }
 
 
@@ -527,6 +530,16 @@ namespace MOD4.Web.DomainService
                     SubId = node.EqNo,
                     Value = node.Process
                 }).ToList();
+        }
+
+        public List<OptionEntity> GetRWDefectCode()
+        {
+            return _definitionRWDefectCodeRepository.SelectByConditions().Select(s => new OptionEntity
+            {
+                Id = (int)s.CategoryId,
+                Value = s.Code,
+                SubValue = s.Desc
+            }).ToList();
         }
 
         private List<OptionEntity> GetEqProdOptionList(int id)

@@ -123,6 +123,7 @@ namespace MOD4.Web
             services.AddSingleton<IProdPerformanceDetailRepository, ProdPerformanceDetailRepository>(); 
             services.AddSingleton<ILightingLogRepository, LightingLogRepository>();
             services.AddSingleton<ITaiwanCalendarRepository, TaiwanCalendarRepository>();
+            services.AddSingleton<IDefinitionRWDefectCodeRepository, DefinitionRWDefectCodeRepository>();
 
             services.AddScoped<MenuService>();
             services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));

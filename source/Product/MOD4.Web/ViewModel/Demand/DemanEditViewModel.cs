@@ -51,15 +51,17 @@ namespace MOD4.Web.ViewModel
         [Display(Name = "新機種?")]
         public bool IsNewProd { get; set; }
 
-        [Display(Name = "機種代號")]
+        [Display(Name = "代號")]
         public string ProdNo { get; set; }
 
-        [Display(Name = "機種描述")]
+        [Display(Name = "描述")]
         public string ProdDesc { get; set; }
+
+        [Display(Name = "樓層")]
+        public int Floor { get; set; }
 
         [Display(Name = "上傳檔案")]
         public List<IFormFile> UploadFile { get; set; }
-
 
         [Display(Name = "備註")]
         public string Remark { get; set; }

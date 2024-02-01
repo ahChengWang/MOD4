@@ -24,16 +24,19 @@ namespace MOD4.Web.DomainService
         private readonly IAccountDomainService _accountDomainService;
         private readonly IMPSUploadHistoryRepository _mpsUploadHistoryRepository;
         private readonly ILightingLogRepository _lightingLogRepository;
+        private readonly IDefinitionRWDefectCodeRepository _definitionRWDefectCodeRepository;
 
         public ExtensionDomainService(IUploadDomainService uploadDomainService,
             IAccountDomainService accountDomainService,
             IMPSUploadHistoryRepository mpsUploadHistoryRepository,
-            ILightingLogRepository lightingLogRepository)
+            ILightingLogRepository lightingLogRepository,
+            IDefinitionRWDefectCodeRepository definitionRWDefectCodeRepository)
         {
             _uploadDomainService = uploadDomainService;
             _accountDomainService = accountDomainService;
             _mpsUploadHistoryRepository = mpsUploadHistoryRepository;
             _lightingLogRepository = lightingLogRepository;
+            _definitionRWDefectCodeRepository = definitionRWDefectCodeRepository;
         }
 
         public List<LightingLogMainEntity> GetLightingHisList(string panelId = "")
@@ -122,6 +125,9 @@ namespace MOD4.Web.DomainService
                     Floor = 2,
                     PanelId = log.PanelId,
                     PanelDate = log.PanelDate,
+                    StatusId = log.StatusId,
+                    DefectCatgId = log.DefectCatgId,
+                    DefectCode = log.DefectCode,
                     CreateUser = $"{userEntity.JobId}-{userEntity.Name}",
                     CreateDate = _nowTime,
                     UpdateUser = $"{userEntity.JobId}-{userEntity.Name}",
@@ -174,12 +180,25 @@ namespace MOD4.Web.DomainService
                 //                          UpdateUser = userEntity.Name
                 //                      }).ToList();
 
+                _updLightingLogList = lightingLogList.Where(w => w.PanelSn != 0).Select(log => new LightingLogDao
+                {
+                    PanelSn = log.PanelSn,
+                    StatusId = log.StatusId,
+                    DefectCatgId = log.DefectCatgId,
+                    DefectCode = log.DefectCode,
+                    UpdateUser = $"{userEntity.JobId}-{userEntity.Name}",
+                    UpdateDate = _nowTime
+                }).ToList();
+
                 _insLightingLogList = lightingLogList.Where(w => w.PanelSn == 0).Select(log => new LightingLogDao
                 {
                     CategoryId = log.CategoryId,
                     Floor = 2,
                     PanelId = log.PanelId,
                     PanelDate = log.PanelDate,
+                    StatusId = log.StatusId,
+                    DefectCatgId = log.DefectCatgId,
+                    DefectCode = log.DefectCode,
                     CreateUser = $"{userEntity.JobId}-{userEntity.Name}",
                     CreateDate = _nowTime,
                     UpdateUser = $"{userEntity.JobId}-{userEntity.Name}",
@@ -188,11 +207,8 @@ namespace MOD4.Web.DomainService
 
                 using (TransactionScope _scope = new TransactionScope())
                 {
-                    bool _updRes;
-
-                    _updRes = _lightingLogRepository.InsertLightingLog(_insLightingLogList) == _insLightingLogList.Count();
-
-                    if (_updRes)
+                    if (_lightingLogRepository.InsertLightingLog(_insLightingLogList) == _insLightingLogList.Count() &&
+                        _lightingLogRepository.UpdateRWLog(_updLightingLogList) == _updLightingLogList.Count())
                         _scope.Complete();
                     else
                         _updateRes = "更新記錄異常";
@@ -214,6 +230,7 @@ namespace MOD4.Web.DomainService
                 DateTime _endDate = DateTime.Parse($"{logDate.ToString("yyyy-MM-dd")} 23:59:59");
 
                 var _lightingLogList = _lightingLogRepository.SelectByConditions(startDate: _startDate, endDate: _endDate);
+                var _defRWDefectcode = _definitionRWDefectCodeRepository.SelectByConditions();
 
                 if (_lightingLogList.Any())
                 {
@@ -254,6 +271,8 @@ namespace MOD4.Web.DomainService
 
                     for (int r = 0; r < _lightingLogList.Count; r++)
                     {
+                        var _tmpDefCode = _defRWDefectcode.FirstOrDefault(f => (int)f.CategoryId == _lightingLogList[r].DefectCatgId && f.Code == (_lightingLogList[r]?.DefectCode ?? ""));
+
                         _sheet.CreateRow(r + 1);
                         _row = _sheet.GetRow(r + 1);
                         _row.CreateCell(0);
@@ -270,6 +289,14 @@ namespace MOD4.Web.DomainService
                         _cell.CellStyle = _cellStyle;
                         _row.CreateCell(3);
                         _cell = _row.GetCell(3);
+                        _cell.SetCellValue(_lightingLogList[r].StatusId == 0 ? "NG" : "OK");
+                        _cell.CellStyle = _cellStyle;
+                        _row.CreateCell(4);
+                        _cell = _row.GetCell(4);
+                        _cell.SetCellValue(_tmpDefCode != null ? $"{_tmpDefCode.Code}-{_tmpDefCode.Desc}" : "");
+                        _cell.CellStyle = _cellStyle;
+                        _row.CreateCell(5);
+                        _cell = _row.GetCell(5);
                         _cell.SetCellValue(_lightingLogList[r].UpdateUser);
                         _cell.CellStyle = _cellStyle;
                     }

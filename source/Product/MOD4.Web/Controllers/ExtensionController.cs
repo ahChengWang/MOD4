@@ -40,7 +40,7 @@ namespace MOD4.Web.Controllers
                 UserEntity _userInfo = GetUserInfo();
                 _userInfo.UserMenuPermissionList = _userInfo.UserMenuPermissionList.Where(w => w.MenuSn == MenuEnum.Extension).ToList();
                 ViewBag.UserInfo = _userInfo;
-                ViewBag.CatgOption = _optionDomainService.GetLightingCategory();
+                ViewBag.DefectCatgOption = _optionDomainService.GetRWDefectCode();
 
                 var _res = _extensionDomainService.GetLightingHisList();
 
@@ -108,6 +108,9 @@ namespace MOD4.Web.Controllers
                             PanelSn = detail.PanelSn,
                             CategoryId = detail.CategoryId,
                             Category = detail.CategoryId.GetDescription(),
+                            StatusId = detail.StatusId,
+                            DefectCatgId = detail.DefectCatgId,
+                            DefectCode = detail.DefectCode,
                             PanelDate = detail.PanelDate,
                             PanelId = detail.PanelId,
                             CreateUser = detail.CreateUser,
@@ -141,6 +144,9 @@ namespace MOD4.Web.Controllers
                     PanelId = s.PanelId,
                     PanelDate = s.PanelDate,
                     CategoryId = s.CategoryId,
+                    StatusId = s.StatusId,
+                    DefectCatgId = s.DefectCatgId,
+                    DefectCode = s.DefectCode,
                 }).ToList(),
                 GetUserInfo());
 
@@ -172,6 +178,9 @@ namespace MOD4.Web.Controllers
                     PanelId = s.PanelId,
                     PanelDate = s.PanelDate,
                     CategoryId = s.CategoryId,
+                    StatusId = s.StatusId,
+                    DefectCatgId = s.DefectCatgId,
+                    DefectCode = s.DefectCode,
                 }).ToList(),
                 GetUserInfo());
 

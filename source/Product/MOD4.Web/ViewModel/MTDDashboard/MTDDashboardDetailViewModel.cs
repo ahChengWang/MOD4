@@ -35,14 +35,14 @@ namespace MOD4.Web.ViewModel
         [DisplayName("差異(時段)")]
         public string RangDiff { get; set; }
 
-        [DisplayName("當月計畫")]
+        [DisplayName("MTD當月")]
         public string MonthPlan { get; set; }
 
-        [DisplayName("MTD計畫")]
+        [DisplayName("MTD累計")]
         public string MTDPlan { get; set; }
 
         //[DisplayName("MTD實際")]
-        [DisplayName("當月產出")]
+        [DisplayName("當月實際")]
         public string MTDActual { get; set; }
 
         [DisplayName("MTD差異")]

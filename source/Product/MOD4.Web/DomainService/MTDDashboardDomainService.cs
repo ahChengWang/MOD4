@@ -131,7 +131,7 @@ namespace MOD4.Web.DomainService
                                     }).ToList();
 
             // 取得MTD排程所有機種月計畫
-            List<MTDProductionScheduleDao> _mtdMonthPlanList = _mtdProductionScheduleRepository.SelectMonthPlanQty(_nowTime.Year.ToString(), _nowTime.Month.ToString(), floor, owner);
+            List<MTDProductionScheduleDao> _mtdMonthPlanList = _mtdProductionScheduleRepository.SelectMonthPlanQty(_srchDate.Year.ToString(), _srchDate.Month.ToString(), floor, owner);
 
             Task _106Task = Task.Run(() =>
             {
@@ -186,7 +186,7 @@ namespace MOD4.Web.DomainService
                         var _currSchedule = _mtdProdScheduleList.FirstOrDefault(f => f.Process == dt.Process && f.PassNode == dt.PassNode && f.ProdId == dt.ProdId) ??
                         new MTDProdScheduleEntity
                         {
-                            Date = _nowTime,
+                            Date = _srchDate,
                             Value = 0
                         };
 

@@ -9,5 +9,6 @@ namespace MOD4.Web.Repostory
     {
         List<LightingLogDao> SelectByConditions(List<int> snList = null, DateTime? startDate = null, DateTime? endDate = null, string panelId = "", LightingCategoryEnum? categoryId = null);
         int InsertLightingLog(List<LightingLogDao> daoList);
+        int UpdateRWLog(List<LightingLogDao> updList);
     }
 }

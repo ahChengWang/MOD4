@@ -7,5 +7,7 @@
         public int SubId { get; set; }
 
         public string Value { get; set; }
+
+        public string SubValue { get; set; }
     }
 }

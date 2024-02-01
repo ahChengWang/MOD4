@@ -28,6 +28,16 @@
         width: 40%;
     }
 
+    .mySelect {
+        border-bottom: 1px solid black;
+        border-top: 0px;
+        border-left: 0px;
+        border-right: 0px;
+        background-color: transparent;
+        outline: none;
+        width: 80%;
+    }
+
     .close-x {
         position: relative;
         width: 25px;
@@ -152,7 +162,7 @@
                 </div>
             </fieldset>
             <div class="modal fade" id="modal-completed">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog modal-xl accent-blue">
                     <div class="modal-content">
                         <div class="modal-header" style="height: 50px; font-weight: 700; display: inline-block; align-content: center;">
                             <h5 style="display:inline-block">紀錄</h5>
@@ -181,6 +191,9 @@
                                         <tr>
                                             <th>類別</th>
                                             <th>Panel ID</th>
+                                            <th>狀態</th>
+                                            <th>類別</th>
+                                            <th>defect code</th>
                                             <th>時間</th>
                                             <th>人員</th>
                                             <th></th>
@@ -190,6 +203,26 @@
                                         <tr v-for="(item, idx) in modalInsModel.modalHis">
                                             <td style="vertical-align: middle; ">{{item.category}}</td>
                                             <td style="vertical-align: middle; ">{{item.panelId}}</td>
+                                            <td>
+                                                <select class="mySelect" v-model="modalInsModel.modalHis[idx].statusId" :disabled="modalInsModel.isHistory" @@change="statusChange(idx)" :style="item.statusStyle">
+                                                    <option value="0">NG</option>
+                                                    <option value="1">OK</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select class="mySelect" @@change="optionChange(item, idx)" v-model="modalInsModel.modalHis[idx].defectCatgId" :disabled="modalInsModel.isHistory">
+                                                    <option value="0"></option>
+                                                    <option value="1">破片</option>
+                                                    <option value="2">貼合</option>
+                                                    <option value="3">BOND</option>
+                                                    <option value="4">偏光板</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select class="mySelect" v-model="modalInsModel.modalHis[idx].defectCode" :disabled="modalInsModel.isHistory">
+                                                    <option v-for="defect in item.defectOption" :value="defect.id">{{defect.value}}</option>
+                                                </select>
+                                            </td>
                                             <td style="vertical-align: middle; ">{{item.panelDate}}</td>
                                             <td style="vertical-align: middle; ">{{item.updateUser}}</td>
                                             <td>
@@ -228,6 +261,8 @@
             4: '#b21cc9',
         };
 
+        const rwCatgOptions = {};
+
         const vue = new Vue({
             el: '#app',
             data: {
@@ -236,7 +271,6 @@
                 panelValue: '',
                 panelDate: '',
                 calendar: null,
-                catgOptions: [],
                 calendarEl: null,
                 calOption: {
                     /*initialDate: new Date(2023, 7, 31),*/
@@ -311,7 +345,12 @@
                                                 panelDate: detail.panelDate.replace('T', ' '),
                                                 categoryId: detail.categoryId,
                                                 category: detail.category,
-                                                updateUser: detail.updateUser
+                                                updateUser: detail.updateUser,
+                                                statusId: detail.statusId,
+                                                defectCatgId: detail.defectCatgId,
+                                                defectCode: detail.defectCode,
+                                                statusStyle: detail.statusId == 0 ? 'color: red; font-weight: 600;' : 'color: black; font-weight: 600;',
+                                                defectOption: rwCatgOptions[detail.defectCatgId]
                                             });
                                         });
 
@@ -375,6 +414,7 @@
                     'FZNP': [3, 'BL'],
                     'E422': [3, 'BL'],
                     'FX68': [3, 'BL'],
+                    'GTQK': [3, 'BL'],
                     'T329': [4, 'Panel'],
                     'T32A': [4, 'Panel'],
                     'T32B': [4, 'Panel'],
@@ -427,13 +467,27 @@
                         updateUser: vue.loginUserObj.name,
                         categoryId: _categoryId[0],
                         category: _categoryId[1],
-                        showDel: true
+                        statusId: 1,
+                        showDel: true,
+                        statusStyle: '',
+                        defectOption: []
                     });
                     vue.panelImp = '';
                     vue.modalInsModel.haveNew = true;
                     if (vue.modalInsModel.modalHis.length != 0) {
                         vue.modalInsModel.selDisable = true;
                     }
+                },
+                statusChange(idx) {
+                    if (vue.modalInsModel.modalHis[idx].statusId == 0) {
+                        vue.modalInsModel.modalHis[idx].statusStyle = 'color: red; font-weight: 600;';
+                    }
+                    else {
+                        vue.modalInsModel.modalHis[idx].statusStyle = 'color: black; font-weight: 600;';
+                    }
+                },
+                optionChange(e, idx) {
+                    vue.modalInsModel.modalHis[idx].defectOption = rwCatgOptions[vue.modalInsModel.modalHis[idx].defectCatgId];
                 },
                 numPad(str, digits) {
                     // 轉換成兩位數
@@ -690,6 +744,24 @@
                         textColor: '#000000',
                         allDay: true
                     });
+                });
+
+                var _tmpRWCatgOptions = @(Html.Raw(Json.Serialize(ViewBag.DefectCatgOption)));
+
+                $.each(_tmpRWCatgOptions, function (idx, item) {
+                    if (rwCatgOptions.hasOwnProperty(item.id)) {
+                        rwCatgOptions[item.id].push({
+                            id: item.value,
+                            value: item.value + '-' + item.subValue
+                        });
+                    }
+                    else {
+                        rwCatgOptions[item.id] = [];
+                        rwCatgOptions[item.id].push({
+                            id: item.value,
+                            value: item.value + '-' + item.subValue
+                        });
+                    }
                 });
 
                 this.calendarEl = document.getElementById('calendar');

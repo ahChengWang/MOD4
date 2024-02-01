@@ -7,6 +7,9 @@ namespace MOD4.Web.DomainService.Entity
     {
         public int PanelSn { get; set; }
         public LightingCategoryEnum CategoryId { get; set; }
+        public int StatusId { get; set; }
+        public int DefectCatgId { get; set; }
+        public string DefectCode { get; set; }
         public string PanelId { get; set; }
         public DateTime PanelDate { get; set; }
         public DateTime CreateDate { get; set; }

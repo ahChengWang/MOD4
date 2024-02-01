@@ -56,5 +56,7 @@ namespace MOD4.Web.DomainService
         List<OptionEntity> GetAllSections();
 
         List<OptionEntity> GetAllNodeList();
+
+        List<OptionEntity> GetRWDefectCode();
     }
 }

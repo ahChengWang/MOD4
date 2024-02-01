@@ -231,10 +231,12 @@
             if (e.currentTarget.checked) {
                 $("#ProdNo").removeAttr('disabled', false);
                 $("#ProdDesc").removeAttr('disabled', false);
+                $("#Floor").removeAttr('disabled', false);
             }
             else {
                 $("#ProdNo").attr('disabled', true);
                 $("#ProdDesc").attr('disabled', true);
+                $("#Floor").attr('disabled', true);
             }
         });
 

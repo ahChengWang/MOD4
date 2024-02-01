@@ -18,6 +18,11 @@ namespace MOD4.Web.ViewModel
         public int PanelSn { get; set; }
         public LightingCategoryEnum CategoryId { get; set; }
         public string Category { get; set; }
+        public int StatusId { get; set; }
+        public string Status { get; set; }
+        public int DefectCatgId { get; set; }
+        public string DefectCatg { get; set; }
+        public string DefectCode { get; set; }
         public string PanelId { get; set; }
         public DateTime PanelDate { get; set; }
         public string CreateUser { get; set; }

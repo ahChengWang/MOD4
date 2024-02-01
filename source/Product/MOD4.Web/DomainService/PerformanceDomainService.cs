@@ -608,6 +608,29 @@ namespace MOD4.Web.DomainService
                                          Floor = setting.Floor
                                      }).ToList();
 
+            var _prodSnList = _effSettingEntity.GroupBy(g => g.LcmProdSn).Select(s => s.Key);
+
+            var _nonSettingProd = _defProdList.Where(w => !_prodSnList.Contains(w.sn));
+
+            foreach (var prodDef in _nonSettingProd)
+                for (int i = 1; i < 6; i++)
+                    for (int j = 0; j < 2; j++)
+                    {
+                        _effSettingEntity.Add(new EfficiencySettingEntity
+                        {
+                            LcmProdSn = prodDef.sn,
+                            ProdNo = prodDef.ProdNo,
+                            ProcessId = (ProcessEnum)i,
+                            Shift = j == 0 ? "A" : "B",
+                            Process = ((ProcessEnum)i).GetDescription(),
+                            Node = 0,
+                            WT = 0,
+                            InlineEmps = 0,
+                            OfflineEmps = 0,
+                            Floor = floor
+                        });
+                    }
+
             return _effSettingEntity;
         }
 

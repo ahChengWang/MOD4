@@ -41,6 +41,9 @@ namespace MOD4.Web.Repostory
 ([categoryId]
 ,[panelId]
 ,[panelDate]
+,[statusId]
+,[defectCatgId]
+,[defectCode]
 ,[createDate]
 ,[createUser]
 ,[floor]
@@ -50,6 +53,9 @@ VALUES
 (@categoryId
 ,@panelId
 ,@panelDate
+,@statusId
+,@defectCatgId
+,@defectCode
 ,@createDate
 ,@createUser
 ,@floor
@@ -59,6 +65,21 @@ VALUES
             var dao = _dbHelper.ExecuteNonQuery(sql, daoList);
 
             return dao;
+        }
+
+        public int UpdateRWLog(List<LightingLogDao> updList)
+        {
+            string sql = @"update [carUX_2f].[dbo].[lighting_log] set 
+                statusId = @statusId ,
+                defectCatgId = @defectCatgId ,
+                defectCode = @defectCode ,
+                updateDate = @updateDate ,
+                updateUser = @updateUser   
+                where panelSn = @panelSn ";
+
+            var response = _dbHelper.ExecuteNonQuery(sql, updList);
+
+            return response;
         }
 
     }
