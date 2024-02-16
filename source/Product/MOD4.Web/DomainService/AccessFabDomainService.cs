@@ -50,7 +50,7 @@ namespace MOD4.Web.DomainService
 
                 // 查詢待簽核人員姓名
                 List<AccountInfoEntity> _accInfoList = _accountDomainService.GetAccountInfo(_accessFabOrderList.Select(s => s.AuditAccountSn).ToList());
-                _accessFabOrderList.ForEach(fe => fe.AuditAccountName = (fe.StatusId == FabInOutStatusEnum.Completed ? "" : _accInfoList.FirstOrDefault(f => f.sn == fe.AuditAccountSn).Name));
+                _accessFabOrderList.ForEach(fe => fe.AuditAccountName = (fe.StatusId == AuditStatusEnum.Completed ? "" : _accInfoList.FirstOrDefault(f => f.sn == fe.AuditAccountSn).Name));
 
                 return _accessFabOrderList;
             }
@@ -163,7 +163,7 @@ namespace MOD4.Web.DomainService
                     FabInTypeId = orderEntity.FabInTypeId,
                     FabInOtherType = orderEntity.FabInOtherType ?? "",
                     CategoryId = orderEntity.CategoryId,
-                    StatusId = FabInOutStatusEnum.Processing,
+                    StatusId = AuditStatusEnum.Processing,
                     Applicant = orderEntity.Applicant,
                     ApplicantAccountSn = userEntity.sn,
                     JobId = orderEntity.JobId,
@@ -277,7 +277,7 @@ namespace MOD4.Web.DomainService
                     FabInTypeId = orderEntity.FabInTypeId,
                     FabInOtherType = orderEntity.FabInOtherType ?? "",
                     CategoryId = orderEntity.CategoryId,
-                    StatusId = FabInOutStatusEnum.Processing,
+                    StatusId = AuditStatusEnum.Processing,
                     Applicant = orderEntity.Applicant,
                     ApplicantAccountSn = userEntity.sn,
                     JobId = orderEntity.JobId,
@@ -374,13 +374,13 @@ namespace MOD4.Web.DomainService
 
                 var _accessFabOrder = _accessFabOrderRepository.SelectList(orderSn: orderSn).FirstOrDefault();
 
-                if (_accessFabOrder.StatusId != FabInOutStatusEnum.Rejected)
+                if (_accessFabOrder.StatusId != AuditStatusEnum.Rejected)
                     return "單據狀態異常";
 
                 AccessFabOrderDao _updAccessFabOrderDao = new AccessFabOrderDao()
                 {
                     OrderSn = orderSn,
-                    StatusId = FabInOutStatusEnum.Cancel,
+                    StatusId = AuditStatusEnum.Cancel,
                     UpdateUser = userEntity.Name,
                     UpdateTime = _nowTime
                 };
@@ -416,7 +416,7 @@ namespace MOD4.Web.DomainService
             // 管制口人員
             if (Convert.ToBoolean(userEntity.Role & (int)RoleEnum.GateEmployee))
             {
-                selectOption.StatusId = (int)FabInOutStatusEnum.Completed;
+                selectOption.StatusId = (int)AuditStatusEnum.Completed;
 
                 if (selectOption.IsDefaultPage)
                 {
@@ -427,7 +427,7 @@ namespace MOD4.Web.DomainService
             }
             else
             {
-                selectOption.StatusId = (int)FabInOutStatusEnum.Processing;
+                selectOption.StatusId = (int)AuditStatusEnum.Processing;
                 selectOption.AuditAccountSn = userEntity.sn;
             }
 
@@ -487,23 +487,23 @@ namespace MOD4.Web.DomainService
 
                 // 更新下一關簽核紀錄
                 var _nextAuditFlow = _accessFabOrderAuditHisList.OrderBy(ob => ob.AuditSn).FirstOrDefault(f => f.AuditTime == null && f.AuditAccountSn != userEntity.sn);
-                if (orderEntity.StatusId == FabInOutStatusEnum.Rejected)
+                if (orderEntity.StatusId == AuditStatusEnum.Rejected)
                     _updAccessFabOrderDao.StatusId = orderEntity.StatusId;
                 // 簽核已完成, 無下個簽核人員
-                else if (orderEntity.StatusId != FabInOutStatusEnum.Rejected && _nextAuditFlow == null)
+                else if (orderEntity.StatusId != AuditStatusEnum.Rejected && _nextAuditFlow == null)
                 {
                     var _gateEmployee = _accountDomainService.GetAccountInfoByConditions((int)RoleEnum.GateEmployee, null, "13078959", null).FirstOrDefault();
 
                     var _gateSysAccount = _accountDomainService.GetAccountInfoByConditions(0, "管制口帳號", null, "gateadmin").FirstOrDefault();
 
-                    _updAccessFabOrderDao.StatusId = FabInOutStatusEnum.Completed;
+                    _updAccessFabOrderDao.StatusId = AuditStatusEnum.Completed;
                     _updAccessFabOrderDao.AuditAccountSn = _gateSysAccount.sn;
                     _nextAuditAccountInfo.Mail = _gateEmployee.Mail;
                 }
                 // 簽核未完成, 更新下個簽核人員資訊
-                else if (orderEntity.StatusId != FabInOutStatusEnum.Rejected && _nextAuditFlow != null)
+                else if (orderEntity.StatusId != AuditStatusEnum.Rejected && _nextAuditFlow != null)
                 {
-                    _updAccessFabOrderDao.StatusId = FabInOutStatusEnum.Processing;
+                    _updAccessFabOrderDao.StatusId = AuditStatusEnum.Processing;
                     _updAccessFabOrderDao.AuditAccountSn = _nextAuditFlow.AuditAccountSn;
                     _nextAuditFlow.ReceivedTime = _nowTime;
                     _updAccessFabOrderAuditHisDao.Add(_nextAuditFlow);
@@ -527,7 +527,7 @@ namespace MOD4.Web.DomainService
                 }
 
                 // 剔退 通知申請人
-                if (orderEntity.StatusId == FabInOutStatusEnum.Rejected && _auditRes == "")
+                if (orderEntity.StatusId == AuditStatusEnum.Rejected && _auditRes == "")
                 {
                     _mailServer.Send(new MailEntity
                     {
@@ -548,7 +548,7 @@ namespace MOD4.Web.DomainService
                         "您有<a style='text-decoration:underline'>待簽核</a><a style='font-weight:900'>管制口進出申請單</a>， <br /><br />" +
                         $"單號連結：<a href='http://10.54.215.210/CarUX/AccessFab/Audit/Detail/{_oldAccessFabOrder.OrderSn}' target='_blank'>" + _oldAccessFabOrder.OrderNo + "</a>"
                     });
-                else if (_updAccessFabOrderDao.StatusId == FabInOutStatusEnum.Completed && _auditRes == "")
+                else if (_updAccessFabOrderDao.StatusId == AuditStatusEnum.Completed && _auditRes == "")
                 {
                     // 通知管制口人員
                     _mailServer.Send(new MailEntity
@@ -585,8 +585,8 @@ namespace MOD4.Web.DomainService
                 var _orderAccessFabOrder = _accessFabOrderRepository.SelectList(orderSn: orderSn).FirstOrDefault();
                 var _gateSysAccount = _accountDomainService.GetAccountInfoByConditions(0, "管制口帳號", null, "gateadmin").FirstOrDefault();
 
-                if ((_orderAccessFabOrder.StatusId == FabInOutStatusEnum.Completed && _orderAccessFabOrder.AuditAccountSn == _gateSysAccount.sn && Convert.ToBoolean(_gateSysAccount.Role & (int)RoleEnum.GateEmployee)) ||
-                    (_orderAccessFabOrder.StatusId == FabInOutStatusEnum.Processing && _orderAccessFabOrder.AuditAccountSn == userEntity.sn))
+                if ((_orderAccessFabOrder.StatusId == AuditStatusEnum.Completed && _orderAccessFabOrder.AuditAccountSn == _gateSysAccount.sn && Convert.ToBoolean(_gateSysAccount.Role & (int)RoleEnum.GateEmployee)) ||
+                    (_orderAccessFabOrder.StatusId == AuditStatusEnum.Processing && _orderAccessFabOrder.AuditAccountSn == userEntity.sn))
                     return "";
                 else
                     return "申請單已變更, 將重新整理頁面";
@@ -632,7 +632,7 @@ namespace MOD4.Web.DomainService
                     CreateTime = s.CreateTime,
                     CreateTimeStr = s.CreateTime.ToString("yyyy-MM-dd"),
                     CreateUser = s.CreateUser,
-                    Url = s.StatusId == FabInOutStatusEnum.Rejected && s.CreateAccountSn == selectOption.CreateAccountSn
+                    Url = s.StatusId == AuditStatusEnum.Rejected && s.CreateAccountSn == selectOption.CreateAccountSn
                         ? $"./AccessFab/Edit?orderSn={s.OrderSn}"
                         : $"./AccessFab/Detail?orderSn={s.OrderSn}",
                 }).ToList();
@@ -662,7 +662,7 @@ namespace MOD4.Web.DomainService
 
             if (oldEntity == null)
                 return (false, "申請單異常");
-            if (oldEntity.StatusId != FabInOutStatusEnum.Processing)
+            if (oldEntity.StatusId != AuditStatusEnum.Processing)
                 return (false, "申請單狀態異常");
             if (oldEntity.AuditAccountSn != userAccSn)
                 return (false, "請確認使用者是否為簽核人員");
@@ -689,7 +689,7 @@ namespace MOD4.Web.DomainService
                             AuditAccountSn = auditFlow.DeptAccSn,
                             //AuditAccountName = auditFlow.SectionName,
                             AuditAccountName = $"部門主管-{auditFlow.DeptName}",
-                            StatusId = FabInOutStatusEnum.Processing,
+                            StatusId = AuditStatusEnum.Processing,
                             ReceivedTime = nowTime,
                             IsDel = false
                         },
@@ -699,7 +699,7 @@ namespace MOD4.Web.DomainService
                             AuditAccountSn = _gateManager.sn,
                             //AuditAccountName = auditFlow.DeptName,
                             AuditAccountName = $"管制口主管-{_gateManager.Name}",
-                            StatusId = FabInOutStatusEnum.Processing,
+                            StatusId = AuditStatusEnum.Processing,
                             IsDel = false
                         },
                         new AccessFabOrderAuditHistoryDao
@@ -708,7 +708,7 @@ namespace MOD4.Web.DomainService
                             AuditAccountSn = auditFlow.TopAccSn,
                             //AuditAccountName = auditFlow.TopName,
                             AuditAccountName = $"廠長-{auditFlow.TopName}",
-                            StatusId = FabInOutStatusEnum.Processing,
+                            StatusId = AuditStatusEnum.Processing,
                             IsDel = false
                         }
                     };
@@ -720,7 +720,7 @@ namespace MOD4.Web.DomainService
                             AuditAccountSn = _gateManager.sn,
                             //AuditAccountName = auditFlow.DeptName,
                             AuditAccountName = $"管制口主管-{_gateManager.Name}",
-                            StatusId = FabInOutStatusEnum.Processing,
+                            StatusId = AuditStatusEnum.Processing,
                             IsDel = false
                         },
                         new AccessFabOrderAuditHistoryDao
@@ -729,7 +729,7 @@ namespace MOD4.Web.DomainService
                             AuditAccountSn = auditFlow.TopAccSn,
                             //AuditAccountName = auditFlow.TopName,
                             AuditAccountName = $"廠長-{auditFlow.TopName}",
-                            StatusId = FabInOutStatusEnum.Processing,
+                            StatusId = AuditStatusEnum.Processing,
                             IsDel = false
                         }};
                 case JobLevelEnum.Employee:
@@ -740,7 +740,7 @@ namespace MOD4.Web.DomainService
                             AuditAccountSn = auditFlow.DeptAccSn,
                             //AuditAccountName = auditFlow.SectionName,
                             AuditAccountName = $"部門主管-{auditFlow.DeptName}",
-                            StatusId = FabInOutStatusEnum.Processing,
+                            StatusId = AuditStatusEnum.Processing,
                             ReceivedTime = nowTime,
                             IsDel = false
                         },
@@ -750,7 +750,7 @@ namespace MOD4.Web.DomainService
                             AuditAccountSn = _gateManager.sn,
                             //AuditAccountName = auditFlow.DeptName,
                             AuditAccountName = $"管制口主管-{_gateManager.Name}",
-                            StatusId = FabInOutStatusEnum.Processing,
+                            StatusId = AuditStatusEnum.Processing,
                             IsDel = false
                         },
                         new AccessFabOrderAuditHistoryDao
@@ -759,7 +759,7 @@ namespace MOD4.Web.DomainService
                             AuditAccountSn = auditFlow.TopAccSn,
                             //AuditAccountName = auditFlow.TopName,
                             AuditAccountName = $"廠長-{auditFlow.TopName}",
-                            StatusId = FabInOutStatusEnum.Processing,
+                            StatusId = AuditStatusEnum.Processing,
                             IsDel = false
                         }};
                 default:

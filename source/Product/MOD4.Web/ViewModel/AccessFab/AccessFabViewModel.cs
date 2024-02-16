@@ -13,7 +13,7 @@ namespace MOD4.Web.ViewModel
 
         public FabInTypeEnum FabInTypeId { get; set; }
         public string FabInType { get; set; }
-        public FabInOutStatusEnum StatusId { get; set; }
+        public AuditStatusEnum StatusId { get; set; }
         public string Status { get; set; }
         [Display(Name = "申請人")]
         public string Applicant { get; set; }

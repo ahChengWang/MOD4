@@ -9,5 +9,8 @@
         public string Value { get; set; }
 
         public string SubValue { get; set; }
+
+        // for checkbox
+        public bool Checked { get; set; } = false;
     }
 }

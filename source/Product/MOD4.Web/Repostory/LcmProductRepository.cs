@@ -34,10 +34,12 @@ namespace MOD4.Web.Repostory
         {
             string sql = @"INSERT INTO [dbo].[definition_lcm_prod]
 ([prodNo]
-,[descr])
+,[descr]
+,[floor])
 VALUES
 (@prodNo
-,@descr); 
+,@descr
+,@floor); 
 select TOP 1 sn from definition_lcm_prod order by sn desc;
 ";
 

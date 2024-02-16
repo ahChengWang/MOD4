@@ -30,5 +30,11 @@ namespace MOD4.Web.DomainService
         string AuditMES(string remark, MESPermissionEntity updMESEntity, UserEntity userEntity);
 
         (bool, string, string) Download(int orderSn);
+
+        List<IELayoutEntity> GetList(UserEntity userInfo);
+
+        string Create(IELayoutCreateEntity createEntity, UserEntity userInfo);
+
+        IELayoutDetailEntity GetLayoutApplyDetail(int orderSn);
     }
 }

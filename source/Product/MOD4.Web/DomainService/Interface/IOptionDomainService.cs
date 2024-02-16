@@ -58,5 +58,15 @@ namespace MOD4.Web.DomainService
         List<OptionEntity> GetAllNodeList();
 
         List<OptionEntity> GetRWDefectCode();
+
+        List<OptionEntity> GetFactoryFloorOptions();
+
+        List<OptionEntity> GetProcessAreaOptions();
+
+        List<OptionEntity> GetFormatTypeOptions();
+
+        List<OptionEntity> GetReasonTypeOptions();
+
+        List<OptionEntity> GetLayerTypeOptions();
     }
 }

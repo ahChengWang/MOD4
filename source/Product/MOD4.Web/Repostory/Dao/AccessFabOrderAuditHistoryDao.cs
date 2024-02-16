@@ -9,7 +9,7 @@ namespace MOD4.Web.Repostory.Dao
         public int AccessFabOrderSn { get; set; }
         public int AuditAccountSn { get; set; }
         public string AuditAccountName { get; set; }
-        public FabInOutStatusEnum StatusId { get; set; }
+        public AuditStatusEnum StatusId { get; set; }
         public DateTime? ReceivedTime { get; set; }
         public DateTime? AuditTime { get; set; }
         public string AuditRemark { get; set; }

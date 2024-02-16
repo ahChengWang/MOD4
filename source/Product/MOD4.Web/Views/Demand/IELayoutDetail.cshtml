@@ -1,0 +1,464 @@
+﻿
+@{
+    ViewBag.Title = "layout 申請單明細";
+}
+
+<style>
+
+    #cusArea {
+        border-top: solid #303030 2px;
+        border-right: none;
+        border-left: none;
+        border-radius: 15px;
+    }
+
+    #cusLegend {
+        width: auto;
+        font-size: 20px;
+        font-weight: 700;
+        color: #303030;
+    }
+
+    .form__input {
+        width: clamp(120px, 90vw, 350px);
+        height: 2.5rem;
+        padding: 0 1.25rem;
+        border: 1px solid black;
+        border-radius: 2px;
+        margin: 0.625rem auto;
+        transition: all 250ms;
+    }
+
+        .form__input:focus {
+            outline: none;
+            border-top-color: rgba(0,0,0,0.1);
+        }
+
+            .form__input:focus + .form__label,
+            .form__input:not(:placeholder-shown) + .form__label {
+                transform: translateY(-4.50rem) scale(1);
+                color: black;
+            }
+
+        .form__input::placeholder {
+            display: none;
+            color: transparent;
+            -ms-user-select: none; /* IE 10 and IE 11 */
+            user-select: none; /* Standard syntax */
+        }
+
+        .form__input:not(:placeholder-shown) {
+            border-top-color: rgba(0, 0, 0, 0.5);
+        }
+
+    .form__label {
+        font-size: 1rem;
+        color: grey;
+        display: block;
+        transform: translate(1.25rem,-2.5rem);
+        transform-origin: 0 0; /* Used later for transitions */
+        transition: all 500ms;
+        -ms-user-select: none; /* IE 10 and IE 11 */
+        user-select: none; /* Standard syntax */
+        pointer-events: none;
+    }
+
+    .align-content-center {
+        margin-top: 5px;
+        margin-left: 5px;
+    }
+
+    input {
+        text-align: center;
+    }
+
+    .cusInputStyle1 {
+        border-bottom: 1px solid black;
+        border-top: 0px;
+        border-left: 0px;
+        border-right: 0px;
+        background-color: transparent;
+        outline: none;
+        width: 60%
+    }
+
+    input[type="checkbox"] {
+        vertical-align: middle;
+        width: 1.2em;
+        height: 1.2em;
+    }
+
+    div[name="historyLine"] {
+        display: flex;
+    }
+</style>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div id="app" class="container-fluid">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="container-fluid row">
+                            <div class="col-md-10">
+                                <h3 class="card-title">申 請 單 明 細</h3>
+                            </div>
+                            <div class="col-md-2" style="text-align: right;">
+                                <div style="display: inline-block; line-height: 2; vertical-align: middle; ">
+                                    <a href="../IELayout">回上頁</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <fieldset id="cusArea">
+                            <legend id="cusLegend">申請單位</legend>
+                            <div class="row" style="margin-top: 10px;">
+                                <div>
+                                    <div class="col-md-3">
+                                        <input type="text" placeholder="orderNo" class="form__input" v-model="orderData.layoutOrderInfo.orderNo" disabled />
+                                        <label for="orderNo" class="form__label">單號</label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="col-md-3">
+                                        <input type="text" placeholder="status" class="form__input" v-model="orderData.layoutOrderInfo.status" disabled />
+                                        <label for="status" class="form__label">狀態</label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="col-md-3">
+                                        <input type="text" placeholder="Name" class="form__input" v-model="orderData.layoutOrderInfo.applicantName" disabled />
+                                        <label for="name" class="form__label">姓名</label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="col-md-3">
+                                        <input type="text" placeholder="部門" class="form__input" v-model="orderData.layoutOrderInfo.department" disabled />
+                                        <label for="department" class="form__label">部門</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top: 10px;">
+                                <div>
+                                    <div class="col-md-3">
+                                        <input type="text" placeholder="分機" class="form__input" v-model="orderData.layoutOrderInfo.phone" disabled />
+                                        <label for="phone" class="form__label">分機</label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="col-md-3">
+                                        <input type="date" placeholder="申請日" class="form__input" v-model="orderData.layoutOrderInfo.createDate" disabled />
+                                        <label for="createDate" class="form__label">申請日</label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="col-md-3">
+                                        <input type="date" placeholder="需求日" class="form__input" v-model="orderData.layoutOrderInfo.applyDate" disabled />
+                                        <label for="applyDate" class="form__label">需求日</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <fieldset id="cusArea">
+                            <legend id="cusLegend">需求項目</legend>
+                            <div class="row d-flex align-content-center flex-wrap" style="vertical-align: middle; display: inline; border-bottom: 1.5px inset #81848a; ">
+                                <label class="col-md-2 col-form-label-lg">廠別</label>
+                                <div class="col-md-3" v-for="(floor, idx) in factoryFloorOptions" style="vertical-align: middle; display: inline;">
+                                    <input class="checkbox" type="checkbox" :id="floor.id" :value="floor.checked" :checked="floor.checked" disabled />
+                                    <label class="col-form-label-lg">{{floor.value}}</label>
+                                </div>
+                            </div>
+                            <div class="row d-flex align-content-center flex-wrap" style="border-bottom: 1.5px inset #81848a; ">
+                                <div class="col-md-2" style="vertical-align: middle;">
+                                    <label class="col-form-label-lg">製程區域</label>
+                                </div>
+                                <div class="col-md-10">
+                                    <div class="row">
+                                        <div class="col-md-2" v-for="(process, idx) in processAreaOptions" v-if="idx < 4">
+                                            <input class="checkbox" type="checkbox" :id="process.id" :value="process.checked" :checked="process.checked" disabled />
+                                            <label class="col-form-label-lg">{{process.value}}</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-2" v-for="(process, idx) in processAreaOptions" v-if="idx >= 4 && process.id != 64">
+                                            <input class="checkbox" type="checkbox" :id="process.id" :value="process.checked" :checked="process.checked" disabled />
+                                            <label class="col-form-label-lg">{{process.value}}</label>
+                                        </div>
+                                        <div class="col-md-4" v-for="(process, idx) in processAreaOptions" v-if="idx >= 4 && process.id == 64">
+                                            <input class="checkbox" type="checkbox" :id="process.id" :value="process.checked" :checked="process.checked" disabled />
+                                            <label class="col-form-label-lg">{{process.value}}</label>
+                                            <input class="cusInputStyle1" type="text" placeholder="請填寫" :disabled="!process.checked" v-model="processAreaOptions[idx].subValue" disabled />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row d-flex align-content-center flex-wrap" style="border-bottom: 1.5px inset #81848a; ">
+                                <label class="col-md-2 col-form-label-lg">需求格式</label>
+                                <div class="col-md-3" v-for="(format, idx) in formatTypeOptions">
+                                    <input class="checkbox" type="checkbox" :id="format.id" :value="format.checked" :checked="format.checked" disabled />
+                                    <label class="col-form-label-lg">{{format.value}}</label>
+                                </div>
+                            </div>
+                            <div class="row align-content-center flex-wrap" style="border-bottom: 1.5px inset #81848a; ">
+                                <div class="col-md-2">
+                                    <label class="col-form-label-lg">申請原因</label>
+                                </div>
+                                <div class="col-md-10">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <input class="checkbox" type="checkbox" :id="reasonTypeOptions[0].id" :value="reasonTypeOptions[0].checked" :checked="reasonTypeOptions[0].checked" disabled />
+                                            <label class="col-form-label-lg">{{reasonTypeOptions[0].value}}</label>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input class="checkbox" type="checkbox" :id="reasonTypeOptions[1].id" :value="reasonTypeOptions[1].checked" :checked="reasonTypeOptions[1].checked" disabled />
+                                            <label class="col-form-label-lg">{{reasonTypeOptions[1].value}}</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input class="checkbox" type="checkbox" :id="reasonTypeOptions[2].id" :value="reasonTypeOptions[2].checked" :checked="reasonTypeOptions[2].checked" disabled />
+                                            <label class="col-form-label-lg">{{reasonTypeOptions[2].value}}</label>
+                                            <input class="cusInputStyle1" type="text" placeholder="請填寫vendor全名" :disabled="!reasonTypeOptions[2].checked" v-model="reasonTypeOptions[2].subValue" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-10">
+                                            <input class="checkbox" type="checkbox" :id="reasonTypeOptions[3].id" :value="reasonTypeOptions[3].checked" :checked="reasonTypeOptions[3].checked" disabled />
+                                            <label class="col-form-label-lg">{{reasonTypeOptions[3].value}}</label>
+                                            <input class="cusInputStyle1" type="text" placeholder="請填寫" :disabled="!reasonTypeOptions[3].checked" v-model="reasonTypeOptions[3].subValue" disabled />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row align-content-center flex-wrap" style="border-bottom: 1.5px inset #81848a; ">
+                                <div class="col-md-2">
+                                    <label class="col-form-label-lg">需求圖層</label>
+                                </div>
+                                <div class="col-md-10">
+                                    <div class="row">
+                                        <div class="col-md-3" v-for="(layer, idx) in layerTypeOptions" v-if="layer.id < 4">
+                                            <input class="checkbox" type="checkbox" :id="layer.id" :value="layer.checked" :checked="layer.checked" disabled />
+                                            <label class="col-form-label-lg">{{layer.value}}</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4" v-for="(layer, idx) in layerTypeOptions" v-if="layer.id >= 4">
+                                            <input class="checkbox" type="checkbox" :id="layer.id" :value="layer.checked" :checked="layer.checked" disabled />
+                                            <label class="col-form-label-lg">{{layer.value}}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row align-content-center flex-wrap">
+                                <label class="col-md-2 col-form-label-lg">需求原因</label>
+                                <div class="col-md-10">
+                                    <textarea id="remark" rows="3" cols="80" v-model="orderData.layoutOrderInfo.issueRemark" disabled></textarea>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <fieldset id="cusArea">
+                            <legend id="cusLegend">簽核歷程</legend>
+                            <div class="tab-pane" id="timeline">
+                                <div class="timeline timeline-inverse">
+
+                                    <div v-for="his in orderData.auditHistory">
+                                        <i v-if="his.auditStatusId == 1" class="fas fa-user bg-gray"></i>
+                                        <i v-if="his.auditStatusId == 2" class="fas fa-user bg-danger"></i>
+                                        <i v-if="his.auditStatusId == 3 || his.auditStatusId == 5" class="fas fa-user bg-info"></i>
+                                        <div class="timeline-item" style="background-color: transparent; border-color: transparent; border-bottom-color: lightgray; border-radius: 0px; ">
+                                            <div name="historyLine">
+                                                <div class="col-3">
+                                                    <label>人員</label>：
+                                                    <label>{{his.auditName}}</label>
+                                                </div>
+                                                <div class="col-2">
+                                                    <label>狀態</label>：
+                                                    <label>{{his.auditStatus}}</label>
+                                                </div>
+                                                <div class="col-3">
+                                                    <label>接收時間</label>：
+                                                    <label>{{his.receivedTime}}</label>
+                                                </div>
+                                                <div class="col-3">
+                                                    <label>簽核時間</label>：
+                                                    <label>{{his.auditTime}}</label>
+                                                </div>
+                                                <span class="time"><i class="far fa-clock"></i>{{his.diffTime}} HR.</span>
+                                            </div>
+                                            <div name="historyLine">
+                                                <div class="col-10">
+                                                    <label>備註</label>：
+                                                    <label>{{his.remark}}</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div style="display:flex">
+                                        <i class="fa fa-check bg-gray"></i>
+
+                                        <i v-if="orderData.layoutOrderInfo.status == 3" class="fas fa-user bg-info"></i>
+                                        <i v-if="orderData.layoutOrderInfo.status != 3" class="fas fa-user bg-gray"></i>
+                                        <div class="timeline-item" style="background-color: transparent; border-color: transparent;">
+                                            <span style="font-weight:800">簽核完成</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div class="row">
+                            <input type="button" class="btn btn-sm btn-info" name="btn29" value="送出" @@click="submit" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+@section scripts{
+
+    <script type="text/javascript">
+
+        const vm = new Vue({
+            el: '#app',
+            data: {
+                factoryFloorOptions: @(Html.Raw(Json.Serialize(ViewBag.FactoryFloorOptions))),
+                processAreaOptions: @(Html.Raw(Json.Serialize(ViewBag.ProcessAreaOptions))),
+                formatTypeOptions: @(Html.Raw(Json.Serialize(ViewBag.FormatTypeOptions))),
+                reasonTypeOptions: @(Html.Raw(Json.Serialize(ViewBag.ReasonTypeOptions))),
+                layerTypeOptions: @(Html.Raw(Json.Serialize(ViewBag.LayerTypeOptions))),
+                orderData: null,
+            },
+            methods: {
+                singleChange(options, idx) {
+                    options[idx].checked = !options[idx].checked;
+                    const _tmpStatus = options[idx].checked;
+                    if (_tmpStatus) {
+                        $.each(options, function (index, option) {
+                            if (index != idx && option.checked) {
+                                option.checked = false;
+                            }
+                        });
+                    }
+                },
+                multiChange(options, idx) {
+                    options[idx].checked = !options[idx].checked;
+                },
+                submit() {
+
+                    var errMsg = '';
+
+                    if (vm.createM.name == '' || vm.createM.department == '' || vm.createM.phone == '' ||
+                        vm.createM.applyDate == '' || vm.createM.remark == '' || vm.createM.applyDate == null) {
+                        errMsg += '請確認[姓名]﹑[部門]﹑[分機]﹑[需求日]﹑[需求原因]是否填寫\n'
+                    }
+
+                    errMsg += vm.chkOptions(vm.factoryFloorOptions, '廠別', null);
+                    errMsg += vm.chkOptions(vm.processAreaOptions, '製程區域', [6]);
+                    errMsg += vm.chkOptions(vm.formatTypeOptions, '需求格式', null);
+                    errMsg += vm.chkOptions(vm.reasonTypeOptions, '申請原因', [2, 3]);
+                    errMsg += vm.chkOptions(vm.layerTypeOptions, '需求圖層', null) ;
+
+                    if (errMsg != '') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: errMsg,
+                            showConfirmButton: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                return;
+                            }
+                        });
+                    }
+                    else {
+                        vm.createM.factoryList = vm.factoryFloorOptions;
+                        vm.createM.processAreaList = vm.processAreaOptions;
+                        vm.createM.formatTypeList = vm.formatTypeOptions;
+                        vm.createM.reasonTypeList = vm.reasonTypeOptions;
+                        vm.createM.layerTypeList = vm.layerTypeOptions;
+                        $.ajax({
+                            url: './Create',
+                            type: 'POST',
+                            data: vm.createM,
+                            success: function (res) {
+                                if (res.isSuccess) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: '成功',
+                                        showConfirmButton: false,
+                                        timer: 2000
+                                    }).then((result) => {
+                                        location.href = '../IELayout';
+                                    });
+                                }
+                                else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: '失敗',
+                                        text: res.msg,
+                                        showConfirmButton: true
+                                    });
+                                }
+                            }
+                        });
+                    }
+                },
+                numPad(str, digits) {
+                    // 轉換成兩位數
+                    for (var n = str.toString(); n.length < digits; n = 0 + n);
+                    return n;
+                },
+                chkOptions(options, msgStr, otherIdxAry) {
+                    var _errMsg = '';
+                    const _selIdxList = $.map(options, function (item, idx) {
+                        if (item.checked) {
+                            return idx;
+                        }
+                    });
+                    if (_selIdxList.length == 0) {
+                        _errMsg = msgStr + ' 未選擇\n';
+                    }
+                    else if (otherIdxAry != null) {
+                        const _otherList = $.grep(otherIdxAry, function (item, idx) {
+                            return $.inArray(item, otherIdxAry) == 0 && options[item].checked && (options[item].subValue == null || options[item].subValue == '');
+                        });
+                        if (_otherList.length != 0) {
+                            _errMsg = msgStr + ' 請填寫說明欄位\n';
+                        }
+                        //$.each(_selIdxList, function (idx, item) {
+                        //    if ($.inArray(item, otherIdxAry) == 0 && options[item].checked && (options[item].subValue == null || options[item].subValue == '')) {
+                        //        errMsg += msgStr + '請填寫說明欄位';
+                        //    }
+                        //});
+                    }
+
+                    return _errMsg;
+                },
+                setClkOptions(options, value, isMultiOptions, hasRemark, idxArray, remark) {
+                    $.each(options, function (idx, item) {
+                        if ((isMultiOptions && (item.id & value)) || (!isMultiOptions && (item.id == value))) {
+                            item.checked = true;
+                            if (hasRemark && idxArray.includes(item.id)) {
+                                item.subValue = remark;
+                            }
+                        }
+                    });
+                }
+            },
+            mounted: function (e) {
+
+                this.orderData = @Html.Raw(Json.Serialize(Model));
+                this.setClkOptions(this.factoryFloorOptions, this.orderData.layoutOrderInfo.factoryFloor, true, false, [], '');
+                this.setClkOptions(this.processAreaOptions, this.orderData.layoutOrderInfo.processArea, true, true, [64], this.orderData.layoutOrderInfo.partRemark);
+                this.setClkOptions(this.formatTypeOptions, this.orderData.layoutOrderInfo.formatType, true, false, [], '');
+                this.setClkOptions(this.reasonTypeOptions, this.orderData.layoutOrderInfo.reasonTypeId, false, true, [3, 4], this.orderData.layoutOrderInfo.reason);
+                this.setClkOptions(this.layerTypeOptions, this.orderData.layoutOrderInfo.layerTypeId, false, false, [], '');
+            },
+            computed: {
+            }
+        });
+
+    </script>
+
+}

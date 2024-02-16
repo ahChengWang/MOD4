@@ -39,7 +39,7 @@ namespace MOD4.Web.ViewModel
         [Display(Name = "待簽核人員")]
         public string AuditAccount { get; set; }
 
-        public FabInOutStatusEnum StatusId { get; set; }
+        public AuditStatusEnum StatusId { get; set; }
 
         [Display(Name = "狀態")]
         public string Status { get; set; }

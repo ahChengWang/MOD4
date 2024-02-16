@@ -122,8 +122,10 @@ namespace MOD4.Web
             services.AddSingleton<IMonitorSettingRepository, MonitorSettingRepository>();
             services.AddSingleton<IProdPerformanceDetailRepository, ProdPerformanceDetailRepository>(); 
             services.AddSingleton<ILightingLogRepository, LightingLogRepository>();
-            services.AddSingleton<ITaiwanCalendarRepository, TaiwanCalendarRepository>();
+            services.AddSingleton<ITaiwanCalendarRepository, TaiwanCalendarRepository>(); 
             services.AddSingleton<IDefinitionRWDefectCodeRepository, DefinitionRWDefectCodeRepository>();
+            services.AddSingleton<IIELayoutApplyRepository, IELayoutApplyRepository>();
+            services.AddSingleton<IIELayoutApplyAuditHistoryRepository, IELayoutApplyAuditHistoryRepository>();
 
             services.AddScoped<MenuService>();
             services.AddSingleton(new ServiceDescriptor(typeof(MSSqlDBHelper), new MSSqlDBHelper(Configuration)));

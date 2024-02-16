@@ -20,7 +20,7 @@
             foreach (var order in Model)
             {
                 string _color = "";
-                if (order.StatusId == MOD4.Web.Enum.FabInOutStatusEnum.Rejected)
+                if (order.StatusId == MOD4.Web.Enum.AuditStatusEnum.Rejected)
                     _color = "#e69a9a";
 
                 <tr style="background-color: @_color ">

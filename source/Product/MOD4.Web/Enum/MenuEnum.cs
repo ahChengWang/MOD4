@@ -68,5 +68,7 @@ namespace MOD4.Web.Enum
         MonitorSetting = 42,
         [Description("MTD設定")]
         MTDSetting = 43,
+        [Description("Layout 申請單")]
+        IELayout = 44,
     }
 }

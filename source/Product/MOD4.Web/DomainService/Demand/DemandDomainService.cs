@@ -27,6 +27,9 @@ namespace MOD4.Web.DomainService.Demand
         private readonly ILcmProductRepository _lcmProductRepository;
         private readonly ITargetSettingRepository _targetSettingRepository;
         private readonly IDefinitionNodeDescRepository _definitionNodeDescRepository;
+        private readonly IAccountInfoRepository _accountInfoRepository;
+        private readonly IIELayoutApplyRepository _ieLayoutApplyRepository;
+        private readonly IIELayoutApplyAuditHistoryRepository _ieLayoutApplyAuditHistoryRepository;
 
         public DemandDomainService(IDemandsRepository demandsRepository,
             IUploadDomainService uploadDomainService,
@@ -38,7 +41,10 @@ namespace MOD4.Web.DomainService.Demand
             IMESPermissionAuditHistoryRepository mesPermissionAuditHistoryRepository,
             ILcmProductRepository lcmProductRepository,
             ITargetSettingRepository targetSettingRepository,
-            IDefinitionNodeDescRepository definitionNodeDescRepository)
+            IDefinitionNodeDescRepository definitionNodeDescRepository,
+            IAccountInfoRepository accountInfoRepository,
+            IIELayoutApplyRepository ieLayoutApplyRepository,
+            IIELayoutApplyAuditHistoryRepository ieLayoutApplyAuditHistoryRepository)
         {
             _demandsRepository = demandsRepository;
             _uploadDomainService = uploadDomainService;
@@ -51,6 +57,9 @@ namespace MOD4.Web.DomainService.Demand
             _lcmProductRepository = lcmProductRepository;
             _targetSettingRepository = targetSettingRepository;
             _definitionNodeDescRepository = definitionNodeDescRepository;
+            _accountInfoRepository = accountInfoRepository;
+            _ieLayoutApplyRepository = ieLayoutApplyRepository;
+            _ieLayoutApplyAuditHistoryRepository = ieLayoutApplyAuditHistoryRepository;
         }
 
         public List<DemandEntity> GetDemands(UserEntity userEntity,
@@ -285,7 +294,8 @@ namespace MOD4.Web.DomainService.Demand
                     LcmProductDao _lcmProductDao = new LcmProductDao
                     {
                         ProdNo = updEntity.ProdNo,
-                        Descr = updEntity.ProdDesc
+                        Descr = updEntity.ProdDesc,
+                        Floor = updEntity.Floor
                     };
 
                     List<TargetSettingDao> _targetSettingList = new List<TargetSettingDao>();
@@ -418,7 +428,6 @@ namespace MOD4.Web.DomainService.Demand
                 throw ex;
             }
         }
-
 
         #region MES Permission
 
@@ -925,6 +934,162 @@ namespace MOD4.Web.DomainService.Demand
                 var _fileStr = _ftpService.FTP_Download($"MESEmpList/{_mesOrder.createUser}", _mesOrder.uploadFile);
 
                 return (true, _fileStr, _mesOrder.uploadFile);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region IE Layout
+
+        public List<IELayoutEntity> GetList(UserEntity userInfo)
+        {
+            try
+            {
+                var _layoutApplyList = _ieLayoutApplyRepository.SelectByConditions(applicantAccSn: userInfo.sn);
+                var accountInfoList = _accountDomainService.GetAccountInfo(_layoutApplyList.Select(s => s.ApplicantAccountSn).Union(_layoutApplyList.Select(ss => ss.AuditAccountSn)).ToList());
+
+                return _layoutApplyList.Select(s => new IELayoutEntity
+                {
+                    OrderSn = s.OrderSn,
+                    OrderNo = s.OrderNo,
+                    ApplicantName = accountInfoList.FirstOrDefault(f => f.sn == s.ApplicantAccountSn)?.Name ?? "",
+                    Status = s.StatusId.GetDescription(),
+                    AuditName = accountInfoList.FirstOrDefault(f => f.sn == s.AuditAccountSn)?.Name ?? "",
+                    IssueRemark = s.IssueRemark,
+                    ApplyDateStr = s.ApplyDate.ToString("yyy-MM-dd"),
+                    CreateTimeStr = s.CreateTime.ToString("yyy-MM-dd"),
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string Create(IELayoutCreateEntity createEntity, UserEntity userInfo)
+        {
+            try
+            {
+                DateTime _nowTime = DateTime.Now;
+                string _createRes = "";
+
+                List<AccountInfoDao> _auditeFlowList = _accountInfoRepository.SelectIEApplyFlow(userInfo.JobId, (int)userInfo.Level_id).Where(w => w.name != "").ToList();
+
+                List<IELayoutApplyAuditHistoryDao> ieLayoutApplyAuditHistoryDaos = new List<IELayoutApplyAuditHistoryDao>();
+
+                IELayoutApplyDao _iELayoutApplyDao = new IELayoutApplyDao
+                {
+                    OrderNo = "LO" + createEntity.CreateDate.ToString("yyMMddHHmmss"),
+                    Department = createEntity.Department,
+                    StatusId = AuditStatusEnum.Processing,
+                    ApplicantAccountSn = userInfo.sn,
+                    Phone = createEntity.Phone,
+                    ApplyDate = createEntity.ApplyDate,
+                    FactoryFloor = createEntity.FactoryList.Where(f => f.Checked).Sum(sum => sum.Id),
+                    ProcessArea = createEntity.ProcessAreaList.Where(f => f.Checked).Sum(sum => sum.Id),
+                    FormatType = createEntity.FormatTypeList.Where(f => f.Checked).Sum(sum => sum.Id),
+                    ReasonTypeId = (ReasonTypeEnum)createEntity.ReasonTypeList.FirstOrDefault(f => f.Checked).Id,
+                    LayerTypeId = (LayerTypeEnum)createEntity.LayerTypeList.FirstOrDefault(f => f.Checked).Id,
+                    IssueRemark = createEntity.IssueRemark,
+                    CreateTime = _nowTime,
+                    CreateUser = userInfo.Name,
+                    IsIEFlow = false
+                };
+
+                if (_iELayoutApplyDao.ReasonTypeId == ReasonTypeEnum.Vendor || _iELayoutApplyDao.ReasonTypeId == ReasonTypeEnum.Other)
+                    _iELayoutApplyDao.Reason = createEntity.ReasonTypeList.FirstOrDefault(f => f.Checked).SubValue;
+
+
+                if (Convert.ToBoolean(_iELayoutApplyDao.ProcessArea & (int)ProcessAreaEnum.Other))
+                    _iELayoutApplyDao.PartRemark = createEntity.ProcessAreaList.FirstOrDefault(f => f.Id == 64).SubValue;
+
+                if (_auditeFlowList.Count <= 5)
+                    throw new Exception("尚未設定部門, 請洽系統負責人(5014-62721)");
+
+                _iELayoutApplyDao.AuditAccountSn = _auditeFlowList[0].sn;
+
+                for (int r = 0; r < _auditeFlowList.Count; r++)
+                {
+                    ieLayoutApplyAuditHistoryDaos.Add(new IELayoutApplyAuditHistoryDao
+                    {
+                        AuditName = _auditeFlowList[r].name,
+                        AuditAccountSn = _auditeFlowList[r].sn,
+                        AuditSn = r + 1,
+                        AuditStatusId = AuditStatusEnum.Processing,
+                        ReceivedTime = r == 0 ? _nowTime : null,
+                    });
+                }
+
+                using (TransactionScope scope = new TransactionScope())
+                {
+                    bool _insRes = false;
+                    bool _insHisRes = false;
+                    int _applySn = 0;
+
+                    _insRes = _ieLayoutApplyRepository.Insert(_iELayoutApplyDao) == 1;
+                    _applySn = _ieLayoutApplyRepository.SelectByConditions(orderNo: _iELayoutApplyDao.OrderNo).FirstOrDefault().OrderSn;
+
+                    ieLayoutApplyAuditHistoryDaos.ForEach(f => f.IELayoutSn = _applySn);
+                    _insHisRes = _ieLayoutApplyAuditHistoryRepository.InsertHistory(ieLayoutApplyAuditHistoryDaos) == ieLayoutApplyAuditHistoryDaos.Count;
+
+                    if (_insRes && _insHisRes)
+                        scope.Complete();
+                    else
+                        _createRes = "新增異常";
+                }
+
+                return _createRes;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IELayoutDetailEntity GetLayoutApplyDetail(int orderSn)
+        {
+            try
+            {
+                var _layoutApply = _ieLayoutApplyRepository.SelectByConditions(snList: new List<int> { orderSn }).FirstOrDefault();
+                var _layoutApplyAuditHis = _ieLayoutApplyAuditHistoryRepository.SelectByConditions(_layoutApply.OrderSn);
+                var accountInfoList = _accountDomainService.GetAccountInfo(new List<int> { _layoutApply.ApplicantAccountSn, _layoutApply.AuditAccountSn });
+
+                return new IELayoutDetailEntity
+                {
+                    LayoutOrderInfo = new IELayoutEntity
+                    {
+                        OrderSn = _layoutApply.OrderSn,
+                        OrderNo = _layoutApply.OrderNo,
+                        ApplicantName = accountInfoList.FirstOrDefault(f => f.sn == _layoutApply.ApplicantAccountSn)?.Name,
+                        Department = _layoutApply.Department,
+                        Phone = _layoutApply.Phone,
+                        ApplyDateStr = _layoutApply.ApplyDate.ToString("yyy-MM-dd"),
+                        CreateTimeStr = _layoutApply.CreateTime.ToString("yyy-MM-dd"),
+                        Status = _layoutApply.StatusId.GetDescription(),
+                        FactoryFloor = _layoutApply.FactoryFloor,
+                        ProcessArea = _layoutApply.ProcessArea,
+                        PartRemark = _layoutApply.PartRemark,
+                        FormatType = _layoutApply.FormatType,
+                        ReasonTypeId = _layoutApply.ReasonTypeId,
+                        Reason = _layoutApply.Reason ?? "",
+                        LayerTypeId = _layoutApply.LayerTypeId,
+                        IssueRemark = _layoutApply.IssueRemark
+                    },
+                    AuditList = _layoutApplyAuditHis.Select(his => new IELayoutAuditEntity
+                    {
+                        AuditSn = his.AuditSn,
+                        AuditAccountSn = his.AuditAccountSn,
+                        AuditName = his.AuditName,
+                        AuditStatusId = his.AuditStatusId,
+                        AuditStatus = his.AuditStatusId.GetDescription(),
+                        ReceivedTime = his.ReceivedTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "--",
+                        AuditTime = his.AuditTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "--",
+                        DiffTime = his.ReceivedTime != null ? ((his.AuditTime ?? DateTime.Now).Subtract((DateTime)his.ReceivedTime).TotalMinutes / 60).ToString("0.00") : "0",
+                    }).ToList()
+                };
             }
             catch (Exception ex)
             {

@@ -2,7 +2,7 @@
 
 namespace MOD4.Web.Enum
 {
-    public enum FabInOutStatusEnum
+    public enum AuditStatusEnum
     {
         [Description("簽核中")]
         Processing = 1,

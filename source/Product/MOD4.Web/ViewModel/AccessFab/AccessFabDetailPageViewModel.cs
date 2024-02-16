@@ -17,7 +17,7 @@ namespace MOD4.Web.ViewModel
         [Display(Name = "狀態")]
         public string OrderStatus { get; set; }
                 
-        public FabInOutStatusEnum OrderStatusId { get; set; }
+        public AuditStatusEnum OrderStatusId { get; set; }
 
         [Display(Name = "入場性質")]
         public FabInTypeEnum FabInTypeId { get; set; }

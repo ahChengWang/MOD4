@@ -252,11 +252,11 @@
                                                         {
                                                             <div>
                                                                 @{
-                                                                    if (history.StatusId == MOD4.Web.Enum.FabInOutStatusEnum.Processing)
+                                                                    if (history.StatusId == MOD4.Web.Enum.AuditStatusEnum.Processing)
                                                                     {
                                                                         <i class="fas fa-user bg-gray"></i>
                                                                     }
-                                                                    else if (history.StatusId == MOD4.Web.Enum.FabInOutStatusEnum.Rejected)
+                                                                    else if (history.StatusId == MOD4.Web.Enum.AuditStatusEnum.Rejected)
                                                                     {
                                                                         <i class="fas fa-user bg-danger"></i>
                                                                     }
@@ -298,7 +298,7 @@
                                                         <div style="display:flex">
                                                             <i class="fa fa-check bg-gray"></i>
                                                             @{
-                                                                if (Model.AuditHistory.Any(a => a.StatusId == MOD4.Web.Enum.FabInOutStatusEnum.Completed))
+                                                                if (Model.AuditHistory.Any(a => a.StatusId == MOD4.Web.Enum.AuditStatusEnum.Completed))
                                                                 {
                                                                     <i class="fas fa-user bg-info"></i>
                                                                 }

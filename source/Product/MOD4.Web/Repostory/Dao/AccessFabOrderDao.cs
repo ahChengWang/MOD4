@@ -10,7 +10,7 @@ namespace MOD4.Web.Repostory.Dao
         public FabInTypeEnum FabInTypeId { get; set; }
         public string FabInOtherType { get; set; }
         public FabInCategoryEnum CategoryId { get; set; }
-        public FabInOutStatusEnum StatusId { get; set; }
+        public AuditStatusEnum StatusId { get; set; }
         public string Applicant { get; set; }
         public string JobId { get; set; }
         public string ApplicantMVPN { get; set; }

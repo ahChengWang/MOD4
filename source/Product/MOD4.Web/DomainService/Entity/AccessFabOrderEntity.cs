@@ -13,7 +13,7 @@ namespace MOD4.Web.DomainService.Entity
         public string FabInOtherType { get; set; }
         public FabInCategoryEnum CategoryId { get; set; }
         public string Category { get; set; }
-        public FabInOutStatusEnum StatusId { get; set; }
+        public AuditStatusEnum StatusId { get; set; }
         public string Status { get; set; }
         public string Applicant { get; set; }
         public string FillOutPerson { get; set; }

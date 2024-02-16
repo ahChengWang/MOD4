@@ -432,5 +432,62 @@ INSERT INTO [dbo].[hcm_vw_emp01]
                 throw ex;
             }
         }
+
+        public List<AccountInfoDao> SelectIEApplyFlow(string jobId, int levelId)
+        {
+            string sql = @" 
+WITH base as ( 
+select eai.sn 'empSn', eai.name 'empName', eai.jobId 'empJobId', eai.mail 'empMail', eai.level_id 'empLevelId', eai.deptSn 'empDeptSn'
+     , 1 as 'no', ISNULL(dai.sn, 0)'sn', ISNULL(dai.name, '')'name', ISNULL(dai.jobId, '')'jobId', ISNULL(dai.mail, '')'mail', ISNULL(dai.deptSn, '')'deptSn'
+  from account_info eai
+  left join account_info dai 
+on eai.deptSn = dai.deptSn 
+and dai.level_id < @level_id 
+where eai.level_id = @level_id and eai.jobId = @JobId
+),
+mgnt as (
+select 2 as 'no', ISNULL(ai.sn, 0)'sn', ISNULL(ai.name, '')'name', ISNULL(ai.jobId, '')'jobId', ISNULL(ai.mail, '')'mail', ISNULL(ai.deptSn, '')'deptSn'
+  from base b 
+join definition_department d 
+on b.empDeptSn = d.deptSn 
+join account_info ai 
+on d.parentDeptId = ai.deptSn 
+where b.empLevelId > ai.level_id  
+),
+factoryMgnt as ( 
+select 3 as 'no', ISNULL(ai.sn, 0)'sn', ISNULL(ai.name, '')'name', ISNULL(ai.jobId, '')'jobId', ISNULL(ai.mail, '')'mail', ISNULL(ai.deptSn, '')'deptSn'
+  from mgnt b
+join definition_department d 
+on b.deptSn = d.deptSn 
+join account_info ai  
+on d.parentDeptId = ai.deptSn 
+),
+ieDept as (
+select (ROW_NUMBER() OVER(ORDER BY level_id DESC)) + 3 'no' ,sn, name, jobId, mail, deptSn from account_info  
+where jobId = '12109416' or (deptSn in (43,44) and level_id < 4 )
+)
+select no,sn,name,jobId,mail,deptSn from base 
+union 
+select * from mgnt 
+union 
+select * from factoryMgnt 
+union 
+select * from ieDept 
+union 
+select 7 'no',sn, name, jobId, mail, deptSn from account_info 
+where deptSn = 61 and level_id = 2 
+union 
+select 8 'no',sn, name, jobId, mail, deptSn from account_info 
+where jobId = '20010946' ; ";
+
+            var dao = _dbHelper.ExecuteQuery<AccountInfoDao>(sql, new
+            {
+                level_id = levelId,
+                JobId = jobId
+            });
+
+            return dao;
+        }
+
     }
 }

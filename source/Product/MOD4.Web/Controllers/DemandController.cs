@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using CSRedis;
 
 namespace MOD4.Web.Controllers
 {
@@ -183,6 +184,7 @@ namespace MOD4.Web.Controllers
                     RejectReason = updModel.RejectReason,
                     Remark = updModel.Remark,
                     IsNewProd = updModel.IsNewProd,
+                    Floor = updModel.Floor,
                     ProdNo = updModel.ProdNo,
                     ProdDesc = updModel.ProdDesc
                 },
@@ -642,6 +644,146 @@ namespace MOD4.Web.Controllers
                     return PhysicalFile(_dwnlRes.Item2, System.Net.Mime.MediaTypeNames.Application.Octet, _dwnlRes.Item3);
                 else
                     return RedirectToAction("Error", "Home", new ErrorViewModel { Message = "下載異常" });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        #endregion
+
+        #region IE layout 申請單
+
+        [HttpGet("[controller]/IELayout")]
+        public IActionResult IELayout()
+        {
+            try
+            {
+                UserEntity _userInfo = GetUserInfo();
+                var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.IELayout);
+
+                ViewBag.UserPermission = new UserPermissionViewModel
+                {
+                    AccountSn = _userCurrentPagePermission.AccountSn,
+                    MenuSn = _userCurrentPagePermission.MenuSn,
+                    AccountPermission = _userCurrentPagePermission.AccountPermission
+                };
+
+                var _applyRes = _demandDomainService.GetList(_userInfo);
+
+                List<IELayoutViewModel> _response = _applyRes.Select(res => new IELayoutViewModel
+                { 
+                    OrderSn = res.OrderSn,
+                    OrderNo = res.OrderNo,
+                    Status = res.Status,
+                    ApplicantName = res.ApplicantName,
+                    AuditName = res.AuditName,
+                    ApplyDate = res.ApplyDateStr,
+                    CreateDate = res.CreateTimeStr,
+                    IssueRemark = res.IssueRemark
+                }).ToList();
+
+                return View(_response);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpGet("[controller]/IELayout/Create")]
+        public IActionResult IELayoutCreate()
+        {
+            try
+            {
+                ViewBag.FactoryFloorOptions = _optionDomainService.GetFactoryFloorOptions();
+                ViewBag.ProcessAreaOptions = _optionDomainService.GetProcessAreaOptions();
+                ViewBag.FormatTypeOptions = _optionDomainService.GetFormatTypeOptions();
+                ViewBag.ReasonTypeOptions = _optionDomainService.GetReasonTypeOptions();
+                ViewBag.LayerTypeOptions = _optionDomainService.GetLayerTypeOptions();
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpPost("[controller]/IELayout/Create")]
+        public IActionResult IELayoutCreate([FromForm] IELayoutCreateViewModel createModel)
+        {
+            try
+            {
+
+                var _result = _demandDomainService.Create(createModel.CopyAToB<IELayoutCreateEntity>(), GetUserInfo());
+
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = string.IsNullOrEmpty(_result),
+                    Msg = _result
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("[controller]/IELayout/Detail/{sn}")]
+        public IActionResult IELayoutDetail(int sn)
+        {
+            try
+            {
+                ViewBag.FactoryFloorOptions = _optionDomainService.GetFactoryFloorOptions();
+                ViewBag.ProcessAreaOptions = _optionDomainService.GetProcessAreaOptions();
+                ViewBag.FormatTypeOptions = _optionDomainService.GetFormatTypeOptions();
+                ViewBag.ReasonTypeOptions = _optionDomainService.GetReasonTypeOptions();
+                ViewBag.LayerTypeOptions = _optionDomainService.GetLayerTypeOptions();
+
+                var _layoutApplyRes = _demandDomainService.GetLayoutApplyDetail(sn);
+
+                return View(new IELayoutDetailViewModel
+                {
+                    LayoutOrderInfo = new IELayoutViewModel
+                    {
+                        OrderSn = _layoutApplyRes.LayoutOrderInfo.OrderSn,
+                        OrderNo = _layoutApplyRes.LayoutOrderInfo.OrderNo,
+                        ApplicantName = _layoutApplyRes.LayoutOrderInfo.ApplicantName,
+                        Department = _layoutApplyRes.LayoutOrderInfo.Department,
+                        Phone = _layoutApplyRes.LayoutOrderInfo.Phone,
+                        Status = _layoutApplyRes.LayoutOrderInfo.Status,
+                        ApplyDate = _layoutApplyRes.LayoutOrderInfo.ApplyDateStr,
+                        CreateDate = _layoutApplyRes.LayoutOrderInfo.CreateTimeStr,
+                        AuditName = _layoutApplyRes.LayoutOrderInfo.AuditName,
+                        FactoryFloor = _layoutApplyRes.LayoutOrderInfo.FactoryFloor,
+                        ProcessArea = _layoutApplyRes.LayoutOrderInfo.ProcessArea,
+                        PartRemark = _layoutApplyRes.LayoutOrderInfo.PartRemark,
+                        FormatType = _layoutApplyRes.LayoutOrderInfo.FormatType,
+                        ReasonTypeId = _layoutApplyRes.LayoutOrderInfo.ReasonTypeId,
+                        Reason = _layoutApplyRes.LayoutOrderInfo.Reason,
+                        LayerTypeId = _layoutApplyRes.LayoutOrderInfo.LayerTypeId,
+                        IssueRemark = _layoutApplyRes.LayoutOrderInfo.IssueRemark,
+                    },
+                    AuditHistory = _layoutApplyRes.AuditList.Select(his => new IELayoutAuditViewModel
+                    {
+                        AuditSn = his.AuditSn,
+                        AuditAccountSn = his.AuditAccountSn,
+                        AuditName = his.AuditName,
+                        AuditStatus = his.AuditStatus,
+                        AuditStatusId = his.AuditStatusId,
+                        ReceivedTime = his.ReceivedTime,
+                        AuditTime = his.AuditTime,
+                        DiffTime = his.DiffTime,
+                        Remark = his.Remark
+                    }).ToList()
+                });
             }
             catch (Exception ex)
             {

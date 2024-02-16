@@ -40,6 +40,8 @@ namespace MOD4.Web.DomainService.Entity
 
         public string ProdNo { get; set; }
 
+        public int Floor { get; set; }
+
         public string ProdDesc { get; set; }
     }
 }

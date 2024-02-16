@@ -48,5 +48,7 @@ namespace MOD4.Web.Repostory
         int DeleteHcm();
 
         int InsertHcm(List<HcmVwEmp01Dao> hcmList);
+
+        List<AccountInfoDao> SelectIEApplyFlow(string jobId, int levelId);
     }
 }

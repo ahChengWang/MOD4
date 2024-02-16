@@ -254,45 +254,6 @@
 
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
-                <!-- Navbar Search -->
-                @*<li class="nav-item">
-                        <a class="nav-link" data-widget="navbar-search" href="#" role="button">
-                            <i class="fas fa-search"></i>
-                        </a>
-                        <div class="navbar-search-block">
-                            <form class="form-inline">
-                                <div class="input-group input-group-sm">
-                                    <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-navbar" type="submit">
-                                            <i class="fas fa-search"></i>
-                                        </button>
-                                        <button class="btn btn-navbar" type="button" data-widget="navbar-search">
-                                            <i class="fas fa-gear"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </li>*@
-                <!-- Messages Dropdown Menu -->
-                <!--<li class="nav-item dropdown">
-                <a class="nav-link" style="color:lightgray" data-toggle="dropdown" href="#">
-                    <i class="far fa-comments"></i>-->
-                @*<span class="badge badge-danger navbar-badge">3</span>*@
-                <!--</a>
-                </li>-->
-                <!-- Notifications Dropdown Menu -->
-                <!--<li class="nav-item">
-                    <a class="nav-link" style="color:lightgray" data-widget="fullscreen" href="#" role="button">
-                        <i class="fas fa-expand-arrows-alt"></i>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="control-sidebar" data-controlsidebar-slide="true" href="#" role="button">
-                        <i class="fas fa-th-large"></i>
-                    </a>
-                </li>-->
                 <li class="nav-item">
                     <a style="color:white">Hi, @Context.User.Claims.FirstOrDefault(m => m.Type == ClaimTypes.Name).Value</a>
                     <a href="@Url.Action("Logout", "Account")" style="color:darkblue"><img class="myicon" src="~/img/icons/log-out-outline.svg" />登出</a>
@@ -307,53 +268,8 @@
                 <img class="mylauoutimg" src="~/img/CarUX_Logo_n.png">
                 <span class="brand-text font-weight-light">CarUX</span>
             </a>
-
             <!-- Sidebar -->
             @await Component.InvokeAsync("Navigation")
-            <!--<div class="sidebar">
-
-            <!-- SidebarSearch Form -->
-            -->
-            <!--@*<div class="form-inline">
-                <div class="input-group" data-widget="sidebar-search">
-                    <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
-                    <div class="input-group-append">
-                        <button class="btn btn-sidebar">
-                            <i class="fas fa-search fa-fw"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>*@-->
-            <!--<!-- Sidebar Menu -->
-            <!--<nav class="mt-2">
-            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">-->
-            <!-- Add icons to the links using the .nav-icon class
-            with font-awesome or any other icon font library -->
-            -->
-
-            <!--@*<li class="nav-item active">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
-                                <i class="nav-icon fas fa-home"></i>
-                                <p>Home</p>
-                            </a>
-                        </li>*@
-                    @*<li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">
-                                <i class="nav-icon far fa-circle"></i>
-                                <p>Privacy</p>
-                            </a>
-                        </li>*@
-                    @*<li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Equipment" asp-action="Index">
-                                <i class="nav-icon fas fa-toolbox"></i>
-                                <p>設備機況</p>
-                            </a>
-                        </li>*@
-                </ul>
-            </nav>-->
-            <!-- /.sidebar-menu -->
-            <!--</div>-->
-            <!-- /.sidebar -->
         </aside>
 
         <!-- /.content-wrapper -->
@@ -378,45 +294,10 @@
         </aside>
     </div>
 
-    @*<header>
-            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-                <div class="container">
-                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MOD4.Web</a>
-                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                            aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                        <ul class="navbar-nav flex-grow-1">
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-        </header>*@
-
-    @*<div class="container">
-            <main role="main" class="pb-3">
-                @RenderBody()
-            </main>
-        </div>*@
-
-    @*<footer class="border-top footer text-muted">
-            <div class="container">
-                &copy; 2022 - MOD4.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-            </div>
-        </footer>*@
-
-
     <script type="text/javascript">
         $(document).ready(function () {
 
-            let _menuLoc = ['Audit', 'Setting', 'Equipment', 'Dashboard', 'MES', 'Manufacture', 'MTBFMTTR', 'MTDINT0', 'MPS', 'Efficiency', 'EffSetting', 'MatlUpload'];
+            let _menuLoc = ['Audit', 'Setting', 'Equipment', 'Dashboard', 'MES', 'Manufacture', 'MTBFMTTR', 'MTDINT0', 'MPS', 'Efficiency', 'EffSetting', 'MatlUpload', 'IELayout'];
 
             let _pathArray = location.pathname.split('/');
             let _locationPathname = "/" + _pathArray[1] + "/" + _pathArray[2];

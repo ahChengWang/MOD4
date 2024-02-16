@@ -1,0 +1,127 @@
+﻿
+@{
+    ViewBag.Title = "layout申請單";
+}
+
+<style>
+
+    div[name='issueRmk'] {
+        width: 25vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        /*display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;*/
+    }
+
+        div[name='issueRmk']:hover {
+            overflow: visible;
+            white-space: normal;
+            text-overflow: initial;
+            /*display: block;*/
+        }
+</style>
+
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div id="app" class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Layout 申請單</h3>
+                        </div>
+                        <div class="card-body">
+                            <fieldset id="searchArea">
+                                <legend id="legend">查詢區塊</legend>
+                                <div class="row" style="margin-bottom:5px">
+                                    <div class="col-lg-3">
+                                        <label>申請起日：</label>
+                                        <input id="startDTE" class="my-control" type="date" name="name" value="" />
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <label>申請訖日：</label>
+                                        <input id="endDTE" class="my-control" type="date" name="name" value="" />
+                                    </div>
+                                    <div class="col-lg-1">
+                                        <input id="btnSearch" type="button" class="btn" name="btn29" value="查詢" />
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <div class="row">
+                                <div style="float: left;">
+                                    <input type="button" class="btn animated infinite flash" name="btn30" value="+申請" @@click="create" />
+                                </div>
+                            </div>
+                            <br />
+                            <div>
+                                <table id="table" class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>單號</th>
+                                            <th>申請人</th>
+                                            <th>狀態</th>
+                                            <th>需求日</th>
+                                            <th>填單日</th>
+                                            <th>原因</th>
+                                            <th>待簽人</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(order, idx) in orderList">
+                                            <td width="12%">
+                                                <a :href="'./IELayout/Detail/' + order.orderSn">{{order.orderNo}}</a>
+                                            </td>
+                                            <td width="10%">{{order.applicantName}}</td>
+                                            <td width="10%">{{order.status}}</td>
+                                            <td width="13%">{{order.applyDate}}</td>
+                                            <td width="13%">{{order.createDate}}</td>
+                                            <td>
+                                                <div name="issueRmk">{{order.issueRemark}}</div>
+                                            </td>
+                                            <td width="10%">{{order.auditName}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- Modal -->
+                    <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
+                    </div>
+                </div>
+                <!-- /.col -->
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+</div>
+
+@section scripts{
+
+    <script type="text/javascript">
+
+        const vm = new Vue({
+            el: '#app',
+            data: {
+                orderList: [],
+            },
+            methods: {
+                create() {
+                    location.href = './IELayout/Create';
+                }
+            },
+            mounted: function (e) {
+                this.orderList = @Html.Raw(Json.Serialize(Model));
+            }
+        });
+
+    </script>
+
+}

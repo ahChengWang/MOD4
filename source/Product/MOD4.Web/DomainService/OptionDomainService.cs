@@ -266,10 +266,10 @@ namespace MOD4.Web.DomainService
                 ("statusList",
                 new List<OptionEntity>
                 {
-                    new OptionEntity { Id = (int)FabInOutStatusEnum.Processing, Value = FabInOutStatusEnum.Processing.GetDescription() },
-                    new OptionEntity { Id = (int)FabInOutStatusEnum.Rejected, Value = FabInOutStatusEnum.Rejected.GetDescription() },
-                    new OptionEntity { Id = (int)FabInOutStatusEnum.Completed, Value = FabInOutStatusEnum.Completed.GetDescription() },
-                    new OptionEntity { Id = (int)FabInOutStatusEnum.Cancel, Value = FabInOutStatusEnum.Cancel.GetDescription() }
+                    new OptionEntity { Id = (int)AuditStatusEnum.Processing, Value = AuditStatusEnum.Processing.GetDescription() },
+                    new OptionEntity { Id = (int)AuditStatusEnum.Rejected, Value = AuditStatusEnum.Rejected.GetDescription() },
+                    new OptionEntity { Id = (int)AuditStatusEnum.Completed, Value = AuditStatusEnum.Completed.GetDescription() },
+                    new OptionEntity { Id = (int)AuditStatusEnum.Cancel, Value = AuditStatusEnum.Cancel.GetDescription() }
                 } ),
                 ("fabInTypeList",
                 new List<OptionEntity>
@@ -539,6 +539,51 @@ namespace MOD4.Web.DomainService
                 Id = (int)s.CategoryId,
                 Value = s.Code,
                 SubValue = s.Desc
+            }).ToList();
+        }
+
+        public List<OptionEntity> GetFactoryFloorOptions()
+        {
+            return EnumHelper.GetEnumValue<FactoryFloorEnum>().Select(type => new OptionEntity
+            {
+                Id = (int)type,
+                Value = type.GetDescription()
+            }).ToList();
+        }
+
+        public List<OptionEntity> GetProcessAreaOptions()
+        {
+            return EnumHelper.GetEnumValue<ProcessAreaEnum>().Select(type => new OptionEntity
+            {
+                Id = (int)type,
+                Value = type.GetDescription()
+            }).ToList();
+        }
+
+        public List<OptionEntity> GetFormatTypeOptions()
+        {
+            return EnumHelper.GetEnumValue<FormatTypeEnum>().Select(type => new OptionEntity
+            {
+                Id = (int)type,
+                Value = type.GetDescription()
+            }).ToList();
+        }
+
+        public List<OptionEntity> GetReasonTypeOptions()
+        {
+            return EnumHelper.GetEnumValue<ReasonTypeEnum>().Select(type => new OptionEntity
+            {
+                Id = (int)type,
+                Value = type.GetDescription()
+            }).ToList();
+        }
+
+        public List<OptionEntity> GetLayerTypeOptions()
+        {
+            return EnumHelper.GetEnumValue<LayerTypeEnum>().Select(type => new OptionEntity
+            {
+                Id = (int)type,
+                Value = type.GetDescription()
             }).ToList();
         }
 
