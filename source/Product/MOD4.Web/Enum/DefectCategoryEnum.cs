@@ -15,5 +15,8 @@ namespace MOD4.Web.Enum
 
         [Description("偏光板")]
         Polarizer = 4,
+
+        [Description("Assy")]
+        Assy = 5,
     }
 }

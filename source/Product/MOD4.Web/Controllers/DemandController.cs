@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using CSRedis;
+using Microsoft.AspNetCore.Identity;
 
 namespace MOD4.Web.Controllers
 {
@@ -600,7 +601,7 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                string _result = _demandDomainService.AuditMES(approveViewModel.Remark, 
+                string _result = _demandDomainService.AuditMES(approveViewModel.Remark,
                     new MESPermissionEntity
                     {
                         OrderSn = approveViewModel.OrderSn,
@@ -670,13 +671,14 @@ namespace MOD4.Web.Controllers
                     AccountPermission = _userCurrentPagePermission.AccountPermission
                 };
 
-                var _applyRes = _demandDomainService.GetList(_userInfo);
+                var _applyRes = _demandDomainService.GetList(null, null, 0, "", _userInfo);
 
                 List<IELayoutViewModel> _response = _applyRes.Select(res => new IELayoutViewModel
-                { 
+                {
                     OrderSn = res.OrderSn,
                     OrderNo = res.OrderNo,
                     Status = res.Status,
+                    StatusId = res.StatusId,
                     ApplicantName = res.ApplicantName,
                     AuditName = res.AuditName,
                     ApplyDate = res.ApplyDateStr,
@@ -692,16 +694,59 @@ namespace MOD4.Web.Controllers
             }
         }
 
+        [HttpGet("[controller]/IELayout/Search")]
+        public IActionResult IELayoutSearch(DateTime? beginDate, DateTime? endDate, AuditStatusEnum statusId, string applicantUser)
+        {
+            try
+            {
+                UserEntity _userInfo = GetUserInfo();
+                var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.IELayout);
+
+                ViewBag.UserPermission = new UserPermissionViewModel
+                {
+                    AccountSn = _userCurrentPagePermission.AccountSn,
+                    MenuSn = _userCurrentPagePermission.MenuSn,
+                    AccountPermission = _userCurrentPagePermission.AccountPermission
+                };
+
+                var _applyRes = _demandDomainService.GetList(beginDate, endDate, statusId, applicantUser, _userInfo);
+
+                List<IELayoutViewModel> _response = _applyRes.Select(res => new IELayoutViewModel
+                {
+                    OrderSn = res.OrderSn,
+                    OrderNo = res.OrderNo,
+                    Status = res.Status,
+                    StatusId = res.StatusId,
+                    ApplicantName = res.ApplicantName,
+                    AuditName = res.AuditName,
+                    ApplyDate = res.ApplyDateStr,
+                    CreateDate = res.CreateTimeStr,
+                    IssueRemark = res.IssueRemark
+                }).ToList();
+
+                return Json(new ResponseViewModel<List<IELayoutViewModel>>
+                {
+                    Data = _response
+                });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
         [HttpGet("[controller]/IELayout/Create")]
         public IActionResult IELayoutCreate()
         {
             try
             {
+                UserEntity _userInfo = GetUserInfo();
                 ViewBag.FactoryFloorOptions = _optionDomainService.GetFactoryFloorOptions();
                 ViewBag.ProcessAreaOptions = _optionDomainService.GetProcessAreaOptions();
                 ViewBag.FormatTypeOptions = _optionDomainService.GetFormatTypeOptions();
                 ViewBag.ReasonTypeOptions = _optionDomainService.GetReasonTypeOptions();
                 ViewBag.LayerTypeOptions = _optionDomainService.GetLayerTypeOptions();
+                ViewBag.UserName = _userInfo.Name;
 
                 return View();
             }
@@ -746,6 +791,15 @@ namespace MOD4.Web.Controllers
                 ViewBag.FormatTypeOptions = _optionDomainService.GetFormatTypeOptions();
                 ViewBag.ReasonTypeOptions = _optionDomainService.GetReasonTypeOptions();
                 ViewBag.LayerTypeOptions = _optionDomainService.GetLayerTypeOptions();
+                ViewBag.SecretLevelOptions = _optionDomainService.GetSecretOptions();
+                UserEntity _userInfo = GetUserInfo();
+                var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.IELayout);
+                ViewBag.UserPermission = new UserPermissionViewModel
+                {
+                    AccountSn = _userCurrentPagePermission.AccountSn,
+                    MenuSn = _userCurrentPagePermission.MenuSn,
+                    AccountPermission = _userCurrentPagePermission.AccountPermission
+                };
 
                 var _layoutApplyRes = _demandDomainService.GetLayoutApplyDetail(sn);
 
@@ -755,12 +809,15 @@ namespace MOD4.Web.Controllers
                     {
                         OrderSn = _layoutApplyRes.LayoutOrderInfo.OrderSn,
                         OrderNo = _layoutApplyRes.LayoutOrderInfo.OrderNo,
+                        ApplicantAccountSn = _layoutApplyRes.LayoutOrderInfo.ApplicantAccountSn,
                         ApplicantName = _layoutApplyRes.LayoutOrderInfo.ApplicantName,
                         Department = _layoutApplyRes.LayoutOrderInfo.Department,
                         Phone = _layoutApplyRes.LayoutOrderInfo.Phone,
                         Status = _layoutApplyRes.LayoutOrderInfo.Status,
+                        StatusId = _layoutApplyRes.LayoutOrderInfo.StatusId,
                         ApplyDate = _layoutApplyRes.LayoutOrderInfo.ApplyDateStr,
                         CreateDate = _layoutApplyRes.LayoutOrderInfo.CreateTimeStr,
+                        AuditAccountSn = _layoutApplyRes.LayoutOrderInfo.AuditAccountSn,
                         AuditName = _layoutApplyRes.LayoutOrderInfo.AuditName,
                         FactoryFloor = _layoutApplyRes.LayoutOrderInfo.FactoryFloor,
                         ProcessArea = _layoutApplyRes.LayoutOrderInfo.ProcessArea,
@@ -770,8 +827,12 @@ namespace MOD4.Web.Controllers
                         Reason = _layoutApplyRes.LayoutOrderInfo.Reason,
                         LayerTypeId = _layoutApplyRes.LayoutOrderInfo.LayerTypeId,
                         IssueRemark = _layoutApplyRes.LayoutOrderInfo.IssueRemark,
+                        SecretLevelId = _layoutApplyRes.LayoutOrderInfo.SecretLevelId,
+                        ExptOutputDateStr = _layoutApplyRes.LayoutOrderInfo.ExptOutputDateStr,
+                        Version = _layoutApplyRes.LayoutOrderInfo.Version,
+                        IsIEFlow = _layoutApplyRes.LayoutOrderInfo.IsIEFlow
                     },
-                    AuditHistory = _layoutApplyRes.AuditList.Select(his => new IELayoutAuditViewModel
+                    AuditHistory = _layoutApplyRes.AuditList.Select(his => new IELayoutAuditHisViewModel
                     {
                         AuditSn = his.AuditSn,
                         AuditAccountSn = his.AuditAccountSn,
@@ -788,6 +849,93 @@ namespace MOD4.Web.Controllers
             catch (Exception ex)
             {
                 return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpPost("[controller]/IELayout/Audit")]
+        public IActionResult IELayoutAudit(IELayoutAuditViewModel auditVM)
+        {
+            try
+            {
+                string _auditRes = _demandDomainService.AuditLayoutApply(
+                    new IELayoutAuditEntity
+                    {
+                        LayoutOrderDetailEntity = new IELayoutEntity
+                        {
+                            ExptOutputDate = auditVM.ExptOutputDate,
+                            Version = auditVM.Version,
+                        },
+                        SecretOptoins = auditVM.SecretLevelList,
+                        AuditDetailEntity = new IELayoutAuditDetailEntity
+                        {
+                            LayoutOrderSn = auditVM.LayoutOrderSn,
+                            AuditStatusId = auditVM.AuditStatusId,
+                            Remark = auditVM.Remark,
+
+                        },
+                        UserInfo = GetUserInfo()
+                    });
+
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = string.IsNullOrEmpty(_auditRes),
+                    Msg = _auditRes
+                });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+
+        [HttpPost("[controller]/IELayout/Resned")]
+        public IActionResult IELayoutResned([FromForm] IELayoutCreateViewModel createModel)
+        {
+            try
+            {
+
+                var _result = _demandDomainService.Resend(createModel.CopyAToB<IELayoutCreateEntity>(), GetUserInfo());
+
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = string.IsNullOrEmpty(_result),
+                    Msg = _result
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
+            }
+        }
+
+
+        [HttpPost("[controller]/IELayout/Cancel/{orderSn}")]
+        public IActionResult IELayoutCancel(int orderSn)
+        {
+            try
+            {
+                var _result = _demandDomainService.Cancel(orderSn, GetUserInfo());
+
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = string.IsNullOrEmpty(_result),
+                    Msg = _result
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new ResponseViewModel<string>
+                {
+                    IsSuccess = false,
+                    Msg = ex.Message
+                });
             }
         }
 

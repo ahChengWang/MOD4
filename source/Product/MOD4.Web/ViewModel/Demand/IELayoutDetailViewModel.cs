@@ -5,6 +5,6 @@ namespace MOD4.Web.ViewModel
     public class IELayoutDetailViewModel
     {
         public IELayoutViewModel LayoutOrderInfo { get; set; }
-        public List<IELayoutAuditViewModel> AuditHistory { get; set; }
+        public List<IELayoutAuditHisViewModel> AuditHistory { get; set; }
     }
 }

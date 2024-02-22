@@ -6,6 +6,7 @@ namespace MOD4.Web.DomainService.Entity
 {
     public class IELayoutCreateEntity
     {
+        public int OrderSn { get; set; }
         public string Name { get; set; }
         public string Department { get; set; }
         public string Phone { get; set; }

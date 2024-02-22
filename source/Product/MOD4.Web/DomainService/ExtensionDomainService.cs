@@ -165,20 +165,7 @@ namespace MOD4.Web.DomainService
                 List<LightingLogDao> _updLightingLogList = new List<LightingLogDao>();
                 List<LightingLogDao> _insLightingLogList = new List<LightingLogDao>();
 
-                //_oldLightingLogList = _lightingLogRepository.SelectByConditions(snList: lightingLogList.Where(w => w.PanelSn != 0).Select(s => s.PanelSn).ToList());
-
-                //_updLightingLogList = (from old in _oldLightingLogList
-                //                      join upd in lightingLogList
-                //                      on old.PanelSn equals upd.PanelSn
-                //                      select new LightingLogDao
-                //                      {
-                //                          PanelSn = old.PanelSn,
-                //                          CategoryId = old.CategoryId,
-                //                          PanelId = upd.PanelId,
-                //                          PanelDate = upd.PanelDate,
-                //                          UpdateDate = _nowTime,
-                //                          UpdateUser = userEntity.Name
-                //                      }).ToList();
+                _oldLightingLogList = _lightingLogRepository.SelectByConditions(snList: lightingLogList.Where(w => w.PanelSn != 0).Select(s => s.PanelSn).ToList());
 
                 _updLightingLogList = lightingLogList.Where(w => w.PanelSn != 0).Select(log => new LightingLogDao
                 {
@@ -189,6 +176,8 @@ namespace MOD4.Web.DomainService
                     UpdateUser = $"{userEntity.JobId}-{userEntity.Name}",
                     UpdateDate = _nowTime
                 }).ToList();
+
+                _updLightingLogList = _updLightingLogList.Except(_oldLightingLogList).ToList();
 
                 _insLightingLogList = lightingLogList.Where(w => w.PanelSn == 0).Select(log => new LightingLogDao
                 {

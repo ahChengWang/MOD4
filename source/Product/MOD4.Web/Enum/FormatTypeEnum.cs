@@ -6,13 +6,10 @@ namespace MOD4.Web.Enum
     [Flags]
     public enum FormatTypeEnum
     {
-        [Description("紙本")]
-        HardCopy = 1,
-
         [Description("PDF檔")]
-        PDF = 2,
+        PDF = 1,
 
         [Description("CAD檔")]
-        CAD = 4,
+        CAD = 2,
     }
 }

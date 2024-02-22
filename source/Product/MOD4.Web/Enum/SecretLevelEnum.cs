@@ -5,16 +5,13 @@ namespace MOD4.Web.Enum
 {
     public enum SecretLevelEnum
     {
-        [Description("Move-in Path")]
-        MoveInPath = 1,
+        [Description("一般")]
+        Normal = 1,
 
-        [Description("給予 Vendor")]
-        Vendor = 2,
+        [Description("機密")]
+        Secret = 2,
 
-        [Description("自己部門參考")]
-        Internal = 3,
-
-        [Description("其他")]
-        Other = 4,
+        [Description("極機密")]
+        ExSecret = 3,
     }
 }

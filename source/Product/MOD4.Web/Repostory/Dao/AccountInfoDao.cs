@@ -4,6 +4,8 @@ namespace MOD4.Web.Repostory.Dao
 {
     public class AccountInfoDao
     {
+        // for layout apply order
+        public int no { get; set; }
         public int sn { get; set; }
         public string account { get; set; }
         public string password { get; set; }

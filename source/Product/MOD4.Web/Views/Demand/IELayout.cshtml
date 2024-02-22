@@ -3,7 +3,45 @@
     ViewBag.Title = "layout申請單";
 }
 
+<head>
+    <link rel="stylesheet" href="~/lib/bootstrap-vue/bootstrap-vue.css" />
+</head>
+
 <style>
+
+    .my-date-control {
+        display: initial;
+        width: 60%;
+        height: calc(2.25rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        box-shadow: inset 0 0 0 transparent;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+
+    .my-select-control {
+        display: initial;
+        width: 60%;
+        height: calc(2.25rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        box-shadow: inset 0 0 0 transparent;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
 
     div[name='issueRmk'] {
         width: 25vw;
@@ -37,17 +75,29 @@
                         <div class="card-body">
                             <fieldset id="searchArea">
                                 <legend id="legend">查詢區塊</legend>
+                                <div class="row">
+                                    <div class="col-lg-3">
+                                        <label>填單起日:</label>
+                                        <input class="my-date-control" type="date" value="" v-model="startDate" />
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <label>填單訖日:</label>
+                                        <input class="my-date-control" type="date" value="" v-model="endDate" />
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <label>狀態:</label>
+                                        <select class="my-select-control" v-model="selStatus">
+                                            <option v-for="status in statusOptions" :value="status.id">{{status.value}}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <label>申請人:</label>
+                                        <input class="my-select-control" type="text" value="" v-model="applicantUser" />
+                                    </div>
+                                </div>
                                 <div class="row" style="margin-bottom:5px">
-                                    <div class="col-lg-3">
-                                        <label>申請起日：</label>
-                                        <input id="startDTE" class="my-control" type="date" name="name" value="" />
-                                    </div>
-                                    <div class="col-lg-3">
-                                        <label>申請訖日：</label>
-                                        <input id="endDTE" class="my-control" type="date" name="name" value="" />
-                                    </div>
                                     <div class="col-lg-1">
-                                        <input id="btnSearch" type="button" class="btn" name="btn29" value="查詢" />
+                                        <input id="btnSearch" type="button" class="btn" name="btn29" value="查詢" @@click="search" />
                                     </div>
                                 </div>
                             </fieldset>
@@ -71,12 +121,16 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(order, idx) in orderList">
+                                        <tr v-for="(order, idx) in pageOrderData">
                                             <td width="12%">
                                                 <a :href="'./IELayout/Detail/' + order.orderSn">{{order.orderNo}}</a>
                                             </td>
                                             <td width="10%">{{order.applicantName}}</td>
-                                            <td width="10%">{{order.status}}</td>
+
+                                            <td v-if="order.statusId == 1" width="10%" style="color: blue; font-weight: 700; ">{{order.status}}</td>
+                                            <td v-if="order.statusId == 2" width="10%" style="color: #d62c20; font-weight: 700; ">{{order.status}}</td>
+                                            <td v-if="order.statusId == 3" width="10%" style="color: forestgreen; font-weight: 700; ">{{order.status}}</td>
+
                                             <td width="13%">{{order.applyDate}}</td>
                                             <td width="13%">{{order.createDate}}</td>
                                             <td>
@@ -89,6 +143,25 @@
                             </div>
                         </div>
                         <!-- /.card-body -->
+                        <div class="card-footer" style="display: flex;" v-if="pageOrderData.length > 0">
+                            <div style="width: 12%;">
+                                <label class="col-form-label">總筆數：{{totalCnt}}</label>
+                            </div>
+                            <div style="width: 15%; ">
+                                <label class="col-form-label">每頁</label>
+                                <select v-model="currentSize" @@change="sizeChange">
+                                    <option v-for="size in pageSizeOption" :value="size">{{size}}</option>
+                                </select>
+                                <label class="col-form-label">筆</label>
+                            </div>
+                            <div style="width: 73%;">
+                                <template>
+                                    <div class="mt-10" style="float: right;">
+                                        <b-pagination v-model="currentPage" pills :total-rows="orderList.length" :per-page="currentSize" @@page-click="pageChange"></b-pagination>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
                     </div>
                     <!-- Modal -->
                     <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
@@ -105,20 +178,75 @@
 
 @section scripts{
 
+    <script src="~/lib/bootstrap-vue/bootstrap-vue.min.js"></script>
     <script type="text/javascript">
 
+        Vue.component('paginate');
         const vm = new Vue({
             el: '#app',
             data: {
+                startDate: '',
+                endDate: '',
+                selStatus: 0,
+                statusOptions:[
+                    { id: 0, value: '' },
+                    { id: 1, value: '簽核中' },
+                    { id: 2, value: '已駁回' },
+                    { id: 3, value: '已完成' }],
+                applicantUser: '',
                 orderList: [],
+                pageOrderData:[],
+                totalCnt: 0,
+                currentPage: 1,
+                currentSize: 10,
+                pageSizeOption: [10, 50, 75, 100],
             },
             methods: {
                 create() {
                     location.href = './IELayout/Create';
+                },
+                search() {
+                    $.ajax({
+                        url: './IELayout/Search',
+                        type: 'GET',
+                        data: {
+                            beginDate: vm.startDate,
+                            endDate: vm.endDate,
+                            statusId: vm.selStatus,
+                            applicantUser: vm.applicantUser
+                        },
+                        success: function (res) {
+                            if (res.isSuccess) {
+                                vm.orderList = res.data;
+
+                                vm.pageOrderData = res.data.slice(0, vm.currentSize);
+                                vm.totalCnt = Math.ceil(res.data.length / vm.currentSize);
+                            }
+                            else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: '失敗',
+                                    text: res.msg,
+                                    showConfirmButton: false,
+                                    timer: 1000
+                                });
+                            }
+                        }
+                    });
+                },
+                pageChange(even, pageNo) {
+                    vm.currentPage = pageNo;
+                    vm.pageOrderData = vm.orderList.slice(((vm.currentPage - 1) * vm.currentSize), vm.currentPage * vm.currentSize);
+                },
+                sizeChange() {
+                    vm.currentPage = 1;
+                    vm.pageOrderData = vm.orderList.slice(0, vm.currentSize);
                 }
             },
             mounted: function (e) {
                 this.orderList = @Html.Raw(Json.Serialize(Model));
+                this.pageOrderData = this.orderList.slice(0, this.currentSize);
+                this.totalCnt = this.orderList.length;
             }
         });
 

@@ -17,5 +17,17 @@ namespace MOD4.Web.Repostory.Dao
         public int Floor { get; set; }
         public DateTime UpdateDate { get; set; }
         public string UpdateUser { get; set; }
+
+
+        public bool Equals(LightingLogDao rwDao)
+        {
+            if (rwDao == null)
+                return false;
+
+            return this.StatusId == rwDao.StatusId && this.DefectCatgId == rwDao.DefectCatgId && this.DefectCode == rwDao.DefectCode;
+        }
+
+        public override bool Equals(object obj) => Equals(obj as LightingLogDao);
+        public override int GetHashCode() => PanelSn.GetHashCode();
     }
 }

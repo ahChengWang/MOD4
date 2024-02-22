@@ -42,5 +42,31 @@ namespace MOD4.Web.Repostory
 
             return dao;
         }
+
+        public int Update(List<IELayoutApplyAuditHistoryDao> daoHisList)
+        {
+            string sql = @"UPDATE [dbo].[ie_layout_apply_audit_history]
+   SET [auditStatusId] = @AuditStatusId
+      ,[receivedTime] = @ReceivedTime
+      ,[auditTime] = @AuditTime
+      ,[remark] = @Remark
+ WHERE ieLayoutSn = @IELayoutSn and auditSn=@AuditSn ; ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, daoHisList);
+
+            return dao;
+        }
+
+        public int DeleteHistory(int orderSn)
+        {
+            string sql = @"DELETE [dbo].[ie_layout_apply_audit_history] where ieLayoutSn = @IELayoutSn; ";
+
+            var dao = _dbHelper.ExecuteNonQuery(sql, new 
+            {
+                IELayoutSn = orderSn
+            });
+
+            return dao;
+        }
     }
 }

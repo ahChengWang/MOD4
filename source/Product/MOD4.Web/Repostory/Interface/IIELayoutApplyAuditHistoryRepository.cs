@@ -7,5 +7,7 @@ namespace MOD4.Web.Repostory
     {
         int InsertHistory(List<IELayoutApplyAuditHistoryDao> daoHisList);
         List<IELayoutApplyAuditHistoryDao> SelectByConditions(int layoutSn);
+        int Update(List<IELayoutApplyAuditHistoryDao> daoHisList);
+        int DeleteHistory(int orderSn);
     }
 }

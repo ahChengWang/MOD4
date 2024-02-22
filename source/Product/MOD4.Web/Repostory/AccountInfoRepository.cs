@@ -433,9 +433,34 @@ INSERT INTO [dbo].[hcm_vw_emp01]
             }
         }
 
-        public List<AccountInfoDao> SelectIEApplyFlow(string jobId, int levelId)
+        public List<AccountInfoDao> SelectIEApplyFlow(string jobId, int levelId, int applyFloor)
         {
-            string sql = @" 
+            string _factoryScript = "";
+            int _lastestNo = 3;
+
+            switch (applyFloor)
+            {
+                case 1:
+                    _factoryScript = @"select 3 as 'no', sn, name, jobId, mail, deptSn
+  from account_info where deptSn = 2 ";
+                    break;
+                case 2:
+                    _factoryScript = @"select 3 as 'no', sn, name, jobId, mail, deptSn
+  from account_info where deptSn = 1 ";
+                    break;
+                case 3:
+                    _factoryScript = @"select 3 as 'no', sn, name, jobId, mail, deptSn
+  from account_info where deptSn = 2
+union
+select 4 as 'no', sn, name, jobId, mail, deptSn
+  from account_info where deptSn = 1 ";
+                    _lastestNo = 4;
+                    break;
+                default:
+                    break;
+            }
+
+            string sql = $@" 
 WITH base as ( 
 select eai.sn 'empSn', eai.name 'empName', eai.jobId 'empJobId', eai.mail 'empMail', eai.level_id 'empLevelId', eai.deptSn 'empDeptSn'
      , 1 as 'no', ISNULL(dai.sn, 0)'sn', ISNULL(dai.name, '')'name', ISNULL(dai.jobId, '')'jobId', ISNULL(dai.mail, '')'mail', ISNULL(dai.deptSn, '')'deptSn'
@@ -454,16 +479,10 @@ join account_info ai
 on d.parentDeptId = ai.deptSn 
 where b.empLevelId > ai.level_id  
 ),
-factoryMgnt as ( 
-select 3 as 'no', ISNULL(ai.sn, 0)'sn', ISNULL(ai.name, '')'name', ISNULL(ai.jobId, '')'jobId', ISNULL(ai.mail, '')'mail', ISNULL(ai.deptSn, '')'deptSn'
-  from mgnt b
-join definition_department d 
-on b.deptSn = d.deptSn 
-join account_info ai  
-on d.parentDeptId = ai.deptSn 
+factoryMgnt as ( {_factoryScript}
 ),
 ieDept as (
-select (ROW_NUMBER() OVER(ORDER BY level_id DESC)) + 3 'no' ,sn, name, jobId, mail, deptSn from account_info  
+select (ROW_NUMBER() OVER(ORDER BY level_id DESC)) + {_lastestNo} 'no' ,sn, name, jobId, mail, deptSn from account_info  
 where jobId = '12109416' or (deptSn in (43,44) and level_id < 4 )
 )
 select no,sn,name,jobId,mail,deptSn from base 
@@ -474,10 +493,10 @@ select * from factoryMgnt
 union 
 select * from ieDept 
 union 
-select 7 'no',sn, name, jobId, mail, deptSn from account_info 
-where deptSn = 61 and level_id = 2 
+select (4 + {_lastestNo}) 'no',sn, name, jobId, mail, deptSn from account_info 
+where deptSn = 65 and level_id = 2 
 union 
-select 8 'no',sn, name, jobId, mail, deptSn from account_info 
+select (5 + {_lastestNo}) 'no',sn, name, jobId, mail, deptSn from account_info 
 where jobId = '20010946' ; ";
 
             var dao = _dbHelper.ExecuteQuery<AccountInfoDao>(sql, new

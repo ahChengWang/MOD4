@@ -25,7 +25,7 @@ namespace MOD4.Web.Repostory.Dao
         public string IssueRemark { get; set; }
         public int AuditAccountSn { get; set; }
         public SecretLevelEnum SecretLevelId { get; set; }
-        public DateTime ExptOutputDate { get; set; }
+        public DateTime? ExptOutputDate { get; set; }
         public int OutputFormatType { get; set; }
         public string Version { get; set; }
         public string CreateUser { get; set; }

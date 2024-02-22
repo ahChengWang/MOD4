@@ -112,7 +112,7 @@
                             <div class="row" style="margin-top: 10px;">
                                 <div>
                                     <div class="col-md-3">
-                                        <input type="text" placeholder="Name" class="form__input" v-model="createM.name" />
+                                        <input type="text" placeholder="Name" class="form__input" v-model="createM.name" readonly />
                                         <label for="name" class="form__label">姓名</label>
                                     </div>
                                 </div>
@@ -138,7 +138,7 @@
                             <div class="row" style="margin-top: 10px;">
                                 <div>
                                     <div class="col-md-3">
-                                        <input type="date" placeholder="需求日" class="form__input" v-model="createM.applyDate" />
+                                        <input type="date" placeholder="需求日" class="form__input" v-model="createM.applyDate" :min="minDate" />
                                         <label for="applyDate" class="form__label">需求日</label>
                                     </div>
                                 </div>
@@ -241,7 +241,7 @@
                             <div class="row align-content-center flex-wrap" style="border-bottom: 1.5px inset #81848a; ">
                                 <label class="col-md-2 col-form-label-lg">需求原因</label>
                                 <div class="col-md-10">
-                                    <textarea id="remark" rows="3" cols="80" v-model="createM.issueRemark"></textarea>
+                                    <textarea id="issueRemark" rows="4" cols="90" v-model="createM.issueRemark"></textarea>
                                     @*<label for="remark" class="form__label">需求原因</label>*@
                                 </div>
                             </div>
@@ -270,6 +270,8 @@
                 formatTypeOptions: @(Html.Raw(Json.Serialize(ViewBag.FormatTypeOptions))),
                 reasonTypeOptions: @(Html.Raw(Json.Serialize(ViewBag.ReasonTypeOptions))),
                 layerTypeOptions: @(Html.Raw(Json.Serialize(ViewBag.LayerTypeOptions))),
+                userName: @(Html.Raw(Json.Serialize(ViewBag.UserName))),
+                minDate: '',
                 createM: {
                     name: '',
                     department: '',
@@ -281,7 +283,7 @@
                     formatTypeList: null,
                     reasonTypeList: null,
                     layerTypeList: null,
-                    remark: ''
+                    issueRemark: ''
                 },
             },
             methods: {
@@ -306,6 +308,10 @@
                     if (vm.createM.name == '' || vm.createM.department == '' || vm.createM.phone == '' ||
                         vm.createM.applyDate == '' || vm.createM.issueRemark == '' || vm.createM.applyDate == null) {
                         errMsg += '請確認[姓名]﹑[部門]﹑[分機]﹑[需求日]﹑[需求原因]是否填寫\n'
+                    }
+
+                    if (vm.createM.applyDate != null && vm.createM.applyDate != '' && vm.compareDates(vm.createM.createDate, vm.createM.applyDate)) {
+                        errMsg += '需求日不得早於申請日\n'
                     }
 
                     errMsg += vm.chkOptions(vm.factoryFloorOptions, '廠別', null);
@@ -388,7 +394,18 @@
                     }
 
                     return _errMsg;
+                },
+                compareDates(earlyDate, laterDate) {
+                    let date1 = new Date(earlyDate).getTime();
+                    let date2 = new Date(laterDate).getTime();
+
+                    if (date1 > date2) {
+                        return true;
+                    }
+
+                    return false;
                 }
+
             },
             mounted: function (e) {
                 var time = new Date();
@@ -398,6 +415,9 @@
                 var months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
 
                 this.createM.createDate = yr + '-' + months[mo] + '-' + this.numPad(dnum, 2);
+                this.createM.name = this.userName;
+
+                this.minDate = this.createM.createDate;
             }
         });
 

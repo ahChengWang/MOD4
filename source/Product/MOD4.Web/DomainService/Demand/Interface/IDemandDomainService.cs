@@ -1,5 +1,6 @@
 ﻿using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -31,10 +32,16 @@ namespace MOD4.Web.DomainService
 
         (bool, string, string) Download(int orderSn);
 
-        List<IELayoutEntity> GetList(UserEntity userInfo);
+        List<IELayoutEntity> GetList(DateTime? beginDate, DateTime? endDate, AuditStatusEnum statusId, string applicantUser, UserEntity userInfo);
 
         string Create(IELayoutCreateEntity createEntity, UserEntity userInfo);
 
         IELayoutDetailEntity GetLayoutApplyDetail(int orderSn);
+
+        string AuditLayoutApply(IELayoutAuditEntity layoutInfoEntity);
+
+        string Resend(IELayoutCreateEntity createEntity, UserEntity userInfo);
+
+        string Cancel(int orderSn, UserEntity userInfo);
     }
 }

@@ -68,5 +68,7 @@ namespace MOD4.Web.DomainService
         List<OptionEntity> GetReasonTypeOptions();
 
         List<OptionEntity> GetLayerTypeOptions();
+
+        List<OptionEntity> GetSecretOptions();
     }
 }

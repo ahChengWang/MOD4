@@ -105,7 +105,7 @@
                             </div>
                             <div class="col-md-2" style="text-align: right;">
                                 <div style="display: inline-block; line-height: 2; vertical-align: middle; ">
-                                    <a href="../IELayout">回上頁</a>
+                                    <a href="../../IELayout">回上頁</a>
                                 </div>
                             </div>
                         </div>
@@ -134,7 +134,7 @@
                                 </div>
                                 <div>
                                     <div class="col-md-3">
-                                        <input type="text" placeholder="部門" class="form__input" v-model="orderData.layoutOrderInfo.department" disabled />
+                                        <input type="text" placeholder="部門" class="form__input" v-model="orderData.layoutOrderInfo.department" :disabled="!isRejectStatus" />
                                         <label for="department" class="form__label">部門</label>
                                     </div>
                                 </div>
@@ -142,7 +142,7 @@
                             <div class="row" style="margin-top: 10px;">
                                 <div>
                                     <div class="col-md-3">
-                                        <input type="text" placeholder="分機" class="form__input" v-model="orderData.layoutOrderInfo.phone" disabled />
+                                        <input type="text" placeholder="分機" class="form__input" v-model="orderData.layoutOrderInfo.phone" :disabled="!isRejectStatus" />
                                         <label for="phone" class="form__label">分機</label>
                                     </div>
                                 </div>
@@ -154,7 +154,7 @@
                                 </div>
                                 <div>
                                     <div class="col-md-3">
-                                        <input type="date" placeholder="需求日" class="form__input" v-model="orderData.layoutOrderInfo.applyDate" disabled />
+                                        <input type="date" placeholder="需求日" class="form__input" v-model="orderData.layoutOrderInfo.applyDate" :disabled="!isRejectStatus" />
                                         <label for="applyDate" class="form__label">需求日</label>
                                     </div>
                                 </div>
@@ -165,7 +165,7 @@
                             <div class="row d-flex align-content-center flex-wrap" style="vertical-align: middle; display: inline; border-bottom: 1.5px inset #81848a; ">
                                 <label class="col-md-2 col-form-label-lg">廠別</label>
                                 <div class="col-md-3" v-for="(floor, idx) in factoryFloorOptions" style="vertical-align: middle; display: inline;">
-                                    <input class="checkbox" type="checkbox" :id="floor.id" :value="floor.checked" :checked="floor.checked" disabled />
+                                    <input class="checkbox" type="checkbox" :id="floor.id" :value="floor.checked" :checked="floor.checked" :disabled="!isRejectStatus" @@click="multiChange(factoryFloorOptions, idx)" />
                                     <label class="col-form-label-lg">{{floor.value}}</label>
                                 </div>
                             </div>
@@ -176,19 +176,19 @@
                                 <div class="col-md-10">
                                     <div class="row">
                                         <div class="col-md-2" v-for="(process, idx) in processAreaOptions" v-if="idx < 4">
-                                            <input class="checkbox" type="checkbox" :id="process.id" :value="process.checked" :checked="process.checked" disabled />
+                                            <input class="checkbox" type="checkbox" :id="process.id" :value="process.checked" :checked="process.checked" :disabled="!isRejectStatus" @@click="multiChange(processAreaOptions, idx)" />
                                             <label class="col-form-label-lg">{{process.value}}</label>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-2" v-for="(process, idx) in processAreaOptions" v-if="idx >= 4 && process.id != 64">
-                                            <input class="checkbox" type="checkbox" :id="process.id" :value="process.checked" :checked="process.checked" disabled />
+                                            <input class="checkbox" type="checkbox" :id="process.id" :value="process.checked" :checked="process.checked" :disabled="!isRejectStatus" @@click="multiChange(processAreaOptions, idx)" />
                                             <label class="col-form-label-lg">{{process.value}}</label>
                                         </div>
                                         <div class="col-md-4" v-for="(process, idx) in processAreaOptions" v-if="idx >= 4 && process.id == 64">
-                                            <input class="checkbox" type="checkbox" :id="process.id" :value="process.checked" :checked="process.checked" disabled />
+                                            <input class="checkbox" type="checkbox" :id="process.id" :value="process.checked" :checked="process.checked" :disabled="!isRejectStatus" @@click="multiChange(processAreaOptions, idx)" />
                                             <label class="col-form-label-lg">{{process.value}}</label>
-                                            <input class="cusInputStyle1" type="text" placeholder="請填寫" :disabled="!process.checked" v-model="processAreaOptions[idx].subValue" disabled />
+                                            <input class="cusInputStyle1" type="text" placeholder="請填寫" :disabled="!process.checked" v-model="processAreaOptions[idx].subValue" :disabled="!isRejectStatus" />
                                         </div>
                                     </div>
                                 </div>
@@ -196,7 +196,7 @@
                             <div class="row d-flex align-content-center flex-wrap" style="border-bottom: 1.5px inset #81848a; ">
                                 <label class="col-md-2 col-form-label-lg">需求格式</label>
                                 <div class="col-md-3" v-for="(format, idx) in formatTypeOptions">
-                                    <input class="checkbox" type="checkbox" :id="format.id" :value="format.checked" :checked="format.checked" disabled />
+                                    <input class="checkbox" type="checkbox" :id="format.id" :value="format.checked" :checked="format.checked" :disabled="!isRejectStatus" @@click="multiChange(formatTypeOptions, idx)" />
                                     <label class="col-form-label-lg">{{format.value}}</label>
                                 </div>
                             </div>
@@ -207,24 +207,24 @@
                                 <div class="col-md-10">
                                     <div class="row">
                                         <div class="col-md-3">
-                                            <input class="checkbox" type="checkbox" :id="reasonTypeOptions[0].id" :value="reasonTypeOptions[0].checked" :checked="reasonTypeOptions[0].checked" disabled />
+                                            <input class="checkbox" type="checkbox" :id="reasonTypeOptions[0].id" :value="reasonTypeOptions[0].checked" :checked="reasonTypeOptions[0].checked" :disabled="!isRejectStatus" @@click="singleChange(reasonTypeOptions, 0)" />
                                             <label class="col-form-label-lg">{{reasonTypeOptions[0].value}}</label>
                                         </div>
                                         <div class="col-md-3">
-                                            <input class="checkbox" type="checkbox" :id="reasonTypeOptions[1].id" :value="reasonTypeOptions[1].checked" :checked="reasonTypeOptions[1].checked" disabled />
+                                            <input class="checkbox" type="checkbox" :id="reasonTypeOptions[1].id" :value="reasonTypeOptions[1].checked" :checked="reasonTypeOptions[1].checked" :disabled="!isRejectStatus" @@click="singleChange(reasonTypeOptions, 1)" />
                                             <label class="col-form-label-lg">{{reasonTypeOptions[1].value}}</label>
                                         </div>
                                         <div class="col-md-6">
-                                            <input class="checkbox" type="checkbox" :id="reasonTypeOptions[2].id" :value="reasonTypeOptions[2].checked" :checked="reasonTypeOptions[2].checked" disabled />
+                                            <input class="checkbox" type="checkbox" :id="reasonTypeOptions[2].id" :value="reasonTypeOptions[2].checked" :checked="reasonTypeOptions[2].checked" :disabled="!isRejectStatus" @@click="singleChange(reasonTypeOptions, 2)" />
                                             <label class="col-form-label-lg">{{reasonTypeOptions[2].value}}</label>
-                                            <input class="cusInputStyle1" type="text" placeholder="請填寫vendor全名" :disabled="!reasonTypeOptions[2].checked" v-model="reasonTypeOptions[2].subValue" disabled />
+                                            <input class="cusInputStyle1" type="text" placeholder="請填寫vendor全名" :disabled="!reasonTypeOptions[2].checked" v-model="reasonTypeOptions[2].subValue" :disabled="!isRejectStatus" />
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-10">
-                                            <input class="checkbox" type="checkbox" :id="reasonTypeOptions[3].id" :value="reasonTypeOptions[3].checked" :checked="reasonTypeOptions[3].checked" disabled />
+                                            <input class="checkbox" type="checkbox" :id="reasonTypeOptions[3].id" :value="reasonTypeOptions[3].checked" :checked="reasonTypeOptions[3].checked" :disabled="!isRejectStatus" @@click="singleChange(reasonTypeOptions, 3)" />
                                             <label class="col-form-label-lg">{{reasonTypeOptions[3].value}}</label>
-                                            <input class="cusInputStyle1" type="text" placeholder="請填寫" :disabled="!reasonTypeOptions[3].checked" v-model="reasonTypeOptions[3].subValue" disabled />
+                                            <input class="cusInputStyle1" type="text" placeholder="請填寫" :disabled="!reasonTypeOptions[3].checked" v-model="reasonTypeOptions[3].subValue" :disabled="!isRejectStatus" />
                                         </div>
                                     </div>
                                 </div>
@@ -236,13 +236,13 @@
                                 <div class="col-md-10">
                                     <div class="row">
                                         <div class="col-md-3" v-for="(layer, idx) in layerTypeOptions" v-if="layer.id < 4">
-                                            <input class="checkbox" type="checkbox" :id="layer.id" :value="layer.checked" :checked="layer.checked" disabled />
+                                            <input class="checkbox" type="checkbox" :id="layer.id" :value="layer.checked" :checked="layer.checked" :disabled="!isRejectStatus" @@click="singleChange(layerTypeOptions, idx)" />
                                             <label class="col-form-label-lg">{{layer.value}}</label>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-4" v-for="(layer, idx) in layerTypeOptions" v-if="layer.id >= 4">
-                                            <input class="checkbox" type="checkbox" :id="layer.id" :value="layer.checked" :checked="layer.checked" disabled />
+                                            <input class="checkbox" type="checkbox" :id="layer.id" :value="layer.checked" :checked="layer.checked" :disabled="!isRejectStatus" @@click="singleChange(layerTypeOptions, idx)" />
                                             <label class="col-form-label-lg">{{layer.value}}</label>
                                         </div>
                                     </div>
@@ -251,7 +251,31 @@
                             <div class="row align-content-center flex-wrap">
                                 <label class="col-md-2 col-form-label-lg">需求原因</label>
                                 <div class="col-md-10">
-                                    <textarea id="remark" rows="3" cols="80" v-model="orderData.layoutOrderInfo.issueRemark" disabled></textarea>
+                                    <textarea id="remark" rows="4" cols="90" v-model="orderData.layoutOrderInfo.issueRemark" :disabled="!isRejectStatus"></textarea>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <fieldset id="cusArea">
+                            <legend id="cusLegend">IE 部門審查</legend>
+                            <div class="row d-flex align-content-center flex-wrap" style="vertical-align: middle; display: inline; ">
+                                <label class="col-md-2 col-form-label-lg">機密等級</label>
+                                <div class="col-md-3" v-for="(secret, idx) in secretLevelOptions" style="vertical-align: middle; display: inline;">
+                                    <input class="checkbox" type="checkbox" :id="secret.id" :value="secret.checked" :checked="secret.checked" :disabled="!isIEAudit" @@click="singleChange(secretLevelOptions, idx)" />
+                                    <label class="col-form-label-lg">{{secret.value}}</label>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top: 10px;">
+                                <div>
+                                    <div class="col-md-3">
+                                        <input type="date" placeholder="預計出圖日" class="form__input" v-model="orderData.layoutOrderInfo.exptOutputDateStr" :disabled="!isIEAudit" />
+                                        <label for="exptOutputDateStr" class="form__label">預計出圖日</label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="col-md-3">
+                                        <input type="text" placeholder="出圖板本" class="form__input" v-model="orderData.layoutOrderInfo.version" :disabled="!isIEAudit" />
+                                        <label for="version" class="form__label">出圖板本</label>
+                                    </div>
                                 </div>
                             </div>
                         </fieldset>
@@ -293,11 +317,11 @@
                                         </div>
                                     </div>
 
-                                    <div style="display:flex">
+                                    <div style="display: flex;color:darkgoldenrod">
                                         <i class="fa fa-check bg-gray"></i>
 
-                                        <i v-if="orderData.layoutOrderInfo.status == 3" class="fas fa-user bg-info"></i>
-                                        <i v-if="orderData.layoutOrderInfo.status != 3" class="fas fa-user bg-gray"></i>
+                                        <i v-if="orderData.layoutOrderInfo.statusId == 3" class="fas fa-user bg-info"></i>
+                                        <i v-if="orderData.layoutOrderInfo.statusId != 3" class="fas fa-user bg-gray"></i>
                                         <div class="timeline-item" style="background-color: transparent; border-color: transparent;">
                                             <span style="font-weight:800">簽核完成</span>
                                         </div>
@@ -305,8 +329,14 @@
                                 </div>
                             </div>
                         </fieldset>
-                        <div class="row">
-                            <input type="button" class="btn btn-sm btn-info" name="btn29" value="送出" @@click="submit" />
+
+                        <div class="row" v-if="orderData.layoutOrderInfo.statusId == 1 && orderData.layoutOrderInfo.auditAccountSn == userInfo.accountSn">
+                            <input class="btn btn-success" type="button" @@click="auditClk('核准','darkgreen', 5)" value="核准" />
+                            <input class="btn btn-danger" type="button" @@click="auditClk('剔退','red',2)" value="剔退" />
+                        </div>
+                        <div class="row" v-if="orderData.layoutOrderInfo.statusId == 2 && orderData.layoutOrderInfo.applicantAccountSn == userInfo.accountSn">
+                            <input class="btn btn-warning" type="button" @@click="auditClk('重送','darkgoldenrod', 1)" value="重送" />
+                            <input class="btn btn-danger" type="button" @@click="auditClk('作廢','red', 4)" value="作廢" />
                         </div>
                     </div>
                 </div>
@@ -328,7 +358,23 @@
                 formatTypeOptions: @(Html.Raw(Json.Serialize(ViewBag.FormatTypeOptions))),
                 reasonTypeOptions: @(Html.Raw(Json.Serialize(ViewBag.ReasonTypeOptions))),
                 layerTypeOptions: @(Html.Raw(Json.Serialize(ViewBag.LayerTypeOptions))),
+                secretLevelOptions: @(Html.Raw(Json.Serialize(ViewBag.SecretLevelOptions))),
+                userInfo: @(Html.Raw(Json.Serialize(ViewBag.UserPermission))),
+                resendM: {
+                    department: '',
+                    phone: '',
+                    createDate: null,
+                    applyDate: null,
+                    factoryList: null,
+                    processAreaList: null,
+                    formatTypeList: null,
+                    reasonTypeList: null,
+                    layerTypeList: null,
+                    remark: ''
+                },
+                isRejectStatus: false,
                 orderData: null,
+                isIEAudit: false
             },
             methods: {
                 singleChange(options, idx) {
@@ -345,13 +391,91 @@
                 multiChange(options, idx) {
                     options[idx].checked = !options[idx].checked;
                 },
-                submit() {
+                async auditClk(showText, color, updStatus) {
+                    const _swalRes = await Swal.fire({
+                        title: '確認' + "<a style='font-weight:600; color: " + color +";'>" + showText + "</a>",
+                        icon: 'question',
+                        input: 'text',
+                        inputLabel: '備註',
+                        showCancelButton: true,
+                        showConfirmButton: true
+                    });
+                    if (_swalRes.isConfirmed && updStatus == 1) {
+                        vm.resendClk();
+                    }
+                    else if (_swalRes.isConfirmed && updStatus == 4) {
+                        vm.cancelClk();
+                    }
+                    else if (_swalRes.isConfirmed) {
+                        vm.callAction(updStatus, _swalRes.value);
+                    }
+                },
+                callAction(status, remark) {
 
                     var errMsg = '';
 
-                    if (vm.createM.name == '' || vm.createM.department == '' || vm.createM.phone == '' ||
-                        vm.createM.applyDate == '' || vm.createM.remark == '' || vm.createM.applyDate == null) {
-                        errMsg += '請確認[姓名]﹑[部門]﹑[分機]﹑[需求日]﹑[需求原因]是否填寫\n'
+                    if (vm.orderData.layoutOrderInfo.isIEFlow) {
+                        if (vm.orderData.layoutOrderInfo.version == '' || vm.orderData.layoutOrderInfo.exptOutputDateStr == '' || vm.orderData.layoutOrderInfo.exptOutputDateStr == null) {
+                            errMsg += '請確認[預計出圖日]﹑[出圖板本]是否填寫\n'
+                        }
+                        errMsg += vm.chkOptions(vm.secretLevelOptions, '機密等級', null);
+                    }
+
+                    if (errMsg != '') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: errMsg,
+                            showConfirmButton: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                return;
+                            }
+                        });
+                    }
+                    else {
+                        $.ajax({
+                            url: '../Audit',
+                            type: 'POST',
+                            data: {
+                                secretLevelList: vm.secretLevelOptions,
+                                exptOutputDate: vm.orderData.layoutOrderInfo.exptOutputDateStr,
+                                version: vm.orderData.layoutOrderInfo.version,
+                                layoutOrderSn: vm.orderData.layoutOrderInfo.orderSn,
+                                auditStatusId: status,
+                                remark: remark
+                            },
+                            success: function (res) {
+                                if (res.isSuccess) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: '成功',
+                                        showConfirmButton: false,
+                                        timer: 2000
+                                    }).then((result) => {
+                                        location.href = '../../IELayout';
+                                    });
+                                }
+                                else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: '失敗',
+                                        text: res.msg,
+                                        showConfirmButton: true
+                                    });
+                                }
+                            }
+                        });
+                    }
+                },
+                resendClk() {
+
+                    vm.resendM = vm.orderData.layoutOrderInfo;
+
+                    var errMsg = '';
+
+                    if (vm.resendM.department == '' || vm.resendM.phone == '' ||
+                        vm.resendM.applyDate == '' || vm.resendM.applyDate == null || vm.resendM.remark == '') {
+                        errMsg += '請確認[部門]﹑[分機]﹑[需求日]﹑[需求原因]是否填寫\n'
                     }
 
                     errMsg += vm.chkOptions(vm.factoryFloorOptions, '廠別', null);
@@ -372,15 +496,15 @@
                         });
                     }
                     else {
-                        vm.createM.factoryList = vm.factoryFloorOptions;
-                        vm.createM.processAreaList = vm.processAreaOptions;
-                        vm.createM.formatTypeList = vm.formatTypeOptions;
-                        vm.createM.reasonTypeList = vm.reasonTypeOptions;
-                        vm.createM.layerTypeList = vm.layerTypeOptions;
+                        vm.resendM.factoryList = vm.factoryFloorOptions;
+                        vm.resendM.processAreaList = vm.processAreaOptions;
+                        vm.resendM.formatTypeList = vm.formatTypeOptions;
+                        vm.resendM.reasonTypeList = vm.reasonTypeOptions;
+                        vm.resendM.layerTypeList = vm.layerTypeOptions;
                         $.ajax({
-                            url: './Create',
+                            url: '../Resned',
                             type: 'POST',
-                            data: vm.createM,
+                            data: vm.resendM,
                             success: function (res) {
                                 if (res.isSuccess) {
                                     Swal.fire({
@@ -389,7 +513,7 @@
                                         showConfirmButton: false,
                                         timer: 2000
                                     }).then((result) => {
-                                        location.href = '../IELayout';
+                                        location.href = '../';
                                     });
                                 }
                                 else {
@@ -403,6 +527,32 @@
                             }
                         });
                     }
+                },
+                cancelClk() {
+                    $.ajax({
+                        url: '../Cancel/' + vm.orderData.layoutOrderInfo.orderSn,
+                        type: 'POST',
+                        success: function (res) {
+                            if (res.isSuccess) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '成功',
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                }).then((result) => {
+                                    location.href = '../../IELayout';
+                                });
+                            }
+                            else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: '失敗',
+                                    text: res.msg,
+                                    showConfirmButton: true
+                                });
+                            }
+                        }
+                    });
                 },
                 numPad(str, digits) {
                     // 轉換成兩位數
@@ -454,6 +604,15 @@
                 this.setClkOptions(this.formatTypeOptions, this.orderData.layoutOrderInfo.formatType, true, false, [], '');
                 this.setClkOptions(this.reasonTypeOptions, this.orderData.layoutOrderInfo.reasonTypeId, false, true, [3, 4], this.orderData.layoutOrderInfo.reason);
                 this.setClkOptions(this.layerTypeOptions, this.orderData.layoutOrderInfo.layerTypeId, false, false, [], '');
+                this.setClkOptions(this.secretLevelOptions, this.orderData.layoutOrderInfo.secretLevelId, false, false, [], '');
+
+                if (this.orderData.layoutOrderInfo.isIEFlow && (this.userInfo.accountPermission & 32)) {
+                    this.isIEAudit = true;
+                }
+                if (this.orderData.layoutOrderInfo.applicantAccountSn == this.userInfo.accountSn && this.orderData.layoutOrderInfo.statusId == 2) {
+                    this.isRejectStatus = true;
+                }
+
             },
             computed: {
             }

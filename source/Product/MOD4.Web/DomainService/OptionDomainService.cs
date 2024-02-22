@@ -587,6 +587,15 @@ namespace MOD4.Web.DomainService
             }).ToList();
         }
 
+        public List<OptionEntity> GetSecretOptions()
+        {
+            return EnumHelper.GetEnumValue<SecretLevelEnum>().Select(type => new OptionEntity
+            {
+                Id = (int)type,
+                Value = type.GetDescription()
+            }).ToList();
+        }
+
         private List<OptionEntity> GetEqProdOptionList(int id)
         {
             switch (id)

@@ -246,7 +246,6 @@ namespace MOD4.Web.DomainService.Demand
             {
                 throw ex;
             }
-
         }
 
         public (bool, string) UpdateDemand(DemandEntity updEntity, UserEntity userEntity)
@@ -944,19 +943,29 @@ namespace MOD4.Web.DomainService.Demand
 
         #region IE Layout
 
-        public List<IELayoutEntity> GetList(UserEntity userInfo)
+        public List<IELayoutEntity> GetList(DateTime? beginDate, DateTime? endDate, AuditStatusEnum statusId, string applicantUser, UserEntity userInfo)
         {
             try
             {
-                var _layoutApplyList = _ieLayoutApplyRepository.SelectByConditions(applicantAccSn: userInfo.sn);
+                DateTime _nowTime = DateTime.Now;
+
+                List<IELayoutApplyDao> _layoutApplyList = new List<IELayoutApplyDao>();
+
+                if (Convert.ToBoolean(userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.IELayout).AccountPermission & (int)PermissionEnum.Management))
+                    _layoutApplyList = _ieLayoutApplyRepository.SelectByConditions(auditStatusId: statusId, startDate: beginDate, endDate: endDate, createUser: applicantUser);
+                else
+                    _layoutApplyList = _ieLayoutApplyRepository.SelectByConditions(auditStatusId: statusId, applicantAccSn: userInfo.sn, auditAccSn: userInfo.sn, startDate: beginDate, endDate: endDate, createUser: applicantUser);
+
+
                 var accountInfoList = _accountDomainService.GetAccountInfo(_layoutApplyList.Select(s => s.ApplicantAccountSn).Union(_layoutApplyList.Select(ss => ss.AuditAccountSn)).ToList());
 
-                return _layoutApplyList.Select(s => new IELayoutEntity
+                return _layoutApplyList.OrderByDescending(od => od.CreateTime).Select(s => new IELayoutEntity
                 {
                     OrderSn = s.OrderSn,
                     OrderNo = s.OrderNo,
                     ApplicantName = accountInfoList.FirstOrDefault(f => f.sn == s.ApplicantAccountSn)?.Name ?? "",
                     Status = s.StatusId.GetDescription(),
+                    StatusId = s.StatusId,
                     AuditName = accountInfoList.FirstOrDefault(f => f.sn == s.AuditAccountSn)?.Name ?? "",
                     IssueRemark = s.IssueRemark,
                     ApplyDateStr = s.ApplyDate.ToString("yyy-MM-dd"),
@@ -975,14 +984,16 @@ namespace MOD4.Web.DomainService.Demand
             {
                 DateTime _nowTime = DateTime.Now;
                 string _createRes = "";
+                int _applySn = 0;
 
-                List<AccountInfoDao> _auditeFlowList = _accountInfoRepository.SelectIEApplyFlow(userInfo.JobId, (int)userInfo.Level_id).Where(w => w.name != "").ToList();
+                List<AccountInfoDao> _auditeFlowList = _accountInfoRepository.SelectIEApplyFlow(userInfo.JobId, (int)userInfo.Level_id, createEntity.FactoryList.Where(f => f.Checked).Sum(sum => sum.Id))
+                    .Where(w => w.name != "").OrderBy(o => o.no).ToList();
 
                 List<IELayoutApplyAuditHistoryDao> ieLayoutApplyAuditHistoryDaos = new List<IELayoutApplyAuditHistoryDao>();
 
                 IELayoutApplyDao _iELayoutApplyDao = new IELayoutApplyDao
                 {
-                    OrderNo = "LO" + createEntity.CreateDate.ToString("yyMMddHHmmss"),
+                    OrderNo = "LO" + _nowTime.ToString("yyMMddHHmmss"),
                     Department = createEntity.Department,
                     StatusId = AuditStatusEnum.Processing,
                     ApplicantAccountSn = userInfo.sn,
@@ -1027,7 +1038,6 @@ namespace MOD4.Web.DomainService.Demand
                 {
                     bool _insRes = false;
                     bool _insHisRes = false;
-                    int _applySn = 0;
 
                     _insRes = _ieLayoutApplyRepository.Insert(_iELayoutApplyDao) == 1;
                     _applySn = _ieLayoutApplyRepository.SelectByConditions(orderNo: _iELayoutApplyDao.OrderNo).FirstOrDefault().OrderSn;
@@ -1041,7 +1051,184 @@ namespace MOD4.Web.DomainService.Demand
                         _createRes = "新增異常";
                 }
 
+                // 發送待簽核mail
+                if (string.IsNullOrEmpty(_createRes) && _auditeFlowList.FirstOrDefault(f => f.sn == _iELayoutApplyDao.AuditAccountSn) != null)
+                {
+                    var _mailInfo = _auditeFlowList.FirstOrDefault(f => f.sn == _iELayoutApplyDao.AuditAccountSn);
+
+                    _mailServer.Send(new MailEntity
+                    {
+                        To = "flower.lin@carux.com", //_mailInfo.mail,
+                        Subject = $"CarUX Layout 申請單待簽核通知 - 申請人: {userInfo.Name}",
+                        Content = "<br />Dear Sir ,<br /><br />" +
+                        "您有 <a style='font-weight:700 ;text-decoration:underline ;'>待簽核</a> Layout需求申請單</a>， <br /><br />" +
+                        $"申請單連結：<a href='http://cux003184s:88/CarUX/Demand/IELayout/Detail/{_applySn}' target='_blank'>" + _iELayoutApplyDao.OrderNo + "</a>"
+                    });
+
+                    // 告知業務owner
+                    _mailServer.Send(new MailEntity
+                    {
+                        To = "KAITZU.CHANG@INNOLUX.COM",
+                        Subject = $"CarUX Layout 新申請單通知 - 申請人: {userInfo.Name}",
+                        Content = "<br />Dear Sir ,<br /><br />" +
+                        "有新Layout需求申請單，<br /><br />" +
+                        $"申請單連結：<a href='http://cux003184s:88/CarUX/Demand/IELayout/Detail/{_applySn}' target='_blank'>" + _iELayoutApplyDao.OrderNo + "</a>"
+                    });
+                }
+
                 return _createRes;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string Resend(IELayoutCreateEntity createEntity, UserEntity userInfo)
+        {
+            try
+            {
+                DateTime _nowTime = DateTime.Now;
+                string _updateRes = "";
+
+                IELayoutApplyDao _orgLayoutOrder = _ieLayoutApplyRepository.SelectByConditions(snList: new List<int> { createEntity.OrderSn }).FirstOrDefault();
+
+                if (_orgLayoutOrder == null || _orgLayoutOrder.StatusId != AuditStatusEnum.Rejected)
+                    throw new Exception("申請單狀態異常");
+
+                List<AccountInfoDao> _auditeFlowList = _accountInfoRepository.SelectIEApplyFlow(userInfo.JobId, (int)userInfo.Level_id, createEntity.FactoryList.Where(f => f.Checked).Sum(sum => sum.Id))
+                    .Where(w => w.name != "").OrderBy(o => o.no).ToList();
+
+                List<IELayoutApplyAuditHistoryDao> ieLayoutApplyAuditHistoryDaos = new List<IELayoutApplyAuditHistoryDao>();
+
+                IELayoutApplyDao _iELayoutApplyDao = new IELayoutApplyDao
+                {
+                    OrderSn = _orgLayoutOrder.OrderSn,
+                    Department = createEntity.Department,
+                    StatusId = AuditStatusEnum.Processing,
+                    Phone = createEntity.Phone,
+                    ApplyDate = createEntity.ApplyDate,
+                    FactoryFloor = createEntity.FactoryList.Where(f => f.Checked).Sum(sum => sum.Id),
+                    ProcessArea = createEntity.ProcessAreaList.Where(f => f.Checked).Sum(sum => sum.Id),
+                    FormatType = createEntity.FormatTypeList.Where(f => f.Checked).Sum(sum => sum.Id),
+                    ReasonTypeId = (ReasonTypeEnum)createEntity.ReasonTypeList.FirstOrDefault(f => f.Checked).Id,
+                    LayerTypeId = (LayerTypeEnum)createEntity.LayerTypeList.FirstOrDefault(f => f.Checked).Id,
+                    IssueRemark = createEntity.IssueRemark,
+                    UpdateTime = _nowTime,
+                    UpdateUser = userInfo.Name,
+                    IsIEFlow = false
+                };
+
+                if (_iELayoutApplyDao.ReasonTypeId == ReasonTypeEnum.Vendor || _iELayoutApplyDao.ReasonTypeId == ReasonTypeEnum.Other)
+                    _iELayoutApplyDao.Reason = createEntity.ReasonTypeList.FirstOrDefault(f => f.Checked).SubValue;
+
+
+                if (Convert.ToBoolean(_iELayoutApplyDao.ProcessArea & (int)ProcessAreaEnum.Other))
+                    _iELayoutApplyDao.PartRemark = createEntity.ProcessAreaList.FirstOrDefault(f => f.Id == 64).SubValue;
+
+                if (_auditeFlowList.Count <= 5)
+                    throw new Exception("尚未設定部門, 請洽系統負責人(5014-62721)");
+
+                _iELayoutApplyDao.AuditAccountSn = _auditeFlowList[0].sn;
+
+                for (int r = 0; r < _auditeFlowList.Count; r++)
+                {
+                    ieLayoutApplyAuditHistoryDaos.Add(new IELayoutApplyAuditHistoryDao
+                    {
+                        IELayoutSn = createEntity.OrderSn,
+                        AuditName = _auditeFlowList[r].name,
+                        AuditAccountSn = _auditeFlowList[r].sn,
+                        AuditSn = r + 1,
+                        AuditStatusId = AuditStatusEnum.Processing,
+                        ReceivedTime = r == 0 ? _nowTime : null,
+                    });
+                }
+
+                using (TransactionScope scope = new TransactionScope())
+                {
+                    bool _insRes = false;
+                    bool _insHisRes = false;
+
+                    _insRes = _ieLayoutApplyRepository.UpdateResend(_iELayoutApplyDao) == 1;
+
+                    _ieLayoutApplyAuditHistoryRepository.DeleteHistory(_iELayoutApplyDao.OrderSn);
+                    _insHisRes = _ieLayoutApplyAuditHistoryRepository.InsertHistory(ieLayoutApplyAuditHistoryDaos) == ieLayoutApplyAuditHistoryDaos.Count;
+
+                    if (_insRes && _insHisRes)
+                        scope.Complete();
+                    else
+                        _updateRes = "重送異常";
+                }
+
+                // 發送待簽核mail
+                if (string.IsNullOrEmpty(_updateRes) && _auditeFlowList.FirstOrDefault(f => f.sn == _iELayoutApplyDao.AuditAccountSn) != null)
+                {
+                    var _mailInfo = _auditeFlowList.FirstOrDefault(f => f.sn == _iELayoutApplyDao.AuditAccountSn);
+
+                    _mailServer.Send(new MailEntity
+                    {
+                        To = _mailInfo.mail,
+                        Subject = $"CarUX Layout 申請單待簽核通知 - 申請人: {userInfo.Name}",
+                        Content = "<br />Dear Sir ,<br /><br />" +
+                        "您有 <a style='font-weight:700 ;text-decoration:underline ;'>待簽核</a> Layout 申請單</a>， <br /><br />" +
+                        $"申請單連結：<a href='http://cux003184s:88/CarUX/Demand/IELayout/Detail/{_orgLayoutOrder.OrderSn}' target='_blank'>" + _orgLayoutOrder.OrderNo + "</a>"
+                    });
+
+                    // 告知業務owner
+                    _mailServer.Send(new MailEntity
+                    {
+                        To = "KAITZU.CHANG@INNOLUX.COM",
+                        Subject = $"CarUX Layout 新申請單通知 - 申請人: {userInfo.Name}",
+                        Content = "<br />Dear Sir ,<br /><br />" +
+                        "有新Layout需求申請單，<br /><br />" +
+                        $"申請單連結：<a href='http://cux003184s:88/CarUX/Demand/IELayout/Detail/{_orgLayoutOrder.OrderSn}' target='_blank'>" + _orgLayoutOrder.OrderNo + "</a>"
+                    });
+                }
+
+                return _updateRes;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string Cancel(int orderSn, UserEntity userInfo)
+        {
+            try
+            {
+                DateTime _nowTime = DateTime.Now;
+                string _updateRes = "";
+
+                IELayoutApplyDao _orgLayoutOrder = _ieLayoutApplyRepository.SelectByConditions(snList: new List<int> { orderSn }).FirstOrDefault();
+
+                if (_orgLayoutOrder == null || _orgLayoutOrder.StatusId != AuditStatusEnum.Rejected || _orgLayoutOrder.ApplicantAccountSn != userInfo.sn)
+                    throw new Exception("申請單狀態 or 申請人異常");
+
+                IELayoutApplyDao _iELayoutApplyDao = new IELayoutApplyDao
+                {
+                    OrderSn = orderSn,
+                    StatusId = AuditStatusEnum.Cancel,
+                    AuditAccountSn = 0,
+                    UpdateTime = _nowTime,
+                    UpdateUser = userInfo.Name,
+                    IsIEFlow = false
+                };
+
+                using (TransactionScope scope = new TransactionScope())
+                {
+                    bool _insRes = false;
+                    bool _insHisRes = false;
+
+                    _insRes = _ieLayoutApplyRepository.Update(_iELayoutApplyDao) == 1;
+
+                    if (_insRes)
+                        scope.Complete();
+                    else
+                        _updateRes = "作廢異常";
+                }
+
+                return _updateRes;
             }
             catch (Exception ex)
             {
@@ -1063,12 +1250,15 @@ namespace MOD4.Web.DomainService.Demand
                     {
                         OrderSn = _layoutApply.OrderSn,
                         OrderNo = _layoutApply.OrderNo,
+                        ApplicantAccountSn = _layoutApply.ApplicantAccountSn,
                         ApplicantName = accountInfoList.FirstOrDefault(f => f.sn == _layoutApply.ApplicantAccountSn)?.Name,
+                        AuditAccountSn = _layoutApply.AuditAccountSn,
                         Department = _layoutApply.Department,
                         Phone = _layoutApply.Phone,
                         ApplyDateStr = _layoutApply.ApplyDate.ToString("yyy-MM-dd"),
                         CreateTimeStr = _layoutApply.CreateTime.ToString("yyy-MM-dd"),
                         Status = _layoutApply.StatusId.GetDescription(),
+                        StatusId = _layoutApply.StatusId,
                         FactoryFloor = _layoutApply.FactoryFloor,
                         ProcessArea = _layoutApply.ProcessArea,
                         PartRemark = _layoutApply.PartRemark,
@@ -1076,9 +1266,13 @@ namespace MOD4.Web.DomainService.Demand
                         ReasonTypeId = _layoutApply.ReasonTypeId,
                         Reason = _layoutApply.Reason ?? "",
                         LayerTypeId = _layoutApply.LayerTypeId,
-                        IssueRemark = _layoutApply.IssueRemark
+                        IssueRemark = _layoutApply.IssueRemark,
+                        SecretLevelId = _layoutApply.SecretLevelId,
+                        ExptOutputDateStr = _layoutApply.ExptOutputDate?.ToString("yyy-MM-dd") ?? "",
+                        Version = _layoutApply.Version,
+                        IsIEFlow = _layoutApply.IsIEFlow,
                     },
-                    AuditList = _layoutApplyAuditHis.Select(his => new IELayoutAuditEntity
+                    AuditList = _layoutApplyAuditHis.Select(his => new IELayoutAuditDetailEntity
                     {
                         AuditSn = his.AuditSn,
                         AuditAccountSn = his.AuditAccountSn,
@@ -1088,8 +1282,125 @@ namespace MOD4.Web.DomainService.Demand
                         ReceivedTime = his.ReceivedTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "--",
                         AuditTime = his.AuditTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "--",
                         DiffTime = his.ReceivedTime != null ? ((his.AuditTime ?? DateTime.Now).Subtract((DateTime)his.ReceivedTime).TotalMinutes / 60).ToString("0.00") : "0",
+                        Remark = his.Remark
                     }).ToList()
                 };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string AuditLayoutApply(IELayoutAuditEntity layoutInfoEntity)
+        {
+            try
+            {
+                DateTime _noewTime = DateTime.Now;
+                string _auditRes = "";
+                var _layoutApply = _ieLayoutApplyRepository.SelectByConditions(snList: new List<int> { layoutInfoEntity.AuditDetailEntity.LayoutOrderSn }).FirstOrDefault();
+
+                if (_layoutApply == null)
+                    throw new Exception("訂單編號錯誤");
+
+                var _layoutApplyAuditHis = _ieLayoutApplyAuditHistoryRepository.SelectByConditions(_layoutApply.OrderSn);
+                var accountInfoList = _accountDomainService.GetAccountInfo(new List<int> { _layoutApply.ApplicantAccountSn, _layoutApply.AuditAccountSn });
+
+                if (_layoutApply.AuditAccountSn != layoutInfoEntity.UserInfo.sn ||
+                    (_layoutApplyAuditHis.OrderBy(o => o.AuditSn).FirstOrDefault(f => f.AuditStatusId == AuditStatusEnum.Processing)?.AuditAccountSn ?? 0) != layoutInfoEntity.UserInfo.sn)
+                    throw new Exception("簽核人員異常");
+
+                IELayoutApplyDao _ieLayoutApplyDao = new IELayoutApplyDao();
+                IELayoutApplyAuditHistoryDao _updLayoutOrderHisCurrent = _layoutApplyAuditHis.OrderBy(o => o.AuditSn).FirstOrDefault(f => f.AuditStatusId == AuditStatusEnum.Processing);
+                IELayoutApplyAuditHistoryDao _updLayoutOrderHisNext = _layoutApplyAuditHis.OrderBy(o => o.AuditSn).Where(w => w.AuditStatusId == AuditStatusEnum.Processing).Skip(1).FirstOrDefault();
+
+                _updLayoutOrderHisCurrent.AuditStatusId = layoutInfoEntity.AuditDetailEntity.AuditStatusId;
+                _updLayoutOrderHisCurrent.AuditTime = _noewTime;
+                _updLayoutOrderHisCurrent.Remark = layoutInfoEntity.AuditDetailEntity.Remark;
+
+                if (layoutInfoEntity.AuditDetailEntity.AuditStatusId == AuditStatusEnum.Approve && _updLayoutOrderHisNext == null)
+                {
+                    _layoutApply.StatusId = AuditStatusEnum.Completed;
+                    _layoutApply.SecretLevelId = (SecretLevelEnum)layoutInfoEntity.SecretOptoins.FirstOrDefault(w => w.Checked).Id;
+                    _layoutApply.ExptOutputDate = layoutInfoEntity.LayoutOrderDetailEntity.ExptOutputDate;
+                    _layoutApply.Version = layoutInfoEntity.LayoutOrderDetailEntity.Version;
+                    _layoutApply.AuditAccountSn = 0;
+                }
+                else if (layoutInfoEntity.AuditDetailEntity.AuditStatusId == AuditStatusEnum.Approve)
+                {
+                    _layoutApply.AuditAccountSn = _updLayoutOrderHisCurrent.AuditSn != _layoutApplyAuditHis.Max(max => max.AuditSn)
+                        ? _layoutApplyAuditHis.OrderBy(o => o.AuditSn).Where(w => w.AuditStatusId == AuditStatusEnum.Processing).First().AuditAccountSn
+                        : _layoutApply.AuditAccountSn;
+                    _layoutApply.StatusId = _updLayoutOrderHisCurrent.AuditSn == _layoutApplyAuditHis.Max(max => max.AuditSn) ? AuditStatusEnum.Completed : _layoutApply.StatusId;
+                    _layoutApply.IsIEFlow = _updLayoutOrderHisCurrent.AuditSn == _layoutApplyAuditHis.Max(max => max.AuditSn) - 1;
+                    _updLayoutOrderHisNext.ReceivedTime = _noewTime;
+                }
+                else
+                {
+                    _layoutApply.StatusId = layoutInfoEntity.AuditDetailEntity.AuditStatusId;
+                    _layoutApply.AuditAccountSn = 0;
+                }
+
+                _layoutApply.UpdateTime = _noewTime;
+                _layoutApply.UpdateUser = layoutInfoEntity.UserInfo.Name;
+
+                using (TransactionScope scope = new TransactionScope())
+                {
+                    bool _orderUpdRes = false;
+                    bool _hisUpdRes = false;
+                    int _applySn = 0;
+
+                    _orderUpdRes = _ieLayoutApplyRepository.Update(_layoutApply) == 1;
+                    _hisUpdRes = _ieLayoutApplyAuditHistoryRepository.Update(new List<IELayoutApplyAuditHistoryDao> { _updLayoutOrderHisCurrent }) == 1;
+                    if (_updLayoutOrderHisNext != null)
+                        _ieLayoutApplyAuditHistoryRepository.Update(new List<IELayoutApplyAuditHistoryDao> { _updLayoutOrderHisNext });
+
+                    if (_orderUpdRes && _hisUpdRes)
+                        scope.Complete();
+                    else
+                        _auditRes = "新增異常";
+                }
+
+                if (!string.IsNullOrEmpty(_auditRes))
+                    return _auditRes;
+
+                // 發送待簽核mail
+                if (_layoutApply.StatusId == AuditStatusEnum.Completed)
+                    // 結案通知申請人
+                    _mailServer.Send(new MailEntity
+                    {
+                        To = accountInfoList.FirstOrDefault(f => f.sn == _layoutApply.ApplicantAccountSn).Mail,
+                        Subject = $"CarUX Layout 申請單核准通知",
+                        Content = "<br />Dear Sir ,<br /><br />" +
+                        "您的 CarUX Layout 申請單<a style='font-weight:700 ;text-decoration:underline ;'>已核准</a>，<br /><br />" +
+                        $"申請單連結：<a href='http://cux003184s:88/CarUX/Demand/IELayout/Detail/{_layoutApply.OrderSn}' target='_blank'>" + _layoutApply.OrderNo + "</a>"
+                    });
+                else if (_layoutApply.StatusId == AuditStatusEnum.Rejected)
+                    // 駁回通知申請人
+                    _mailServer.Send(new MailEntity
+                    {
+                        To = accountInfoList.FirstOrDefault(f => f.sn == _layoutApply.ApplicantAccountSn).Mail,
+                        Subject = $"CarUX Layout 申請單駁回通知",
+                        Content = "<br />Dear Sir ,<br /><br />" +
+                        "您的 CarUX Layout 申請單<a style='font-weight:700 ;text-decoration:underline ;'>已駁回</a>，<br /><br />" +
+                        $"申請單連結：<a href='http://cux003184s:88/CarUX/Demand/IELayout/Detail/{_layoutApply.OrderSn}' target='_blank'>" + _layoutApply.OrderNo + "</a>"
+                    });
+                else if (_layoutApply.StatusId == AuditStatusEnum.Processing)
+                {
+                    var _auditUserInfo = _accountDomainService.GetAccountInfo(new List<int> { _updLayoutOrderHisNext.AuditAccountSn }).FirstOrDefault();
+
+                    // 通知待簽人
+                    _mailServer.Send(new MailEntity
+                    {
+                        To = _auditUserInfo?.Mail ?? "",
+                        Subject = $"CarUX Layout 申請單待簽核通知 - 申請人: {accountInfoList.FirstOrDefault(f => f.sn == _layoutApply.ApplicantAccountSn)?.Name ?? ""}",
+                        Content = "<br />Dear Sir ,<br /><br />" +
+                        "您有 <a style='font-weight:700 ;text-decoration:underline ;'>待簽核</a> Layout 申請單</a>， <br /><br />" +
+                        $"申請單連結：<a href='http://cux003184s:88/CarUX/Demand/IELayout/Detail/{_layoutApply.OrderSn}' target='_blank'>" + _layoutApply.OrderNo + "</a>"
+                    });
+                }
+
+                return _auditRes;
             }
             catch (Exception ex)
             {

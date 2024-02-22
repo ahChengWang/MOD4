@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "點燈記錄";
 }
 
@@ -10,6 +9,15 @@
 </head>
 
 <style>
+
+    .fc-scrollgrid-section-sticky > th:first-child {
+        background-color: #31778c;
+    }
+
+    .fc-col-header, .fc-daygrid-body, .fc-scrollgrid-sync-table {
+        width: 100% !important;
+    }
+
     .myModal-dialog {
         max-height: 10vh;
     }
@@ -216,6 +224,7 @@
                                                     <option value="2">貼合</option>
                                                     <option value="3">BOND</option>
                                                     <option value="4">偏光板</option>
+                                                    <option value="5">Assy</option>
                                                 </select>
                                             </td>
                                             <td>
@@ -279,7 +288,8 @@
                         center: 'title',
                         right: 'dayGridMonth',
                     },
-                    height: 800,
+                    height: 'auto',
+                    handleWindowsResize: true,
                     initialView: 'dayGridMonth',
                     /*themeSystem: 'bootstrap',*/
                     editable: true,
@@ -415,6 +425,8 @@
                     'E422': [3, 'BL'],
                     'FX68': [3, 'BL'],
                     'GTQK': [3, 'BL'],
+                    'GTQJ': [3, 'BL'],
+                    'GTQY': [3, 'BL'],
                     'T329': [4, 'Panel'],
                     'T32A': [4, 'Panel'],
                     'T32B': [4, 'Panel'],
@@ -438,7 +450,8 @@
                     'TL35': [4, 'Panel'],
                     'TL36': [4, 'Panel'],
                     'TL3A': [4, 'Panel'],
-                    'TL3B': [4, 'Panel']
+                    'TL3B': [4, 'Panel'],
+                    'TL3C': [4, 'Panel']
                 }
             },
             methods: {

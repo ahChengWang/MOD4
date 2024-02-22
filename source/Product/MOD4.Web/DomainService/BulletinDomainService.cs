@@ -372,7 +372,7 @@ namespace MOD4.Web.DomainService
                 ICell _readTime = _hRow.CreateCell(4);
                 _readTime.SetCellValue("閱讀時間");
 
-                for (int i = 1; i < _readDetailList.Count; i++)
+                for (int i = 0; i < _readDetailList.Count; i++)
                 {
                     _hRow = _sheet.CreateRow(i);
                     _jobID = _hRow.CreateCell(0);
