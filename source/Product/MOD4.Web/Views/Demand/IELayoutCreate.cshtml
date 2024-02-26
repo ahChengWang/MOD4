@@ -271,6 +271,7 @@
                 reasonTypeOptions: @(Html.Raw(Json.Serialize(ViewBag.ReasonTypeOptions))),
                 layerTypeOptions: @(Html.Raw(Json.Serialize(ViewBag.LayerTypeOptions))),
                 userName: @(Html.Raw(Json.Serialize(ViewBag.UserName))),
+                deptName: @(Html.Raw(Json.Serialize(ViewBag.DeptName))),
                 minDate: '',
                 createM: {
                     name: '',
@@ -416,6 +417,7 @@
 
                 this.createM.createDate = yr + '-' + months[mo] + '-' + this.numPad(dnum, 2);
                 this.createM.name = this.userName;
+                this.createM.department = this.deptName;
 
                 this.minDate = this.createM.createDate;
             }

@@ -38,5 +38,8 @@ namespace MOD4.Web.Enum
 
         [Description("領班")]
         Foreman = 1024,
+
+        [Description("IE layout 審核")]
+        IELayoutOpr = 2048,
     }
 }

@@ -12,7 +12,7 @@ namespace MOD4.Web.ViewModel
         public AuditStatusEnum AuditStatusId { get; set; }
         public string Remark { get; set; }
         public List<OptionEntity> SecretLevelList { get; set; }
-        public DateTime ExptOutputDate { get; set; }
+        public DateTime? ExptOutputDate { get; set; }
         public string Version { get; set; }
     }
 }

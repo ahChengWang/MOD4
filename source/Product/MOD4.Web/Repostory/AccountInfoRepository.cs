@@ -483,7 +483,7 @@ factoryMgnt as ( {_factoryScript}
 ),
 ieDept as (
 select (ROW_NUMBER() OVER(ORDER BY level_id DESC)) + {_lastestNo} 'no' ,sn, name, jobId, mail, deptSn from account_info  
-where jobId = '12109416' or (deptSn in (43,44) and level_id < 4 )
+where jobId = '12109416' or (deptSn = 44 and level_id < 4 )
 )
 select no,sn,name,jobId,mail,deptSn from base 
 union 
@@ -493,10 +493,7 @@ select * from factoryMgnt
 union 
 select * from ieDept 
 union 
-select (4 + {_lastestNo}) 'no',sn, name, jobId, mail, deptSn from account_info 
-where deptSn = 65 and level_id = 2 
-union 
-select (5 + {_lastestNo}) 'no',sn, name, jobId, mail, deptSn from account_info 
+select (3 + {_lastestNo}) 'no',sn, name, jobId, mail, deptSn from account_info 
 where jobId = '20010946' ; ";
 
             var dao = _dbHelper.ExecuteQuery<AccountInfoDao>(sql, new

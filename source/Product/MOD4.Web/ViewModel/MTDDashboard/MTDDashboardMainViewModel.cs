@@ -16,6 +16,14 @@ namespace MOD4.Web.ViewModel
         [DisplayName("DIFF")]
         public string Diff { get; set; }
 
+        public string TTLMonthPlan { get; set; }
+
+        public string TTLMTDPlan { get; set; }
+
+        public string TTLMTDActual { get; set; }
+
+        public string TTLMTDDiff { get; set; }
+
         public List<MTDDashboardViewModel> ProcessList { get; set; }
     }
 }

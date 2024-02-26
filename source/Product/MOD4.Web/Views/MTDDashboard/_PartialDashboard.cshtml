@@ -100,43 +100,16 @@
                         }
                     }
 
-                    @*bool firstCnt = true;
-                        int spanCnt = process.ProcessList.MTDDetail.Count;
-
-                        foreach (var detail in process.MTDDetail)
-                        {
-                            <tr>
-                                @if (firstCnt)
-                                {
-                                    <td rowspan="@spanCnt">@detail.Date</td>
-                                    <td rowspan="@spanCnt">@detail.Equipment</td>
-                                }
-                                <td>@detail.BigProduct</td>
-                                <td>@detail.PlanProduct</td>
-                                <td name="tdNum">@detail.Output</td>
-                                <td name="tdNum">@detail.DayPlan</td>
-                                <td id="rangPlan" name="tdNum">@detail.RangPlan</td>
-                                <td id="rangDiff" name="tdNum">@detail.RangDiff</td>
-                                <td name="tdNum">@detail.MonthPlan</td>
-                                <td name="tdNum">@detail.MTDPlan</td>
-                                <td name="tdNum">@detail.MTDActual</td>
-                                <td name="tdNum">@detail.MTDDiff</td>
-                                @if (firstCnt)
-                                {
-                                    <td name="tdNum" rowspan="@spanCnt">@process.DownTime</td>
-                                    <td name="tdPercent" rowspan="@spanCnt">@process.DownPercent</td>
-                                    <td name="tdPercent" rowspan="@spanCnt">@process.UPPercent</td>
-                                    <td name="tdPercent" rowspan="@spanCnt">@process.RUNPercent</td>
-                                    <td name="tdPercent" rowspan="@spanCnt">@process.UPHPercent</td>
-                                    <td name="tdOEE" rowspan="@spanCnt">@process.OEEPercent</td>
-                                    firstCnt = false;
-                                }
-                                <td>@detail.EqAbnormal</td>
-                                <td name="tdNum">@detail.RepaireTime</td>
-                                <td>@detail.Status</td>
-                            </tr>
-                        }*@
                 }
+
+                <tr>
+                    <td name="tdNum" style="font-weight: 700;" colspan="10">Total</td>
+                    <td name="tdNum">@process.TTLMonthPlan</td>
+                    <td name="tdNum">@process.TTLMTDPlan</td>
+                    <td name="tdNum">@process.TTLMTDActual</td>
+                    <td name="tdNum">@process.TTLMTDDiff</td>
+                    <td colspan="9"></td>
+                </tr>
             </tbody>
         </table>
 

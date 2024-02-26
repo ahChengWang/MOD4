@@ -6,5 +6,7 @@ namespace MOD4.Web.DomainService
     public interface IDepartmentDomainService
     {
         List<DepartmentEntity> GetDeptSectionList();
+
+        List<DepartmentEntity> GetFullDeptName(List<int> deptSn);
     }
 }

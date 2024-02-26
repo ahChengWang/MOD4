@@ -28,7 +28,7 @@ namespace MOD4.Web.DomainService.Entity
         public string IssueRemark { get; set; }
         public int AuditAccountSn { get; set; }
         public string AuditName { get; set; }
-        public SecretLevelEnum SecretLevelId { get; set; }
+        public SecretLevelEnum? SecretLevelId { get; set; }
         public DateTime? ExptOutputDate { get; set; }
         public string ExptOutputDateStr { get; set; }        
         public string Version { get; set; }

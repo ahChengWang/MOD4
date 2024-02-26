@@ -33,5 +33,17 @@ namespace MOD4.Web.DomainService
                 throw ex;
             }
         }
+
+        public List<DepartmentEntity> GetFullDeptName(List<int> deptSn)
+        {
+            try
+            {
+                return _definitionDepartmentRepository.SelectDeptName(deptSn).CopyAToB<DepartmentEntity>();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

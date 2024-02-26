@@ -29,6 +29,6 @@ namespace MOD4.Web.Repostory.Dao
         }
 
         public override bool Equals(object obj) => Equals(obj as MTDProductionScheduleDao);
-        public override int GetHashCode() => ProdId.GetHashCode();
+        public override int GetHashCode() => new { Sn, Node, EqNo, ProdId, Date }.GetHashCode();
     }
 }

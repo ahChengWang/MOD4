@@ -53,6 +53,10 @@ namespace MOD4.Web.Controllers
                     Plan = mtd.MTDSubList.Sum(sub => sub.Plan).ToString("#,0"),
                     Actual = mtd.MTDSubList.Sum(sub => sub.Actual).ToString("#,0"),
                     Diff = mtd.MTDSubList.Sum(sub => sub.Diff).ToString("#,0"),
+                    TTLMonthPlan = mtd.MTDSubList.SelectMany(sm => sm.MTDDetail).Sum(sum => sum.MonthPlan).ToString("#,0"),
+                    TTLMTDPlan = mtd.MTDSubList.SelectMany(sm => sm.MTDDetail).Sum(sum => sum.MTDPlan).ToString("#,0"),
+                    TTLMTDActual = mtd.MTDSubList.SelectMany(sm => sm.MTDDetail).Sum(sum => sum.MTDActual).ToString("#,0"),
+                    TTLMTDDiff = mtd.MTDSubList.SelectMany(sm => sm.MTDDetail).Sum(sum => sum.MTDDiff).ToString("#,0"),
                     ProcessList = mtd.MTDSubList.Select(s => new MTDDashboardViewModel
                     {
                         Process = s.Process,

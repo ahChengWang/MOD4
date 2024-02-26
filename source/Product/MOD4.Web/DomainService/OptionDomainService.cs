@@ -514,7 +514,7 @@ namespace MOD4.Web.DomainService
 
         public List<OptionEntity> GetAllSections()
         {
-            return _definitionDepartmentRepository.SelectByConditions().Select(s => new OptionEntity
+            return _definitionDepartmentRepository.SelectDeptOptions().Select(s => new OptionEntity
             {
                 Id = s.DeptSn,
                 Value = s.DepartmentName

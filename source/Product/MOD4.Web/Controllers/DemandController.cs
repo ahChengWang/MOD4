@@ -22,17 +22,20 @@ namespace MOD4.Web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IDemandDomainService _demandDomainService;
+        private readonly IDepartmentDomainService _departmentDomainService;
         private readonly IOptionDomainService _optionDomainService;
 
         public DemandController(IDemandDomainService demandDomainService,
             IHttpContextAccessor httpContextAccessor,
             IOptionDomainService optionDomainService,
             IAccountDomainService accountDomainService,
+            IDepartmentDomainService departmentDomainService,
             ILogger<HomeController> logger)
             : base(httpContextAccessor, accountDomainService)
         {
             _demandDomainService = demandDomainService;
             _optionDomainService = optionDomainService;
+            _departmentDomainService = departmentDomainService;
             _logger = logger;
         }
 
@@ -747,6 +750,7 @@ namespace MOD4.Web.Controllers
                 ViewBag.ReasonTypeOptions = _optionDomainService.GetReasonTypeOptions();
                 ViewBag.LayerTypeOptions = _optionDomainService.GetLayerTypeOptions();
                 ViewBag.UserName = _userInfo.Name;
+                ViewBag.DeptName = _departmentDomainService.GetFullDeptName(new List<int> { _userInfo.DeptSn }).FirstOrDefault().DepartmentName;
 
                 return View();
             }
@@ -793,10 +797,12 @@ namespace MOD4.Web.Controllers
                 ViewBag.LayerTypeOptions = _optionDomainService.GetLayerTypeOptions();
                 ViewBag.SecretLevelOptions = _optionDomainService.GetSecretOptions();
                 UserEntity _userInfo = GetUserInfo();
+                ViewBag.Role = _userInfo.Role;
+
                 var _userCurrentPagePermission = _userInfo.UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.IELayout);
                 ViewBag.UserPermission = new UserPermissionViewModel
                 {
-                    AccountSn = _userCurrentPagePermission.AccountSn,
+                    AccountSn = _userCurrentPagePermission.AccountSn,                    
                     MenuSn = _userCurrentPagePermission.MenuSn,
                     AccountPermission = _userCurrentPagePermission.AccountPermission
                 };

@@ -25,7 +25,7 @@ namespace MOD4.Web.ViewModel
         public string Reason { get; set; }
         public LayerTypeEnum LayerTypeId { get; set; }
         public string IssueRemark { get; set; }
-        public SecretLevelEnum SecretLevelId { get; set; }
+        public SecretLevelEnum? SecretLevelId { get; set; }
         public DateTime? ExptOutputDate { get; set; }
         public string ExptOutputDateStr { get; set; }
         public string Version { get; set; }

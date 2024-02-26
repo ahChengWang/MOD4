@@ -16,10 +16,11 @@ namespace MOD4.Web.DomainService.Demand
 {
     public class DemandDomainService : BaseDomainService, IDemandDomainService
     {
-        private readonly IDemandsRepository _demandsRepository;
         private readonly IUploadDomainService _uploadDomainService;
         private readonly IMAppDomainService _mappDomainService;
         private readonly IAccountDomainService _accountDomainService;
+        private readonly IDepartmentDomainService _departmentDomainService;
+        private readonly IDemandsRepository _demandsRepository;
         private readonly IDemadStatusFactory _demadStatusFactory;
         private readonly IMESPermissionRepository _mesPermissionRepository;
         private readonly IMESPermissionApplicantsRepository _mesPermissionApplicantsRepository;
@@ -35,6 +36,7 @@ namespace MOD4.Web.DomainService.Demand
             IUploadDomainService uploadDomainService,
             IMAppDomainService mappDomainService,
             IAccountDomainService accountDomainService,
+            IDepartmentDomainService departmentDomainService,
             IDemadStatusFactory demadStatusFactory,
             IMESPermissionRepository mesPermissionRepository,
             IMESPermissionApplicantsRepository mesPermissionApplicantsRepository,
@@ -50,6 +52,7 @@ namespace MOD4.Web.DomainService.Demand
             _uploadDomainService = uploadDomainService;
             _mappDomainService = mappDomainService;
             _accountDomainService = accountDomainService;
+            _departmentDomainService = departmentDomainService;
             _demadStatusFactory = demadStatusFactory;
             _mesPermissionRepository = mesPermissionRepository;
             _mesPermissionApplicantsRepository = mesPermissionApplicantsRepository;
@@ -1267,7 +1270,7 @@ namespace MOD4.Web.DomainService.Demand
                         Reason = _layoutApply.Reason ?? "",
                         LayerTypeId = _layoutApply.LayerTypeId,
                         IssueRemark = _layoutApply.IssueRemark,
-                        SecretLevelId = _layoutApply.SecretLevelId,
+                        SecretLevelId = (SecretLevelEnum?)_layoutApply.SecretLevelId ?? null,
                         ExptOutputDateStr = _layoutApply.ExptOutputDate?.ToString("yyy-MM-dd") ?? "",
                         Version = _layoutApply.Version,
                         IsIEFlow = _layoutApply.IsIEFlow,
@@ -1318,27 +1321,28 @@ namespace MOD4.Web.DomainService.Demand
                 _updLayoutOrderHisCurrent.AuditTime = _noewTime;
                 _updLayoutOrderHisCurrent.Remark = layoutInfoEntity.AuditDetailEntity.Remark;
 
-                if (layoutInfoEntity.AuditDetailEntity.AuditStatusId == AuditStatusEnum.Approve && _updLayoutOrderHisNext == null)
-                {
-                    _layoutApply.StatusId = AuditStatusEnum.Completed;
-                    _layoutApply.SecretLevelId = (SecretLevelEnum)layoutInfoEntity.SecretOptoins.FirstOrDefault(w => w.Checked).Id;
-                    _layoutApply.ExptOutputDate = layoutInfoEntity.LayoutOrderDetailEntity.ExptOutputDate;
-                    _layoutApply.Version = layoutInfoEntity.LayoutOrderDetailEntity.Version;
-                    _layoutApply.AuditAccountSn = 0;
-                }
-                else if (layoutInfoEntity.AuditDetailEntity.AuditStatusId == AuditStatusEnum.Approve)
+                if (layoutInfoEntity.AuditDetailEntity.AuditStatusId == AuditStatusEnum.Approve)
                 {
                     _layoutApply.AuditAccountSn = _updLayoutOrderHisCurrent.AuditSn != _layoutApplyAuditHis.Max(max => max.AuditSn)
                         ? _layoutApplyAuditHis.OrderBy(o => o.AuditSn).Where(w => w.AuditStatusId == AuditStatusEnum.Processing).First().AuditAccountSn
-                        : _layoutApply.AuditAccountSn;
+                        : 0;
                     _layoutApply.StatusId = _updLayoutOrderHisCurrent.AuditSn == _layoutApplyAuditHis.Max(max => max.AuditSn) ? AuditStatusEnum.Completed : _layoutApply.StatusId;
-                    _layoutApply.IsIEFlow = _updLayoutOrderHisCurrent.AuditSn == _layoutApplyAuditHis.Max(max => max.AuditSn) - 1;
-                    _updLayoutOrderHisNext.ReceivedTime = _noewTime;
+                    _layoutApply.IsIEFlow = Convert.ToBoolean(layoutInfoEntity.UserInfo.Role & (int)RoleEnum.IELayoutOpr); // IE 審查流程
+                    _layoutApply.SecretLevelId = (SecretLevelEnum?)layoutInfoEntity.SecretOptoins.FirstOrDefault(w => w.Checked)?.Id ?? null;
+                    _layoutApply.ExptOutputDate = layoutInfoEntity.LayoutOrderDetailEntity.ExptOutputDate;
+                    _layoutApply.Version = layoutInfoEntity.LayoutOrderDetailEntity.Version;
+
+                    if (_updLayoutOrderHisNext != null)
+                        _updLayoutOrderHisNext.ReceivedTime = _noewTime;
                 }
                 else
                 {
                     _layoutApply.StatusId = layoutInfoEntity.AuditDetailEntity.AuditStatusId;
                     _layoutApply.AuditAccountSn = 0;
+                    _layoutApply.SecretLevelId = null;
+                    _layoutApply.ExptOutputDate = null;
+                    _layoutApply.Version = "";
+                    _layoutApply.IsIEFlow = false;
                 }
 
                 _layoutApply.UpdateTime = _noewTime;

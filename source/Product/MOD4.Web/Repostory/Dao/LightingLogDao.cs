@@ -3,7 +3,7 @@ using System;
 
 namespace MOD4.Web.Repostory.Dao
 {
-    public class LightingLogDao
+    public class LightingLogDao : IEquatable<LightingLogDao>
     {
         public int PanelSn { get; set; }
         public LightingCategoryEnum CategoryId { get; set; }
@@ -24,10 +24,10 @@ namespace MOD4.Web.Repostory.Dao
             if (rwDao == null)
                 return false;
 
-            return this.StatusId == rwDao.StatusId && this.DefectCatgId == rwDao.DefectCatgId && this.DefectCode == rwDao.DefectCode;
+            return this.PanelId == rwDao.PanelId && this.StatusId == rwDao.StatusId && this.DefectCatgId == rwDao.DefectCatgId && this.DefectCode == rwDao.DefectCode;
         }
 
         public override bool Equals(object obj) => Equals(obj as LightingLogDao);
-        public override int GetHashCode() => PanelSn.GetHashCode();
+        public override int GetHashCode() => new { PanelId, StatusId, DefectCatgId, DefectCode }.GetHashCode();
     }
 }

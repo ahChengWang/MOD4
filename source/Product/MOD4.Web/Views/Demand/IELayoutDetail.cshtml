@@ -513,7 +513,7 @@
                                         showConfirmButton: false,
                                         timer: 2000
                                     }).then((result) => {
-                                        location.href = '../';
+                                        location.href = '../../IELayout';
                                     });
                                 }
                                 else {
@@ -606,7 +606,7 @@
                 this.setClkOptions(this.layerTypeOptions, this.orderData.layoutOrderInfo.layerTypeId, false, false, [], '');
                 this.setClkOptions(this.secretLevelOptions, this.orderData.layoutOrderInfo.secretLevelId, false, false, [], '');
 
-                if (this.orderData.layoutOrderInfo.isIEFlow && (this.userInfo.accountPermission & 32)) {
+                if (this.orderData.layoutOrderInfo.isIEFlow && (@(Html.Raw(Json.Serialize(ViewBag.Role))) & 2048)) {
                     this.isIEAudit = true;
                 }
                 if (this.orderData.layoutOrderInfo.applicantAccountSn == this.userInfo.accountSn && this.orderData.layoutOrderInfo.statusId == 2) {
