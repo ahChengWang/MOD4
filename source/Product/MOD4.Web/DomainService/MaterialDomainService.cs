@@ -5,6 +5,7 @@ using MOD4.Web.Enum;
 using MOD4.Web.Repostory;
 using MOD4.Web.Repostory.Dao;
 using Newtonsoft.Json;
+using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System;
@@ -268,7 +269,7 @@ namespace MOD4.Web.DomainService
                     var fileName = Path.GetFileName($"{_fileNameAry[0]}_{_nowTime.ToString("yyMMddHHmmss")}.{_fileNameAry[1]}");
 
                     // 先撈取 report 4.18 工單資料
-                    var _woTask = GetZipsumReport418Async(_nowTime.ToString("yyyy/MM/dd"));
+                    var _woTask = GetZipsumReport418Async(_nowTime);
 
                     List<DefinitionMaterialDao> _defMaterial = _sapMaterialRepository.SelectAllMatlDef();
                     List<MaterialSettingDao> _matlAllSetting = _sapMaterialRepository.SelectMatlAllSetting(null);
@@ -856,44 +857,77 @@ namespace MOD4.Web.DomainService
             }
         }
 
-        private async Task<List<WorkOrderEntity>> GetZipsumReport418Async(string dateStr)
+        private async Task<List<WorkOrderEntity>> GetZipsumReport418Async(DateTime dateStr)
         {
-
-            string _qStr = $"wo_area=&wotype=ALL&iswodueday=N&Calendar1={dateStr}&calendar2={dateStr}&iswostartday=N&Calendar2_1={dateStr}&calendar2_2={dateStr}&workorder=&prod_type=ALL&wo_status=ALL&mvin_rate=ALL&mvou_rate=ALL&G_FAC=6&Shop=MOD4&calendar_1={dateStr}&calendar_2={dateStr}&calendar_2_1={dateStr}&calendar_2_2={dateStr}";
-            var data = new StringContent(_qStr, Encoding.UTF8, "application/x-www-form-urlencodedn");
-
-            List<string> _status;
             List<WorkOrderEntity> _wo418Entity = new List<WorkOrderEntity>();
 
-            using (var client = new HttpClient())
-            {
-                HttpResponseMessage response = await client.PostAsync("http://zipsum/modreport/Report/MOD4/NHWoUnClose60DataSet.asp", data);
+            var _rpt418List = await _inxReportService.Get418NewReportAsync<INXRpt418Entity>(dateStr);
 
-                response.Content.Headers.ContentType.CharSet = "Big5";
-
-                string result = response.Content.ReadAsStringAsync().Result;
-
-                result = result.Remove(0, 32900);
-
-                _status = result.Split("<SCRIPT LANGUAGE=vbscript>").ToList();
-            }
-
-            _status.RemoveAt(_status.Count - 1);
-
-            _status.ForEach(wo =>
-            {
-                var _tmp = wo.Split("ReportGrid1.TextMatrix");
-                _wo418Entity.Add(new WorkOrderEntity
+            var _parallelRes = Parallel.ForEach(_rpt418List.Date.Data.Table,
+                new ParallelOptions { MaxDegreeOfParallelism = 8 },
+                (rptData) =>
                 {
-                    WorkOrder = _tmp[1].Split("\"")[1],
-                    WOStatus = _tmp[2].Split("\"")[1],
-                    LcmProduct = _tmp[3].Split("\"")[1],
-                    WOType = _woTypeDic[_tmp[5].Split("\"")[1]],
-                    WOComment = _tmp[13].Split("\"")[1],
-                    Scrap = Convert.ToInt32(_tmp[28].Split("\"")[1]),
-                    ActualQty = Convert.ToInt32(_tmp[16].Split("\"")[1])
+                    List<WorkOrderEntity> _tmpWOEntity = new List<WorkOrderEntity>();
+                    _tmpWOEntity.Add(new WorkOrderEntity
+                    {
+                        WorkOrder = rptData.WO_NBR,
+                        WOStatus = rptData.WO_STATUS,
+                        LcmProduct = rptData.PROD_NBR,
+                        WOType = _woTypeDic[rptData.LCM_OWNER],
+                        WOComment = rptData.COMMENT1,
+                        Scrap = Convert.ToInt32(rptData.SCRAP_QTY),
+                        ActualQty = Convert.ToInt32(rptData.ACTUAL_QTY)
+                    });
+
+                    lock (this)
+                        _wo418Entity.AddRange(_tmpWOEntity);
                 });
-            });
+
+            //foreach (var rptData in _rpt418List.Date.Data.Table)
+            //    _wo418Entity.Add(new WorkOrderEntity
+            //    {
+            //        WorkOrder = rptData.WO_NBR,
+            //        WOStatus = rptData.WO_STATUS,
+            //        LcmProduct = rptData.PROD_NBR,
+            //        WOType = _woTypeDic[rptData.LCM_OWNER],
+            //        WOComment = rptData.COMMENT1,
+            //        Scrap = Convert.ToInt32(rptData.SCRAP_QTY),
+            //        ActualQty = Convert.ToInt32(rptData.ACTUAL_QTY)
+            //    });
+
+            //string _qStr = $"wo_area=&wotype=ALL&iswodueday=N&Calendar1={dateStr}&calendar2={dateStr}&iswostartday=N&Calendar2_1={dateStr}&calendar2_2={dateStr}&workorder=&prod_type=ALL&wo_status=ALL&mvin_rate=ALL&mvou_rate=ALL&G_FAC=6&Shop=MOD4&calendar_1={dateStr}&calendar_2={dateStr}&calendar_2_1={dateStr}&calendar_2_2={dateStr}";
+            //var data = new StringContent(_qStr, Encoding.UTF8, "application/x-www-form-urlencodedn");
+            //List<string> _status;
+
+            //using (var client = new HttpClient())
+            //{
+            //    HttpResponseMessage response = await client.PostAsync("http://zipsum/modreport/Report/MOD4/NHWoUnClose60DataSet.asp", data);
+
+            //    response.Content.Headers.ContentType.CharSet = "Big5";
+
+            //    string result = response.Content.ReadAsStringAsync().Result;
+
+            //    result = result.Remove(0, 32900);
+
+            //    _status = result.Split("<SCRIPT LANGUAGE=vbscript>").ToList();
+            //}
+
+            //_status.RemoveAt(_status.Count - 1);
+
+            //_status.ForEach(wo =>
+            //{
+            //    var _tmp = wo.Split("ReportGrid1.TextMatrix");
+            //    _wo418Entity.Add(new WorkOrderEntity
+            //    {
+            //        WorkOrder = _tmp[1].Split("\"")[1],
+            //        WOStatus = _tmp[2].Split("\"")[1],
+            //        LcmProduct = _tmp[3].Split("\"")[1],
+            //        WOType = _woTypeDic[_tmp[5].Split("\"")[1]],
+            //        WOComment = _tmp[13].Split("\"")[1],
+            //        Scrap = Convert.ToInt32(_tmp[28].Split("\"")[1]),
+            //        ActualQty = Convert.ToInt32(_tmp[16].Split("\"")[1])
+            //    });
+            //});
 
             return _wo418Entity;
         }

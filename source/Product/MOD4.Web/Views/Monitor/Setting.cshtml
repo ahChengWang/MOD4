@@ -458,7 +458,7 @@
                     });
                 },
                 deleteClk(idx) {
-                    vue.editMapSettingTmp.splice(idx, 1);;
+                    vue.editMapSettingTmp.splice(idx, 1);
                 },
                 prodChange(e) {
                     $.each(vue.prodOptions, function (i, item) {
@@ -466,7 +466,7 @@
                             if (item.Item2[i].Item1 == vue.ttProdSelect)
                                 vue.prodTitle = item.Item2[i].Item2;
                         }
-                    })
+                    });
 
                     $.ajax({
                         url: "./Setting/TT/" + vue.ttProdSelect,
@@ -489,24 +489,13 @@
             },
             mounted: function () {
 
-                @*var _model = @(Html.Raw(Json.Serialize(Model)));*@
-
                 this.prodOptions = JSON.parse(@(Html.Raw(Json.Serialize(ViewBag.ProdOptions))));
                 this.eqOptions = JSON.parse(@(Html.Raw(Json.Serialize(ViewBag.EqIDMappingOption))));
-                this.origProdTTSettingDatas = Array.from(@(Html.Raw(Json.Serialize(Model))).monitorProdTTList);
-                this.editProdTTSettingTmp = Array.from(@(Html.Raw(Json.Serialize(Model))).monitorProdTTList);
+                this.origProdTTSettingDatas = Array.from(@(Html.Raw(Json.Serialize(Model)))['monitorProdTTList']);
+                this.editProdTTSettingTmp = Array.from(@(Html.Raw(Json.Serialize(Model)))['monitorProdTTList']);
 
-                this.origMapSettingDatas = Array.from(@(Html.Raw(Json.Serialize(Model))).settingDetail);
-                this.editMapSettingTmp = Array.from(@(Html.Raw(Json.Serialize(Model))).settingDetail);
-
-                //$('.select2bs4').select2({
-                //    theme: 'bootstrap4'
-                //})
-            },
-            computed: {
-                wrapper(node) {
-
-                }
+                this.origMapSettingDatas = Array.from(@(Html.Raw(Json.Serialize(Model)))['settingDetail']);
+                this.editMapSettingTmp = Array.from(@(Html.Raw(Json.Serialize(Model)))['settingDetail']);
             }
         });
 

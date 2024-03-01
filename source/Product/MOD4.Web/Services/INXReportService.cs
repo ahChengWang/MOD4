@@ -44,8 +44,15 @@ namespace MOD4.Web
         {
             string _prodStr = string.Join("','", prodList);
 
-            //string _qStr = $"apiJob=[{{'name':'Date','apiName':'TN_EntityTactTimeMaintain','FactoryType':'CARUX','Action':'Query','sDateMonth':'{startDate:yyyyMM}','Size':'ALL','Product':'ALL','OptionProduct':'GDD340IA0090S','GDD340IA0100S','#optionmenu':','prod_nbr':\"GDD340IA0090S','GDD340IA0100S\"}}]";
-            string _qStr = $"apiJob=[{{'name':'Date','apiName':'TN_EntityTactTimeMaintain','FactoryType':'CARUX','Action':'Query','sDateMonth':'{startDate:yyyyMM}','Size':'ALL','Product':'ALL','OptionProduct':\"{_prodStr}\",'#optionmenu':'','prod_nbr':\"{_prodStr}\"}}]";
+            //string _qStr = $"apiJob=[{{'name':'Date','apiName':'TN_EntityTactTimeMaintain','FactoryType':'CARUX','Action':'Query','sDateMonth':'{startDate:yyyyMM}','Size':'ALL','Product':'ALL','OptionProduct':'GDD340IA0090S','GDD340IA0100S','#optionmenu':','prod_nbr':'GDD340IA0090S','GDD340IA0100S'}}]";
+            string _qStr = $"apiJob=[{{'name':'Date','apiName':'TN_EntityTactTimeMaintain','FactoryType':'CARUX','Action':'Query','sDateMonth':'{startDate:yyyyMM}','Size':'ALL','Product':'ALL','OptionProduct':'{_prodStr}','#optionmenu':'','prod_nbr':'{_prodStr}'}}]";
+
+            return JsonConvert.DeserializeObject<BaseINXRptEntity<T>>(await PostAsync(_qStr));
+        }
+
+        public async Task<BaseINXRptEntity<T>> Get418NewReportAsync<T>(DateTime startDate)
+        {
+            string _qStr = $"apiJob=[{{'name':'Date','apiName':'TN_WOOrderStatusDataSet','FactoryType':'CARUX','QueryRange':'','WorkOrderType':'ALL','isWoDueDay':'N','FromDate_DueDay':'{startDate:yyyy-MM-dd}','ToDate_DueDay':'{startDate:yyyy-MM-dd}','isWoStartDay':'N','FromDate_StartDay':'{startDate:yyyy-MM-dd}','ToDate_StartDay':'{startDate:yyyy-MM-dd}','WorkOrder':'','wo_status':'ALL','mvin_rate':'ALL','mvou_rate':'ALL'}}]";
 
             return JsonConvert.DeserializeObject<BaseINXRptEntity<T>>(await PostAsync(_qStr));
         }

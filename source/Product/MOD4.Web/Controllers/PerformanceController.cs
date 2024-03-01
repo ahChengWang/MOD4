@@ -334,5 +334,22 @@ namespace MOD4.Web.Controllers
 
         #endregion
 
+        #region ===== efficiency dashboard =====
+
+        [HttpGet("[controller]/ReclaimWT")]
+        public IActionResult ReclaimWT()
+        {
+            try
+            {
+                return View();
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        #endregion
+
     }
 }

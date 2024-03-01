@@ -1,0 +1,616 @@
+﻿
+@{
+    ViewBag.Title = "回收工時";
+}
+
+<style>
+
+    div[name="sum_title"] > h5 {
+        text-align: center;
+        font-style: italic;
+        font-weight: 800;
+    }
+
+    div[name="sum_val"] > h5 {
+        text-align: center;
+        font-style: italic;
+        font-weight: 800;
+        border-bottom: 2px solid black;
+    }
+
+    th, td, td > input {
+        text-align: center;
+    }
+
+    .roundMinus {
+        background-color: #d61529;
+        color: white;
+        border: 2px solid white;
+        font-size: 26px;
+        padding: 0px;
+        font-weight: 900;
+        height: 30px;
+        width: 30px;
+        box-shadow: 0 2px 4px darkslategray;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 70%;
+    }
+
+        .roundMinus:hover {
+            background-color: #d6606d;
+        }
+
+        .roundMinus:active {
+            box-shadow: 0 0 2px darkslategray;
+            transform: translateY(2px);
+        }
+
+    .roundDisabledMinus {
+        background-color: #d6606d;
+        color: white;
+        border: 2px solid white;
+        font-size: 26px;
+        padding: 0px;
+        font-weight: 900;
+        height: 30px;
+        width: 30px;
+        box-shadow: 0 2px 4px darkslategray;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 70%;
+    }
+
+    .addPlus {
+        background-color: #40cf30;
+        color: white;
+        border: 2px solid white;
+        font-size: 15px;
+        padding: 0px;
+        font-weight: 900;
+        height: 30px;
+        width: 30px;
+        box-shadow: 0 2px 4px darkslategray;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 70%;
+    }
+
+        .addPlus:hover {
+            background-color: #7fc777;
+        }
+
+        .addPlus:active {
+            box-shadow: 0 0 2px darkslategray;
+            transform: translateY(2px);
+        }
+
+    .addDisabledPlus {
+        background-color: #7fc777;
+        color: white;
+        border: 2px solid white;
+        font-size: 15px;
+        padding: 0px;
+        font-weight: 900;
+        height: 30px;
+        width: 30px;
+        box-shadow: 0 2px 4px darkslategray;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 70%;
+    }
+
+    .cusButton {
+        background-color: #4e83d9;
+        color: white;
+        border: 2px solid white;
+        font-size: 16px;
+        padding: 0px;
+        font-weight: 900;
+        height: 30px;
+        width: 50px;
+        box-shadow: 0 2px 4px darkslategray;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 13%;
+    }
+
+        .cusButton:hover {
+            background-color: #819dcc;
+        }
+
+        .cusButton:active {
+            box-shadow: 0 0 2px darkslategray;
+            transform: translateY(2px);
+        }
+
+    .cusDisabledButton {
+        background-color: #819dcc;
+        color: white;
+        border: 2px solid white;
+        font-size: 16px;
+        padding: 0px;
+        font-weight: 900;
+        height: 30px;
+        width: 50px;
+        box-shadow: 0 2px 4px darkslategray;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 13%;
+    }
+
+    td[name='tdLabel'] {
+        background: #91bac4;
+        font-weight: 600;
+        text-align: center;
+        vertical-align: middle;
+        width: 10%;
+    }
+
+    td[name="tdImp"] {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .setting {
+        color: white;
+        background: #9a9ca1;
+    }
+
+    li[name="myTmpli"] {
+    }
+
+    li:has(.setting.active) {
+    }
+
+    .setting.active {
+        color: black;
+        background: #c3cadb;
+        border-top: 1px solid #9a9ca1;
+        /*border-right: 2px solid #9a9ca1;
+        border-left: 2px solid #9a9ca1;*/
+    }
+</style>
+
+<head>
+    <link rel="stylesheet" href="~/plugins/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="~/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" />
+</head>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card" id="app">
+                <div class="card-header">
+                    <h3 class="card-title">回收工時</h3>
+                </div>
+                <ul class="nav" style="background: #c3cadb">
+                    <li name="myTmpli" style="width: 25%; text-align: center;">
+                        <a class="nav-link setting active" href="#aFrontRWT" data-toggle="tab" style="font-weight: 600;">前段日班</a>
+                    </li>
+                    <li name="myTmpli" style="width: 25%; text-align: center;">
+                        <a class="nav-link setting" href="#bFrontRWT" data-toggle="tab" style=" font-weight: 600; ">前段夜班</a>
+                    </li>
+                    <li name="myTmpli" style="width: 25%; text-align: center;">
+                        <a class="nav-link setting" href="" data-toggle="tab" style=" font-weight: 600; ">後段日班</a>
+                    </li>
+                    <li name="myTmpli" style="width: 25%; text-align: center;">
+                        <a class="nav-link setting" href="" data-toggle="tab" style=" font-weight: 600; ">後段夜班</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div id="aFrontRWT" class="tab-pane card-body active">
+
+                        <div class="row d-flex">
+                            <div class="col-lg-3 d-flex">
+                                <div class="col-lg-6" name="sum_title">
+                                    <h5>FOG回收</h5>
+                                </div>
+                                <div class="col-lg-6" name="sum_val">
+                                    <h5>114658.95</h5>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 d-flex">
+                                <div class="col-lg-6" name="sum_title">
+                                    <h5>LAM回收</h5>
+                                </div>
+                                <div class="col-lg-6" name="sum_val">
+                                    <h5>229176.36</h5>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 d-flex">
+                                <div class="col-lg-6" name="sum_title">
+                                    <h5>總回收</h5>
+                                </div>
+                                <div class="col-lg-6" name="sum_val">
+                                    <h5>137576.31</h5>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 d-flex">
+                                <div class="col-lg-6" name="sum_title">
+                                    <h5>回收率</h5>
+                                </div>
+                                <div class="col-lg-6" name="sum_val">
+                                    <h5>80%</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="8%"></th>
+                                    <th width="10%">AFOG</th>
+                                    <th>機種</th>
+                                    <th width="12%">IE標配</th>
+                                    <th width="12%">IE T/T</th>
+                                    <th width="12%">IE WT</th>
+                                    <th width="12%">產出</th>
+                                    <th width="12%">回收工時</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <button class="addDisabledPlus" disabled>＋</button>
+                                    </td>
+                                    <td>
+                                        <select class="myInputStyle1" disabled>
+                                            <option value="0"></option>
+                                            <option value="AFOG2010">AFOG2010</option>
+                                            <option value="AFOG2020">AFOG2020</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select class="myInputStyle1" disabled>
+                                            <option value="0"></option>
+                                            <option value="5306M3340160M">5306M3340160M</option>
+                                            <option value="5306M3340199M">5306M3340199M</option>
+                                        </select>
+                                    </td>
+                                    <td>5.95</td>
+                                    <td>20.00</td>
+                                    <td>118.92</td>
+                                    <td>550</td>
+                                    <td>65406</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br />
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="8%"></th>
+                                    <th width="10%">LAM</th>
+                                    <th>機種</th>
+                                    <th width="12%">IE標配</th>
+                                    <th width="12%">IE T/T</th>
+                                    <th width="12%">IE WT</th>
+                                    <th width="12%">產出</th>
+                                    <th width="12%">回收工時</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <button class="addDisabledPlus" disabled>＋</button>
+                                    </td>
+                                    <td>CLAM2010</td>
+                                    <td>GDD313IA0010S</td>
+                                    <td>11.23</td>
+                                    <td>60.00</td>
+                                    <td>674.04</td>
+                                    <td>34</td>
+                                    <td>22917.36</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br />
+                        <div class="col-lg-6">
+                            <button class="cusDisabledButton">編輯</button>
+                            <button class="cusButton" disabled>取消</button>
+                            <button class="cusButton" disabled>儲存</button>
+                        </div>
+                        <br />
+                        <table class="col-lg-7 table table-secondary table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>應到</th>
+                                    <th>加班</th>
+                                    <th>受援</th>
+                                    <th>請假</th>
+                                    <th>OFF</th>
+                                    <th>支援</th>
+                                    <th>實到</th>
+                                    <th width="15%">總工時</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>台</td>
+                                    <td>
+                                        <input class="myInputStyle1" disabled value="12" />
+                                    </td>
+                                    <td>
+                                        <input class="myInputStyle1" disabled value="0" />
+                                    </td>
+                                    <td>
+                                        <input class="myInputStyle1" disabled value="0" />
+                                    </td>
+                                    <td>
+                                        <input class="myInputStyle1" disabled value="4" />
+                                    </td>
+                                    <td>
+                                        <input class="myInputStyle1" disabled value="0" />
+                                    </td>
+                                    <td>
+                                        <input class="myInputStyle1" disabled value="1" />
+                                    </td>
+                                    <td>
+                                        <input class="myInputStyle1" disabled value="7" />
+                                    </td>
+                                    <td>25200</td>
+                                </tr>
+                                <tr>
+                                    <td>菲</td>
+                                    <td>
+                                        <input class="myInputStyle1" disabled value="5" />
+                                    </td>
+                                    <td>
+                                        <input class="myInputStyle1" disabled value="0" />
+                                    </td>
+                                    <td>
+                                        <input class="myInputStyle1" disabled value="0" />
+                                    </td>
+                                    <td>
+                                        <input class="myInputStyle1" disabled value="1" />
+                                    </td>
+                                    <td>
+                                        <input class="myInputStyle1" disabled value="0" />
+                                    </td>
+                                    <td>
+                                        <input class="myInputStyle1" disabled value="3" />
+                                    </td>
+                                    <td>
+                                        <input class="myInputStyle1" disabled value="1" />
+                                    </td>
+                                    <td>34200</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <div id="bFrontRWT" class="tab-pane card-body">
+                        <br />
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="8%"></th>
+                                    <th width="10%">AFOG</th>
+                                    <th>機種</th>
+                                    <th width="12%">IE標配</th>
+                                    <th width="12%">IE T/T</th>
+                                    <th width="12%">IE WT</th>
+                                    <th width="12%">產出</th>
+                                    <th width="12%">回收工時</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <button class="addDisabledPlus" disabled>＋</button>
+                                    </td>
+                                    <td>AFOG2020</td>
+                                    <td>5306M3340160M</td>
+                                    <td>1.15</td>
+                                    <td>2111</td>
+                                    <td>1111.92</td>
+                                    <td>1111111</td>
+                                    <td>1111111</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br />
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="8%"></th>
+                                    <th width="10%">LAM</th>
+                                    <th>機種</th>
+                                    <th width="12%">IE標配</th>
+                                    <th width="12%">IE T/T</th>
+                                    <th width="12%">IE WT</th>
+                                    <th width="12%">產出</th>
+                                    <th width="12%">回收工時</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <button class="addDisabledPlus" disabled>＋</button>
+                                    </td>
+                                    <td>CLAM2010</td>
+                                    <td>GDD313IA0010S</td>
+                                    <td>11.23</td>
+                                    <td>60.00</td>
+                                    <td>674.04</td>
+                                    <td>34</td>
+                                    <td>22917.36</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="col-lg-6">
+                            <button class="cusDisabledButton">編輯</button>
+                            <button class="cusButton" disabled>取消</button>
+                            <button class="cusButton" disabled>儲存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section scripts{
+    <script src="~/plugins/select2/js/select2.full.min.js"></script>
+    <script type="text/javascript">
+
+        const vue = new Vue({
+            el: "#app",
+            data: {
+                toast: Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                }),
+            },
+            methods: {
+                editTTClk() {
+                    vue.pageTTBtnClass.editBtn = 'cusDisabledButton';
+                    vue.pageTTBtnClass.cancelBtn = 'cusButton';
+                    vue.pageTTBtnClass.saveBtn = 'cusButton';
+                    vue.pageTTBtnClass.deleteBtn = 'roundMinus';
+                    vue.pageTTBtnClass.addBtn = 'addPlus';
+                    vue.ttColDisabled = false;
+                },
+                editMapAreaClk() {
+                    vue.pageMapAreaBtnClass.editBtn = 'cusDisabledButton';
+                    vue.pageMapAreaBtnClass.cancelBtn = 'cusButton';
+                    vue.pageMapAreaBtnClass.saveBtn = 'cusButton';
+                    vue.pageMapAreaBtnClass.deleteBtn = 'roundMinus';
+                    vue.pageMapAreaBtnClass.addBtn = 'addPlus';
+                    vue.mapColDisabled = false;
+                },
+                cancelProdTTClk() {
+                    vue.pageTTBtnClass.editBtn = 'cusButton';
+                    vue.pageTTBtnClass.cancelBtn = 'cusDisabledButton';
+                    vue.pageTTBtnClass.saveBtn = 'cusDisabledButton';
+                    vue.pageTTBtnClass.deleteBtn = 'roundDisabledMinus';
+                    vue.pageTTBtnClass.addBtn = 'addDisabledPlus';
+                    vue.ttColDisabled = true;
+                    vue.editProdTTSettingTmp = JSON.parse(JSON.stringify(vue.origProdTTSettingDatas));
+                },
+                cancelMapAreaClk() {
+                    vue.pageMapAreaBtnClass.editBtn = 'cusButton';
+                    vue.pageMapAreaBtnClass.cancelBtn = 'cusDisabledButton';
+                    vue.pageMapAreaBtnClass.saveBtn = 'cusDisabledButton';
+                    vue.pageMapAreaBtnClass.deleteBtn = 'roundDisabledMinus';
+                    vue.pageMapAreaBtnClass.addBtn = 'addDisabledPlus';
+                    vue.mapColDisabled = true;
+                    vue.editMapSettingTmp = JSON.parse(JSON.stringify(vue.origMapSettingDatas));
+                },
+                saveProdTTClk() {
+                    $.ajax({
+                        url: './Setting/TT',
+                        type: 'POST',
+                        datatype: 'json',
+                        data: { prodTTSetting: vue.editProdTTSettingTmp },
+                        success: function (result) {
+                            if (result.isSuccess) {
+                                vue.pageTTBtnClass.editBtn = 'cusButton';
+                                vue.pageTTBtnClass.cancelBtn = 'cusDisabledButton';
+                                vue.pageTTBtnClass.saveBtn = 'cusDisabledButton';
+                                vue.pageTTBtnClass.deleteBtn = 'roundDisabledMinus';
+                                vue.pageTTBtnClass.addBtn = 'addDisabledPlus';
+                                vue.ttColDisabled = true;
+                                vue.toast.fire({
+                                    icon: 'success',
+                                    title: '更新成功'
+                                });
+                            }
+                            else {
+                                vue.toast.fire({
+                                    icon: 'error',
+                                    title: result.msg
+                                });
+                            }
+                        }
+                    });
+                },
+                saveMapAreaClk() {
+                    $.ajax({
+                        url: './Setting/MapArea',
+                        type: 'POST',
+                        datatype: 'json',
+                        data: { mapAreaSetting: vue.editMapSettingTmp },
+                        success: function (result) {
+                            if (result.isSuccess) {
+                                vue.pageMapAreaBtnClass.editBtn = 'cusButton';
+                                vue.pageMapAreaBtnClass.cancelBtn = 'cusDisabledButton';
+                                vue.pageMapAreaBtnClass.saveBtn = 'cusDisabledButton';
+                                vue.pageMapAreaBtnClass.deleteBtn = 'roundDisabledMinus';
+                                vue.pageMapAreaBtnClass.addBtn = 'addDisabledPlus';
+                                vue.mapColDisabled = true;
+                                vue.toast.fire({
+                                    icon: 'success',
+                                    title: '更新成功'
+                                });
+                            }
+                            else {
+                                vue.toast.fire({
+                                    icon: 'error',
+                                    title: result.msg
+                                });
+                            }
+                        }
+                    });
+                },
+                addProdTTClk() {
+                    vue.editProdTTSettingTmp.push({
+                        node: 1100,
+                        eqNumber: '',
+                        timeTarget: 0,
+                    });
+                },
+                addMapAreaClk() {
+                    vue.editMapSettingTmp.push({
+                        node: 1100,
+                        eqNumber: '',
+                        border: '#',
+                        background: '#',
+                        locX0: 0,
+                        locY0: 0,
+                        locX1: 0,
+                        locY1: 0
+                    });
+                },
+                deleteClk(idx) {
+                    vue.editMapSettingTmp.splice(idx, 1);
+                },
+                prodChange(e) {
+                    $.each(vue.prodOptions, function (i, item) {
+                        for (var i = 0; i < item.Item2.length; i++) {
+                            if (item.Item2[i].Item1 == vue.ttProdSelect)
+                                vue.prodTitle = item.Item2[i].Item2;
+                        }
+                    });
+
+                    $.ajax({
+                        url: "./Setting/TT/" + vue.ttProdSelect,
+                        type: "GET",
+                        dataType: 'json',
+                        success: function (result) {
+                            if (result.isSuccess) {
+                                vue.origProdTTSettingDatas = JSON.parse(JSON.stringify(result.data));
+                                vue.editProdTTSettingTmp = JSON.parse(JSON.stringify(result.data));
+                            }
+                            else {
+                                vue.toast.fire({
+                                    icon: 'error',
+                                    title: result.msg
+                                });
+                            }
+                        }
+                    });
+                }
+            },
+            mounted: function () {
+
+            }
+        });
+
+    </script>
+}

@@ -70,5 +70,7 @@ namespace MOD4.Web.Enum
         MTDSetting = 43,
         [Description("Layout 申請單")]
         IELayout = 44,
+        [Description("回收工時")]
+        ReclaimWT = 45,
     }
 }
