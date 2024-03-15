@@ -6,10 +6,9 @@ using NLog;
 //using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
-using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -28,6 +27,8 @@ namespace MOD4.Web.DomainService
         private readonly ILcmProductRepository _lcmProductRepository;
         private readonly IEfficiencySettingRepository _efficiencySettingRepository;
         private readonly IDailyEfficiencyRepository _dailyEfficiencyRepository;
+        private readonly ITakeBackWTRepository _takeBackWTRepository;
+        private readonly IReclaimWTRptRepository _reclaimWTRptRepository;
         private readonly Dictionary<int, string> _defaultNodeDic = new Dictionary<int, string>
         {
             {1330,"FOG" },
@@ -56,6 +57,14 @@ namespace MOD4.Web.DomainService
         {
             {1,"'QTAP','LCME','PRDG','PROD','RES0'" },
             {2,"'INT0'" },
+        };
+        private readonly Dictionary<ProcessEnum, List<int>> _processNodeDic = new Dictionary<ProcessEnum, List<int>>
+        {
+            {ProcessEnum.BOND, new List<int>{ 1100 }},
+            {ProcessEnum.FOG, new List<int>{ 1330 }},
+            {ProcessEnum.LAM, new List<int>{ 1355 }},
+            {ProcessEnum.ASSY,new List<int>{ 1400, 1415 }},
+            {ProcessEnum.CDP, new List<int>{ 1600, 1700 }},
         };
 
         #region time block
@@ -93,7 +102,9 @@ namespace MOD4.Web.DomainService
             IDefinitionNodeDescRepository definitionNodeDescRepository,
             ILcmProductRepository lcmProductRepository,
             IEfficiencySettingRepository efficiencySettingRepository,
-            IDailyEfficiencyRepository dailyEfficiencyRepository)
+            IDailyEfficiencyRepository dailyEfficiencyRepository,
+            ITakeBackWTRepository takeBackWTRepository,
+            IReclaimWTRptRepository reclaimWTRptRepository)
         {
             _dailyEquipmentRepository = dailyEquipmentRepository;
             _targetSettingDomainService = targetSettingDomainService;
@@ -104,6 +115,8 @@ namespace MOD4.Web.DomainService
             _lcmProductRepository = lcmProductRepository;
             _efficiencySettingRepository = efficiencySettingRepository;
             _dailyEfficiencyRepository = dailyEfficiencyRepository;
+            _takeBackWTRepository = takeBackWTRepository;
+            _reclaimWTRptRepository = reclaimWTRptRepository;
         }
 
         public List<PassQtyEntity> GetList(string mfgDTE = "", string prodList = "1206", string shift = "", string nodeAryStr = "", int ownerId = 1)
@@ -149,7 +162,7 @@ namespace MOD4.Web.DomainService
 
             List<int> _prodOptionList = (prodList ?? "1206").Split(",").Select(s => Convert.ToInt32(s)).ToList();
 
-            List<(int, string)> _allLcmProdOptions = _optionDomainService.GetLcmProdOptions().SelectMany(sm => sm.Item2).ToList();
+            List<(int, string)> _allLcmProdOptions = _optionDomainService.GetLcmProdDescOptions().SelectMany(sm => sm.Item2).ToList();
 
             _allLcmProdOptions = _allLcmProdOptions.Where(option => _prodOptionList.Contains(option.Item1)).ToList();
 
@@ -507,7 +520,6 @@ namespace MOD4.Web.DomainService
             }
         }
 
-
         #region Efficiency
 
         public List<EfficiencyEntity> GetDailyEfficiencyList(string mfgDate, int floor = 3)
@@ -759,6 +771,267 @@ namespace MOD4.Web.DomainService
 
         }
 
+        #endregion
+
+        #region take back work time
+
+        public List<TakeBackWTEntity> GetTBWTList(DateTime? searchDate, WTCategoryEnum wtCategoryId)
+        {
+            try
+            {
+                DateTime _processDate = DateTime.Now;
+
+                if (searchDate.HasValue)
+                {
+                    _processDate = (DateTime)searchDate;
+                }
+
+                var _tbMainList = _takeBackWTRepository.SelectByConditions(_processDate.AddDays(-1).Date, wtCatgId: wtCategoryId);
+                var _tbDetailList = _takeBackWTRepository.SelectDetailByConditions(_tbMainList.Select(t => t.Sn).ToList());
+                var _tbAttendanceList = _takeBackWTRepository.SelectAttendanceByConditions(_tbMainList.Select(t => t.Sn).ToList());
+
+                var _res = _tbMainList.Select(s => new TakeBackWTEntity
+                {
+                    Sn = s.Sn,
+                    Date = s.ProcessDate.ToString("yyyy-MM-dd"),
+                    WTCategoryId = s.WTCategoryId,
+                    TakeBackBonding = s.BondTakeBack.ToString("0.00"),
+                    TakeBackFOG = s.FogTakeBack.ToString("0.00"),
+                    TakeBackLAM = s.LamTakeBack.ToString("0.00"),
+                    TakeBackASSY = s.AssyTakeBack.ToString("0.00"),
+                    TakeBackCDP = s.CDPTakeBack.ToString("0.00"),
+                    TakeBackPercent = s.TakeBackPercnet.ToString("0.00") + "%",
+                    TotalTakeBack = s.TTLTakeBack.ToString("0.00"),
+                    DetailList = _tbDetailList.Where(w => w.TakeBackWtSn == s.Sn).Select(detail => new TakeBackWTProdEntity
+                    {
+                        TakeBackWTSn = detail.TakeBackWtSn,
+                        ProcessId = detail.ProcessId,
+                        EqId = detail.EqId,
+                        ProdId = detail.Prod,
+                        Prod = "",
+                        IEStandard = detail.IEStandard.ToString("0.00"),
+                        IETT = detail.IETT.ToString("0.00"),
+                        IEWT = detail.IEWT.ToString("0.00"),
+                        PassQty = detail.PassQty.ToString("0"),
+                        TakeBackTime = detail.TakeBackWT.ToString("0.00")
+                    }).ToList(),
+                    AttendanceList = _tbAttendanceList.Where(w => w.TakeBackWtSn == s.Sn).Select(atten => new TakeBackAttendanceEntity
+                    {
+                        TakeBackWTSn = atten.TakeBackWtSn,
+                        Country = atten.CountryId.GetDescription(),
+                        CountryId = atten.CountryId,
+                        ShouldPresentCnt = atten.ShouldPresentCnt,
+                        OverTimeCnt = atten.OverTimeCnt,
+                        AcceptSupCnt = atten.AcceptSupCnt,
+                        HaveDayOffCnt = atten.HaveDayOffCnt,
+                        OffCnt = atten.OffCnt,
+                        Support = atten.Support,
+                        PresentCnt = atten.PresentCnt,
+                        TotalWorkTime = atten.TotalWorkTime
+                    }).ToList()
+                }).ToList();
+
+                return _res;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public (string, TakeBackWTEntity) UpdateTakeBackWT(TakeBackWTEntity editEntity, UserEntity userInfo)
+        {
+            try
+            {
+                string _updResult = "";
+                DateTime _nowTime = DateTime.Now;
+                DateTime _proccessDate = DateTime.Now;
+                List<INXRpt106SubEntity> _rpt106List = new List<INXRpt106SubEntity>();
+                TakeBackWTDao _takeBackWT = new TakeBackWTDao();
+                List<TakeBackWTDetailDao> _takeBackWTDetail = new List<TakeBackWTDetailDao>();
+                List<TakeBackWTAttendanceDao> _takeBackWTAttendance = new List<TakeBackWTAttendanceDao>();
+                string _shift = editEntity.WTCategoryId.ToString().Substring(editEntity.WTCategoryId.ToString().Length - 1, 1);
+
+                if (DateTime.TryParseExact(editEntity.Date, "yyyy-MM-dd", null, DateTimeStyles.None, out _))
+                    _proccessDate = DateTime.Parse(editEntity.Date);
+                else
+                    throw new Exception("日期異常");
+
+                var _prodInfoList = _lcmProductRepository.SelectByConditions(snList: editEntity.DetailList.Select(s => s.ProdId).ToList());
+                var _reclaimRpt = _reclaimWTRptRepository.SelectByConditions(editEntity.DetailList.Select(s => s.EqId).ToList(), _prodInfoList.Select(p => p.ProdNo).ToList());
+                editEntity.DetailList.ForEach(f => f.Prod = _prodInfoList.FirstOrDefault(w => w.sn == f.ProdId).ProdNo);
+
+                Parallel.ForEach(
+                    _processNodeDic,
+                    new ParallelOptions { MaxDegreeOfParallelism = 5 },
+                    (dic) =>
+                    {
+                        var _tmp = (from detail in editEntity.DetailList.Where(w => w.ProcessId == dic.Key).ToList()
+                                    join defProd in _prodInfoList
+                                    on detail.ProdId equals defProd.sn
+                                    select defProd.ProdNo).ToList();
+
+                        foreach (int node in dic.Value)
+                        {
+                            _rpt106List.AddRange(_inxReportService.Get106NewReportSubAsync<INXRpt106SubEntity>(_proccessDate, _proccessDate, _shift, node, "2", _tmp).Result.Date.Data.Table);
+                        }                        
+                    }
+                );
+
+                foreach (var detail in editEntity.DetailList)
+                {
+                    var _tmpCurrReclaim = _reclaimRpt.Where(w => w.equip_id == detail.EqId && w.mes_prod_id == detail.Prod).OrderByDescending(od => od.mfg_dt).ToList();
+                    var _tmpRpt106 = _rpt106List.Where(w => w.PROD_NBR == detail.Prod && w.EQUIP_NBR == detail.EqId).ToList();
+                    var _tmpTakeBack = new TakeBackWTDetailDao
+                    {
+                        TakeBackWtSn = detail.TakeBackWTSn,
+                        EqId = detail.EqId,
+                        ProcessId = detail.ProcessId,
+                        Prod = detail.ProdId,
+                        IEStandard = _tmpCurrReclaim.FirstOrDefault()?.base_man_eq_ratio ?? 0,
+                        IETT = _tmpCurrReclaim.FirstOrDefault()?.tct_tm_tgt_meas ?? 0,
+                        PassQty = Convert.ToInt32(_tmpRpt106.FirstOrDefault()?.PASS_QTY ?? 0),
+                        CreateUser = userInfo.JobId,
+                        CreateTime = _nowTime
+                    };
+
+                    _tmpTakeBack.IEWT = _tmpTakeBack.IEStandard * _tmpTakeBack.IETT;
+                    _tmpTakeBack.TakeBackWT = _tmpTakeBack.IEStandard * _tmpTakeBack.IETT * _tmpTakeBack.PassQty;
+
+                    _takeBackWTDetail.Add(_tmpTakeBack);
+                }
+
+                _takeBackWTAttendance = editEntity.AttendanceList.Select(atten => new TakeBackWTAttendanceDao
+                {
+                    TakeBackWtSn = atten.TakeBackWTSn,
+                    CountryId = atten.CountryId,
+                    AcceptSupCnt = atten.AcceptSupCnt,
+                    ShouldPresentCnt = atten.ShouldPresentCnt,
+                    OverTimeCnt = atten.OverTimeCnt,
+                    Support = atten.Support,
+                    HaveDayOffCnt = atten.HaveDayOffCnt,
+                    OffCnt = atten.OffCnt,
+                    PresentCnt = atten.PresentCnt,
+                    TotalWorkTime = Convert.ToInt32(atten.PresentCnt * (atten.CountryId == CountryEnum.TW ? 10 : 9.5) * 3600),
+                    CreateUser = userInfo.JobId,
+                    CreateTime = _nowTime
+                }).ToList();
+
+                _takeBackWT = new TakeBackWTDao
+                {
+                    Sn = editEntity.Sn,
+                    ProcessDate = _proccessDate,
+                    WTCategoryId = (WTCategoryEnum)editEntity.WTCategoryId,
+                    BondTakeBack = _takeBackWTDetail.Where(w => w.ProcessId == ProcessEnum.BOND).Sum(sum => sum.TakeBackWT),
+                    FogTakeBack = _takeBackWTDetail.Where(w => w.ProcessId == ProcessEnum.FOG).Sum(sum => sum.TakeBackWT),
+                    LamTakeBack = _takeBackWTDetail.Where(w => w.ProcessId == ProcessEnum.LAM).Sum(sum => sum.TakeBackWT),
+                    AssyTakeBack = _takeBackWTDetail.Where(w => w.ProcessId == ProcessEnum.ASSY).Sum(sum => sum.TakeBackWT),
+                    CDPTakeBack = _takeBackWTDetail.Where(w => w.ProcessId == ProcessEnum.CDP).Sum(sum => sum.TakeBackWT),
+                };
+
+                if (editEntity.Sn == 0)
+                {
+                    _takeBackWT.CreateUser = userInfo.JobId;
+                    _takeBackWT.CreateTime = _nowTime;
+                }
+                else
+                {
+                    _takeBackWT.UpdateUser = userInfo.JobId;
+                    _takeBackWT.UpdateTime = _nowTime;
+                }
+
+                _takeBackWT.TTLTakeBack = _takeBackWT.BondTakeBack + _takeBackWT.FogTakeBack + _takeBackWT.LamTakeBack + _takeBackWT.AssyTakeBack + _takeBackWT.CDPTakeBack;
+                _takeBackWT.TakeBackPercnet = _takeBackWT.TTLTakeBack / _takeBackWTAttendance.Sum(s => s.TotalWorkTime) * 100;
+
+                using (TransactionScope scope = new TransactionScope())
+                {
+                    bool _tbRes = false;
+                    bool _tbDetailRes = false;
+                    bool _tbAttenRes = false;
+                    int _tbWTSn = 0;
+
+                    if (_takeBackWT.Sn == 0)
+                        _tbRes = _takeBackWTRepository.InsertTakeBackWT(_takeBackWT) == 1;
+                    else
+                        _tbRes = _takeBackWTRepository.UpdateTakeBackWT(_takeBackWT) == 1;
+
+                    if (!_tbRes)
+                        throw new Exception("新增回收工時主檔異常");
+
+                    if (_takeBackWT.Sn == 0)
+                    {
+                        _tbWTSn = _takeBackWTRepository.SelectByConditions(_takeBackWT.ProcessDate, _takeBackWT.WTCategoryId).FirstOrDefault()?.Sn ?? 0;
+
+                        if (_tbWTSn == 0)
+                            throw new Exception("撈取回收工時主檔編號異常");
+                    }
+                    else
+                        _tbWTSn = _takeBackWT.Sn;
+
+                    _takeBackWTRepository.DeleteTakeBackWTInfo(_tbWTSn);
+
+                    _takeBackWTDetail.ForEach(f => f.TakeBackWtSn = _tbWTSn);
+                    _takeBackWTAttendance.ForEach(f => f.TakeBackWtSn = _tbWTSn);
+
+                    _tbDetailRes = _takeBackWTRepository.InsertTakeBackWTDetail(_takeBackWTDetail) == _takeBackWTDetail.Count;
+                    _tbAttenRes = _takeBackWTRepository.InsertTakeBackWTAttendance(_takeBackWTAttendance) == _takeBackWTAttendance.Count;
+
+                    if (_tbDetailRes && _tbAttenRes)
+                        scope.Complete();
+                    else
+                        _updResult = "新增異常";
+                }
+
+                return (_updResult, GetTBWTList(_proccessDate, (WTCategoryEnum)editEntity.WTCategoryId).First()
+
+                    //    new TakeBackWTEntity
+                    //{
+                    //    Sn = _takeBackWT.Sn,
+                    //    Date = _takeBackWT.ProcessDate.ToString("yyyy-MM-dd"),
+                    //    WTCategoryId = _takeBackWT.WTCategoryId,
+                    //    TakeBackBonding = _takeBackWT.BondTakeBack.ToString("0.00"),
+                    //    TakeBackFOG = _takeBackWT.FogTakeBack.ToString("0.00"),
+                    //    TakeBackLAM = _takeBackWT.LamTakeBack.ToString("0.00"),
+                    //    TakeBackASSY = _takeBackWT.AssyTakeBack.ToString("0.00"),
+                    //    TakeBackCDP = _takeBackWT.CDPTakeBack.ToString("0.00"),
+                    //    TotalTakeBack = _takeBackWT.TTLTakeBack.ToString("0.00"),
+                    //    TakeBackPercent = _takeBackWT.TakeBackPercnet.ToString("0.00") + "%",
+                    //    DetailList = _takeBackWTDetail.Select(detail => new TakeBackWTProdEntity
+                    //    {
+                    //        TakeBackWTSn = detail.TakeBackWtSn,
+                    //        ProcessId = detail.ProcessId,
+                    //        EqId = detail.EqId,
+                    //        ProdId = detail.Prod,
+                    //        Prod = _prodInfoList.FirstOrDefault(f => f.sn == detail.Prod)?.ProdNo ?? "",
+                    //        IEStandard = detail.IEStandard.ToString("0.00"),
+                    //        IETT = detail.IETT.ToString("0.00"),
+                    //        IEWT = detail.IEWT.ToString("0.00"),
+                    //        PassQty = detail.PassQty.ToString(),
+                    //        TakeBackTime = detail.TakeBackWT.ToString("0.00")
+                    //    }).ToList(),
+                    //    AttendanceList = _takeBackWTAttendance.Select(atten => new TakeBackAttendanceEntity
+                    //    {
+                    //        TakeBackWTSn = atten.TakeBackWtSn,
+                    //        Country = atten.CountryId.GetDescription(),
+                    //        CountryId = atten.CountryId,
+                    //        ShouldPresentCnt = atten.ShouldPresentCnt,
+                    //        OverTimeCnt = atten.OverTimeCnt,
+                    //        AcceptSupCnt = atten.AcceptSupCnt,
+                    //        HaveDayOffCnt = atten.HaveDayOffCnt,
+                    //        OffCnt = atten.OffCnt,
+                    //        Support = atten.Support,
+                    //        PresentCnt = atten.PresentCnt,
+                    //        TotalWorkTime = atten.TotalWorkTime
+                    //    }).ToList()
+                    //}
+
+                    );
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
     }
 }

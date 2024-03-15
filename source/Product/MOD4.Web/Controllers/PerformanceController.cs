@@ -10,6 +10,8 @@ using MOD4.Web.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
+using MOD4.Web.Enum;
 
 namespace MOD4.Web.Controllers
 {
@@ -40,7 +42,7 @@ namespace MOD4.Web.Controllers
             try
             {
                 ViewData["ProdName"] = "GDD340IA0090S-34VCS";
-                ViewBag.ProdOptions = _optionDomainService.GetLcmProdOptions();
+                ViewBag.ProdOptions = _optionDomainService.GetLcmProdDescOptions();
                 ViewBag.NodeOptions = _optionDomainService.GetNodeList();
 
                 var resule = _performanceDomainService.GetList();
@@ -83,7 +85,7 @@ namespace MOD4.Web.Controllers
             {
                 //_targetSettingDomainService.Migration();
 
-                ViewBag.ProdOptions = _optionDomainService.GetLcmProdOptions();
+                ViewBag.ProdOptions = _optionDomainService.GetLcmProdDescOptions();
 
                 var _targetSettingList = _targetSettingDomainService.GetList(new List<int> { 1206 });
 
@@ -148,7 +150,6 @@ namespace MOD4.Web.Controllers
             }
         }
         #endregion
-
 
         #region ===== efficiency dashboard =====
 
@@ -334,14 +335,280 @@ namespace MOD4.Web.Controllers
 
         #endregion
 
-        #region ===== efficiency dashboard =====
+        #region ===== take back work time =====
 
-        [HttpGet("[controller]/ReclaimWT")]
-        public IActionResult ReclaimWT()
+        [HttpGet("[controller]/TakeBackWT")]
+        public IActionResult TakeBackWT()
         {
             try
             {
-                return View();
+                var _result = _performanceDomainService.GetTBWTList(null, 0);
+
+                var _response = _result.Select(s => new TakeBackWTViewModel
+                {
+                    Sn = s.Sn,
+                    Date = s.Date,
+                    WTCategoryId = (WTCategoryEnum)s.WTCategoryId,
+                    TakeBackBonding = s.TakeBackBonding,
+                    TakeBackFOG = s.TakeBackFOG,
+                    TakeBackLAM = s.TakeBackLAM,
+                    TakeBackASSY = s.TakeBackASSY,
+                    TakeBackCDP = s.TakeBackCDP,
+                    TakeBackPercent = s.TakeBackPercent,
+                    TotalTakeBack = s.TotalTakeBack,
+                    DetailList = s.DetailList.Select(detail => new TakeBackWTProdViewModel
+                    {
+                        TakeBackWTSn = detail.TakeBackWTSn,
+                        ProcessId = detail.ProcessId,
+                        EqId = detail.EqId,
+                        ProdId = detail.ProdId,
+                        Prod = detail.Prod,
+                        IEStandard = detail.IEStandard,
+                        IETT = detail.IETT,
+                        IEWT = detail.IEWT,
+                        PassQty = detail.PassQty,
+                        TakeBackTime = detail.TakeBackTime
+                    }).ToList(),
+                    AttendanceList = s.AttendanceList.Select(atten => new TakeBackAttendanceViewModel
+                    {
+                        TakeBackWTSn = atten.TakeBackWTSn,
+                        Country = atten.Country,
+                        CountryId = atten.CountryId,
+                        ShouldPresentCnt = atten.ShouldPresentCnt,
+                        OverTimeCnt = atten.OverTimeCnt,
+                        AcceptSupCnt = atten.AcceptSupCnt,
+                        HaveDayOffCnt = atten.HaveDayOffCnt,
+                        OffCnt = atten.OffCnt,
+                        Support = atten.Support,
+                        PresentCnt = atten.PresentCnt,
+                        TotalWorkTime = atten.TotalWorkTime
+                    }).ToList()
+                });
+
+                ViewBag.ProdOptions = JsonConvert.SerializeObject(_optionDomainService.GetLcmProdOptions());
+                //ViewBag.BondEq = _allEqList2F.Where(w => w.AREA == "BONDING").Select(s => new OptionViewModel
+                //{
+                //    Value = s.EQUIP_NBR
+                //});
+                //ViewBag.FOGEq = _allEqList2F.Where(w => w.AREA == "LAM-FOG").Select(s => new OptionViewModel
+                //{
+                //    Value = s.EQUIP_NBR
+                //});
+                //ViewBag.LAMEq = _allEqList2F.Where(w => w.AREA == "LAM").Select(s => new OptionViewModel
+                //{
+                //    Value = s.EQUIP_NBR
+                //});
+
+                return View(_response);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpGet("[controller]/TakeBackWT/{pickDate}/{catg}")]
+        public IActionResult TakeBackWT(DateTime pickDate, string catg)
+        {
+            try
+            {
+                var _result = _performanceDomainService.GetTBWTList(pickDate, (WTCategoryEnum)System.Enum.Parse(typeof(WTCategoryEnum), catg, true));
+
+                var _response = _result.Select(s => new TakeBackWTViewModel
+                {
+                    Sn = s.Sn,
+                    Date = s.Date,
+                    WTCategoryId = (WTCategoryEnum)s.WTCategoryId,
+                    TakeBackBonding = s.TakeBackBonding,
+                    TakeBackFOG = s.TakeBackFOG,
+                    TakeBackLAM = s.TakeBackLAM,
+                    TakeBackASSY = s.TakeBackASSY,
+                    TakeBackCDP = s.TakeBackCDP,
+                    TakeBackPercent = s.TakeBackPercent,
+                    TotalTakeBack = s.TotalTakeBack,
+                    DetailList = s.DetailList.Select(detail => new TakeBackWTProdViewModel
+                    {
+                        TakeBackWTSn = detail.TakeBackWTSn,
+                        ProcessId = detail.ProcessId,
+                        EqId = detail.EqId,
+                        ProdId = detail.ProdId,
+                        Prod = detail.Prod,
+                        IEStandard = detail.IEStandard,
+                        IETT = detail.IETT,
+                        IEWT = detail.IEWT,
+                        PassQty = detail.PassQty,
+                        TakeBackTime = detail.TakeBackTime
+                    }).ToList(),
+                    AttendanceList = s.AttendanceList.Select(atten => new TakeBackAttendanceViewModel
+                    {
+                        TakeBackWTSn = atten.TakeBackWTSn,
+                        Country = atten.Country,
+                        CountryId = atten.CountryId,
+                        ShouldPresentCnt = atten.ShouldPresentCnt,
+                        OverTimeCnt = atten.OverTimeCnt,
+                        AcceptSupCnt = atten.AcceptSupCnt,
+                        HaveDayOffCnt = atten.HaveDayOffCnt,
+                        OffCnt = atten.OffCnt,
+                        Support = atten.Support,
+                        PresentCnt = atten.PresentCnt,
+                        TotalWorkTime = atten.TotalWorkTime
+                    }).ToList()
+                });
+
+                return Json(new ResponseViewModel<TakeBackWTViewModel>
+                {
+                    IsSuccess = true,
+                    Data = _response.FirstOrDefault()
+                });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpPost("[controller]/TakeBackWT")]
+        public IActionResult TakeBackWT(TakeBackWTEditViewModel editVM)
+        {
+            try
+            {
+                var _result = _performanceDomainService.UpdateTakeBackWT(new TakeBackWTEntity
+                {
+                    Sn = editVM.Sn,
+                    Date = editVM.Date,
+                    WTCategoryId = editVM.WTCategoryId,
+                    DetailList = editVM.DetailList.Select(detail => new TakeBackWTProdEntity
+                    {
+                        TakeBackWTSn = detail.TakeBackWTSn,
+                        ProcessId = detail.ProcessId,
+                        EqId = detail.EqId,
+                        ProdId = detail.ProdId,
+                    }).ToList(),
+                    AttendanceList = editVM.AttendanceList.Select(atte => new TakeBackAttendanceEntity
+                    {
+                        TakeBackWTSn = atte.TakeBackWTSn,
+                        CountryId = atte.CountryId,
+                        ShouldPresentCnt = atte.ShouldPresentCnt,
+                        OverTimeCnt = atte.OverTimeCnt,
+                        AcceptSupCnt = atte.AcceptSupCnt,
+                        Support = atte.Support,
+                        HaveDayOffCnt = atte.HaveDayOffCnt,
+                        OffCnt = atte.OffCnt,
+                        PresentCnt = atte.PresentCnt
+                    }).ToList()
+                },
+                GetUserInfo());
+
+                if (string.IsNullOrEmpty(_result.Item1))
+                    return Json(new ResponseViewModel<TakeBackWTViewModel>
+                    {
+                        IsSuccess = true,
+                        Data = new TakeBackWTViewModel
+                        {
+                            Sn = _result.Item2.Sn,
+                            Date = _result.Item2.Date,
+                            WTCategoryId = (WTCategoryEnum)_result.Item2.WTCategoryId,
+                            TakeBackBonding = _result.Item2.TakeBackBonding,
+                            TakeBackFOG = _result.Item2.TakeBackFOG,
+                            TakeBackLAM = _result.Item2.TakeBackLAM,
+                            TakeBackASSY = _result.Item2.TakeBackASSY,
+                            TakeBackCDP = _result.Item2.TakeBackCDP,
+                            TakeBackPercent = _result.Item2.TakeBackPercent,
+                            TotalTakeBack = _result.Item2.TotalTakeBack,
+                            DetailList = _result.Item2.DetailList.Select(detail => new TakeBackWTProdViewModel
+                            {
+                                TakeBackWTSn = detail.TakeBackWTSn,
+                                ProcessId = detail.ProcessId,
+                                EqId = detail.EqId,
+                                ProdId = detail.ProdId,
+                                Prod = detail.Prod,
+                                IEStandard = detail.IEStandard,
+                                IETT = detail.IETT,
+                                IEWT = detail.IEWT,
+                                PassQty = detail.PassQty,
+                                TakeBackTime = detail.TakeBackTime
+                            }).ToList(),
+                            AttendanceList = _result.Item2.AttendanceList.Select(atten => new TakeBackAttendanceViewModel
+                            {
+                                TakeBackWTSn = atten.TakeBackWTSn,
+                                Country = atten.Country,
+                                CountryId = atten.CountryId,
+                                ShouldPresentCnt = atten.ShouldPresentCnt,
+                                OverTimeCnt = atten.OverTimeCnt,
+                                AcceptSupCnt = atten.AcceptSupCnt,
+                                HaveDayOffCnt = atten.HaveDayOffCnt,
+                                OffCnt = atten.OffCnt,
+                                Support = atten.Support,
+                                PresentCnt = atten.PresentCnt,
+                                TotalWorkTime = atten.TotalWorkTime
+                            }).ToList()
+                        }
+                    });
+                else
+                    return Json(new ResponseViewModel<string>
+                    {
+                        IsSuccess = false,
+                        Msg = _result.Item1
+                    });
+
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+
+        [HttpGet("[controller]/TakeBackKanban/{srcDate}/{wtCatg}")]
+        public IActionResult TakeBackKanban(DateTime srcDate, int wtCatg)
+        {
+            try
+            {
+
+                return Json(new ResponseViewModel<TakeBackKanbanViewModel>
+                {
+                    Data = new TakeBackKanbanViewModel
+                    {
+                        Date = "2024-03-15",
+                        TakeBackDaily = "1234567.248",
+                        TakeBackDailyPercent = "123.87%",
+                        DetailList = new List<TakeBackInfoViewModel>
+                        {
+                            new TakeBackInfoViewModel { Date = "2024-03-01", ShortDate = "03/01", TakeBackPercnet = 101.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-02", ShortDate = "03/02", TakeBackPercnet = 112.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-03", ShortDate = "03/03", TakeBackPercnet = 123.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-04", ShortDate = "03/04", TakeBackPercnet = 184.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-05", ShortDate = "03/05", TakeBackPercnet = 165.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-06", ShortDate = "03/06", TakeBackPercnet = 156.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-07", ShortDate = "03/07", TakeBackPercnet = 147.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-08", ShortDate = "03/08", TakeBackPercnet = 108.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-09", ShortDate = "03/09", TakeBackPercnet = 112.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-10", ShortDate = "03/10", TakeBackPercnet = 123.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-11", ShortDate = "03/11", TakeBackPercnet = 184.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-12", ShortDate = "03/12", TakeBackPercnet = 165.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-13", ShortDate = "03/13", TakeBackPercnet = 156.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-14", ShortDate = "03/14", TakeBackPercnet = 147.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-15", ShortDate = "03/15", TakeBackPercnet = 108.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-16", ShortDate = "03/16", TakeBackPercnet = 112.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-17", ShortDate = "03/17", TakeBackPercnet = 123.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-18", ShortDate = "03/18", TakeBackPercnet = 184.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-19", ShortDate = "03/19", TakeBackPercnet = 165.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-20", ShortDate = "03/20", TakeBackPercnet = 156.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-21", ShortDate = "03/21", TakeBackPercnet = 147.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-22", ShortDate = "03/22", TakeBackPercnet = 108.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-23", ShortDate = "03/23", TakeBackPercnet = 112.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-24", ShortDate = "03/24", TakeBackPercnet = 123.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-25", ShortDate = "03/25", TakeBackPercnet = 184.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-26", ShortDate = "03/26", TakeBackPercnet = 165.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-27", ShortDate = "03/27", TakeBackPercnet = 156.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-28", ShortDate = "03/28", TakeBackPercnet = 147.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-29", ShortDate = "03/29", TakeBackPercnet = 108.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-30", ShortDate = "03/30", TakeBackPercnet = 208.1M },
+                            new TakeBackInfoViewModel { Date = "2024-03-31", ShortDate = "03/31", TakeBackPercnet = 178.1M },
+                        }
+                    }
+                });
+
             }
             catch (Exception ex)
             {

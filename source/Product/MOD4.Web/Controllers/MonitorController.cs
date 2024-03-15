@@ -213,7 +213,7 @@ namespace MOD4.Web.Controllers
             {
                 var _settingDatas = _monitorDomainService.GetMonitorMainList(1206);
                 ViewBag.NodeOptions = _optionDomainService.GetNodeList();
-                ViewBag.ProdOptions = JsonConvert.SerializeObject(_optionDomainService.GetLcmProdOptions());
+                ViewBag.ProdOptions = JsonConvert.SerializeObject(_optionDomainService.GetLcmProdDescOptions());
                 var _allEqList = _optionDomainService.GetEqIDAreaList();
                 ViewBag.EqIDMappingOption = JsonConvert.SerializeObject(_allEqList);
 

@@ -444,7 +444,7 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                ViewBag.ProdOptions = JsonConvert.SerializeObject(_optionDomainService.GetLcmProdOptions());
+                ViewBag.ProdOptions = JsonConvert.SerializeObject(_optionDomainService.GetLcmProdDescOptions());
                 var _allNodeList = _optionDomainService.GetAllNodeList();
                 ViewBag.ProcessOption = _allNodeList.GroupBy(g => g.Id).Select(s => new { Id = s.Key, Value = s.FirstOrDefault().Value });
                 ViewBag.NodeOptions = _allNodeList;
@@ -488,6 +488,8 @@ namespace MOD4.Web.Controllers
                     PassNode = s.PassNode,
                     OldWipNode = s.WipNode,
                     WipNode = s.WipNode,
+                    OldWipNode2 = s.WipNode2,
+                    WipNode2 = s.WipNode2,
                     LcmProdSn = s.LcmProdSn
                 }).ToList();
 

@@ -417,7 +417,7 @@ namespace MOD4.Web.DomainService
                     end_time = DateTime.Parse(editEntity.EndTime),
                 };
 
-                var _prodDesc = (_optionDomainService.GetLcmProdOptions().SelectMany(s => s.Item2).FirstOrDefault(f => f.Item1 == editEntity.ProductId).Item2).Split("-")[0] ?? "";
+                var _prodDesc = (_optionDomainService.GetLcmProdDescOptions().SelectMany(s => s.Item2).FirstOrDefault(f => f.Item1 == editEntity.ProductId).Item2).Split("-")[0] ?? "";
 
                 alarmXmlDao.tool_id = editEntity.Equipment;
                 alarmXmlDao.tool_status = editEntity.Code;

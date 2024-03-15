@@ -1,0 +1,1144 @@
+﻿
+@{
+    ViewBag.Title = "回收工時";
+}
+
+<style>
+
+    div[name="sum_title"] > h4 {
+        text-align: center;
+        font-style: italic;
+        font-weight: 800;
+    }
+
+    div[name="sum_val"] > h4 {
+        text-align: center;
+        font-style: italic;
+        font-weight: 800;
+        border-bottom: 2px solid black;
+    }
+
+    th, td, td > input {
+        text-align: center;
+    }
+
+    td {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .custInputStyle {
+        border-bottom: 0px;
+        border-top: 0px;
+        border-left: 0px;
+        border-right: 0px;
+        background-color: transparent;
+        outline: none;
+        width: 30%;
+        font-size: 30px;
+        font-weight: 700;
+        font-style: italic;
+    }
+
+    select:disabled {
+        opacity: 1;
+        -webkit-text-fill-color: black;
+        font-weight: 700;
+    }
+
+    .roundMinus {
+        background-color: #d61529;
+        color: white;
+        border: 2px solid white;
+        font-size: 26px;
+        padding: 0px;
+        font-weight: 900;
+        height: 30px;
+        width: 30px;
+        box-shadow: 0 2px 4px darkslategray;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 70%;
+    }
+
+        .roundMinus:hover {
+            background-color: #d6606d;
+        }
+
+        .roundMinus:active {
+            box-shadow: 0 0 2px darkslategray;
+            transform: translateY(2px);
+        }
+
+    .roundDisabledMinus {
+        background-color: #d6606d;
+        color: white;
+        border: 2px solid white;
+        font-size: 26px;
+        padding: 0px;
+        font-weight: 900;
+        height: 30px;
+        width: 30px;
+        box-shadow: 0 2px 4px darkslategray;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 70%;
+    }
+
+    .addPlus {
+        background-color: #40cf30;
+        color: white;
+        border: 2px solid white;
+        font-size: 15px;
+        padding: 0px;
+        font-weight: 900;
+        height: 30px;
+        width: 30px;
+        box-shadow: 0 2px 4px darkslategray;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 70%;
+    }
+
+        .addPlus:hover {
+            background-color: #7fc777;
+        }
+
+        .addPlus:active {
+            box-shadow: 0 0 2px darkslategray;
+            transform: translateY(2px);
+        }
+
+    .addDisabledPlus {
+        background-color: #7fc777;
+        color: white;
+        border: 2px solid white;
+        font-size: 15px;
+        padding: 0px;
+        font-weight: 900;
+        height: 30px;
+        width: 30px;
+        box-shadow: 0 2px 4px darkslategray;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 70%;
+    }
+
+    .cusButton {
+        background-color: #4e83d9;
+        color: white;
+        border: 2px solid white;
+        font-size: 16px;
+        padding: 0px;
+        font-weight: 900;
+        height: 30px;
+        width: 50px;
+        box-shadow: 0 2px 4px darkslategray;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 13%;
+    }
+
+        .cusButton:hover {
+            background-color: #819dcc;
+        }
+
+        .cusButton:active {
+            box-shadow: 0 0 2px darkslategray;
+            transform: translateY(2px);
+        }
+
+    .cusDisabledButton {
+        background-color: #819dcc;
+        color: white;
+        border: 2px solid white;
+        font-size: 16px;
+        padding: 0px;
+        font-weight: 900;
+        height: 30px;
+        width: 50px;
+        box-shadow: 0 2px 4px darkslategray;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 13%;
+    }
+
+    td[name='tdLabel'] {
+        background: #91bac4;
+        font-weight: 600;
+        text-align: center;
+        vertical-align: middle;
+        width: 10%;
+    }
+
+    td[name="tdImp"] {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .setting {
+        color: white;
+        background: #9a9ca1;
+    }
+
+    li[name="myTmpli"] {
+    }
+
+    li:has(.setting.active) {
+    }
+
+    .setting.active {
+        color: black;
+        background: #c3cadb;
+        border-top: 1px solid #9a9ca1;
+        /*border-right: 2px solid #9a9ca1;
+        border-left: 2px solid #9a9ca1;*/
+    }
+</style>
+
+<head>
+    <link rel="stylesheet" href="~/plugins/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="~/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" />
+</head>
+
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card" id="app">
+                <div class="card-header">
+                    <h3 class="card-title">回收工時</h3>
+                </div>
+
+                <ul class="nav" style="background: #c3cadb">
+                    <li name="myTmpli" style="width: 25%; text-align: center;">
+                        <a class="nav-link setting active" href="#aFrontRWT" data-toggle="tab" style="font-weight: 600;">前段日班</a>
+                    </li>
+                    <li name="myTmpli" style="width: 25%; text-align: center;">
+                        <a class="nav-link setting" href="#bFrontRWT" data-toggle="tab" style=" font-weight: 600; ">前段夜班</a>
+                    </li>
+                    <li name="myTmpli" style="width: 25%; text-align: center;">
+                        <a class="nav-link setting" href="#aBackRWT" data-toggle="tab" style=" font-weight: 600; ">後段日班</a>
+                    </li>
+                    <li name="myTmpli" style="width: 25%; text-align: center;">
+                        <a class="nav-link setting" href="#bBackRWT" data-toggle="tab" style=" font-weight: 600; ">後段夜班</a>
+                    </li>
+                    <li name="myTmpli" style="width: 50%; text-align: center;">
+                        <a class="nav-link setting" href="#frontKanban" data-toggle="tab" style=" font-weight: 600; " @@click="dashboardClk(3)">前段看板</a>
+                    </li>
+                    <li name="myTmpli" style="width: 50%; text-align: center;">
+                        <a class="nav-link setting" href="#backendSummary" data-toggle="tab" style=" font-weight: 600; ">後段看板</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div id="frontKanban" class="tab-pane card-body">
+                        <div style="text-align: left;">
+                            <input class="custInputStyle" type="date" min="2023-01-01" :max="dateMAX" :value="frontChart.date" />
+                            <br />
+                            <div class="row d-flex">
+                                <div class="col-lg-5 d-flex">
+                                    <div class="col-lg-6" name="sum_title">
+                                        <h4>總回收</h4>
+                                    </div>
+                                    <div class="col-lg-6" name="sum_val">
+                                        <h4>{{frontChart.takeBackDaily}}</h4>
+                                    </div>
+                                </div>
+                                <div class="col-lg-5 d-flex">
+                                    <div class="col-lg-6" name="sum_title">
+                                        <h4>回收率</h4>
+                                    </div>
+                                    <div class="col-lg-6" name="sum_val">
+                                        <h4>{{frontChart.takeBackDailyPercent}}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div id="tbChart">
+
+                        </div>
+                        <br />
+                        <div style="overflow-x: auto;">
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <td v-for="data in frontChart.detailList">{{data.shortDate}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td v-for="data in frontChart.detailList">{{data.takeBackPercnet}}%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="backendSummary" class="tab-pane card-body"></div>
+                    <div is="front-component" id="aFrontRWT" class="tab-pane card-body active" :detail="wtData.frontA" :tmpcss="cssStyle.frontA" :tabid="'frontA'" :prods="prodOptions" :datemax="dateMAX"></div>
+                    <div is="front-component" id="bFrontRWT" class="tab-pane card-body" :detail="wtData.frontB" :tmpcss="cssStyle.frontB" :tabid="'frontB'" :prods="prodOptions" :datemax="dateMAX"></div>
+                    <div is="backend-component" id="aBackRWT" class="tab-pane card-body" :detail="wtData.backendA" :tmpcss="cssStyle.backendA" :tabid="'backendA'" :prods="prodOptions" :datemax="dateMAX"></div>
+                    <div is="backend-component" id="bBackRWT" class="tab-pane card-body" :detail="wtData.backendB" :tmpcss="cssStyle.backendB" :tabid="'backendB'" :prods="prodOptions" :datemax="dateMAX"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section scripts{
+    <script src="~/plugins/select2/js/select2.full.min.js"></script>
+
+    <!-- #region template -->
+
+    <script type="text/x-template" id="wtFrontComponent">
+        <div>
+            <div style="text-align: left;">
+                <input class="custInputStyle" type="date" min="2023-01-01" :max="datemax" :value="detail.date" v-model="detail.date" @@change="dateChange(tabid, detail.date)" /> @*:readonly="tmpcss.btnDisable" />*@
+            </div>
+            <br />
+            <input type="hidden" :value="detail.sn" v-model="detail.sn" />
+            <div class="row d-flex">
+                <div class="col-lg-4 d-flex">
+                    <div class="col-lg-6" name="sum_title">
+                        <h4>總回收</h4>
+                    </div>
+                    <div class="col-lg-6" name="sum_val">
+                        <h4>{{detail.totalTakeBack}}</h4>
+                    </div>
+                </div>
+                <div class="col-lg-4 d-flex">
+                    <div class="col-lg-6" name="sum_title">
+                        <h4>回收率</h4>
+                    </div>
+                    <div class="col-lg-6" name="sum_val">
+                        <h4>{{detail.takeBackPercent}}</h4>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="row d-flex">
+                <div class="col-lg-4 d-flex">
+                    <div class="col-lg-6" name="sum_title">
+                        <h4>BOND回收</h4>
+                    </div>
+                    <div class="col-lg-6" name="sum_val">
+                        <h4>{{detail.takeBackBonding}}</h4>
+                    </div>
+                </div>
+                <div class="col-lg-4 d-flex">
+                    <div class="col-lg-6" name="sum_title">
+                        <h4>FOG回收</h4>
+                    </div>
+                    <div class="col-lg-6" name="sum_val">
+                        <h4>{{detail.takeBackFOG}}</h4>
+                    </div>
+                </div>
+                <div class="col-lg-4 d-flex">
+                    <div class="col-lg-6" name="sum_title">
+                        <h4>LAM回收</h4>
+                    </div>
+                    <div class="col-lg-6" name="sum_val">
+                        <h4>{{detail.takeBackLAM}}</h4>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th width="8%">
+                            <button :class="tmpcss.rndBtnCss" :disabled="tmpcss.btnDisable" @@click="addClick(tabid, 1)">＋</button>
+                        </th>
+                        <th width="12%">BOND</th>
+                        <th>機種</th>
+                        <th width="10%">IE標配</th>
+                        <th width="10%">IE T/T</th>
+                        <th width="12%">IE WT</th>
+                        <th width="10%">產出</th>
+                        <th width="12%">回收工時</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(prod, idx) in detail.detailList" v-if="prod.processId == 1">
+                        <td>
+                            <button :class="tmpcss.minusBtnCss" @@click="btnDelete(tabid, idx)" :disabled="tmpcss.btnDisable">⁻</button>
+                            <input type="hidden" :value="prod.takeBackWTSn" v-model="detail.detailList[idx].takeBackWTSn" />
+                            <input type="hidden" :value="prod.processId" v-model="detail.detailList[idx].processId" />
+                        </td>
+                        <td>
+                            <select class="myInputStyle1" :disabled="tmpcss.btnDisable" :value="prod.eqId" v-model="detail.detailList[idx].eqId">
+                                <option value="0"></option>
+                                <option value="AOLB2010">AOLB2010</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="myInputStyle1" :disabled="tmpcss.btnDisable" :value="prod.prodId" v-model="detail.detailList[idx].prodId">
+                                <optgroup v-for="prod in prods" :label="prod.Item1">
+                                    <option v-for="detail in prod.Item2" :value="detail.Item1">{{detail.Item2}}</option>
+                                </optgroup>
+                            </select>
+                        </td>
+                        <td>{{prod.ieStandard}}</td>
+                        <td>{{prod.iett}}</td>
+                        <td>{{prod.iewt}}</td>
+                        <td>{{prod.passQty}}</td>
+                        <td>{{prod.takeBackTime}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <br />
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th width="8%">
+                            <button :class="tmpcss.rndBtnCss" :disabled="tmpcss.btnDisable" @@click="addClick(tabid, 2)">＋</button>
+                        </th>
+                        <th width="12%">AFOG</th>
+                        <th>機種</th>
+                        <th width="10%">IE標配</th>
+                        <th width="10%">IE T/T</th>
+                        <th width="12%">IE WT</th>
+                        <th width="10%">產出</th>
+                        <th width="12%">回收工時</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(prod, idx) in detail.detailList" v-if="prod.processId == 2">
+                        <td>
+                            <button :class="tmpcss.minusBtnCss" @@click="btnDelete(tabid, idx)" :disabled="tmpcss.btnDisable">⁻</button>
+                            <input type="hidden" :value="prod.takeBackWTSn" v-model="detail.detailList[idx].takeBackWTSn" />
+                            <input type="hidden" :value="prod.processId" v-model="detail.detailList[idx].processId" />
+                        </td>
+                        <td>
+                            <select class="myInputStyle1" :disabled="tmpcss.btnDisable" :value="prod.eqId" v-model="detail.detailList[idx].eqId">
+                                <option value="0"></option>
+                                <option value="AFOG2010">AFOG2010</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="myInputStyle1" :disabled="tmpcss.btnDisable" :value="prod.prodId" v-model="detail.detailList[idx].prodId">
+                                <optgroup v-for="prod in prods" :label="prod.Item1">
+                                    <option v-for="detail in prod.Item2" :value="detail.Item1">{{detail.Item2}}</option>
+                                </optgroup>
+                            </select>
+                        </td>
+                        <td>{{prod.ieStandard}}</td>
+                        <td>{{prod.iett}}</td>
+                        <td>{{prod.iewt}}</td>
+                        <td>{{prod.passQty}}</td>
+                        <td>{{prod.takeBackTime}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <br />
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th width="8%">
+                            <button :class="tmpcss.rndBtnCss" :disabled="tmpcss.btnDisable" @@click="addClick(tabid, 3)">＋</button>
+                        </th>
+                        <th width="12%">LAM</th>
+                        <th>機種</th>
+                        <th width="10%">IE標配</th>
+                        <th width="10%">IE T/T</th>
+                        <th width="12%">IE WT</th>
+                        <th width="10%">產出</th>
+                        <th width="12%">回收工時</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(prod, idx) in detail.detailList" v-if="prod.processId == 3">
+                        <td>
+                            <button :class="tmpcss.minusBtnCss" @@click="btnDelete(tabid, idx)" :disabled="tmpcss.btnDisable">⁻</button>
+                            <input type="hidden" :value="prod.takeBackWTSn" v-model="detail.detailList[idx].takeBackWTSn" />
+                            <input type="hidden" :value="prod.processId" v-model="detail.detailList[idx].processId" />
+                        </td>
+                        <td>
+                            <select class="myInputStyle1" :disabled="tmpcss.btnDisable" :value="prod.eqId" v-model="detail.detailList[idx].eqId">
+                                <option value="0"></option>
+                                <option value="CLAM2010">CLAM2010</option>
+                                <option value="CLAM2020">CLAM2020</option>
+                                <option value="OCAH2010">OCAH2010</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="myInputStyle1" :disabled="tmpcss.btnDisable" :value="detail.prodId" v-model="detail.detailList[idx].prodId">
+                                <optgroup v-for="prod in prods" :label="prod.Item1">
+                                    <option v-for="detail in prod.Item2" :value="detail.Item1">{{detail.Item2}}</option>
+                                </optgroup>
+                            </select>
+                        </td>
+                        <td>{{prod.ieStandard}}</td>
+                        <td>{{prod.iett}}</td>
+                        <td>{{prod.iewt}}</td>
+                        <td>{{prod.passQty}}</td>
+                        <td>{{prod.takeBackTime}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <br />
+            <div class="col-lg-6">
+                <button :class="tmpcss.editBtnCss" :disabled="!tmpcss.btnDisable" @@click="btnEdit(tabid, detail)">編輯</button>
+                <button :class="tmpcss.otherBtnCss" :disabled="tmpcss.btnDisable" @@click="btnCancle(tabid)">取消</button>
+                <button :class="tmpcss.otherBtnCss" :disabled="tmpcss.btnDisable" @@click="btnSave(tabid, detail)">儲存</button>
+            </div>
+            <br />
+            <table is="attendance-list" :attendanceDetail="detail.attendanceList" :editable="tmpcss.btnDisable" :tabid="tabid"></table>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="wtBackendComponent">
+        <div>
+            <div style="text-align: left;">
+                <input class="custInputStyle" type="date" min="2023-01-01" :max="datemax" :value="detail.date" v-model="detail.date" @@change="dateChange(tabid, detail.date)" />
+            </div>
+            <br />
+            <input type="hidden" :value="detail.sn" v-model="detail.sn" />
+            <div class="row d-flex">
+                <div class="col-lg-4 d-flex">
+                    <div class="col-lg-6" name="sum_title">
+                        <h4>總回收</h4>
+                    </div>
+                    <div class="col-lg-6" name="sum_val">
+                        <h4>{{detail.totalTakeBack}}</h4>
+                    </div>
+                </div>
+                <div class="col-lg-4 d-flex">
+                    <div class="col-lg-6" name="sum_title">
+                        <h4>回收率</h4>
+                    </div>
+                    <div class="col-lg-6" name="sum_val">
+                        <h4>{{detail.takeBackPercent}}</h4>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="row d-flex">
+                <div class="col-lg-4 d-flex">
+                    <div class="col-lg-6" name="sum_title">
+                        <h4>ASSY回收</h4>
+                    </div>
+                    <div class="col-lg-6" name="sum_val">
+                        <h4>{{detail.takeBackBonding}}</h4>
+                    </div>
+                </div>
+                <div class="col-lg-4 d-flex">
+                    <div class="col-lg-6" name="sum_title">
+                        <h4>ACDP回收</h4>
+                    </div>
+                    <div class="col-lg-6" name="sum_val">
+                        <h4>{{detail.takeBackFOG}}</h4>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th width="8%">
+                            <button :class="tmpcss.rndBtnCss" :disabled="tmpcss.btnDisable" @@click="addClick(tabid, 4)">＋</button>
+                        </th>
+                        <th width="12%">ASSY</th>
+                        <th>機種</th>
+                        <th width="10%">IE標配</th>
+                        <th width="10%">IE T/T</th>
+                        <th width="12%">IE WT</th>
+                        <th width="10%">產出</th>
+                        <th width="12%">回收工時</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(prod, idx) in detail.detailList" v-if="prod.processId == 4">
+                        <td>
+                            <button :class="tmpcss.minusBtnCss" @@click="btnDelete(tabid, idx)" :disabled="tmpcss.btnDisable">⁻</button>
+                            <input type="hidden" :value="prod.takeBackWTSn" v-model="detail.detailList[idx].takeBackWTSn" />
+                            <input type="hidden" :value="prod.processId" v-model="detail.detailList[idx].processId" />
+                        </td>
+                        <td>
+                            <select class="myInputStyle1" :disabled="tmpcss.btnDisable" :value="prod.eqId" v-model="detail.detailList[idx].eqId">
+                                <option value="0"></option>
+                                <option value="ASSY2010">ASSY2010</option>
+                                <option value="ASSY2020">ASSY2020</option>
+                                <option value="ASSY2040">ASSY2040</option>
+                                <option value="BASY2030">BASY2030</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="myInputStyle1" :disabled="tmpcss.btnDisable" :value="detail.prodId" v-model="detail.detailList[idx].prodId">
+                                <optgroup v-for="prod in prods" :label="prod.Item1">
+                                    <option v-for="detail in prod.Item2" :value="detail.Item1">{{detail.Item2}}</option>
+                                </optgroup>
+                            </select>
+                        </td>
+                        <td>{{prod.ieStandard}}</td>
+                        <td>{{prod.iett}}</td>
+                        <td>{{prod.iewt}}</td>
+                        <td>{{prod.passQty}}</td>
+                        <td>{{prod.takeBackTime}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <br />
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th width="8%">
+                            <button :class="tmpcss.rndBtnCss" :disabled="tmpcss.btnDisable" @@click="addClick(tabid, 5)">＋</button>
+                        </th>
+                        <th width="12%">ACDP</th>
+                        <th>機種</th>
+                        <th width="10%">IE標配</th>
+                        <th width="10%">IE T/T</th>
+                        <th width="12%">IE WT</th>
+                        <th width="10%">產出</th>
+                        <th width="12%">回收工時</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(prod, idx) in detail.detailList" v-if="prod.processId == 5">
+                        <td>
+                            <button :class="tmpcss.minusBtnCss" @@click="btnDelete(tabid, idx)" :disabled="tmpcss.btnDisable">⁻</button>
+                            <input type="hidden" :value="prod.takeBackWTSn" v-model="detail.detailList[idx].takeBackWTSn" />
+                            <input type="hidden" :value="prod.processId" v-model="detail.detailList[idx].processId" />
+                        </td>
+                        <td>
+                            <select class="myInputStyle1" :disabled="tmpcss.btnDisable" :value="prod.eqId" v-model="detail.detailList[idx].eqId">
+                                <option value="0"></option>
+                                <option value="ACKE2010">ACKE2010</option>
+                                <option value="ACKE2020">ACKE2020</option>
+                                <option value="ACKE2030">ACKE2030</option>
+                                <option value="CKEN2010">CKEN2010</option>
+                                <option value="CKEN2020">CKEN2020</option>
+                                <option value="DKEN2010">DKEN2010</option>
+                                <option value="DKEN2020">DKEN2020</option>
+                                <option value="DKEN2030">DKEN2030</option>
+                                <option value="DKEN2040">DKEN2040</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="myInputStyle1" :disabled="tmpcss.btnDisable" :value="detail.prodId" v-model="detail.detailList[idx].prodId">
+                                <optgroup v-for="prod in prods" :label="prod.Item1">
+                                    <option v-for="detail in prod.Item2" :value="detail.Item1">{{detail.Item2}}</option>
+                                </optgroup>
+                            </select>
+                        </td>
+                        <td>{{prod.ieStandard}}</td>
+                        <td>{{prod.iett}}</td>
+                        <td>{{prod.iewt}}</td>
+                        <td>{{prod.passQty}}</td>
+                        <td>{{prod.takeBackTime}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <br />
+            <br />
+            <div class="col-lg-6">
+                <button :class="tmpcss.editBtnCss" :disabled="!tmpcss.btnDisable" @@click="btnEdit(tabid, detail)">編輯</button>
+                <button :class="tmpcss.otherBtnCss" :disabled="tmpcss.btnDisable" @@click="btnCancle(tabid)">取消</button>
+                <button :class="tmpcss.otherBtnCss" :disabled="tmpcss.btnDisable" @@click="btnSave(tabid, detail)">儲存</button>
+            </div>
+            <br />
+            <table is="attendance-list" :attendanceDetail="detail.attendanceList" :editable="tmpcss.btnDisable" :tabid="tabid"></table>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="attendanceInfo">
+        <table class="col-lg-7 table table-secondary table-striped">
+            <thead>
+                <tr>
+                    <th width="8%"></th>
+                    <th>應到</th>
+                    <th>加班</th>
+                    <th>受援</th>
+                    <th>請假</th>
+                    <th>OFF</th>
+                    <th>支援</th>
+                    <th>實到</th>
+                    <th width="15%">總工時</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(atten, cnt) in attendanceDetail">
+                    <td>
+                        {{atten.country}}
+                        <input type="hidden" :value="atten.takeBackWTSn" v-model="attendanceDetail[cnt].takeBackWTSn" />
+                    </td>
+                    <td>
+                        <input class="myInputStyle1" :disabled="editable" :value="atten.shouldPresentCnt" v-model="attendanceDetail[cnt].shouldPresentCnt" @@change="calculate(atten, cnt, tabid)" />
+                    </td>
+                    <td>
+                        <input class="myInputStyle1" :disabled="editable" :value="atten.overTimeCnt" v-model="attendanceDetail[cnt].overTimeCnt" @@change="calculate(atten, cnt, tabid)" />
+                    </td>
+                    <td>
+                        <input class="myInputStyle1" :disabled="editable" :value="atten.acceptSupCnt" v-model="attendanceDetail[cnt].acceptSupCnt" @@change="calculate(atten, cnt, tabid)" />
+                    </td>
+                    <td>
+                        <input class="myInputStyle1" :disabled="editable" :value="atten.haveDayOffCnt" v-model="attendanceDetail[cnt].haveDayOffCnt" @@change="calculate(atten, cnt, tabid)" />
+                    </td>
+                    <td>
+                        <input class="myInputStyle1" :disabled="editable" :value="atten.offCnt" v-model="attendanceDetail[cnt].offCnt" @@change="calculate(atten, cnt, tabid)" />
+                    </td>
+                    <td>
+                        <input class="myInputStyle1" :disabled="editable" :value="atten.support" v-model="attendanceDetail[cnt].support" @@change="calculate(atten, cnt, tabid)" />
+                    </td>
+                    <td>
+                        <input class="myInputStyle1" readonly :value="atten.presentCnt" v-model="attendanceDetail[cnt].presentCnt" />
+                    </td>
+                    <td>{{atten.totalWorkTime}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </script>
+
+    <!-- #endregion -->
+
+    <script src="~/lib/echarts/echarts.js"></script>
+    <script type="text/javascript">
+
+        Vue.component('front-component',
+            {
+                props: ['detail', 'tmpcss', 'tabid', 'prods', 'datemax'],
+                template: '#wtFrontComponent',
+                methods: {
+                    dateChange(tabId, date) {
+                        vue.baseDateChange(tabId, date);
+                    },
+                    btnEdit(tabId, details) {
+                        vue.baseEditClk(tabId, details);
+                    },
+                    btnDelete(tabId, idx) {
+                        vue.baseDeleteClk(tabId, idx);
+                    },
+                    btnCancle(tabId) {
+                        vue.baseCancleClk(tabId);
+                    },
+                    btnSave(tabId, details) {
+                        vue.baseSaveClick(tabId, details);
+                    },
+                    addClick(tabId, areaId) {
+                        vue.baseAddClick(tabId, areaId);
+                    }
+                }
+            });
+
+        Vue.component('backend-component',
+            {
+                props: ['detail', 'tmpcss', 'tabid', 'prods', 'datemax'],
+                template: '#wtBackendComponent',
+                methods: {
+                    dateChange(tabId, date) {
+                        vue.baseDateChange(tabId, date);
+                    },
+                    btnEdit(tabId, details) {
+                        vue.baseEditClk(tabId, details);
+                    },
+                    btnDelete(tabId, idx) {
+                        vue.baseDeleteClk(tabId, idx);
+                    },
+                    btnCancle(tabId) {
+                        vue.baseCancleClk(tabId);
+                    },
+                    btnSave(tabId, details) {
+                        vue.baseSaveClick(tabId, details);
+                    },
+                    addClick(tabId, areaId) {
+                        vue.baseAddClick(tabId, areaId);
+                    }
+                }
+            });
+
+        Vue.component('attendance-list',
+            {
+                props: ['attendanceDetail', 'editable', 'tabid'],
+                template: '#attendanceInfo',
+                methods: {
+                    calculate(atten, cnt, tabId) {
+                        vue.baseCalculate(tabId, atten, cnt);
+                    }
+                }
+            });
+
+        const vue = new Vue({
+            el: "#app",
+            data: {
+                toast: Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                }),
+                wtData: {
+                    'frontA': {},
+                    'frontB': {},
+                    'backendA': {},
+                    'backendB': {}
+                },
+                tmpBackup: {
+                    'frontA': {},
+                    'frontB': {},
+                    'backendA': {},
+                    'backendB': {}
+                },
+                cssStyle: {
+                    'frontA': {
+                        btnDisable: true,
+                        rndBtnCss: 'addDisabledPlus',
+                        minusBtnCss: 'roundDisabledMinus',
+                        editBtnCss: 'cusButton',
+                        otherBtnCss: 'cusDisabledButton'
+                    },
+                    'frontB': {
+                        btnDisable: true,
+                        rndBtnCss: 'addDisabledPlus',
+                        minusBtnCss: 'roundDisabledMinus',
+                        editBtnCss: 'cusButton',
+                        otherBtnCss: 'cusDisabledButton'
+                    },
+                    'backendA': {
+                        btnDisable: true,
+                        rndBtnCss: 'addDisabledPlus',
+                        minusBtnCss: 'roundDisabledMinus',
+                        editBtnCss: 'cusButton',
+                        otherBtnCss: 'cusDisabledButton'
+                    },
+                    'backendB': {
+                        btnDisable: true,
+                        rndBtnCss: 'addDisabledPlus',
+                        minusBtnCss: 'roundDisabledMinus',
+                        editBtnCss: 'cusButton',
+                        otherBtnCss: 'cusDisabledButton'
+                    }
+                },
+                prodOptions: [],
+                dateMAX: '',
+                chartOption: {},
+                frontChart: {},
+                backendChart: {},
+                frontChartObj: {}
+            },
+            methods: {
+                baseDateChange(tabId, date) {
+                    $.ajax({
+                        url: './TakeBackWT/' + date + '/' + tabId,
+                        type: 'GET',
+                        success: function (result) {
+                            if (result.isSuccess) {
+                                vue.cssStyle[tabId].btnDisable = true;
+                                vue.cssStyle[tabId].rndBtnCss = 'addDisabledPlus';
+                                vue.cssStyle[tabId].minusBtnCss = 'roundDisabledMinus';
+                                vue.cssStyle[tabId].editBtnCss = 'cusButton';
+                                vue.cssStyle[tabId].otherBtnCss = 'cusDisabledButton';
+                                if (result.data == null) {
+                                    vue.wtData[tabId] = {
+                                        date: date,
+                                        detailList: [],
+                                        attendanceList: []
+                                    };
+                                    vue.wtData[tabId].attendanceList.push(
+                                        {
+                                            country: '台籍',
+                                            countryId: 1,
+                                            shouldPresentCnt: 0,
+                                            overTimeCnt: 0,
+                                            acceptSupCnt: 0,
+                                            haveDayOffCnt: 0,
+                                            offCnt: 0,
+                                            support: 0,
+                                            presentCnt: 0
+                                        });
+                                    vue.wtData[tabId].attendanceList.push(
+                                        {
+                                            country: '菲籍',
+                                            countryId: 2,
+                                            shouldPresentCnt: 0,
+                                            overTimeCnt: 0,
+                                            acceptSupCnt: 0,
+                                            haveDayOffCnt: 0,
+                                            offCnt: 0,
+                                            support: 0,
+                                            presentCnt: 0
+                                        });
+                                }
+                                else {
+                                    vue.wtData[tabId] = result.data;
+                                }
+                                vue.tmpBackup[tabId] = {};
+                                vue.toast.fire({
+                                    icon: 'success',
+                                    title: '查詢成功',
+                                    timer: 800
+                                });
+                            }
+                            else {
+                                vue.toast.fire({
+                                    icon: 'error',
+                                    title: result.msg,
+                                    timer: 2000
+                                });
+                            }
+                        }
+                    });
+                },
+                baseEditClk(tabId, details) {
+                    vue.cssStyle[tabId].btnDisable = false;
+                    vue.cssStyle[tabId].rndBtnCss = 'addPlus';
+                    vue.cssStyle[tabId].minusBtnCss = 'roundMinus';
+                    vue.cssStyle[tabId].editBtnCss = 'cusDisabledButton';
+                    vue.cssStyle[tabId].otherBtnCss = 'cusButton';
+
+                    if (details.detailList != undefined) {
+                        vue.tmpBackup[tabId] = JSON.parse(JSON.stringify(details));
+                    }
+                    else {
+                        vue.wtData[tabId] = {
+                            date: vue.dateMAX,
+                            detailList: [],
+                            attendanceList: []
+                        };
+                        vue.wtData[tabId].attendanceList.push(
+                            {
+                                country: '台籍',
+                                countryId: 1,
+                                shouldPresentCnt: 0,
+                                overTimeCnt: 0,
+                                acceptSupCnt: 0,
+                                haveDayOffCnt: 0,
+                                offCnt: 0,
+                                support: 0,
+                                presentCnt: 0
+                            });
+                        vue.wtData[tabId].attendanceList.push(
+                            {
+                                country: '菲籍',
+                                countryId: 2,
+                                shouldPresentCnt: 0,
+                                overTimeCnt: 0,
+                                acceptSupCnt: 0,
+                                haveDayOffCnt: 0,
+                                offCnt: 0,
+                                support: 0,
+                                presentCnt: 0
+                            });
+                    }
+                },
+                baseDeleteClk(tabId, idx) {
+                    vue.wtData[tabId].detailList.splice(idx, 1);
+                },
+                baseCancleClk(tabId) {
+                    vue.cssStyle[tabId].btnDisable = true;
+                    vue.cssStyle[tabId].rndBtnCss = 'addDisabledPlus';
+                    vue.cssStyle[tabId].minusBtnCss = 'roundDisabledMinus';
+                    vue.cssStyle[tabId].editBtnCss = 'cusButton';
+                    vue.cssStyle[tabId].otherBtnCss = 'cusDisabledButton';
+                    vue.wtData[tabId] = vue.tmpBackup[tabId];
+                },
+                baseAddClick(tabId, areaId) {
+
+                    vue.wtData[tabId].detailList.push({
+                        eqId: '',
+                        prodId: 0,
+                        processId: areaId,
+                        ieStandard: 0,
+                        iett: 0,
+                        iewt: 0,
+                        passQty: 0,
+                        takeBackTime: 0
+                    });
+                },
+                baseSaveClick(tabId, details) {
+
+                    let _errMsg = '';
+                    let _tmpMsg = '';
+
+                    if (details.detailList.length == 0) {
+                        _errMsg += '未選擇生產機種\n';
+                    }
+
+                    $.each(details.detailList, function (idx, item) {
+                        if (item.eqId == '' || item.prodId == 0) {
+                            _tmpMsg = 'EQ、機種必選\n';
+                        }
+                    });
+                    _errMsg += _tmpMsg;
+                    _tmpMsg = '';
+
+                    $.each(details.attendanceList, function (idx, atten) {
+                        if (parseInt(atten.shouldPresentCnt) + parseInt(atten.overTimeCnt) + parseInt(atten.acceptSupCnt) - parseInt(atten.haveDayOffCnt) - parseInt(atten.offCnt) - parseInt(atten.support) < 0) {
+                            _tmpMsg = '請確認點名人數';
+                        }
+                    });
+                    _errMsg += _tmpMsg;
+
+                    if (_errMsg != '') {
+                        Swal.fire({
+                            title: _errMsg,
+                            icon: 'warning'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                return;
+                            }
+                        });
+                    }
+                    else {
+
+                        globalFuc.LoadingPic();
+
+                        $.ajax({
+                            url: './TakeBackWT',
+                            type: 'POST',
+                            data:
+                            {
+                                Sn: details.sn,
+                                WTCategory: tabId,
+                                Date: details.date,
+                                DetailList: details.detailList,
+                                AttendanceList: details.attendanceList
+                            },
+                            success: function (result) {
+
+                                $.unblockUI();
+
+                                if (result.isSuccess) {
+                                    vue.cssStyle[tabId].btnDisable = true;
+                                    vue.cssStyle[tabId].rndBtnCss = 'addDisabledPlus';
+                                    vue.cssStyle[tabId].minusBtnCss = 'roundDisabledMinus';
+                                    vue.cssStyle[tabId].editBtnCss = 'cusButton';
+                                    vue.cssStyle[tabId].otherBtnCss = 'cusDisabledButton';
+                                    vue.wtData[tabId] = result.data;
+                                    vue.tmpBackup[tabId] = {};
+                                    vue.toast.fire({
+                                        icon: 'success',
+                                        title: '更新成功',
+                                    });
+                                }
+                                else {
+                                    vue.toast.fire({
+                                        icon: 'error',
+                                        title: result.msg
+                                    });
+                                }
+                            }
+                        });
+                    }
+                },
+                baseCalculate(tabId, atten, cnt) {
+                    if (parseInt(atten.shouldPresentCnt) + parseInt(atten.overTimeCnt) + parseInt(atten.acceptSupCnt) - parseInt(atten.haveDayOffCnt) - parseInt(atten.offCnt) - parseInt(atten.support) < 0) {
+                        vue.toast.fire({
+                            icon: 'error',
+                            title: '異常'
+                        });
+                    }
+                    else {
+                        vue.wtData[tabId].attendanceList[cnt].presentCnt = parseInt(atten.shouldPresentCnt) + parseInt(atten.overTimeCnt) + parseInt(atten.acceptSupCnt) - parseInt(atten.haveDayOffCnt) - parseInt(atten.offCnt) - parseInt(atten.support);
+                    }
+                },
+                dashboardClk(catg) {
+
+                    const _defDate = new Date().toISOString().split("T")[0];
+                    $.ajax({
+                        url: './TakeBackKanban/' + _defDate + '/' + catg,
+                        type: 'GET',
+                        success: function (result) {
+                            if (result.isSuccess) {
+                                if (catg == 3) {
+                                    vue.frontChart = result.data;
+                                }
+                                else {
+                                    vue.backendChart = result.data;
+                                }
+                                vue.wrapLineChart(result.data);
+                            }
+                            else {
+                                vue.toast.fire({
+                                    icon: 'error',
+                                    title: result.msg
+                                });
+                            }
+                        }
+                    });
+                },
+                wrapLineChart(detail) {
+                    
+                    $("#tbChart").css("min-height", "500px");
+                    //$("#tbChart").css("width", '85vw');
+                    var _xAxisTime = [];
+                    var _percentAry = [];
+                    var chartDom = document.getElementById('tbChart');
+                    vue.frontChartObj = echarts.init(chartDom);
+
+                    $.each(detail.detailList, function (index, value) {
+                        _xAxisTime.push(value.date);
+                        _percentAry.push(value.takeBackPercnet);
+                    });
+
+                    vue.chartOption = {
+                        xAxis: {
+                            data: _xAxisTime,
+                            axisLabel: { color: "black" }
+                        },
+                        yAxis: {
+                            name: '(%)'
+                        },
+                        grid: {
+                            top: 10,
+                            right: 5,
+                            bottom: 25,
+                            left: 40,
+                        },
+                        tooltip: {
+                            trigger: 'axis',
+                        },
+                        series: [
+                            {
+                                data: _percentAry,
+                                type: 'line',
+                                itemStyle: {
+                                    color: '#bf1111',
+                                    normal: {
+                                        label: {
+                                            show: true
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    };
+                    vue.frontChartObj.setOption(vue.chartOption);
+                    window.addEventListener('resize', function () {
+                        vue.frontChartObj.resize();
+                    });
+                }
+            },
+            mounted: function () {
+
+                var _models = @Html.Raw(Json.Serialize(Model));
+                this.prodOptions = JSON.parse(@(Html.Raw(Json.Serialize(ViewBag.ProdOptions))));
+                this.dateMAX = new Date().toISOString().split("T")[0];
+                var _fa = {};
+                var _fb = {};
+                var _ba = {};
+                var _bb = {};
+                $.each(_models, function (idx, item) {
+                    if (item.wtCategoryId == 1) {
+                        _fa = item;
+                    }
+                    else if (item.wtCategoryId == 2) {
+                        _fb = item;
+                    }
+                    else if (item.wtCategoryId == 4) {
+                        _ba = item;
+                    }
+                    else if (item.wtCategoryId == 8) {
+                        _bb = item;
+                    }
+                })
+
+                this.wtData.frontA = _fa;
+                this.wtData.frontB = _fb;
+                this.wtData.backendA = _ba;
+                this.wtData.backendB = _bb;
+            },
+            computed: {
+
+            }
+        });
+
+    </script>
+}

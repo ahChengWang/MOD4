@@ -1,0 +1,228 @@
+﻿
+<script type="text/x-template" id="wtFrontComponent">
+    <div>
+        <div style="text-align: left;">
+            <input class="custInputStyle" type="date" style="font-size: 30px;font-weight:700;font-style: italic;" :value="detail.date" />
+        </div>
+        <br />
+        <div class="row d-flex">
+            <div class="col-lg-4 d-flex">
+                <div class="col-lg-6" name="sum_title">
+                    <h5>總回收</h5>
+                </div>
+                <div class="col-lg-6" name="sum_val">
+                    <h5>{{detail.totalTackBack}}</h5>
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex">
+                <div class="col-lg-6" name="sum_title">
+                    <h5>回收率</h5>
+                </div>
+                <div class="col-lg-6" name="sum_val">
+                    <h5>{{detail.tackBackPercent}}</h5>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row d-flex">
+            <div class="col-lg-4 d-flex">
+                <div class="col-lg-6" name="sum_title">
+                    <h5>BOND回收</h5>
+                </div>
+                <div class="col-lg-6" name="sum_val">
+                    <h5>{{detail.tackBackBonding}}</h5>
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex">
+                <div class="col-lg-6" name="sum_title">
+                    <h5>FOG回收</h5>
+                </div>
+                <div class="col-lg-6" name="sum_val">
+                    <h5>{{detail.tackBackFOG}}</h5>
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex">
+                <div class="col-lg-6" name="sum_title">
+                    <h5>LAM回收</h5>
+                </div>
+                <div class="col-lg-6" name="sum_val">
+                    <h5>{{detail.tackBackLAM}}</h5>
+                </div>
+            </div>
+        </div>
+        <br />
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th width="8%">
+                        <button class="addDisabledPlus" disabled>＋</button>
+                    </th>
+                    <th width="11%">BOND</th>
+                    <th>機種</th>
+                    <th width="12%">IE標配</th>
+                    <th width="12%">IE T/T</th>
+                    <th width="12%">IE WT</th>
+                    <th width="12%">產出</th>
+                    <th width="12%">回收工時</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="prod in detail.detailList" v-if="prod.processId == 1">
+                    <td></td>
+                    <td>
+                        <select class="myInputStyle1" disabled :value="prod.eqId">
+                            <option value="0"></option>
+                            <option value="AFOG2010">AFOG2010</option>
+                            <option value="AFOG2020">AFOG2020</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="myInputStyle1" disabled :value="prod.prodId">
+                            <option value="0"></option>
+                            <option value="11">5306M3340160M</option>
+                            <option value="22">5306M3340199M</option>
+                        </select>
+                    </td>
+                    <td>{{prod.ieStandard}}</td>
+                    <td>{{prod.iett}}</td>
+                    <td>{{prod.iewt}}</td>
+                    <td>{{prod.passQty}}</td>
+                    <td>{{prod.tackBackTime}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <br />
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th width="8%">
+                        <button class="addDisabledPlus" disabled>＋</button>
+                    </th>
+                    <th width="10%">AFOG</th>
+                    <th>機種</th>
+                    <th width="12%">IE標配</th>
+                    <th width="12%">IE T/T</th>
+                    <th width="12%">IE WT</th>
+                    <th width="12%">產出</th>
+                    <th width="12%">回收工時</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="prod in detail.detailList" v-if="prod.processId == 2">
+                    <td></td>
+                    <td>
+                        <select class="myInputStyle1" disabled :value="prod.eqId">
+                            <option value="0"></option>
+                            <option value="AFOG2010">AFOG2010</option>
+                            <option value="AFOG2020">AFOG2020</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="myInputStyle1" disabled :value="prod.prodId">
+                            <option value="0"></option>
+                            <option value="5306M3340160M">5306M3340160M</option>
+                            <option value="5306M3340199M">5306M3340199M</option>
+                        </select>
+                    </td>
+                    <td>{{prod.ieStandard}}</td>
+                    <td>{{prod.iett}}</td>
+                    <td>{{prod.iewt}}</td>
+                    <td>{{prod.passQty}}</td>
+                    <td>{{prod.tackBackTime}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <br />
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th width="8%">
+                        <button class="addDisabledPlus" disabled>＋</button>
+                    </th>
+                    <th width="10%">LAM</th>
+                    <th>機種</th>
+                    <th width="12%">IE標配</th>
+                    <th width="12%">IE T/T</th>
+                    <th width="12%">IE WT</th>
+                    <th width="12%">產出</th>
+                    <th width="12%">回收工時</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="prod in detail.detailList" v-if="prod.processId == 3">
+                    <td></td>
+                    <td>
+                        <select class="myInputStyle1" disabled :value="prod.eqId">
+                            <option value="0"></option>
+                            <option value="AFOG2010">AFOG2010</option>
+                            <option value="AFOG2020">AFOG2020</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="myInputStyle1" disabled :value="prod.prodId">
+                            <option value="0"></option>
+                            <option value="5306M3340160M">5306M3340160M</option>
+                            <option value="5306M3340199M">5306M3340199M</option>
+                        </select>
+                    </td>
+                    <td>{{prod.ieStandard}}</td>
+                    <td>{{prod.iett}}</td>
+                    <td>{{prod.iewt}}</td>
+                    <td>{{prod.passQty}}</td>
+                    <td>{{prod.tackBackTime}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <br />
+        <div class="col-lg-6">
+            <button class="cusDisabledButton">編輯</button>
+            <button class="cusButton" disabled>取消</button>
+            <button class="cusButton" disabled>儲存</button>
+        </div>
+        <br />
+        <table class="col-lg-7 table table-secondary table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>應到</th>
+                    <th>加班</th>
+                    <th>受援</th>
+                    <th>請假</th>
+                    <th>OFF</th>
+                    <th>支援</th>
+                    <th>實到</th>
+                    <th width="15%">總工時</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="atten in detail.attendanceList">
+                    <td>
+                        {{atten.country}}
+                    </td>
+                    <td>
+                        <input class="myInputStyle1" disabled :value="atten.shouldPresentCnt" />
+                    </td>
+                    <td>
+                        <input class="myInputStyle1" disabled :value="atten.overTimeCnt" />
+                    </td>
+                    <td>
+                        <input class="myInputStyle1" disabled :value="atten.acceptSupCnt" />
+                    </td>
+                    <td>
+                        <input class="myInputStyle1" disabled :value="atten.haveDayOffCnt" />
+                    </td>
+                    <td>
+                        <input class="myInputStyle1" disabled :value="atten.offCnt" />
+                    </td>
+                    <td>
+                        <input class="myInputStyle1" disabled :value="atten.support" />
+                    </td>
+                    <td>
+                        <input class="myInputStyle1" disabled :value="atten.presentCnt" />
+                    </td>
+                    <td>{{atten.totalWorkTime}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</script>

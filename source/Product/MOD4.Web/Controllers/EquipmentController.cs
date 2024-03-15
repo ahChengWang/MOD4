@@ -325,7 +325,7 @@ namespace MOD4.Web.Controllers
                 ViewBag.ProcessAllOptions = _optionDomainService.GetAllEqProcessOption().CopyAToB<EqProcessOptionlViewModel>();
                 ViewBag.EqEvenCodeSelect = new SelectList(_optionDomainService.GetEqEvenCodeOptionList().CopyAToB<OptionViewModel>(), "Id", "Value");
                 ViewBag.EqAllEvenCodeOptionList = _optionDomainService.GetAllEqEvenCodeOptionList().CopyAToB<EqEvenCodeOptionlViewModel>();
-                ViewBag.ProductOption = _optionDomainService.GetLcmProdOptions();
+                ViewBag.ProductOption = _optionDomainService.GetLcmProdDescOptions();
                 ViewBag.EqIDMappingOption = _optionDomainService.GetEqIDAreaList();
 
                 return View();

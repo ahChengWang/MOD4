@@ -418,6 +418,14 @@ namespace MOD4.Web.DomainService
         public List<(string, List<(int, string)>)> GetLcmProdOptions()
         {
             return _lcmProductRepository.SelectByConditions().GroupBy(g => g.ProdSize)
+                .Select(prod => (prod.Key, prod.Select(p => (p.sn, p.ProdNo)).ToList()))
+                .OrderBy(ob => ob.Key)
+                .ToList();
+        }
+
+        public List<(string, List<(int, string)>)> GetLcmProdDescOptions()
+        {
+            return _lcmProductRepository.SelectByConditions().GroupBy(g => g.ProdSize)
                 .Select(prod => (prod.Key, prod.Select(p => (p.sn, $"{p.ProdNo}-{p.Descr}")).ToList()))
                 .OrderBy(ob => ob.Key)
                 .ToList();
@@ -431,6 +439,23 @@ namespace MOD4.Web.DomainService
                     Id = node.EqNo,
                     Value = node.EqNo.ToString()
                 }).ToList();
+        }
+
+        public List<EqMappingEntity> GetEqIDList()
+        {
+            return _equipMappingRepository.SelectEqByConditions(floor: 2).Select(defEq => new EqMappingEntity
+            {
+                EQUIP_NBR = defEq.EQUIP_NBR,
+                EQUIP_DESC = defEq.EQUIP_DESC,
+                EQUIP_GROUP = defEq.EQUIP_GROUP,
+                OPERATION = defEq.OPERATION,
+                EQUIP_NBR_M = defEq.EQUIP_NBR_M,
+                AREA = defEq.AREA,
+                ENABLE = defEq.ENABLE,
+                MTBFTarget = defEq.MTBFTarget,
+                MTTRTarget = defEq.MTTRTarget,
+                Floor = defEq.Floor,
+            }).ToList();
         }
 
         public List<EqMappingEntity> GetEqIDAreaList()
