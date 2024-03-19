@@ -14,7 +14,7 @@ namespace MOD4.Web.Repostory.Dao
         public decimal AssyTakeBack { get; set; }
         public decimal CDPTakeBack { get; set; }
         public decimal TTLTakeBack { get; set; }
-        public decimal TakeBackPercnet { get; set; }
+        public decimal TakeBackPercent { get; set; }
         public string CreateUser { get; set; }
         public DateTime CreateTime { get; set; }
         public string UpdateUser { get; set; }

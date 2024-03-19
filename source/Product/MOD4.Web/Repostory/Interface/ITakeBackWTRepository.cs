@@ -7,7 +7,9 @@ namespace MOD4.Web.Repostory
 {
     public interface ITakeBackWTRepository
     {
-        List<TakeBackWTDao> SelectByConditions(DateTime processDate, WTCategoryEnum wtCatgId = 0);
+        List<TakeBackWTDao> SelectByConditions(DateTime processDate, List<WTCategoryEnum> wtCatgIdList = null);
+
+        List<TakeBackWTDao> SelectMonthlyData(int procYear, int procMonth, List<WTCategoryEnum> wtCatgIdList);
 
         List<TakeBackWTDetailDao> SelectDetailByConditions(List<int> takeBackWtSn);
 

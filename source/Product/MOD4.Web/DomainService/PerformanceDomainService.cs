@@ -779,14 +779,14 @@ namespace MOD4.Web.DomainService
         {
             try
             {
-                DateTime _processDate = DateTime.Now;
+                DateTime _processDate = DateTime.Now.AddDays(-1);
 
                 if (searchDate.HasValue)
                 {
                     _processDate = (DateTime)searchDate;
                 }
 
-                var _tbMainList = _takeBackWTRepository.SelectByConditions(_processDate.AddDays(-1).Date, wtCatgId: wtCategoryId);
+                var _tbMainList = _takeBackWTRepository.SelectByConditions(_processDate.Date, wtCatgIdList: new List<WTCategoryEnum> { wtCategoryId });
                 var _tbDetailList = _takeBackWTRepository.SelectDetailByConditions(_tbMainList.Select(t => t.Sn).ToList());
                 var _tbAttendanceList = _takeBackWTRepository.SelectAttendanceByConditions(_tbMainList.Select(t => t.Sn).ToList());
 
@@ -800,7 +800,7 @@ namespace MOD4.Web.DomainService
                     TakeBackLAM = s.LamTakeBack.ToString("0.00"),
                     TakeBackASSY = s.AssyTakeBack.ToString("0.00"),
                     TakeBackCDP = s.CDPTakeBack.ToString("0.00"),
-                    TakeBackPercent = s.TakeBackPercnet.ToString("0.00") + "%",
+                    TakeBackPercent = s.TakeBackPercent.ToString("0.00") + "%",
                     TotalTakeBack = s.TTLTakeBack.ToString("0.00"),
                     DetailList = _tbDetailList.Where(w => w.TakeBackWtSn == s.Sn).Select(detail => new TakeBackWTProdEntity
                     {
@@ -874,7 +874,7 @@ namespace MOD4.Web.DomainService
                         foreach (int node in dic.Value)
                         {
                             _rpt106List.AddRange(_inxReportService.Get106NewReportSubAsync<INXRpt106SubEntity>(_proccessDate, _proccessDate, _shift, node, "2", _tmp).Result.Date.Data.Table);
-                        }                        
+                        }
                     }
                 );
 
@@ -941,7 +941,7 @@ namespace MOD4.Web.DomainService
                 }
 
                 _takeBackWT.TTLTakeBack = _takeBackWT.BondTakeBack + _takeBackWT.FogTakeBack + _takeBackWT.LamTakeBack + _takeBackWT.AssyTakeBack + _takeBackWT.CDPTakeBack;
-                _takeBackWT.TakeBackPercnet = _takeBackWT.TTLTakeBack / _takeBackWTAttendance.Sum(s => s.TotalWorkTime) * 100;
+                _takeBackWT.TakeBackPercent = _takeBackWT.TTLTakeBack / _takeBackWTAttendance.Sum(s => s.TotalWorkTime) * 100;
 
                 using (TransactionScope scope = new TransactionScope())
                 {
@@ -960,7 +960,7 @@ namespace MOD4.Web.DomainService
 
                     if (_takeBackWT.Sn == 0)
                     {
-                        _tbWTSn = _takeBackWTRepository.SelectByConditions(_takeBackWT.ProcessDate, _takeBackWT.WTCategoryId).FirstOrDefault()?.Sn ?? 0;
+                        _tbWTSn = _takeBackWTRepository.SelectByConditions(_takeBackWT.ProcessDate, new List<WTCategoryEnum> { _takeBackWT.WTCategoryId }).FirstOrDefault()?.Sn ?? 0;
 
                         if (_tbWTSn == 0)
                             throw new Exception("撈取回收工時主檔編號異常");
@@ -982,50 +982,51 @@ namespace MOD4.Web.DomainService
                         _updResult = "新增異常";
                 }
 
-                return (_updResult, GetTBWTList(_proccessDate, (WTCategoryEnum)editEntity.WTCategoryId).First()
+                return (_updResult, GetTBWTList(_proccessDate, (WTCategoryEnum)editEntity.WTCategoryId).First());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-                    //    new TakeBackWTEntity
-                    //{
-                    //    Sn = _takeBackWT.Sn,
-                    //    Date = _takeBackWT.ProcessDate.ToString("yyyy-MM-dd"),
-                    //    WTCategoryId = _takeBackWT.WTCategoryId,
-                    //    TakeBackBonding = _takeBackWT.BondTakeBack.ToString("0.00"),
-                    //    TakeBackFOG = _takeBackWT.FogTakeBack.ToString("0.00"),
-                    //    TakeBackLAM = _takeBackWT.LamTakeBack.ToString("0.00"),
-                    //    TakeBackASSY = _takeBackWT.AssyTakeBack.ToString("0.00"),
-                    //    TakeBackCDP = _takeBackWT.CDPTakeBack.ToString("0.00"),
-                    //    TotalTakeBack = _takeBackWT.TTLTakeBack.ToString("0.00"),
-                    //    TakeBackPercent = _takeBackWT.TakeBackPercnet.ToString("0.00") + "%",
-                    //    DetailList = _takeBackWTDetail.Select(detail => new TakeBackWTProdEntity
-                    //    {
-                    //        TakeBackWTSn = detail.TakeBackWtSn,
-                    //        ProcessId = detail.ProcessId,
-                    //        EqId = detail.EqId,
-                    //        ProdId = detail.Prod,
-                    //        Prod = _prodInfoList.FirstOrDefault(f => f.sn == detail.Prod)?.ProdNo ?? "",
-                    //        IEStandard = detail.IEStandard.ToString("0.00"),
-                    //        IETT = detail.IETT.ToString("0.00"),
-                    //        IEWT = detail.IEWT.ToString("0.00"),
-                    //        PassQty = detail.PassQty.ToString(),
-                    //        TakeBackTime = detail.TakeBackWT.ToString("0.00")
-                    //    }).ToList(),
-                    //    AttendanceList = _takeBackWTAttendance.Select(atten => new TakeBackAttendanceEntity
-                    //    {
-                    //        TakeBackWTSn = atten.TakeBackWtSn,
-                    //        Country = atten.CountryId.GetDescription(),
-                    //        CountryId = atten.CountryId,
-                    //        ShouldPresentCnt = atten.ShouldPresentCnt,
-                    //        OverTimeCnt = atten.OverTimeCnt,
-                    //        AcceptSupCnt = atten.AcceptSupCnt,
-                    //        HaveDayOffCnt = atten.HaveDayOffCnt,
-                    //        OffCnt = atten.OffCnt,
-                    //        Support = atten.Support,
-                    //        PresentCnt = atten.PresentCnt,
-                    //        TotalWorkTime = atten.TotalWorkTime
-                    //    }).ToList()
-                    //}
+        public TakeBackWTKanBanEntity GetWTKanBan(DateTime processDate, int catgId)
+        {
+            try
+            {
+                var _wtCatgGrop = Convert.ToBoolean(catgId & (int)WTCategoryEnum.FrontA) && Convert.ToBoolean(catgId & (int)WTCategoryEnum.FrontB)
+                        ? new List<WTCategoryEnum> { WTCategoryEnum.FrontA, WTCategoryEnum.FrontB }
+                        : new List<WTCategoryEnum> { WTCategoryEnum.BackendA, WTCategoryEnum.BackendB };
 
-                    );
+                var _takeBackWTList = _takeBackWTRepository.SelectByConditions(processDate.Date, wtCatgIdList: _wtCatgGrop);
+
+                var _takeBackWTMonthList = _takeBackWTRepository.SelectMonthlyData(processDate.Year, processDate.Month, _wtCatgGrop);
+
+                var _takeBackAtten = _takeBackWTRepository.SelectAttendanceByConditions(_takeBackWTMonthList.Select(s => s.Sn).ToList());
+
+                TakeBackWTKanBanEntity _response = new TakeBackWTKanBanEntity()
+                {
+                    Date = _takeBackWTList.FirstOrDefault()?.ProcessDate.ToString("yyyy-MM-dd") ?? processDate.ToString("yyyy-MM-dd"),
+                    TotalTakeBack = _takeBackWTList?.Sum(s => s.BondTakeBack + s.FogTakeBack + s.LamTakeBack + s.AssyTakeBack + s.CDPTakeBack) ?? 0
+                };
+
+                _response.TakeBackPercent = _takeBackAtten?.Where(w => _takeBackWTList.Select(s => s.Sn).Contains(w.TakeBackWtSn)).Sum(s => s.TotalWorkTime) == 0
+                    ? 0
+                    : _response.TotalTakeBack / (_takeBackAtten?.Where(w => _takeBackWTList.Select(s => s.Sn).Contains(w.TakeBackWtSn)).Sum(s => s.TotalWorkTime) ?? 1) * 100;
+
+                _response.DetailList = _takeBackWTMonthList.GroupBy(g => g.ProcessDate).Select(wt => 
+                {
+                    var _tmpAtten = _takeBackAtten.Where(at => wt.Select(s => s.Sn).Contains(at.TakeBackWtSn)).ToList();
+
+                    return new TakeBackWTKanBanDetailEntity
+                    {
+                        Date = wt.Key.ToString("yyyy/MM/dd"),
+                        ShortDateStr = wt.Key.ToString("MM/dd"),
+                        TakeBackPercent = Math.Round(wt.Sum(s => s.BondTakeBack + s.FogTakeBack + s.LamTakeBack + s.AssyTakeBack + s.CDPTakeBack) / _tmpAtten.Sum(s => s.TotalWorkTime) * 100, 2)
+                    };
+                }).ToList();
+
+                return _response;
             }
             catch (Exception ex)
             {

@@ -18,5 +18,7 @@ namespace MOD4.Web.DomainService
         List<TakeBackWTEntity> GetTBWTList(DateTime? searchDate, WTCategoryEnum wtCategoryId);
 
         (string, TakeBackWTEntity) UpdateTakeBackWT(TakeBackWTEntity editEntity, UserEntity userInfo);
+
+        TakeBackWTKanBanEntity GetWTKanBan(DateTime processDate, int catgId);
     }
 }

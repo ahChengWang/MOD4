@@ -344,6 +344,14 @@ namespace MOD4.Web.Controllers
             {
                 var _result = _performanceDomainService.GetTBWTList(null, 0);
 
+                var _userCurrentPagePermission = GetUserInfo().UserMenuPermissionList.FirstOrDefault(f => f.MenuSn == MenuEnum.ReclaimWT);
+                ViewBag.UserPermission = new UserPermissionViewModel
+                {
+                    AccountSn = _userCurrentPagePermission.AccountSn,
+                    MenuSn = _userCurrentPagePermission.MenuSn,
+                    AccountPermission = _userCurrentPagePermission.AccountPermission
+                };
+
                 var _response = _result.Select(s => new TakeBackWTViewModel
                 {
                     Sn = s.Sn,
@@ -564,48 +572,21 @@ namespace MOD4.Web.Controllers
         {
             try
             {
+                var _result = _performanceDomainService.GetWTKanBan(srcDate, wtCatg);
 
                 return Json(new ResponseViewModel<TakeBackKanbanViewModel>
                 {
                     Data = new TakeBackKanbanViewModel
                     {
-                        Date = "2024-03-15",
-                        TakeBackDaily = "1234567.248",
-                        TakeBackDailyPercent = "123.87%",
-                        DetailList = new List<TakeBackInfoViewModel>
+                        Date = _result.Date,
+                        TakeBackDaily = _result.TotalTakeBack.ToString("0.00"),
+                        TakeBackDailyPercent = _result.TakeBackPercent.ToString("0.00") + "%",
+                        DetailList = _result.DetailList.Select(detail => new TakeBackInfoViewModel
                         {
-                            new TakeBackInfoViewModel { Date = "2024-03-01", ShortDate = "03/01", TakeBackPercnet = 101.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-02", ShortDate = "03/02", TakeBackPercnet = 112.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-03", ShortDate = "03/03", TakeBackPercnet = 123.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-04", ShortDate = "03/04", TakeBackPercnet = 184.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-05", ShortDate = "03/05", TakeBackPercnet = 165.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-06", ShortDate = "03/06", TakeBackPercnet = 156.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-07", ShortDate = "03/07", TakeBackPercnet = 147.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-08", ShortDate = "03/08", TakeBackPercnet = 108.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-09", ShortDate = "03/09", TakeBackPercnet = 112.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-10", ShortDate = "03/10", TakeBackPercnet = 123.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-11", ShortDate = "03/11", TakeBackPercnet = 184.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-12", ShortDate = "03/12", TakeBackPercnet = 165.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-13", ShortDate = "03/13", TakeBackPercnet = 156.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-14", ShortDate = "03/14", TakeBackPercnet = 147.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-15", ShortDate = "03/15", TakeBackPercnet = 108.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-16", ShortDate = "03/16", TakeBackPercnet = 112.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-17", ShortDate = "03/17", TakeBackPercnet = 123.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-18", ShortDate = "03/18", TakeBackPercnet = 184.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-19", ShortDate = "03/19", TakeBackPercnet = 165.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-20", ShortDate = "03/20", TakeBackPercnet = 156.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-21", ShortDate = "03/21", TakeBackPercnet = 147.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-22", ShortDate = "03/22", TakeBackPercnet = 108.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-23", ShortDate = "03/23", TakeBackPercnet = 112.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-24", ShortDate = "03/24", TakeBackPercnet = 123.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-25", ShortDate = "03/25", TakeBackPercnet = 184.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-26", ShortDate = "03/26", TakeBackPercnet = 165.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-27", ShortDate = "03/27", TakeBackPercnet = 156.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-28", ShortDate = "03/28", TakeBackPercnet = 147.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-29", ShortDate = "03/29", TakeBackPercnet = 108.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-30", ShortDate = "03/30", TakeBackPercnet = 208.1M },
-                            new TakeBackInfoViewModel { Date = "2024-03-31", ShortDate = "03/31", TakeBackPercnet = 178.1M },
-                        }
+                            Date = detail.Date,
+                            ShortDate = detail.ShortDateStr,
+                            TakeBackPercnet = detail.TakeBackPercent
+                        }).ToList()
                     }
                 });
 

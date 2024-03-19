@@ -223,16 +223,16 @@
                         <a class="nav-link setting" href="#bBackRWT" data-toggle="tab" style=" font-weight: 600; ">後段夜班</a>
                     </li>
                     <li name="myTmpli" style="width: 50%; text-align: center;">
-                        <a class="nav-link setting" href="#frontKanban" data-toggle="tab" style=" font-weight: 600; " @@click="dashboardClk(3)">前段看板</a>
+                        <a class="nav-link setting" href="#frontKanban" data-toggle="tab" style=" font-weight: 600; " @@click="dashboardClk('', 3, false)">前段看板</a>
                     </li>
                     <li name="myTmpli" style="width: 50%; text-align: center;">
-                        <a class="nav-link setting" href="#backendSummary" data-toggle="tab" style=" font-weight: 600; ">後段看板</a>
+                        <a class="nav-link setting" href="#backendKanban" data-toggle="tab" style=" font-weight: 600; " @@click="dashboardClk('', 12, false)">後段看板</a>
                     </li>
                 </ul>
                 <div class="tab-content">
                     <div id="frontKanban" class="tab-pane card-body">
                         <div style="text-align: left;">
-                            <input class="custInputStyle" type="date" min="2023-01-01" :max="dateMAX" :value="frontChart.date" />
+                            <input class="custInputStyle" type="date" min="2023-01-01" :max="dateMAX" :value="frontChart.date" v-model="frontChart.date" @@change="dashboardClk(frontChart.date, 3, true)" />
                             <br />
                             <div class="row d-flex">
                                 <div class="col-lg-5 d-flex">
@@ -254,7 +254,7 @@
                             </div>
                         </div>
                         <br />
-                        <div id="tbChart">
+                        <div is="kanban-chart">
 
                         </div>
                         <br />
@@ -271,11 +271,52 @@
                             </table>
                         </div>
                     </div>
+                    <div id="backendKanban" class="tab-pane card-body">
+                        <div style="text-align: left;">
+                            <input class="custInputStyle" type="date" min="2023-01-01" :max="dateMAX" :value="backendChart.date" v-model="backendChart.date" @@change="dashboardClk(backendChart.date, 12, true)" />
+                            <br />
+                            <div class="row d-flex">
+                                <div class="col-lg-5 d-flex">
+                                    <div class="col-lg-6" name="sum_title">
+                                        <h4>總回收</h4>
+                                    </div>
+                                    <div class="col-lg-6" name="sum_val">
+                                        <h4>{{backendChart.takeBackDaily}}</h4>
+                                    </div>
+                                </div>
+                                <div class="col-lg-5 d-flex">
+                                    <div class="col-lg-6" name="sum_title">
+                                        <h4>回收率</h4>
+                                    </div>
+                                    <div class="col-lg-6" name="sum_val">
+                                        <h4>{{backendChart.takeBackDailyPercent}}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div is="kanban-chart">
+
+                        </div>
+                        <br />
+                        <div style="overflow-x: auto;">
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <td v-for="data in backendChart.detailList">{{data.shortDate}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td v-for="data in backendChart.detailList">{{data.takeBackPercnet}}%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                     <div id="backendSummary" class="tab-pane card-body"></div>
-                    <div is="front-component" id="aFrontRWT" class="tab-pane card-body active" :detail="wtData.frontA" :tmpcss="cssStyle.frontA" :tabid="'frontA'" :prods="prodOptions" :datemax="dateMAX"></div>
-                    <div is="front-component" id="bFrontRWT" class="tab-pane card-body" :detail="wtData.frontB" :tmpcss="cssStyle.frontB" :tabid="'frontB'" :prods="prodOptions" :datemax="dateMAX"></div>
-                    <div is="backend-component" id="aBackRWT" class="tab-pane card-body" :detail="wtData.backendA" :tmpcss="cssStyle.backendA" :tabid="'backendA'" :prods="prodOptions" :datemax="dateMAX"></div>
-                    <div is="backend-component" id="bBackRWT" class="tab-pane card-body" :detail="wtData.backendB" :tmpcss="cssStyle.backendB" :tabid="'backendB'" :prods="prodOptions" :datemax="dateMAX"></div>
+                    <div is="front-component" id="aFrontRWT" class="tab-pane card-body active" :detail="wtData.frontA" :tmpcss="cssStyle.frontA" :tabid="'frontA'" :prods="prodOptions" :datemax="dateMAX" :permissions="permision"></div>
+                    <div is="front-component" id="bFrontRWT" class="tab-pane card-body" :detail="wtData.frontB" :tmpcss="cssStyle.frontB" :tabid="'frontB'" :prods="prodOptions" :datemax="dateMAX" :permissions="permision"></div>
+                    <div is="backend-component" id="aBackRWT" class="tab-pane card-body" :detail="wtData.backendA" :tmpcss="cssStyle.backendA" :tabid="'backendA'" :prods="prodOptions" :datemax="dateMAX" :permissions="permision"></div>
+                    <div is="backend-component" id="bBackRWT" class="tab-pane card-body" :detail="wtData.backendB" :tmpcss="cssStyle.backendB" :tabid="'backendB'" :prods="prodOptions" :datemax="dateMAX" :permissions="permision"></div>
                 </div>
             </div>
         </div>
@@ -344,7 +385,7 @@
                 <thead>
                     <tr>
                         <th width="8%">
-                            <button :class="tmpcss.rndBtnCss" :disabled="tmpcss.btnDisable" @@click="addClick(tabid, 1)">＋</button>
+                            <button v-if="permissions.accountPermission & 2" :class="tmpcss.rndBtnCss" :disabled="tmpcss.btnDisable" @@click="addClick(tabid, 1)">＋</button>
                         </th>
                         <th width="12%">BOND</th>
                         <th>機種</th>
@@ -358,7 +399,7 @@
                 <tbody>
                     <tr v-for="(prod, idx) in detail.detailList" v-if="prod.processId == 1">
                         <td>
-                            <button :class="tmpcss.minusBtnCss" @@click="btnDelete(tabid, idx)" :disabled="tmpcss.btnDisable">⁻</button>
+                            <button v-if="permissions.accountPermission & 2" :class="tmpcss.minusBtnCss" @@click="btnDelete(tabid, idx)" :disabled="tmpcss.btnDisable">⁻</button>
                             <input type="hidden" :value="prod.takeBackWTSn" v-model="detail.detailList[idx].takeBackWTSn" />
                             <input type="hidden" :value="prod.processId" v-model="detail.detailList[idx].processId" />
                         </td>
@@ -388,7 +429,7 @@
                 <thead>
                     <tr>
                         <th width="8%">
-                            <button :class="tmpcss.rndBtnCss" :disabled="tmpcss.btnDisable" @@click="addClick(tabid, 2)">＋</button>
+                            <button v-if="permissions.accountPermission & 2" :class="tmpcss.rndBtnCss" :disabled="tmpcss.btnDisable" @@click="addClick(tabid, 2)">＋</button>
                         </th>
                         <th width="12%">AFOG</th>
                         <th>機種</th>
@@ -402,7 +443,7 @@
                 <tbody>
                     <tr v-for="(prod, idx) in detail.detailList" v-if="prod.processId == 2">
                         <td>
-                            <button :class="tmpcss.minusBtnCss" @@click="btnDelete(tabid, idx)" :disabled="tmpcss.btnDisable">⁻</button>
+                            <button v-if="permissions.accountPermission & 2" :class="tmpcss.minusBtnCss" @@click="btnDelete(tabid, idx)" :disabled="tmpcss.btnDisable">⁻</button>
                             <input type="hidden" :value="prod.takeBackWTSn" v-model="detail.detailList[idx].takeBackWTSn" />
                             <input type="hidden" :value="prod.processId" v-model="detail.detailList[idx].processId" />
                         </td>
@@ -432,7 +473,7 @@
                 <thead>
                     <tr>
                         <th width="8%">
-                            <button :class="tmpcss.rndBtnCss" :disabled="tmpcss.btnDisable" @@click="addClick(tabid, 3)">＋</button>
+                            <button v-if="permissions.accountPermission & 2" :class="tmpcss.rndBtnCss" :disabled="tmpcss.btnDisable" @@click="addClick(tabid, 3)">＋</button>
                         </th>
                         <th width="12%">LAM</th>
                         <th>機種</th>
@@ -446,7 +487,7 @@
                 <tbody>
                     <tr v-for="(prod, idx) in detail.detailList" v-if="prod.processId == 3">
                         <td>
-                            <button :class="tmpcss.minusBtnCss" @@click="btnDelete(tabid, idx)" :disabled="tmpcss.btnDisable">⁻</button>
+                            <button v-if="permissions.accountPermission & 2" :class="tmpcss.minusBtnCss" @@click="btnDelete(tabid, idx)" :disabled="tmpcss.btnDisable">⁻</button>
                             <input type="hidden" :value="prod.takeBackWTSn" v-model="detail.detailList[idx].takeBackWTSn" />
                             <input type="hidden" :value="prod.processId" v-model="detail.detailList[idx].processId" />
                         </td>
@@ -474,7 +515,7 @@
                 </tbody>
             </table>
             <br />
-            <div class="col-lg-6">
+            <div class="col-lg-6" v-if="permissions.accountPermission & 2">
                 <button :class="tmpcss.editBtnCss" :disabled="!tmpcss.btnDisable" @@click="btnEdit(tabid, detail)">編輯</button>
                 <button :class="tmpcss.otherBtnCss" :disabled="tmpcss.btnDisable" @@click="btnCancle(tabid)">取消</button>
                 <button :class="tmpcss.otherBtnCss" :disabled="tmpcss.btnDisable" @@click="btnSave(tabid, detail)">儲存</button>
@@ -533,7 +574,7 @@
                 <thead>
                     <tr>
                         <th width="8%">
-                            <button :class="tmpcss.rndBtnCss" :disabled="tmpcss.btnDisable" @@click="addClick(tabid, 4)">＋</button>
+                            <button v-if="permissions.accountPermission & 2" :class="tmpcss.rndBtnCss" :disabled="tmpcss.btnDisable" @@click="addClick(tabid, 4)">＋</button>
                         </th>
                         <th width="12%">ASSY</th>
                         <th>機種</th>
@@ -547,7 +588,7 @@
                 <tbody>
                     <tr v-for="(prod, idx) in detail.detailList" v-if="prod.processId == 4">
                         <td>
-                            <button :class="tmpcss.minusBtnCss" @@click="btnDelete(tabid, idx)" :disabled="tmpcss.btnDisable">⁻</button>
+                            <button v-if="permissions.accountPermission & 2" :class="tmpcss.minusBtnCss" @@click="btnDelete(tabid, idx)" :disabled="tmpcss.btnDisable">⁻</button>
                             <input type="hidden" :value="prod.takeBackWTSn" v-model="detail.detailList[idx].takeBackWTSn" />
                             <input type="hidden" :value="prod.processId" v-model="detail.detailList[idx].processId" />
                         </td>
@@ -580,7 +621,7 @@
                 <thead>
                     <tr>
                         <th width="8%">
-                            <button :class="tmpcss.rndBtnCss" :disabled="tmpcss.btnDisable" @@click="addClick(tabid, 5)">＋</button>
+                            <button v-if="permissions.accountPermission & 2" :class="tmpcss.rndBtnCss" :disabled="tmpcss.btnDisable" @@click="addClick(tabid, 5)">＋</button>
                         </th>
                         <th width="12%">ACDP</th>
                         <th>機種</th>
@@ -594,7 +635,7 @@
                 <tbody>
                     <tr v-for="(prod, idx) in detail.detailList" v-if="prod.processId == 5">
                         <td>
-                            <button :class="tmpcss.minusBtnCss" @@click="btnDelete(tabid, idx)" :disabled="tmpcss.btnDisable">⁻</button>
+                            <button v-if="permissions.accountPermission & 2" :class="tmpcss.minusBtnCss" @@click="btnDelete(tabid, idx)" :disabled="tmpcss.btnDisable">⁻</button>
                             <input type="hidden" :value="prod.takeBackWTSn" v-model="detail.detailList[idx].takeBackWTSn" />
                             <input type="hidden" :value="prod.processId" v-model="detail.detailList[idx].processId" />
                         </td>
@@ -629,7 +670,7 @@
             </table>
             <br />
             <br />
-            <div class="col-lg-6">
+            <div class="col-lg-6" v-if="permissions.accountPermission & 2">
                 <button :class="tmpcss.editBtnCss" :disabled="!tmpcss.btnDisable" @@click="btnEdit(tabid, detail)">編輯</button>
                 <button :class="tmpcss.otherBtnCss" :disabled="tmpcss.btnDisable" @@click="btnCancle(tabid)">取消</button>
                 <button :class="tmpcss.otherBtnCss" :disabled="tmpcss.btnDisable" @@click="btnSave(tabid, detail)">儲存</button>
@@ -687,6 +728,11 @@
         </table>
     </script>
 
+    <script type="text/x-template" id="kanbanChart">
+        <div id="tbChart">
+
+        </div>
+    </script>
     <!-- #endregion -->
 
     <script src="~/lib/echarts/echarts.js"></script>
@@ -694,7 +740,7 @@
 
         Vue.component('front-component',
             {
-                props: ['detail', 'tmpcss', 'tabid', 'prods', 'datemax'],
+                props: ['detail', 'tmpcss', 'tabid', 'prods', 'datemax', 'permissions'],
                 template: '#wtFrontComponent',
                 methods: {
                     dateChange(tabId, date) {
@@ -720,7 +766,7 @@
 
         Vue.component('backend-component',
             {
-                props: ['detail', 'tmpcss', 'tabid', 'prods', 'datemax'],
+                props: ['detail', 'tmpcss', 'tabid', 'prods', 'datemax', 'permissions'],
                 template: '#wtBackendComponent',
                 methods: {
                     dateChange(tabId, date) {
@@ -744,6 +790,11 @@
                 }
             });
 
+        Vue.component('kanban-chart',
+            {
+                template: '#kanbanChart'
+            });
+
         Vue.component('attendance-list',
             {
                 props: ['attendanceDetail', 'editable', 'tabid'],
@@ -764,6 +815,7 @@
                     showConfirmButton: false,
                     timer: 3000
                 }),
+                permision: @Html.Raw(Json.Serialize(ViewBag.UserPermission)),
                 wtData: {
                     'frontA': {},
                     'frontB': {},
@@ -811,7 +863,7 @@
                 chartOption: {},
                 frontChart: {},
                 backendChart: {},
-                frontChartObj: {}
+                chartObj: {}
             },
             methods: {
                 baseDateChange(tabId, date) {
@@ -1029,39 +1081,64 @@
                         vue.wtData[tabId].attendanceList[cnt].presentCnt = parseInt(atten.shouldPresentCnt) + parseInt(atten.overTimeCnt) + parseInt(atten.acceptSupCnt) - parseInt(atten.haveDayOffCnt) - parseInt(atten.offCnt) - parseInt(atten.support);
                     }
                 },
-                dashboardClk(catg) {
+                dashboardClk(date, catg, dateChange) {
 
-                    const _defDate = new Date().toISOString().split("T")[0];
-                    $.ajax({
-                        url: './TakeBackKanban/' + _defDate + '/' + catg,
-                        type: 'GET',
-                        success: function (result) {
-                            if (result.isSuccess) {
-                                if (catg == 3) {
-                                    vue.frontChart = result.data;
+                    if (!dateChange && catg == 3 && vue.frontChart.detailList != undefined && vue.frontChart.detailList.lenght != 0) {
+                        vue.chartObj.clear();
+                        vue.wrapLineChart(vue.frontChart);
+                    }
+                    else if (!dateChange && catg == 12 && vue.backendChart.detailList != undefined && vue.backendChart.detailList.lenght != 0) {
+                        vue.chartObj.clear();
+                        vue.wrapLineChart(vue.backendChart);
+                    }
+                    else {
+                        let _defDate = '';
+
+                        if (date != '') {
+                            _defDate = date
+                        }
+                        else {
+                            const _today = new Date();
+                            const _yesDay = _today.getDate() - 1;
+                            _defDate = _today.getFullYear() + '-' + (_today.getMonth() + 1) + '-' + _yesDay;
+                        }
+
+                        $.ajax({
+                            url: './TakeBackKanban/' + _defDate + '/' + catg,
+                            type: 'GET',
+                            success: function (result) {
+                                if (result.isSuccess) {
+
+                                    if (vue.chartObj.id != undefined) {
+                                        vue.chartObj.clear();
+                                    }
+
+                                    if (catg == 3) {
+                                        vue.frontChart = result.data;
+                                    }
+                                    else {
+                                        vue.backendChart = result.data;
+                                    }
+                                    vue.wrapLineChart(result.data);
                                 }
                                 else {
-                                    vue.backendChart = result.data;
+                                    vue.toast.fire({
+                                        icon: 'error',
+                                        title: result.msg
+                                    });
                                 }
-                                vue.wrapLineChart(result.data);
                             }
-                            else {
-                                vue.toast.fire({
-                                    icon: 'error',
-                                    title: result.msg
-                                });
-                            }
-                        }
-                    });
+                        });
+                    }
                 },
                 wrapLineChart(detail) {
-                    
+
                     $("#tbChart").css("min-height", "500px");
                     //$("#tbChart").css("width", '85vw');
                     var _xAxisTime = [];
                     var _percentAry = [];
                     var chartDom = document.getElementById('tbChart');
-                    vue.frontChartObj = echarts.init(chartDom);
+                    vue.chartObj = echarts.init(chartDom);
 
                     $.each(detail.detailList, function (index, value) {
                         _xAxisTime.push(value.date);
@@ -1100,9 +1177,9 @@
                             }
                         ]
                     };
-                    vue.frontChartObj.setOption(vue.chartOption);
+                    vue.chartObj.setOption(vue.chartOption);
                     window.addEventListener('resize', function () {
-                        vue.frontChartObj.resize();
+                        vue.chartObj.resize();
                     });
                 }
             },

@@ -2,23 +2,38 @@
 using MOD4.Web.Repostory.Dao;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MOD4.Web.Repostory
 {
     public class TakeBackWTRepository : BaseRepository, ITakeBackWTRepository
     {
 
-        public List<TakeBackWTDao> SelectByConditions(DateTime processDate, WTCategoryEnum wtCatgId = 0)
+        public List<TakeBackWTDao> SelectByConditions(DateTime processDate, List<WTCategoryEnum> wtCatgIdList = null)
         {
             string sql = "select * from take_back_wt where processDate = @ProcessDate  ";
 
-            if (wtCatgId != 0)
-                sql += " and wtCategoryId = @WTCategoryId ";
+            if (wtCatgIdList != null && wtCatgIdList.Any())
+                sql += " and wtCategoryId in @WTCategoryId ";
 
             var dao = _dbHelper.ExecuteQuery<TakeBackWTDao>(sql, new
             {
                 ProcessDate = processDate,
-                WTCategoryId = wtCatgId
+                WTCategoryId = wtCatgIdList
+            });
+
+            return dao;
+        }
+
+        public List<TakeBackWTDao> SelectMonthlyData(int procYear, int procMonth, List<WTCategoryEnum> wtCatgIdList)
+        {
+            string sql = "select * from take_back_wt where wtCategoryId in @wtCategoryId and DATEPART(YEAR,processDate) = @ProcYear and DATEPART(MONTH,processDate) = @ProcMon; ";
+
+            var dao = _dbHelper.ExecuteQuery<TakeBackWTDao>(sql, new
+            {
+                wtCategoryId = wtCatgIdList,
+                ProcYear = procYear,
+                ProcMon = procMonth
             });
 
             return dao;
@@ -59,7 +74,7 @@ namespace MOD4.Web.Repostory
            ,[assyTakeBack]
            ,[cdpTakeBack]
            ,[ttlTakeBack]
-           ,[tackBackPercnet]
+           ,[takeBackPercent]
            ,[createUser]
            ,[createTime])
      VALUES(@processDate
@@ -70,7 +85,7 @@ namespace MOD4.Web.Repostory
            ,@assyTakeBack
            ,@cdpTakeBack
            ,@ttlTakeBack
-           ,@tackBackPercnet
+           ,@takeBackPercent
            ,@createUser
            ,@createTime); ";
 
@@ -90,7 +105,7 @@ namespace MOD4.Web.Repostory
       ,[assyTakeBack] = @assyTakeBack
       ,[cdpTakeBack] = @cdpTakeBack
       ,[ttlTakeBack] = @ttlTakeBack
-      ,[tackBackPercnet] = @tackBackPercnet
+      ,[takeBackPercent] = @takeBackPercent
       ,[updateUser] = @updateUser
       ,[updateTime] = @updateTime 
  WHERE sn = @Sn; ";
@@ -111,7 +126,7 @@ namespace MOD4.Web.Repostory
            ,[ieTT]
            ,[ieWT]
            ,[passQty]
-           ,[tackBackWT]
+           ,[takeBackWT]
            ,[createUser]
            ,[createTime])
      VALUES(@takeBackWtSn
@@ -122,7 +137,7 @@ namespace MOD4.Web.Repostory
            ,@ieTT
            ,@ieWT
            ,@passQty
-           ,@tackBackWT
+           ,@takeBackWT
            ,@createUser
            ,@createTime); ";
 
@@ -131,14 +146,14 @@ namespace MOD4.Web.Repostory
             return dao;
         }
 
-        public int DeleteTakeBackWTInfo(int tackBackWTSn)
+        public int DeleteTakeBackWTInfo(int takeBackWTSn)
         {
             string sql = @" delete take_back_wt_detail where takeBackWtSn = @TakeBackWtSn; 
 delete take_back_wt_attendance where takeBackWtSn = @TakeBackWtSn; ";
 
             var dao = _dbHelper.ExecuteNonQuery(sql, new 
             {
-                TakeBackWtSn = tackBackWTSn
+                TakeBackWtSn = takeBackWTSn
             });
 
             return dao;
