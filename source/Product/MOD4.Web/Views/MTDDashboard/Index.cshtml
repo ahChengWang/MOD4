@@ -71,16 +71,16 @@
                                 <legend id="legend">查詢區塊</legend>
                                 <div class="form-group d-flex align-content-center flex-wrap">
                                     <div class="col-lg-1">
-                                        <label class="col-form-label">查詢日期：</label>
+                                        <label class="col-form-label">日期：</label>
                                     </div>
                                     <div class="col-lg-2">
                                         @*<input id="dateRange" class="form-control" name="datepicker" value="" />*@
                                         <input id="datePick" class="my-control" type="date" min="2020/01/01" />
                                     </div>
                                     <div class="col-lg-1">
-                                        <label class="col-form-label">查詢時間：</label>
+                                        <label class="col-form-label">時間：</label>
                                     </div>
-                                    <div class="col-lg-2">
+                                    <div class="col-lg-3">
                                         <select id="timeRang" class="my-control">
                                             <option value=0.5>07:30-08:00</option>
                                             <option value=1>07:30-08:30</option>
@@ -133,6 +133,16 @@
                                         </select>
                                     </div>
                                     <div class="col-lg-1">
+                                        <label class="col-form-label">班別：</label>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <select id="selShift" class="my-control">
+                                            <option value="ALL" selected>ALL</option>
+                                            <option value="A">日</option>
+                                            <option value="B">夜</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-1">
                                         <label class="col-form-label">樓層：</label>
                                     </div>
                                     <div class="col-lg-1">
@@ -141,6 +151,8 @@
                                             <option value="3">3</option>
                                         </select>
                                     </div>
+                                </div>
+                                <div>
                                     <div class="col-lg-1">
                                         <input class="btn btn-info" type="button" name="btn29" value="查詢" onclick="btnClickSearch()" />
                                     </div>
@@ -214,9 +226,11 @@
 
         let myFuc = {
             Search() {
+
+                var _test = $("#selShift").val();
                 globalFuc.LoadingPic();
                 $.ajax({
-                    url: "./MTDDashboard/Search?date=" + $("#datePick").val() + "&time=" + $("#timeRang").val() + "&floor=" + $("#selFloor").val() + "&owner=1",
+                    url: "./MTDDashboard/Search?date=" + $("#datePick").val() + "&time=" + $("#timeRang").val() + "&shift=" + $("#selShift").val() + "&floor=" + $("#selFloor").val() + "&owner=1",
                     type: "GET",
                     dataType: 'html',
                     success: function (result) {

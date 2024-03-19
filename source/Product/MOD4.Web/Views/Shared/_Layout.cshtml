@@ -40,37 +40,46 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/icheck-bootstrap.min.css">
 
     <style>
-        @@media (min-width: 768px) {
+        @@media (min-width: 1366px) {
             body:not(.sidebar-mini-md):not(.sidebar-mini-xs):not(.layout-top-nav) .content-wrapper,
             body:not(.sidebar-mini-md):not(.sidebar-mini-xs):not(.layout-top-nav) .main-footer,
             body:not(.sidebar-mini-md):not(.sidebar-mini-xs):not(.layout-top-nav) .main-header {
                 transition: margin-left .3s ease-in-out;
                 margin-left: 210px;
             }
+
+            .main-sidebar {
+                width: 210px;
+            }
         }
 
-        @@media (max-width: 991.98px) {
+        @@media (max-width: 1365.98px) {
             body:not(.sidebar-mini-md):not(.sidebar-mini-xs):not(.layout-top-nav) .content-wrapper,
             body:not(.sidebar-mini-md):not(.sidebar-mini-xs):not(.layout-top-nav) .main-footer,
             body:not(.sidebar-mini-md):not(.sidebar-mini-xs):not(.layout-top-nav) .main-header {
                 margin-left: 0;
             }
+
+            .main-sidebar {
+                width: 0px;
+                transition: margin-left .3s ease-in-out;
+            }
         }
 
-        @@media (min-width: 992px) {
+        @@media (min-width: 1366px) {
             .sidebar-mini.sidebar-collapse .content-wrapper,
             .sidebar-mini.sidebar-collapse .main-footer,
             .sidebar-mini.sidebar-collapse .main-header {
                 margin-left: 4.6rem !important;
             }
+
+            .main-sidebar {
+                width: 210px;
+            }
         }
 
         .wrapper {
             background-color: #c3cadb;
-        }
-
-        .main-sidebar {
-            width: 210px;
         }
 
         .layout-fixed .brand-link {

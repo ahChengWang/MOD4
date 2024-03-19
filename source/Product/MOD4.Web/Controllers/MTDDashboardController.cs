@@ -104,11 +104,11 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Search([FromQuery] string date, decimal time, int floor, int owner)
+        public IActionResult Search([FromQuery] string date, decimal time, string shift, int floor, int owner)
         {
             try
             {
-                var _resilt = _mtdDashboardDomainService.DashboardSearch(floor, date, time, owner);
+                var _resilt = _mtdDashboardDomainService.DashboardSearch(floor: floor, date: date, time: time, owner: owner, shift: shift);
 
                 if (_resilt.Result != "")
                     return Json(new ResponseViewModel<string>
@@ -421,7 +421,8 @@ namespace MOD4.Web.Controllers
             {
                 var _result = _mtdDashboardDomainService.Upload(updFile, floor, owner, GetUserInfo());
 
-                return Json(new ResponseViewModel<string> { 
+                return Json(new ResponseViewModel<string>
+                {
                     Msg = _result
                 });
             }
@@ -513,7 +514,7 @@ namespace MOD4.Web.Controllers
         {
             try
             {
-                var _result = _mtdDashboardDomainService.UpdateMTDSetting(updViewModel.CopyAToB<MTDScheduleSettingEntity>(),GetUserInfo());
+                var _result = _mtdDashboardDomainService.UpdateMTDSetting(updViewModel.CopyAToB<MTDScheduleSettingEntity>(), GetUserInfo());
 
                 return Json(new ResponseViewModel<List<MTDScheduleSettingViewModel>>
                 {

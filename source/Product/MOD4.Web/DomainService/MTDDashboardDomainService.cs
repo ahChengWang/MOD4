@@ -77,7 +77,7 @@ namespace MOD4.Web.DomainService
         /// <param name="date">default 昨日</param>
         /// <param name="time">default 24h</param>
         /// <returns></returns>
-        public (string Result, List<MTDDashboardMainEntity> Entitys) DashboardSearch(int floor = 2, string date = "", decimal time = 24, int owner = 1)
+        public (string Result, List<MTDDashboardMainEntity> Entitys) DashboardSearch(int floor = 2, string date = "", decimal time = 24, int owner = 1, string shift = "ALL")
         {
             DateTime _nowTime = DateTime.Now.AddDays(-1).Date;
             DateTime _srchDate = _nowTime;
@@ -144,8 +144,8 @@ namespace MOD4.Web.DomainService
                 new ParallelOptions { MaxDegreeOfParallelism = 6 },
                 (prod) =>
                 {
-                    var _temp106Today = GetReport106TodayAsync(_srchDate, _srchDate, prod.ProdNo, prod.Node, owner);
-                    var _temp106Month = GetReport106MonthlyAsync(DateTime.Parse($"{_srchDate:yyyy-MM-01}"), _srchDate, prod.ProdNo, prod.Node, owner);
+                    var _temp106Today = GetReport106TodayAsync(_srchDate, _srchDate, prod.ProdNo, prod.Node, shift);
+                    var _temp106Month = GetReport106MonthlyAsync(DateTime.Parse($"{_srchDate:yyyy-MM-01}"), _srchDate, prod.ProdNo, prod.Node, shift);
 
                     Task.WaitAll(_temp106Today, _temp106Month);
 
@@ -248,7 +248,7 @@ namespace MOD4.Web.DomainService
             _mtdDashboardList = _mtdDashboardList.Select(data =>
             {
                 data.Diff = data.Actual - data.Plan;
-                data.MTDDetail = data.MTDDetail.Where(detail => detail.MonthPlan != 0 || detail.Output != 0).ToList();
+                data.MTDDetail = data.MTDDetail.Where(detail => detail.MonthPlan != 0 || detail.MTDActual != 0).ToList();
 
                 return data;
             }).OrderBy(ob => ob.Sn).ThenBy(tb => tb.EqNo).ToList();
@@ -260,11 +260,11 @@ namespace MOD4.Web.DomainService
             }).ToList());
         }
 
-        private async Task<List<MTDPerformanceEntity>> GetReport106TodayAsync(DateTime startDate, DateTime endDate, string prod, string node, int owner)
+        private async Task<List<MTDPerformanceEntity>> GetReport106TodayAsync(DateTime startDate, DateTime endDate, string prod, string node, string shift)
         {
             List<MTDPerformanceEntity> _tempZipsunEntity = new List<MTDPerformanceEntity>();
 
-            var _rpt106List = await _inxReportService.Get106NewReportAsync<INXRpt106Entity>(startDate, endDate, "ALL", "ALL", new List<string> { prod });
+            var _rpt106List = await _inxReportService.Get106NewReportAsync<INXRpt106Entity>(startDate, endDate, shift, "ALL", new List<string> { prod });
 
             Parallel.ForEach(_rpt106List.Date.Data.Table,
                 new ParallelOptions { MaxDegreeOfParallelism = 8 },
@@ -316,11 +316,11 @@ namespace MOD4.Web.DomainService
             return _tempZipsunEntity;
         }
 
-        private async Task<List<MTDPerformanceEntity>> GetReport106MonthlyAsync(DateTime startDate, DateTime endDate, string prod, string node, int owner)
+        private async Task<List<MTDPerformanceEntity>> GetReport106MonthlyAsync(DateTime startDate, DateTime endDate, string prod, string node, string shift)
         {
             List<MTDPerformanceEntity> _tempZipsunEntity = new List<MTDPerformanceEntity>();
 
-            var _rpt106List = await _inxReportService.Get106NewReportAsync<INXRpt106Entity>(startDate, endDate, "ALL", "ALL", new List<string> { prod });
+            var _rpt106List = await _inxReportService.Get106NewReportAsync<INXRpt106Entity>(startDate, endDate, shift, "ALL", new List<string> { prod });
 
             Parallel.ForEach(_rpt106List.Date.Data.Table,
                 new ParallelOptions { MaxDegreeOfParallelism = 8 },
