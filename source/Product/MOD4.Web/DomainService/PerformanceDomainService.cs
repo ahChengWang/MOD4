@@ -786,7 +786,7 @@ namespace MOD4.Web.DomainService
                     _processDate = (DateTime)searchDate;
                 }
 
-                var _tbMainList = _takeBackWTRepository.SelectByConditions(_processDate.Date, wtCatgIdList: new List<WTCategoryEnum> { wtCategoryId });
+                var _tbMainList = _takeBackWTRepository.SelectByConditions(_processDate.Date, wtCatgIdList: (wtCategoryId == 0 ? null : new List<WTCategoryEnum> { wtCategoryId }));
                 var _tbDetailList = _takeBackWTRepository.SelectDetailByConditions(_tbMainList.Select(t => t.Sn).ToList());
                 var _tbAttendanceList = _takeBackWTRepository.SelectAttendanceByConditions(_tbMainList.Select(t => t.Sn).ToList());
 

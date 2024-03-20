@@ -13,6 +13,9 @@ namespace MOD4.Web
 
         }
 
+        /// <summary>
+        /// Report [1.06 Operation Performance]
+        /// </summary>
         public async Task<BaseINXRptEntity<T>> Get106NewReportAsync<T>(DateTime startDate, DateTime endDate, string shift, string floor, List<string> prodList)
         {
             string _prodStr = string.Join("','", prodList);
@@ -22,6 +25,9 @@ namespace MOD4.Web
             return JsonConvert.DeserializeObject<BaseINXRptEntity<T>>(await PostAsync(_qStr));
         }
 
+        /// <summary>
+        /// Report [1.06 Operation Performance] 二階
+        /// </summary>
         public async Task<BaseINXRptEntity<T>> Get106NewReportSubAsync<T>(DateTime startDate, DateTime endDate, string shift, int node, string floor, List<string> prodList)
         {
             string _prodStr = string.Join("','", prodList);
@@ -31,6 +37,9 @@ namespace MOD4.Web
             return JsonConvert.DeserializeObject<BaseINXRptEntity<T>>(await PostAsync(_qStr));
         }
 
+        /// <summary>
+        /// Report [1.08 Equipment Utilization]
+        /// </summary>
         public async Task<BaseINXRptEntity<T>> Get108NewReportAsync<T>(DateTime startDate, List<string> eqpIdList)
         {
             string _eqNoStr = string.Join("','", eqpIdList);
@@ -40,6 +49,9 @@ namespace MOD4.Web
             return JsonConvert.DeserializeObject<BaseINXRptEntity<T>>(await PostAsync(_qStr));
         }
 
+        /// <summary>
+        /// Report [1.09 Entity Status Summary]
+        /// </summary>
         public async Task<BaseINXRptEntity<T>> Get109NewReportAsync<T>(DateTime startDate, List<string> eqpIdList)
         {
             string _eqNoStr = string.Join("','", eqpIdList);
@@ -49,16 +61,22 @@ namespace MOD4.Web
             return JsonConvert.DeserializeObject<BaseINXRptEntity<T>>(await PostAsync(_qStr));
         }
 
+        /// <summary>
+        /// Report [Entity Tact Time Maintain]
+        /// </summary>
         public async Task<BaseINXRptEntity<T>> GetEntityTTMntReportAsync<T>(DateTime startDate, List<string> prodList)
         {
             string _prodStr = string.Join("','", prodList);
 
             //string _qStr = $"apiJob=[{{'name':'Date','apiName':'TN_EntityTactTimeMaintain','FactoryType':'CARUX','Action':'Query','sDateMonth':'{startDate:yyyyMM}','Size':'ALL','Product':'ALL','OptionProduct':'GDD340IA0090S','GDD340IA0100S','#optionmenu':','prod_nbr':'GDD340IA0090S','GDD340IA0100S'}}]";
-            string _qStr = $"apiJob=[{{'name':'Date','apiName':'TN_EntityTactTimeMaintain','FactoryType':'CARUX','Action':'Query','sDateMonth':'{startDate:yyyyMM}','Size':'ALL','Product':'ALL','OptionProduct':'{_prodStr}','#optionmenu':'','prod_nbr':'{_prodStr}'}}]";
+            string _qStr = $"apiJob=[{{'name':'Date','apiName':'TN_EntityTactTimeMaintain','FactoryType':'CARUX','Action':'Query','sDateMonth':'{startDate:yyyyMM}','Size':'ALL','Product':'ALL','OptionProduct':\"{_prodStr}\",'#optionmenu':'','prod_nbr':\"{_prodStr}\"}}]";
 
             return JsonConvert.DeserializeObject<BaseINXRptEntity<T>>(await PostAsync(_qStr));
         }
 
+        /// <summary>
+        /// Report [4.18 WO Order Status Report]
+        /// </summary>
         public async Task<BaseINXRptEntity<T>> Get418NewReportAsync<T>(DateTime startDate)
         {
             string _qStr = $"apiJob=[{{'name':'Date','apiName':'TN_WOOrderStatusDataSet','FactoryType':'CARUX','QueryRange':'','WorkOrderType':'ALL','isWoDueDay':'N','FromDate_DueDay':'{startDate:yyyy-MM-dd}','ToDate_DueDay':'{startDate:yyyy-MM-dd}','isWoStartDay':'N','FromDate_StartDay':'{startDate:yyyy-MM-dd}','ToDate_StartDay':'{startDate:yyyy-MM-dd}','WorkOrder':'','wo_status':'ALL','mvin_rate':'ALL','mvou_rate':'ALL'}}]";
