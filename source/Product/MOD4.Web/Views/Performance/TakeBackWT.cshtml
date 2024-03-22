@@ -194,6 +194,52 @@
         /*border-right: 2px solid #9a9ca1;
         border-left: 2px solid #9a9ca1;*/
     }
+
+    .cutBtn {
+        margin-left: 5px;
+        top: 0;
+        left: 0;
+        border-radius: 8px;
+        position: relative;
+        transition: all .15s linear 0s;
+        padding: 6px 6px;
+        color: white;
+        background-color: #003087;
+        box-shadow: 2px 3px 0 #417ce8;
+    }
+
+        .cutBtn:hover {
+            top: 2px;
+            left: 3px;
+            color: white;
+            box-shadow: 2px 3px 0 #417ce8;
+        }
+
+        .cutBtn::after {
+            top: 1px;
+            left: -2px;
+        }
+
+        .cutBtn::before {
+            bottom: -2px;
+            right: 1px;
+        }
+
+        .cutBtn:active {
+            top: 5px;
+            left: 6px;
+            box-shadow: none;
+        }
+
+            .cutBtn:active:before {
+                bottom: 1px;
+                right: 1px;
+            }
+
+            .cutBtn:active:after {
+                top: 1px;
+                left: 1px;
+            }
 </style>
 
 <head>
@@ -519,6 +565,7 @@
                 <button :class="tmpcss.editBtnCss" :disabled="!tmpcss.btnDisable" @@click="btnEdit(tabid, detail)">編輯</button>
                 <button :class="tmpcss.otherBtnCss" :disabled="tmpcss.btnDisable" @@click="btnCancle(tabid)">取消</button>
                 <button :class="tmpcss.otherBtnCss" :disabled="tmpcss.btnDisable" @@click="btnSave(tabid, detail)">儲存</button>
+                <a v-if="detail.detailList != undefined && detail.detailList.length != 0" href="#" class="cutBtn fa fa-redo" @@click="btnSave(tabid, detail)">工時更新</a>
             </div>
             <br />
             <table is="attendance-list" :attendanceDetail="detail.attendanceList" :editable="tmpcss.btnDisable" :tabid="tabid"></table>

@@ -873,7 +873,7 @@ namespace MOD4.Web.DomainService
 
                         foreach (int node in dic.Value)
                         {
-                            _rpt106List.AddRange(_inxReportService.Get106NewReportSubAsync<INXRpt106SubEntity>(_proccessDate, _proccessDate, _shift, node, "2", _tmp).Result.Date.Data.Table);
+                            _rpt106List.AddRange(_inxReportService.Get106NewReportSubAsync<INXRpt106SubEntity>(_proccessDate, _proccessDate, _shift, node, "2", _tmp, isProd: false).Result.Date.Data.Table);
                         }
                     }
                 );
@@ -1014,7 +1014,7 @@ namespace MOD4.Web.DomainService
                     ? 0
                     : _response.TotalTakeBack / (_takeBackAtten?.Where(w => _takeBackWTList.Select(s => s.Sn).Contains(w.TakeBackWtSn)).Sum(s => s.TotalWorkTime) ?? 1) * 100;
 
-                _response.DetailList = _takeBackWTMonthList.GroupBy(g => g.ProcessDate).Select(wt => 
+                _response.DetailList = _takeBackWTMonthList.GroupBy(g => g.ProcessDate).Select(wt =>
                 {
                     var _tmpAtten = _takeBackAtten.Where(at => wt.Select(s => s.Sn).Contains(at.TakeBackWtSn)).ToList();
 
