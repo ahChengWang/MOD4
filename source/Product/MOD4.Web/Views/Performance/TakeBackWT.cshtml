@@ -181,12 +181,6 @@
         background: #9a9ca1;
     }
 
-    li[name="myTmpli"] {
-    }
-
-    li:has(.setting.active) {
-    }
-
     .setting.active {
         color: black;
         background: #c3cadb;
@@ -721,6 +715,7 @@
                 <button :class="tmpcss.editBtnCss" :disabled="!tmpcss.btnDisable" @@click="btnEdit(tabid, detail)">編輯</button>
                 <button :class="tmpcss.otherBtnCss" :disabled="tmpcss.btnDisable" @@click="btnCancle(tabid)">取消</button>
                 <button :class="tmpcss.otherBtnCss" :disabled="tmpcss.btnDisable" @@click="btnSave(tabid, detail)">儲存</button>
+                <a v-if="detail.detailList != undefined && detail.detailList.length != 0" href="#" class="cutBtn fa fa-redo" @@click="btnSave(tabid, detail)">工時更新</a>
             </div>
             <br />
             <table is="attendance-list" :attendanceDetail="detail.attendanceList" :editable="tmpcss.btnDisable" :tabid="tabid"></table>
@@ -1201,7 +1196,7 @@
                             name: '(%)'
                         },
                         grid: {
-                            top: 10,
+                            top: 25,
                             right: 5,
                             bottom: 25,
                             left: 40,

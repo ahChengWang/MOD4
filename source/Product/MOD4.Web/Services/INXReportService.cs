@@ -20,7 +20,7 @@ namespace MOD4.Web
         {
             string _prodStr = string.Join("','", prodList);
 
-            string _qStr = $"apiJob=[{{'name':'Date','apiName':'TN_OperationPerformance','FactoryType':'CARUX','FacId':'A','Building':'A','DateFrom':'{startDate:yyyy-MM-dd}','DateTo':'{endDate:yyyy-MM-dd}','Shift':'{shift.ToUpper()}','Floor':'{floor}','WorkOrder':'','LcmProductType':'ALL','Size':'ALL','BigProduct':'ALL','LcmOwner':'','LcdGrade':'','Product':'ALL','ProdId':'','Reworktype':'ALL','floor':'ALL','OptionProduct':'','prod_nbr':'','Input_Prod_nbr':\"{_prodStr}\",'owner_code':'ALL'}}]";
+            string _qStr = $"apiJob=[{{'name':'Date','apiName':'TN_OperationPerformance','FactoryType':'CARUX','FacId':'A','Building':'A','DateFrom':'{startDate:yyyy-MM-dd}','DateTo':'{endDate:yyyy-MM-dd}','Shift':'{shift.ToUpper()}','Floor':'{floor}','WorkOrder':'','LcmProductType':'ALL','Size':'ALL','BigProduct':'ALL','LcmOwner':'','LcdGrade':'','Product':'ALL','ProdId':'','Reworktype':'ALL','floor':'ALL','OptionProduct':'','prod_nbr':'','Input_Prod_nbr':\"{_prodStr}\",'owner_code':'TYPE-PROD'}}]";
 
             return JsonConvert.DeserializeObject<BaseINXRptEntity<T>>(await PostAsync(_qStr));
         }
