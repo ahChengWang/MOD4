@@ -13,6 +13,7 @@ using MOD4.Web.Enum;
 using MOD4.Web.Repostory.Dao;
 using System.Transactions;
 using Newtonsoft.Json;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace MOD4.Web.DomainService
 {
@@ -204,10 +205,18 @@ namespace MOD4.Web.DomainService
 
                 List<PCESCertificationRawDataDao> _pcesRawData = GetAllPCESRawData();
 
+                var _temp = _pcesRawData.GroupBy(gb => gb.status).Select(s => s.Key).ToList();
+
                 List<PCESCertificationRecordDao> _updExpDatePCESCertRecords = new List<PCESCertificationRecordDao>();
                 List<PCESCertificationRecordDao> _insExpDatePCESCertRecords = new List<PCESCertificationRecordDao>();
                 List<PCESCertificationRecordDao> _pcesCertRecordList = _pcesCertificationRepository.SelectByConditions();
                 List<PCESCertificationRawDataDao> _pcesCertRawData = new List<PCESCertificationRawDataDao>();
+
+                using (TransactionScope _scope = new TransactionScope())
+                {
+                    _pcesCertificationRepository.InsertPCESRaw(_pcesRawData);
+                    _scope.Complete();
+                }
 
                 // 已通過認證
                 List<PCESCertificationRecordDao> _pcesCertRawPass = _pcesRawData

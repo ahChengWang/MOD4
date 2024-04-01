@@ -301,8 +301,13 @@
                     customButtons: {
                         customprev: {
                             icon: 'chevrons-left',
-                            click: function () {
+                            click: function (e) {
                                 vue.calendar.prev();
+                                var _monthStr = (vue.calendar.getDate().getMonth() + 1).toString();
+                                if (_monthStr.length == 1 ) {
+                                    _monthStr = '0' + _monthStr;
+                                }
+                                vue.baseChgMonthClk(vue.calendar.getDate().getFullYear() + _monthStr);
                                 vue.setDbClickEvent(vue.todayStr);
                             }
                         },
@@ -310,6 +315,11 @@
                             icon: 'chevrons-right',
                             click: function () {
                                 vue.calendar.next();
+                                var _monthStr = (vue.calendar.getDate().getMonth() + 1).toString();
+                                if (_monthStr.length == 1) {
+                                    _monthStr = '0' + _monthStr;
+                                }
+                                vue.baseChgMonthClk(vue.calendar.getDate().getFullYear() + _monthStr);
                                 vue.setDbClickEvent(vue.todayStr);
                             }
                         },
@@ -317,6 +327,11 @@
                             text: 'today',
                             click: function () {
                                 vue.calendar.today();
+                                var _monthStr = (vue.calendar.getDate().getMonth() + 1).toString();
+                                if (_monthStr.length == 1) {
+                                    _monthStr = '0' + _monthStr;
+                                }
+                                vue.baseChgMonthClk(vue.calendar.getDate().getFullYear() + _monthStr);
                                 vue.setDbClickEvent(vue.todayStr);
                             }
                         }
@@ -451,7 +466,12 @@
                     'TL36': [4, 'Panel'],
                     'TL3A': [4, 'Panel'],
                     'TL3B': [4, 'Panel'],
-                    'TL3C': [4, 'Panel']
+                    'TL3C': [4, 'Panel'],
+                    'T327': [4, 'Panel'],
+                    'T33C': [4, 'Panel'],
+                    'T341': [4, 'Panel'],
+                    'TL29': [4, 'Panel'],
+                    'TL38': [4, 'Panel']
                 }
             },
             methods: {
@@ -581,6 +601,7 @@
                     else {
                         vue.dismissModal();
                     }
+                    vue.clearModal();
                 },
                 dismissModal() {
                     $('body').css({ 'padding-right': '' });
@@ -705,6 +726,63 @@
                                 vue.calendar = new FullCalendar.Calendar(vue.calendarEl, vue.calOption);
 
                                 vue.calendar.render();
+                            }
+                            else {
+                                alert(res.msg);
+                                return false;
+                            }
+                        }
+                    });
+                },
+                baseChgMonthClk(dateStr) {
+                    $.ajax({
+                        url: "./Extension/MonthLog/" + dateStr,
+                        type: "GET",
+                        dataType: "json",
+                        success: function (res) {
+
+                            /*vue.calOption.initialDate = null;*/
+                            var _calEvents = [];
+
+                            if (res.isSuccess) {
+
+                                $.each(res.data, function (idx, data) {
+                                    $.each(data.processList, function (idx, detail) {
+                                        _calEvents.push({
+                                            title: detail.category + ' ' + detail.processCnt + '片',
+                                            start: data.logDate,
+                                            /*end: new Date(2024, 0, 8),*/
+                                            //backgroundColor: "#294da6", //red
+                                            //borderColor: "#b80909",
+                                            color: catgColorDic[detail.categoryId],
+                                            borderColor: '#575757',
+                                            textColor: '#000000',
+                                            allDay: true,
+                                            extendedProps: detail,
+                                        });
+                                    });
+
+                                    _calEvents.push({
+                                        id: 1,
+                                        title: '下載報表',
+                                        start: data.logDate,
+                                        color: '#61cfc7',
+                                        borderColor: '#575757',
+                                        textColor: '#000000',
+                                        allDay: true
+                                    });
+                                });
+
+                                var _eventSource = vue.calendar.getEventSources();
+                                _eventSource[0].remove();
+                                vue.calendar.addEventSource(_calEvents);
+                                //vue.calOption.events = _calEvents;
+
+                                //vue.calendarEl = document.getElementById('calendar');
+
+                                //vue.calendar = new FullCalendar.Calendar(vue.calendarEl, vue.calOption);
+
+                                //vue.calendar.render();
                             }
                             else {
                                 alert(res.msg);

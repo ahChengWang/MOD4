@@ -39,13 +39,17 @@ namespace MOD4.Web.DomainService
             _definitionRWDefectCodeRepository = definitionRWDefectCodeRepository;
         }
 
-        public List<LightingLogMainEntity> GetLightingHisList(string panelId = "")
+        public List<LightingLogMainEntity> GetLightingHisList(string panelId = "", string yearMonth = "")
         {
             try
             {
-                DateTime _nowTime = DateTime.Now;
-                DateTime _startDate = DateTime.Parse($"{_nowTime.AddMonths(-6).ToString("yyyy-MM-dd")} 00:00:00");
-                DateTime _endDate = DateTime.Parse($"{_nowTime.ToString("yyyy-MM-dd")} 23:59:59");
+                DateTime _defaultTime = DateTime.Now;
+                if (!string.IsNullOrEmpty(yearMonth))
+                {
+                    _defaultTime = DateTime.ParseExact(yearMonth, "yyyyMM", null);
+                }
+                DateTime _startDate = DateTime.Parse($"{_defaultTime:yyyy-MM}-01 00:00:00");
+                DateTime _endDate = DateTime.Parse($"{_defaultTime.AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd")} 23:59:59");
                 List<LightingLogDao> _lightingLogList = new List<LightingLogDao>();
 
                 if (string.IsNullOrEmpty(panelId))

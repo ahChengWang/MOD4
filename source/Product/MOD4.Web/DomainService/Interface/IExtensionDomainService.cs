@@ -9,7 +9,7 @@ namespace MOD4.Web.DomainService
 {
     public interface IExtensionDomainService
     {
-        List<LightingLogMainEntity> GetLightingHisList(string panelId = "");
+        List<LightingLogMainEntity> GetLightingHisList(string panelId = "", string yearMonth = "");
 
         List<LightingLogEntity> GetLightingDayLogList(string panelDate, LightingCategoryEnum categoryId);
 

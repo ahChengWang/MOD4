@@ -63,6 +63,35 @@ namespace MOD4.Web.Controllers
             }
         }
 
+        [HttpGet("[controller]/MonthLog/{yearMonthStr}")]
+        public IActionResult MonthLog(string yearMonthStr)
+        {
+            try
+            {
+                var _res = _extensionDomainService.GetLightingHisList(yearMonth: yearMonthStr);
+
+                List<LightingLogViewModel> _response = _res.Select(main => new LightingLogViewModel
+                {
+                    LogDate = main.LogDate,
+                    ProcessList = main.ProcessList.Select(detail => new LightingLogSubViewModel
+                    {
+                        Category = detail.Category,
+                        CategoryId = detail.CategoryId,
+                        ProcessCnt = detail.ProcessCnt
+                    }).ToList()
+                }).ToList();
+
+                return Json(new ResponseViewModel<List<LightingLogViewModel>>
+                {
+                    Data = _response
+                });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
         [HttpGet]
         public IActionResult LightingPanelLog(string panelId)
         {

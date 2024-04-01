@@ -11,6 +11,8 @@ namespace MOD4.Web.Enum
         [Description("認證中")]
         InProgress = 3,
         [Description("過期")]
-        Expied = 4
+        Expied = 4,
+        [Description("取消")]
+        Cancel = 5
     }
 }

@@ -7,6 +7,7 @@ namespace MOD4.Web.Repostory.Dao
     {
         public string apply_no { get; set; }
         public string apply_name { get; set; }
+        public DateTime apply_date { get; set; }
         public string shift { get; set; }
         public string main_oper { get; set; }
         public string station { get; set; }

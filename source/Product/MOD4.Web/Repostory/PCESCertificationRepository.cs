@@ -153,6 +153,7 @@ Where apply_no=@apply_no and apply_name=@apply_name and main_oper=@main_oper and
 INSERT INTO [carUX_2f].[dbo].[pces_certification_raw_data]
 ([apply_no]
 ,[apply_name]
+,[apply_date]
 ,[shift]
 ,[main_oper]
 ,[station]
@@ -172,6 +173,7 @@ INSERT INTO [carUX_2f].[dbo].[pces_certification_raw_data]
 VALUES
 (@apply_no
 ,@apply_name
+,@apply_date
 ,@shift
 ,@main_oper
 ,@station
