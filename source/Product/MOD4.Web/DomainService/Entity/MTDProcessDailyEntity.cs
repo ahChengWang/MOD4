@@ -28,7 +28,7 @@ namespace MOD4.Web.DomainService.Entity
         {
             get
             {
-                return this.DayPlanQty == 0 ? 0 : Convert.ToDecimal(Convert.ToDouble(this.DayActQty) / Convert.ToDouble(this.DayPeriodPlanQty));
+                return this.DayPlanQty == 0 || this.DayPeriodPlanQty == 0 ? 0 : Convert.ToDecimal(Convert.ToDouble(this.DayActQty) / Convert.ToDouble(this.DayPeriodPlanQty));
             }
         }
     }
