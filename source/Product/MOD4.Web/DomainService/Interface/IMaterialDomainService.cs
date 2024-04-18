@@ -11,6 +11,8 @@ namespace MOD4.Web.DomainService
 
         List<SAPWorkOrderEntity> GetSAPWorkOredr(string workOrder, string prodNo, string sapNode, string matrlNo);
 
+        (bool, string, string) GetSAPwoDisburseDownload(string workOrder, string prodNo, string sapNode, string matrlNo);
+
         (bool, string, string) GetSAPwoCloseDownload(string workOrder, string prodNo, string sapNode, string matrlNo);
 
         (bool, string, string) UploadAndCalculate(IFormFile formFile, UserEntity userEntity);

@@ -2,6 +2,8 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace MOD4.Web
@@ -82,6 +84,35 @@ namespace MOD4.Web
             string _qStr = $"apiJob=[{{'name':'Date','apiName':'TN_WOOrderStatusDataSet','FactoryType':'CARUX','QueryRange':'','WorkOrderType':'ALL','isWoDueDay':'N','FromDate_DueDay':'{startDate:yyyy-MM-dd}','ToDate_DueDay':'{startDate:yyyy-MM-dd}','isWoStartDay':'N','FromDate_StartDay':'{startDate:yyyy-MM-dd}','ToDate_StartDay':'{startDate:yyyy-MM-dd}','WorkOrder':'','wo_status':'ALL','mvin_rate':'ALL','mvou_rate':'ALL'}}]";
 
             return JsonConvert.DeserializeObject<BaseINXRptEntity<T>>(await PostAsync(_qStr));
+        }
+
+        /// <summary>
+        /// call 庫存管理報表查詢 API (庫存管理報表 \ 在庫庫存查詢)
+        /// 庫存管理報表查詢 web http://ptnwmis.cminl.oa/STOCK_QUERY/StockCurrent.aspx
+        /// </summary>
+        /// <param name="sloc">倉別</param>
+        public async Task<BaseINXRptEntity<List<T>>> GetSTOCKReportAsync<T>(string sloc)
+        {
+            var _request = new
+            {
+                Area = "CXWMS",
+                PLANT = "CA01",
+                SLOC = sloc,
+                MATERIAL = "*",
+            };
+            string _response = "";
+
+            string json = JsonConvert.SerializeObject(_request);
+            HttpContent _content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.PostAsync("http://ptniwh.cminl.oa/GetWMSStoreCurrentDetail", _content);
+
+                _response = response.Content.ReadAsStringAsync().Result;
+            }
+
+            return JsonConvert.DeserializeObject<BaseINXRptEntity<List<T>>>(_response);
         }
     }
 }

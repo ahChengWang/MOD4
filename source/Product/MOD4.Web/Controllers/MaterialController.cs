@@ -101,6 +101,25 @@ namespace MOD4.Web.Controllers
         }
 
         [HttpGet]
+        public IActionResult WODisburseDownload([FromQuery] string workOrder, string prodNo, string sapNode, string matlNo)
+        {
+            try
+            {
+                var _res = _materialDomainService.GetSAPwoDisburseDownload(workOrder, prodNo, sapNode, matlNo);
+
+                if (_res.Item1)
+                    return File(System.IO.File.OpenRead(_res.Item2), "application/octet-stream", _res.Item3);
+                //return PhysicalFile(_res.Item2, System.Net.Mime.MediaTypeNames.Application.Octet, _res.Item3);
+                else
+                    return RedirectToAction("Error", "Home", new ErrorViewModel { Message = _res.Item3 });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = ex.Message });
+            }
+        }
+
+        [HttpGet]
         public IActionResult WOCloseDownload([FromQuery] string workOrder, string prodNo, string sapNode, string matlNo)
         {
             try

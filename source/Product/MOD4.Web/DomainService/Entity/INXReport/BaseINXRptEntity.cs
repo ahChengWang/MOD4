@@ -9,6 +9,7 @@ namespace MOD4.Web.DomainService.Entity
     {
         public INXRptDateEntity<T> Date { get; set; }
         public INXRptDateEntity<T> api01 { get; set; }
+        public T lists { get; set; }
     }
 
     public class INXRptDateEntity<T>

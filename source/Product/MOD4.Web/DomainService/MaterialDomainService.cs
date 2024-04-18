@@ -1,19 +1,15 @@
-﻿using Ionic.Zip;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using MOD4.Web.DomainService.Entity;
 using MOD4.Web.Enum;
 using MOD4.Web.Repostory;
 using MOD4.Web.Repostory.Dao;
 using Newtonsoft.Json;
-using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using Utility.Helper;
@@ -106,6 +102,138 @@ namespace MOD4.Web.DomainService
                     matrlNo: matrlNo?.Split(",").ToList() ?? null);
 
                 return _sapWOList.CopyAToB<SAPWorkOrderEntity>();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public (bool, string, string) GetSAPwoDisburseDownload(string workOrder, string prodNo, string sapNode, string matrlNo)
+        {
+            try
+            {
+                XSSFWorkbook workbook;
+                List<INXStockRptEntity> _stockList = new List<INXStockRptEntity>();
+
+                var _stockQueryTask = Task.Run(() =>
+                {
+                    Parallel.ForEach(new List<string> { "3100", "3200", "3201", "410H", "420H" },
+                        new ParallelOptions { MaxDegreeOfParallelism = 5 },
+                        (sloc) =>
+                        {
+                            var _stockTask = _inxReportService.GetSTOCKReportAsync<INXStockRptEntity>(sloc);
+
+                            lock (this)
+                                _stockList.AddRange(_stockTask.Result.lists);
+                        });
+                });
+
+                List<SAPWorkOrderDao> _sapWOList = _sapMaterialRepository.SelectSAPwoByConditions(
+                    workOrder: workOrder?.Split(",").ToList() ?? null,
+                    prodNo: prodNo,
+                    sapNode: sapNode?.Split(",").Select(s => s == "0" ? "" : s).ToList() ?? null,
+                    matrlNo: matrlNo?.Split(",").ToList() ?? null).Where(wo => wo.DiffQty != 0).ToList();
+
+                // 刪除暫存計算檔
+                string[] _dirAllFiles = Directory.GetFiles("..\\tempDownSAPClose\\");
+                if (_dirAllFiles.Length != 0)
+                    foreach (string filePath in _dirAllFiles)
+                        File.Delete(filePath);
+
+                string _fileName = $"工單撥料_{DateTime.Now.ToString("yyMMdd")}";
+
+                workbook = new XSSFWorkbook();
+                _stockQueryTask.Wait();
+                var _stockMatlDic = _stockList.GroupBy(b => b.MATERIAL).Select(s => new
+                {
+                    MATERIAL = s.Key,
+                    Detail = s.ToList()
+                }).ToDictionary(dic => dic.MATERIAL, dic => dic.Detail.Sum(sum => Convert.ToDouble(sum.QTY)));
+
+                //File.Copy($"..\\template\\工單強結認列_sample.xlsx", $"..\\tempDownSAPClose\\{_fileName}.xlsx");
+
+                if (_sapWOList.Any())
+                {
+                    ISheet _sheet = workbook.CreateSheet($"Sheet");
+                    IRow _row;
+                    ICell _cell;
+                    ICellStyle _cellStyle = workbook.CreateCellStyle();
+                    IFont _font = workbook.CreateFont();
+                    _font.Color = IndexedColors.Black.Index;
+                    _font.FontName = "新細明體";
+                    _cellStyle.SetFont(_font);
+                    _cellStyle.VerticalAlignment = VerticalAlignment.Center;
+                    _cellStyle.Alignment = HorizontalAlignment.Center;
+                    _cellStyle.BorderTop = BorderStyle.Thin;
+                    _cellStyle.BorderRight = BorderStyle.Thin;
+                    _cellStyle.BorderBottom = BorderStyle.Thin;
+                    _cellStyle.BorderLeft = BorderStyle.Thin;
+
+                    _row = _sheet.CreateRow(0);
+                    _cell = _row.CreateCell(0);
+                    _cell.SetCellValue("Order");
+                    _cell.CellStyle = _cellStyle;
+                    _cell = _row.CreateCell(1);
+                    _cell.SetCellValue("機種");
+                    _cell.CellStyle = _cellStyle;
+                    _cell = _row.CreateCell(2);
+                    _cell.SetCellValue("料號");
+                    _cell.CellStyle = _cellStyle;
+                    _cell = _row.CreateCell(3);
+                    _cell.SetCellValue("應發數量");
+                    _cell.CellStyle = _cellStyle;
+                    _cell = _row.CreateCell(4);
+                    _cell.SetCellValue("發料數量");
+                    _cell.CellStyle = _cellStyle;
+                    _cell = _row.CreateCell(5);
+                    _cell.SetCellValue("退料數量");
+                    _cell.CellStyle = _cellStyle;
+                    _cell = _row.CreateCell(6);
+                    _cell.SetCellValue("工單短溢領數");
+                    _cell.CellStyle = _cellStyle;
+                    _cell = _row.CreateCell(7);
+                    _cell.SetCellValue("庫存量");
+                    _cell.CellStyle = _cellStyle;
+
+                    for (int r = 0; r < _sapWOList.Count; r++)
+                    {
+                        _row = _sheet.CreateRow(r + 1);
+                        _cell = _row.CreateCell(0);
+                        _cell.SetCellValue(_sapWOList[r].Order);
+                        _cell.CellStyle = _cellStyle;
+                        _cell = _row.CreateCell(1);
+                        _cell.SetCellValue(_sapWOList[r].Prod);
+                        _cell.CellStyle = _cellStyle;
+                        _cell = _row.CreateCell(2);
+                        _cell.SetCellValue(_sapWOList[r].MaterialNo);
+                        _cell.CellStyle = _cellStyle;
+                        _cell = _row.CreateCell(3);
+                        _cell.SetCellValue(Convert.ToDouble(_sapWOList[r].ExptQty));
+                        _cell.CellStyle = _cellStyle;
+                        _cell = _row.CreateCell(4);
+                        _cell.SetCellValue(Convert.ToDouble(_sapWOList[r].DisburseQty));
+                        _cell.CellStyle = _cellStyle;
+                        _cell = _row.CreateCell(5);
+                        _cell.SetCellValue(Convert.ToDouble(_sapWOList[r].ReturnQty));
+                        _cell.CellStyle = _cellStyle;
+                        _cell = _row.CreateCell(6);
+                        _cell.SetCellValue(Convert.ToDouble(_sapWOList[r].WOPremiumOut));
+                        _cell.CellStyle = _cellStyle;
+                        _cell = _row.CreateCell(7);
+                        _cell.SetCellValue(_stockMatlDic.ContainsKey(_sapWOList[r].MaterialNo) ? _stockMatlDic[_sapWOList[r].MaterialNo] : 0);
+                        _cell.CellStyle = _cellStyle;
+                    }
+                }
+
+                // 回寫本地計算檔
+                using (FileStream fs = new FileStream($"..\\tempDownSAPClose\\{_fileName}.xlsx", FileMode.Create, FileAccess.Write))
+                {
+                    workbook.Write(fs);
+                    fs.Close();
+                }
+
+                return (true, $"..\\tempDownSAPClose\\{_fileName}.xlsx", $"{_fileName}.xlsx");
             }
             catch (Exception ex)
             {

@@ -109,7 +109,7 @@
                         <br />
                     </fieldset>
                     <div class="form-group">
-                        <span name="note">⨂ 切換顯示"工單報表"和"工單撥料"欄位時，先點選"顯示全欄位"還原</span>
+                        <span name="note">⨂ 點選顯示"工單報表"後，點選"顯示全欄位"還原</span>
                     </div>
                     <div>
                         <table id="table1" class="table table-bordered table-hover">
@@ -320,18 +320,25 @@
                                             visibility: false,
                                             columns: ".typeWOOff"
                                         },
-                                        {
-                                            extend: 'columnVisibility',
-                                            text: '顯示工單撥料欄位',
-                                            visibility: false,
-                                            columns: ".typeDisburse"
-                                        },
+                                        //{
+                                        //    extend: 'columnVisibility',
+                                        //    text: '顯示工單撥料欄位',
+                                        //    visibility: false,
+                                        //    columns: ".typeDisburse"
+                                        //},
                                         {
                                             extend: 'excelHtml5',
                                             title: '',
                                             text: '匯出本頁excel',
                                             exportOptions: {
                                                 columns: ':visible'
+                                            }
+                                        },
+                                        {
+                                            extend: 'excelHtml5',
+                                            text: '匯出工單撥料excel',
+                                            action: function (e) {
+                                                window.location = "./Material/WODisburseDownload?workOrder=" + vue.selectWO + "&prodNo=" + vue.selectProd + "&sapNode=" + _selNode + "&matlNo=" + $("#dropMatl").val();
                                             }
                                         },
                                         {
@@ -380,7 +387,9 @@
                                             data: 'exptQty',
                                             class: 'typeWOOff'
                                         },
-                                        { data: 'disburseQty' },
+                                        {
+                                            data: 'disburseQty'
+                                        },
                                         {
                                             data: 'returnQty'
                                         },
@@ -410,7 +419,7 @@
                                         },
                                         {
                                             data: 'woPremiumOut',
-                                            class: 'typeWOOff typeDisburse'
+                                            class: 'typeWOOff'
                                         },
                                         {
                                             data: 'cantNegative',
