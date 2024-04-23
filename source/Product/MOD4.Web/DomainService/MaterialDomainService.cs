@@ -114,7 +114,7 @@ namespace MOD4.Web.DomainService
             try
             {
                 XSSFWorkbook workbook;
-                List<INXStockRptEntity> _stockList = new List<INXStockRptEntity>();
+                Dictionary<string, Dictionary<string, double>> _stockDic = new Dictionary<string, Dictionary<string, double>>();
 
                 var _stockQueryTask = Task.Run(() =>
                 {
@@ -125,7 +125,11 @@ namespace MOD4.Web.DomainService
                             var _stockTask = _inxReportService.GetSTOCKReportAsync<INXStockRptEntity>(sloc);
 
                             lock (this)
-                                _stockList.AddRange(_stockTask.Result.lists);
+                                _stockDic.Add(sloc, _stockTask.Result.lists.GroupBy(b => b.MATERIAL).Select(s => new
+                                {
+                                    MATERIAL = s.Key,
+                                    Detail = s.ToList()
+                                }).ToDictionary(dic => dic.MATERIAL, dic => dic.Detail.Sum(sum => Convert.ToDouble(sum.QTY))));
                         });
                 });
 
@@ -133,7 +137,7 @@ namespace MOD4.Web.DomainService
                     workOrder: workOrder?.Split(",").ToList() ?? null,
                     prodNo: prodNo,
                     sapNode: sapNode?.Split(",").Select(s => s == "0" ? "" : s).ToList() ?? null,
-                    matrlNo: matrlNo?.Split(",").ToList() ?? null).Where(wo => wo.DiffQty != 0).ToList();
+                    matrlNo: matrlNo?.Split(",").ToList() ?? null).ToList();
 
                 // 刪除暫存計算檔
                 string[] _dirAllFiles = Directory.GetFiles("..\\tempDownSAPClose\\");
@@ -145,11 +149,6 @@ namespace MOD4.Web.DomainService
 
                 workbook = new XSSFWorkbook();
                 _stockQueryTask.Wait();
-                var _stockMatlDic = _stockList.GroupBy(b => b.MATERIAL).Select(s => new
-                {
-                    MATERIAL = s.Key,
-                    Detail = s.ToList()
-                }).ToDictionary(dic => dic.MATERIAL, dic => dic.Detail.Sum(sum => Convert.ToDouble(sum.QTY)));
 
                 //File.Copy($"..\\template\\工單強結認列_sample.xlsx", $"..\\tempDownSAPClose\\{_fileName}.xlsx");
 
@@ -169,6 +168,18 @@ namespace MOD4.Web.DomainService
                     _cellStyle.BorderRight = BorderStyle.Thin;
                     _cellStyle.BorderBottom = BorderStyle.Thin;
                     _cellStyle.BorderLeft = BorderStyle.Thin;
+
+                    ICellStyle _cellStyleSpcl = workbook.CreateCellStyle();
+                    IFont _fontSpcl = workbook.CreateFont();
+                    _fontSpcl.Color = IndexedColors.Red.Index;
+                    _fontSpcl.FontName = "新細明體";
+                    _cellStyleSpcl.SetFont(_fontSpcl);
+                    _cellStyleSpcl.VerticalAlignment = VerticalAlignment.Center;
+                    _cellStyleSpcl.Alignment = HorizontalAlignment.Center;
+                    _cellStyleSpcl.BorderTop = BorderStyle.Thin;
+                    _cellStyleSpcl.BorderRight = BorderStyle.Thin;
+                    _cellStyleSpcl.BorderBottom = BorderStyle.Thin;
+                    _cellStyleSpcl.BorderLeft = BorderStyle.Thin;
 
                     _row = _sheet.CreateRow(0);
                     _cell = _row.CreateCell(0);
@@ -193,7 +204,19 @@ namespace MOD4.Web.DomainService
                     _cell.SetCellValue("工單短溢領數");
                     _cell.CellStyle = _cellStyle;
                     _cell = _row.CreateCell(7);
-                    _cell.SetCellValue("庫存量");
+                    _cell.SetCellValue("3100庫存量");
+                    _cell.CellStyle = _cellStyle;
+                    _cell = _row.CreateCell(8);
+                    _cell.SetCellValue("3200庫存量");
+                    _cell.CellStyle = _cellStyle;
+                    _cell = _row.CreateCell(9);
+                    _cell.SetCellValue("3201庫存量");
+                    _cell.CellStyle = _cellStyle;
+                    _cell = _row.CreateCell(10);
+                    _cell.SetCellValue("410H庫存量");
+                    _cell.CellStyle = _cellStyle;
+                    _cell = _row.CreateCell(11);
+                    _cell.SetCellValue("420H庫存量");
                     _cell.CellStyle = _cellStyle;
 
                     for (int r = 0; r < _sapWOList.Count; r++)
@@ -219,9 +242,25 @@ namespace MOD4.Web.DomainService
                         _cell.CellStyle = _cellStyle;
                         _cell = _row.CreateCell(6);
                         _cell.SetCellValue(Convert.ToDouble(_sapWOList[r].WOPremiumOut));
-                        _cell.CellStyle = _cellStyle;
+                        if (_sapWOList[r].WOPremiumOut < 0)
+                            _cell.CellStyle = _cellStyleSpcl;
+                        else
+                            _cell.CellStyle = _cellStyle;
+
                         _cell = _row.CreateCell(7);
-                        _cell.SetCellValue(_stockMatlDic.ContainsKey(_sapWOList[r].MaterialNo) ? _stockMatlDic[_sapWOList[r].MaterialNo] : 0);
+                        _cell.SetCellValue(_stockDic["3100"].ContainsKey(_sapWOList[r].MaterialNo) ? _stockDic["3100"][_sapWOList[r].MaterialNo] : 0);
+                        _cell.CellStyle = _cellStyle;
+                        _cell = _row.CreateCell(8);
+                        _cell.SetCellValue(_stockDic["3200"].ContainsKey(_sapWOList[r].MaterialNo) ? _stockDic["3200"][_sapWOList[r].MaterialNo] : 0);
+                        _cell.CellStyle = _cellStyle;
+                        _cell = _row.CreateCell(9);
+                        _cell.SetCellValue(_stockDic["3201"].ContainsKey(_sapWOList[r].MaterialNo) ? _stockDic["3201"][_sapWOList[r].MaterialNo] : 0);
+                        _cell.CellStyle = _cellStyle;
+                        _cell = _row.CreateCell(10);
+                        _cell.SetCellValue(_stockDic["410H"].ContainsKey(_sapWOList[r].MaterialNo) ? _stockDic["410H"][_sapWOList[r].MaterialNo] : 0);
+                        _cell.CellStyle = _cellStyle;
+                        _cell = _row.CreateCell(11);
+                        _cell.SetCellValue(_stockDic["420H"].ContainsKey(_sapWOList[r].MaterialNo) ? _stockDic["420H"][_sapWOList[r].MaterialNo] : 0);
                         _cell.CellStyle = _cellStyle;
                     }
                 }
