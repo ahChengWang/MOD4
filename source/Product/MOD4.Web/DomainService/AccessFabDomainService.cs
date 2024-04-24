@@ -153,7 +153,7 @@ namespace MOD4.Web.DomainService
                 if (!_verifyResult.status)
                     return _verifyResult.msg;
                 if (userEntity.DeptSn == 0)
-                    return "尚未設定部門, 請聯絡系統管理員(5014-62721)";
+                    return "尚未設定部門, 請聯絡系統管理員(550-32342)";
 
                 var _auditFlow = _accountDomainService.GetAuditFlowInfo(userEntity);
 
