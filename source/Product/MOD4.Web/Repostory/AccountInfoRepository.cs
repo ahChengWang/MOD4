@@ -483,7 +483,7 @@ factoryMgnt as ( {_factoryScript}
 ),
 ieDept as (
 select (ROW_NUMBER() OVER(ORDER BY level_id DESC)) + {_lastestNo} 'no' ,sn, name, jobId, mail, deptSn from account_info  
-where jobId = '12109416' or (deptSn = 44 and level_id < 4 )
+where jobId = '13089134' or (deptSn = 44 and level_id < 4 )
 )
 select no,sn,name,jobId,mail,deptSn from base 
 union 

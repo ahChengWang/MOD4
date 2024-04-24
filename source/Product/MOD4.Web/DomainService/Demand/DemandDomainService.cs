@@ -1061,7 +1061,7 @@ namespace MOD4.Web.DomainService.Demand
 
                     _mailServer.Send(new MailEntity
                     {
-                        To = "flower.lin@carux.com", //_mailInfo.mail,
+                        To = _mailInfo.mail,
                         Subject = $"CarUX Layout 申請單待簽核通知 - 申請人: {userInfo.Name}",
                         Content = "<br />Dear Sir ,<br /><br />" +
                         "您有 <a style='font-weight:700 ;text-decoration:underline ;'>待簽核</a> Layout需求申請單</a>， <br /><br />" +
