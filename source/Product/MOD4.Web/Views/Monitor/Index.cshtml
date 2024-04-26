@@ -5,99 +5,6 @@
 }
 
 <style>
-    /*
-        @@keyframes blink-smooth {
-            to {
-                color: transparent;
-            }
-        }
-
-        @@keyframes blink {
-            50% {
-                color: transparent;
-            }
-        }
-
-        area[name='assyVCS'] {
-            font-size: 48px;
-            animation: 2s blink 3 steps(1);
-            border: 1rem solid;
-        }
-    */
-
-    /*.card-body {
-        position: relative;
-    }
-
-        .card-body > div {
-            display: block;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            bottom: 10px;
-            left: 10px;
-            opacity: 0;
-            filter: alpha(opacity=0);*/
-    /*當圖片數量增加，影片長度需更改，變為5s*圖片數量*/
-    /*-webkit-animation: silder 15s linear infinite;
-            animation: silder 15s linear infinite;
-        }*/
-
-    /*動畫關鍵影格*/
-    /*@@-webkit-keyframes silder {
-        3% {
-            opacity: 1;
-            filter: alpha(opacity=100);
-        }
-
-        27% {
-            opacity: 1;
-            filter: alpha(opacity=100);
-        }
-
-        30% {
-            opacity: 0;
-            filter: alpha(opacity=0);
-        }
-    }
-
-    @@keyframes silder {
-        3% {
-            opacity: 1;
-            filter: alpha(opacity=100);
-        }
-
-        27% {
-            opacity: 1;
-            filter: alpha(opacity=100);
-        }
-
-        30% {
-            opacity: 0;
-            filter: alpha(opacity=0);
-        }
-    }*/
-    /*每個圖片各延遲5秒*/
-    /*.card-body > div:nth-child(3) {
-        -webkit-animation-delay: 10s;
-        animation-delay: 10s;
-    }
-
-    .card-body > div:nth-child(2) {
-        -webkit-animation-delay: 5s;
-        animation-delay: 5s;
-    }
-
-    .card-body > div:nth-child(1) {
-        -webkit-animation-delay: 0s;
-        animation-delay: 0s;
-    }*/
-    /*滑入時停止播放*/
-    /*.card-body:hover > div {
-        -webkit-animation-play-state: paused;
-        animation-play-state: paused;
-    }*/
-
     p[name='mapName'] {
         color: white;
         font-family: 'Trebuchet MS';
@@ -286,11 +193,9 @@
         background: rgba(0,0,0,.8);
     }
 
-    td {
-        color: white;
-        font-size: 8px;
-        padding-right: 0rem;
-        padding-left: 0rem;
+    tbody[name='warning'] > tr > td {
+        color: #dbdbd7;
+        font-size: 20px;
     }
 
     /*生產資訊*/
@@ -305,18 +210,21 @@
             margin-top: 2.5vh;
         }
 
-        #areaInfo > div:nth-child(1) > div {
-            font-size: 2vh;
-        }
-        #areaInfo > div:nth-child(2) > div {
-            font-size: 2vh;
-        }
-        #areaInfo > div:nth-child(3) > div {
-            font-size: 2vh;
-        }
-        #areaInfo > div:nth-child(4) > div {
-            font-size: 2vh;
-        }
+            #areaInfo > div:nth-child(1) > div {
+                font-size: 2vh;
+            }
+
+            #areaInfo > div:nth-child(2) > div {
+                font-size: 2vh;
+            }
+
+            #areaInfo > div:nth-child(3) > div {
+                font-size: 2vh;
+            }
+
+            #areaInfo > div:nth-child(4) > div {
+                font-size: 2vh;
+            }
     }
 
     @@media(max-height: 850px) {
@@ -325,17 +233,45 @@
             margin-top: 1vh;
         }
 
-        #areaInfo > div:nth-child(1) > div {
-            font-size: 1.5vh;
+            #areaInfo > div:nth-child(1) > div {
+                font-size: 1.5vh;
+            }
+
+            #areaInfo > div:nth-child(2) > div {
+                font-size: 1.5vh;
+            }
+
+            #areaInfo > div:nth-child(3) > div {
+                font-size: 1.5vh;
+            }
+
+            #areaInfo > div:nth-child(4) > div {
+                font-size: 1.5vh;
+            }
+    }
+
+    p[name='remark'] {
+        color: #ff2424;
+        font-size: 32px;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        font-weight: 600;
+        animation: remark 1.5s ease-in-out infinite alternate;
+    }
+
+    @@keyframes remark {
+        0% {
+            text-shadow: 0 0 20px #ff7d7d, 0 0 100px #ff7d7d, 0 0 20px #ff7d7d;
+            color: #ff7d7d;
         }
-        #areaInfo > div:nth-child(2) > div {
-            font-size: 1.5vh;
+
+        50% {
+            text-shadow: 0 0 50px #ff4f4f, 0 0 150px #ff4f4f, 0 0 50px #ff4f4f;
+            color: #ff4f4f;
         }
-        #areaInfo > div:nth-child(3) > div {
-            font-size: 1.5vh;
-        }
-        #areaInfo > div:nth-child(4) > div {
-            font-size: 1.5vh;
+
+        100% {
+            text-shadow: 0 0 20px #ff2424, 0 0 100px #ff2424, 0 0 20px #ff2424;
+            color: #ff2424;
         }
     }
 </style>
@@ -348,6 +284,7 @@
     <link rel="stylesheet" href="~/img/border.png">
     <link rel="stylesheet" href="~/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.css">
 </head>
 
 <body class="bg-theme">
@@ -382,68 +319,6 @@
                                 </div>
                                 <hr style="background-color:white" />
                             </div>
-                            <!-- #region -->
-                            @*@{
-                                    foreach (var alarm in Model.EqInfoList)
-                                    {
-                                        if (alarm.AlarmInfo.IsFrontEnd)
-                                        {
-                                            <div>
-                                                <div>
-                                                    <a style="color: white;">@alarm.AlarmInfo.EqNumber</a>
-                                                    <a style="color: white; margin-left: 20px;">@alarm.AlarmInfo.ProdNo</a>
-                                                </div>
-                                                <div>
-                                                    <a style="color: white;">@alarm.AlarmInfo.StartTime</a>
-                                                </div>
-                                                <div>
-                                                    <a style="color: white;">@alarm.AlarmInfo.Comment</a>
-                                                </div>
-                                            </div>
-                                            <hr style="background-color:white" />
-                                        }
-                                    }
-                                    <div>
-                                        <div>
-                                            <a style="color: white; margin-left: 5px;">AFOG2010</a>
-                                            <a style="color: white;margin-left: 20px;">GDD340IA0090S</a>
-                                        </div>
-                                        <div>
-                                            <a style="color: white;">2023/08/14 12:00:01</a>
-                                        </div>
-                                        <div>
-                                            <a style="color: white;">下料機搬送異常</a>
-                                        </div>
-                                    </div>
-                                    <hr style="background-color:white" />
-                                    <div>
-                                        <div>
-                                            <a style="color: white; margin-left: 5px;">AFOG2010</a>
-                                            <a style="color: white;margin-left: 20px;">GDD340IA0090S</a>
-                                        </div>
-                                        <div>
-                                            <a style="color: white;">2023/08/14 12:00:01</a>
-                                        </div>
-                                        <div>
-                                            <a style="color: white;">下料機搬送異常</a>
-                                        </div>
-                                    </div>
-                                    <hr style="background-color:white" />
-                                    <div>
-                                        <div>
-                                            <a style="color: white; margin-left: 5px;">AFOG2010</a>
-                                            <a style="color: white;margin-left: 20px;">GDD340IA0090S</a>
-                                        </div>
-                                        <div>
-                                            <a style="color: white;">2023/08/14 12:00:01</a>
-                                        </div>
-                                        <div>
-                                            <a style="color: white;">下料機搬送異常</a>
-                                        </div>
-                                    </div>
-                                    <hr style="background-color:white" />
-                                }*@
-                            <!-- #endregion -->
                         </div>
                     </div>
                 </div><!--End Row-->
@@ -496,7 +371,7 @@
                     <div class="monitor panel autoscrollable-wrapper" @@mouseover="stopInterval(this)" @@mouseout="setScrollInterval()">
                         <table class="boardTable">
                             <tbody>
-                                <tr v-if="dailyTOPAlarms != null" v-for="top in dailyTOPAlarms">
+                                <tr style="color:white" v-if="dailyTOPAlarms != null" v-for="top in dailyTOPAlarms">
                                     <td width="12%">{{top.prodNo}}</td>
                                     <td width="12%">{{top.eqNumber}}</td>
                                     <td>{{top.comment}}</td>
@@ -550,7 +425,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="mtd in dailyProcessMTD">
+                                <tr style="color:white" v-for="mtd in dailyProcessMTD">
                                     <td style="text-align:center; font-size: 1vw;">{{mtd.process}}</td>
                                     <td style="text-align:center; font-size: 1vw;">{{mtd.dayPlanQty}}</td>
                                     <td style="text-align:center; font-size: 1vw;">{{mtd.dayPeriodPlanQty}}</td>
@@ -574,6 +449,7 @@
 <script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
 <script src="~/js/jquery.imagemapster.js"></script>
 <script src="~/plugins/vue/vue.min.js"></script>
+<script src="~/plugins/sweetalert2/sweetalert2.min.js"></script>
 <script>
 
     const vue = new Vue({
@@ -590,6 +466,7 @@
             dailyProcessMTD: [],
             frontAlarms: [],
             backendAlarms: [],
+            immedAlarm: '',
             eqDataInfo:[],
             eqPerfInfo: {
                 area: '',
@@ -715,6 +592,7 @@
                             _eqData.background = 'rgba(255, 0, 0,' + 0.7 + ')';
                             _eqData.perfInfo.alarmMsg = eqPerData[i].comment;
                         }
+                        this.immedAlarm += '<tr><td>' + eqPerData[i].eqNumber + '</td><td>' + eqPerData[i].prodNo + '</td><td>' + eqPerData[i].startTime + '</td><td>' + eqPerData[i].comment + '</td></tr>';
                     }
 
                     this.eqDataInfo.push(_eqData);
@@ -788,8 +666,26 @@
                     dataType: 'json',
                     success: function (result) {
                         if (result.isSuccess) {
+                            vue.immedAlarm = '';
                             vue.wrapMapEqPerInfo(result.data.eqInfoList)
                             vue.pageResize(false, vue.isFullscreen);
+                            if (vue.immedAlarm != '') {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: "<p name='remark'>機況警報</p>",
+                                    html: "<table class='table table-borderless'><tbody name='warning'>" + vue.immedAlarm + "</tbody></table>",
+                                    background: 'rgba(173, 151, 151, .7)',
+                                    width: 1000,
+                                    timer: 120000,
+                                    timerProgressBar: true,
+                                    didOpen: (toast) => {
+                                        toast.onmouseenter = Swal.stopTimer;
+                                        toast.onmouseleave = Swal.resumeTimer;
+                                    },
+                                    showCloseButton: true,
+                                    showConfirmButton: false
+                                });
+                            }
                         }
                         else {
                             vue.toast.fire({
@@ -908,7 +804,7 @@
 
             setInterval(function () {
                 vue.eqMapProdPerInterval();
-            }, 300000);
+            }, 60000);
 
             setInterval(function () {
                 vue.eqTOPAlarmInterval();
